@@ -1,4 +1,4 @@
-export default function AboutLayout({
+export default function GroupsLayout({
   children,
 }: {
   children: React.ReactNode;
