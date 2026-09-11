@@ -1,4 +1,4 @@
-export interface ApplicationMemberships {
+export interface ApplicationMembershipSummary {
   applicationId: number;
   personId: number;
   personFullName: string;
