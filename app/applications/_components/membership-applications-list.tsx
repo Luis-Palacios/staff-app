@@ -1,11 +1,10 @@
 import ApplicationCardSummary from "./application-card-summary";
 import ApplicationsSummaryTable from "./applications-summary-table";
 
-import { ApplicationMembershipSummary } from "@/api/applications-membership-api/types";
+import { getRecentApplications } from "@/api/applications-membership-api/client";
 
 export default async function MembershipApplicationsList() {
-  const response = await fetch("http://localhost:8000/applications/recents");
-  const data = (await response.json()) as ApplicationMembershipSummary[];
+  const data = await getRecentApplications();
 
   return (
     <>
