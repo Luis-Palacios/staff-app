@@ -1,7 +1,7 @@
 import type { ApplicationMembershipSummary } from "@/api/applications-membership-api/types";
 
-import ApplicationCardSummary from "./application-card-summary";
-import ApplicationsSummaryTable from "./applications-summary-table";
+import ApplicationCardSummary from "./_components/application-card-summary";
+import ApplicationsSummaryTable from "./_components/applications-summary-table";
 
 import { StaffAppBreadcrumbs } from "@/components/staff-app-breadcrumbs";
 import { applicationsBreadcrumb } from "@/config/breadcrumbs";
