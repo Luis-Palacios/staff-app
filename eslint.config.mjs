@@ -12,6 +12,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
 import { FlatCompat } from "@eslint/eslintrc";
+import nextPlugin from "@next/eslint-plugin-next";
+import tanstackQuery from "@tanstack/eslint-plugin-query";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,8 +49,7 @@ export default defineConfig([globalIgnores([
         "plugin:react/recommended",
         "plugin:prettier/recommended",
         "plugin:react-hooks/recommended",
-        "plugin:jsx-a11y/recommended",
-        "plugin:@next/next/recommended",
+        "plugin:jsx-a11y/recommended"
     )),
 
     plugins: {
@@ -148,4 +149,15 @@ export default defineConfig([globalIgnores([
             next: ["const", "let", "var"],
         }],
     },
+}, {
+    files: ["**/*.ts", "**/*.tsx"],
+    plugins: {
+        "@next/next": nextPlugin,
+    },
+    rules: {
+        ...nextPlugin.configs.recommended.rules,
+    },
+}, {
+    files: ["**/*.ts", "**/*.tsx"],
+    ...tanstackQuery.configs["flat/recommended"][0],
 }]);

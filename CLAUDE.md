@@ -71,7 +71,8 @@ The ESLint config (`eslint.config.mjs`) auto-fixes and will flag:
   variable-declaration blocks.
 - `no-console` is a warning; unused vars prefixed with `_` are allowed.
 - Client components need `"use client"` (see `app-shell.tsx`, `sidebar.tsx`, `topbar.tsx`, `providers.tsx`, `theme-switch.tsx`, `error.tsx`).
-
-Note: `pnpm lint` currently fails repo-wide — `eslint-config-next` trips the
-flat-config compat layer (`Unexpected top-level property "name"`). Pre-existing;
-use `npx tsc --noEmit` to check. See `docs/dashboard-layout.md`.
+- `@next/eslint-plugin-next` and `@tanstack/eslint-plugin-query` ship native
+  ESLint 9 flat configs and are wired in directly as their own config blocks
+  in `eslint.config.mjs` (not via `compat.extends(...)`), since routing a
+  flat-config-native plugin through the legacy `FlatCompat` shim breaks on its
+  top-level `name` field.

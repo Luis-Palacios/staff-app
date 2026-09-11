@@ -23,7 +23,6 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
     setIsMounted(true);
   }, []);
 
-
   if (!isMounted) return <div aria-hidden className="w-6 h-6" />;
 
   return (
@@ -32,10 +31,10 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
       className={clsx(
         "px-px transition-opacity hover:opacity-80 cursor-pointer",
         "inline-flex items-center justify-center",
-        "w-auto h-auto bg-transparent rounded-lg text-muted", "w-full",
+        "w-auto h-auto bg-transparent rounded-lg text-muted",
+        "w-full",
         className,
       )}
-      
       onClick={handleToggle}
     >
       {isLight ? <SunFilledIcon size={22} /> : <MoonFilledIcon size={22} />}

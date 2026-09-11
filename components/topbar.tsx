@@ -25,11 +25,7 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
         <Logo size={42} />
       </NextLink>
 
-      <TextField
-        aria-label="Search"
-        className="flex-1"
-        type="search"
-      >
+      <TextField aria-label="Search" className="flex-1" type="search">
         <InputGroup>
           <InputGroup.Prefix>
             <SearchIcon className="text-base text-muted pointer-events-none flex-shrink-0" />
