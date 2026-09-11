@@ -20,13 +20,23 @@ export default async function ApplicationsPage() {
             <Table.ScrollContainer>
               <Table.Content aria-label="Example table">
                 <Table.Header>
-                  <Table.Column isRowHeader>#</Table.Column>
-                  <Table.Column isRowHeader>Application ID</Table.Column>
-                  <Table.Column>Person ID</Table.Column>
-                  <Table.Column>Person Full Name</Table.Column>
-                  <Table.Column>Generated Date</Table.Column>
-                  <Table.Column>Fulfilment Date</Table.Column>
-                  <Table.Column>Is Fulfilled</Table.Column>
+                  <Table.Column className="text-center">#</Table.Column>
+                  <Table.Column isRowHeader className="text-center">
+                    Application ID
+                  </Table.Column>
+                  <Table.Column className="text-center">Person ID</Table.Column>
+                  <Table.Column className="text-center">
+                    Person Full Name
+                  </Table.Column>
+                  <Table.Column className="text-center">
+                    Generated Date
+                  </Table.Column>
+                  <Table.Column className="text-center">
+                    Fulfilment Date
+                  </Table.Column>
+                  <Table.Column className="text-center">
+                    Is Fulfilled
+                  </Table.Column>
                 </Table.Header>
                 <Table.Body>
                   {data.map((application, index) => (
