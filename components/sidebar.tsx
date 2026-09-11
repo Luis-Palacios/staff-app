@@ -150,13 +150,13 @@ export const Sidebar = ({ isOpen, onNavigate }: SidebarProps) => {
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-auto items-center justify-center gap-2 border-b border-separator px-4">
+        <div className="flex h-auto items-center justify-center gap-2 border-b border-separator px-4 pt-1 pb-1">
           <NextLink
             className="flex items-center gap-2 font-semibold"
             href="/"
             onClick={onNavigate}
           >
-            <Logo size={69} />
+            <Logo size={60} />
           </NextLink>
           <button
             aria-label="Close menu"

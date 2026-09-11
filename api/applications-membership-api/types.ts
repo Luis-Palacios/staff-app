@@ -6,3 +6,12 @@ export interface ApplicationMembershipSummary {
   fulfilmentDate: string;
   isFulfilled: boolean;
 }
+
+export interface ApplicationMembershipDetail
+  extends ApplicationMembershipSummary {
+  firstName: string;
+  lastName: string;
+  lifeBefore: string;
+  conversion: string;
+  lifeAfter: string;
+}
