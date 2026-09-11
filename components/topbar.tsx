@@ -12,7 +12,7 @@ interface TopbarProps {
 
 export const Topbar = ({ onMenuClick }: TopbarProps) => {
   return (
-    <header className="sticky top-0 z-30 flex h-auto items-center gap-3 border-b border-separator bg-background/70 px-4 backdrop-blur-lg">
+    <header className="sticky top-0 z-30 flex h-auto items-center gap-3 border-b border-separator bg-background/70 px-4 backdrop-blur-lg p-4">
       <button
         aria-label="Open menu"
         className="rounded-lg p-1 text-muted hover:bg-surface-secondary lg:hidden"

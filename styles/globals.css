@@ -7,3 +7,10 @@
 	--font-sans: "font", sans-serif;
 	--font-mono: "monospace", monospace;
 }
+
+@layer base {
+  :root {
+    /* Adjust container-lg to your desired value */
+    --container-lg: 80rem; /* e.g., 1280px instead of default 75rem */
+  }
+}

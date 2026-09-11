@@ -1,14 +1,43 @@
-import { title } from "@/components/primitives";
+import type { ApplicationMemberships } from "@/api/applications-membership-api/types";
+
+import { Chip, Table } from "@heroui/react";
 
 export default async function ApplicationsPage() {
   const response = await fetch("http://localhost:8000/applications/recents");
-  const data = await response.json();
-
-  console.log(data);
+  const data = (await response.json()) as ApplicationMemberships[];
 
   return (
-    <div>
-      <h1 className={title()}>Applications</h1>
-    </div>
+    <Table>
+      <Table.ScrollContainer>
+        <Table.Content aria-label="Example table">
+          <Table.Header>
+            <Table.Column isRowHeader>#</Table.Column>
+            <Table.Column isRowHeader>Application ID</Table.Column>
+            <Table.Column>Person ID</Table.Column>
+            <Table.Column>Person Full Name</Table.Column>
+            <Table.Column>Generated Date</Table.Column>
+            <Table.Column>Fulfilment Date</Table.Column>
+            <Table.Column>Is Fulfilled</Table.Column>
+          </Table.Header>
+          <Table.Body>
+            {data.map((application, index) => (
+              <Table.Row key={application.applicationId}>
+                <Table.Cell>{index + 1}</Table.Cell>
+                <Table.Cell>{application.applicationId}</Table.Cell>
+                <Table.Cell>{application.personId}</Table.Cell>
+                <Table.Cell>{application.personFullName}</Table.Cell>
+                <Table.Cell>{application.generatedDate}</Table.Cell>
+                <Table.Cell>{application.fulfilmentDate}</Table.Cell>
+                <Table.Cell>
+                  <Chip color={application.isFulfilled ? "success" : "warning"}>
+                    {application.isFulfilled ? "Yes" : "No"}
+                  </Chip>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Content>
+      </Table.ScrollContainer>
+    </Table>
   );
 }
