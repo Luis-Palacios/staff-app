@@ -2,6 +2,8 @@ import type { ApplicationMemberships } from "@/api/applications-membership-api/t
 
 import { Chip, Table } from "@heroui/react";
 
+import { LocalDateTime } from "@/components/local-date-time";
+
 export default async function ApplicationsPage() {
   const response = await fetch("http://localhost:8000/applications/recents");
   const data = (await response.json()) as ApplicationMemberships[];
@@ -26,8 +28,12 @@ export default async function ApplicationsPage() {
                 <Table.Cell>{application.applicationId}</Table.Cell>
                 <Table.Cell>{application.personId}</Table.Cell>
                 <Table.Cell>{application.personFullName}</Table.Cell>
-                <Table.Cell>{application.generatedDate}</Table.Cell>
-                <Table.Cell>{application.fulfilmentDate}</Table.Cell>
+                <Table.Cell>
+                  <LocalDateTime value={application.generatedDate} />
+                </Table.Cell>
+                <Table.Cell>
+                  <LocalDateTime value={application.fulfilmentDate} />
+                </Table.Cell>
                 <Table.Cell>
                   <Chip color={application.isFulfilled ? "success" : "warning"}>
                     {application.isFulfilled ? "Yes" : "No"}
