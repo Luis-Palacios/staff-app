@@ -2,48 +2,62 @@ import type { ApplicationMemberships } from "@/api/applications-membership-api/t
 
 import { Chip, Table } from "@heroui/react";
 
+import { applicationsBreadcrumb } from "@/config/breadcrumbs";
 import { LocalDateTime } from "@/components/local-date-time";
+import { StaffAppBreadcrumbs } from "@/components/staff-app-breadcrumbs";
 
 export default async function ApplicationsPage() {
   const response = await fetch("http://localhost:8000/applications/recents");
   const data = (await response.json()) as ApplicationMemberships[];
 
   return (
-    <Table>
-      <Table.ScrollContainer>
-        <Table.Content aria-label="Example table">
-          <Table.Header>
-            <Table.Column isRowHeader>#</Table.Column>
-            <Table.Column isRowHeader>Application ID</Table.Column>
-            <Table.Column>Person ID</Table.Column>
-            <Table.Column>Person Full Name</Table.Column>
-            <Table.Column>Generated Date</Table.Column>
-            <Table.Column>Fulfilment Date</Table.Column>
-            <Table.Column>Is Fulfilled</Table.Column>
-          </Table.Header>
-          <Table.Body>
-            {data.map((application, index) => (
-              <Table.Row key={application.applicationId}>
-                <Table.Cell>{index + 1}</Table.Cell>
-                <Table.Cell>{application.applicationId}</Table.Cell>
-                <Table.Cell>{application.personId}</Table.Cell>
-                <Table.Cell>{application.personFullName}</Table.Cell>
-                <Table.Cell>
-                  <LocalDateTime value={application.generatedDate} />
-                </Table.Cell>
-                <Table.Cell>
-                  <LocalDateTime value={application.fulfilmentDate} />
-                </Table.Cell>
-                <Table.Cell>
-                  <Chip color={application.isFulfilled ? "success" : "warning"}>
-                    {application.isFulfilled ? "Yes" : "No"}
-                  </Chip>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Content>
-      </Table.ScrollContainer>
-    </Table>
+    <>
+      <StaffAppBreadcrumbs items={[applicationsBreadcrumb]} />
+      <h2 className="mb-3 font-bold ml-2">Membership Applications</h2>
+      <section className="flex flex-col gap-4">
+        <div className="inline-block text-center justify-center">
+          <Table>
+            <Table.ScrollContainer>
+              <Table.Content aria-label="Example table">
+                <Table.Header>
+                  <Table.Column isRowHeader>#</Table.Column>
+                  <Table.Column isRowHeader>Application ID</Table.Column>
+                  <Table.Column>Person ID</Table.Column>
+                  <Table.Column>Person Full Name</Table.Column>
+                  <Table.Column>Generated Date</Table.Column>
+                  <Table.Column>Fulfilment Date</Table.Column>
+                  <Table.Column>Is Fulfilled</Table.Column>
+                </Table.Header>
+                <Table.Body>
+                  {data.map((application, index) => (
+                    <Table.Row key={application.applicationId}>
+                      <Table.Cell>{index + 1}</Table.Cell>
+                      <Table.Cell>{application.applicationId}</Table.Cell>
+                      <Table.Cell>{application.personId}</Table.Cell>
+                      <Table.Cell>{application.personFullName}</Table.Cell>
+                      <Table.Cell>
+                        <LocalDateTime value={application.generatedDate} />
+                      </Table.Cell>
+                      <Table.Cell>
+                        <LocalDateTime value={application.fulfilmentDate} />
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Chip
+                          color={
+                            application.isFulfilled ? "success" : "warning"
+                          }
+                        >
+                          {application.isFulfilled ? "Yes" : "No"}
+                        </Chip>
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Content>
+            </Table.ScrollContainer>
+          </Table>
+        </div>
+      </section>
+    </>
   );
 }

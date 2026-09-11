@@ -1,3 +1,6 @@
+import { applicationsBreadcrumb } from "@/config/breadcrumbs";
+import { StaffAppBreadcrumbs } from "@/components/staff-app-breadcrumbs";
+
 export default async function ApplicationDetail({
   params,
 }: {
@@ -7,6 +10,12 @@ export default async function ApplicationDetail({
 
   return (
     <div>
+      <StaffAppBreadcrumbs
+        items={[
+          applicationsBreadcrumb,
+          { label: id, href: `/applications/${id}` },
+        ]}
+      />
       <h1>Application ID: {id}</h1>
     </div>
   );
