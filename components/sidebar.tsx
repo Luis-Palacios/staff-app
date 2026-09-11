@@ -30,7 +30,9 @@ const iconRegistry: Record<
 };
 
 const isActivePath = (pathname: string, href: string) =>
-  href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  href === "/"
+    ? pathname === "/"
+    : pathname === href || pathname.startsWith(`${href}/`);
 
 const rowBase =
   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors";
@@ -171,15 +173,15 @@ export const Sidebar = ({ isOpen, onNavigate }: SidebarProps) => {
               <CollapsibleItem
                 key={item.label}
                 item={item}
-                onNavigate={onNavigate}
                 pathname={pathname}
+                onNavigate={onNavigate}
               />
             ) : (
               <LeafLink
                 key={item.label}
                 item={item}
-                onNavigate={onNavigate}
                 pathname={pathname}
+                onNavigate={onNavigate}
               />
             ),
           )}
