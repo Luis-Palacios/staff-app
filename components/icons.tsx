@@ -185,3 +185,165 @@ export const SearchIcon = (props: IconSvgProps) => (
     />
   </svg>
 );
+
+/**
+ * Nav / chrome icons. Stroke-based, 24x24 viewBox, sized via `size` (default 20)
+ * or width/height, colored with `currentColor` — same contract as the icons above.
+ */
+
+const strokeProps = {
+  fill: "none",
+  stroke: "currentColor",
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  strokeWidth: 2,
+} as const;
+
+export const DashboardIcon = ({
+  size = 20,
+  width,
+  height,
+  ...props
+}: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    height={size || height}
+    viewBox="0 0 24 24"
+    width={size || width}
+    {...strokeProps}
+    {...props}
+  >
+    <path d="M3 3h8v8H3zM13 3h8v5h-8zM13 12h8v9h-8zM3 15h8v6H3z" />
+  </svg>
+);
+
+export const GroupsIcon = ({
+  size = 20,
+  width,
+  height,
+  ...props
+}: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    height={size || height}
+    viewBox="0 0 24 24"
+    width={size || width}
+    {...strokeProps}
+    {...props}
+  >
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+export const ApplicationsIcon = ({
+  size = 20,
+  width,
+  height,
+  ...props
+}: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    height={size || height}
+    viewBox="0 0 24 24"
+    width={size || width}
+    {...strokeProps}
+    {...props}
+  >
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <path d="M14 2v6h6M9 13h6M9 17h6M9 9h1" />
+  </svg>
+);
+
+export const ReportsIcon = ({
+  size = 20,
+  width,
+  height,
+  ...props
+}: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    height={size || height}
+    viewBox="0 0 24 24"
+    width={size || width}
+    {...strokeProps}
+    {...props}
+  >
+    <path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3" />
+  </svg>
+);
+
+export const BalancesIcon = ({
+  size = 20,
+  width,
+  height,
+  ...props
+}: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    height={size || height}
+    viewBox="0 0 24 24"
+    width={size || width}
+    {...strokeProps}
+    {...props}
+  >
+    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+    <path d="M18 12a2 2 0 0 0 0 4h4v-4z" />
+  </svg>
+);
+
+export const ChevronDownIcon = ({
+  size = 16,
+  width,
+  height,
+  ...props
+}: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    height={size || height}
+    viewBox="0 0 24 24"
+    width={size || width}
+    {...strokeProps}
+    {...props}
+  >
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+);
+
+export const MenuIcon = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    height={size || height}
+    viewBox="0 0 24 24"
+    width={size || width}
+    {...strokeProps}
+    {...props}
+  >
+    <path d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+);
+
+export const CloseIcon = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    height={size || height}
+    viewBox="0 0 24 24"
+    width={size || width}
+    {...strokeProps}
+    {...props}
+  >
+    <path d="M18 6 6 18M6 6l12 12" />
+  </svg>
+);
