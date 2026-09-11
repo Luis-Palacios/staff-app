@@ -4,7 +4,7 @@ import { ChevronDownIcon } from "@heroicons/react/24/solid";
 
 import { applicationsBreadcrumb } from "@/config/breadcrumbs";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
-import { ApplicationMembershipDetail } from "@/api/applications-membership-api/types";
+import { getApplicationDetail } from "@/api/applications-membership-api/client";
 import { LocalDateTime } from "@/components/local-date-time";
 
 export default async function ApplicationDetail({
@@ -14,8 +14,7 @@ export default async function ApplicationDetail({
 }) {
   const { id } = await params;
 
-  const reponse = await fetch(`http://localhost:8000/applications/${id}`);
-  const application = (await reponse.json()) as ApplicationMembershipDetail;
+  const application = await getApplicationDetail(id);
 
   const {
     personFullName,
