@@ -15,7 +15,15 @@ export const LocalDateTime: FC<LocalDateTimeProps> = ({ value }) => {
     setFormatted(formatLocalDateTime(value));
   }, [value]);
 
-  if (!value || !formatted) return <>—</>;
+  if (!value) return <>—</>;
 
-  return <>{formatted}</>;
+  return (
+    <span
+      className={`inline-block min-w-40 transition-opacity duration-150 ${
+        formatted ? "opacity-100" : "opacity-0"
+      }`}
+    >
+      {formatted || " "}
+    </span>
+  );
 };
