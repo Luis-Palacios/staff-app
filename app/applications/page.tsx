@@ -3,14 +3,16 @@ import { Suspense } from "react";
 import MembershipApplicationsList from "./_components/membership-applications-list";
 import MembershipApplicationsListSkeleton from "./_components/membership-applications-list-skeleton";
 
-import { StaffAppBreadcrumbs } from "@/components/staff-app-breadcrumbs";
+import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { applicationsBreadcrumb } from "@/config/breadcrumbs";
 
 export default async function ApplicationsPage() {
   return (
     <>
-      <StaffAppBreadcrumbs items={[applicationsBreadcrumb]} />
-      <h2 className="mb-3 font-bold ml-2">Membership Applications</h2>
+      <StaffAppPageHeader
+        breadcrumbs={[applicationsBreadcrumb]}
+        title="Membership Applications"
+      />
       <section className="flex flex-col gap-4">
         <Suspense fallback={<MembershipApplicationsListSkeleton />}>
           <MembershipApplicationsList />
