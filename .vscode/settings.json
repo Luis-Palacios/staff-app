@@ -17,5 +17,23 @@
       "quickfix.biome": "never",
       "source.organizeImports.biome": "never"
     }
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      // Explicitly disable Biome fixes for this workspace
+      "quickfix.biome": "never",
+      "source.organizeImports.biome": "never"
+    }
+  },
+   "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      // Explicitly disable Biome fixes for this workspace
+      "quickfix.biome": "never",
+      "source.organizeImports.biome": "never"
+    }
   }
 }
