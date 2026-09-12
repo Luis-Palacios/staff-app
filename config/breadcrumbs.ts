@@ -18,3 +18,9 @@ export const applicationsBreadcrumb: StaffAppBreadcrumbItem = {
   href: "/applications",
   icon: DocumentTextIcon,
 };
+
+export const usersBreadcrumb: StaffAppBreadcrumbItem = {
+  label: "Users",
+  href: "/users",
+  icon: UserGroupIcon,
+};

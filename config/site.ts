@@ -50,6 +50,11 @@ export const siteConfig = {
       icon: "applications",
       href: "/applications",
     },
+    {
+      label: "Users",
+      icon: "groups",
+      href: "/users",
+    },
   ] satisfies NavItem[],
   links: {
     github: "https://github.com/heroui-inc/heroui",
