@@ -29,6 +29,9 @@ const iconRegistry: Record<
   balances: BalancesIcon,
 };
 
+const resolveIcon = (icon: NavItem["icon"]) =>
+  typeof icon === "string" ? iconRegistry[icon] : icon;
+
 const isActivePath = (pathname: string, href: string) =>
   href === "/"
     ? pathname === "/"
@@ -51,7 +54,7 @@ const LeafLink = ({
   pathname: string;
   onNavigate: () => void;
 }) => {
-  const Icon = iconRegistry[item.icon];
+  const Icon = resolveIcon(item.icon);
   const active = isActivePath(pathname, item.href!);
 
   return (
@@ -80,7 +83,7 @@ const CollapsibleItem = ({
   pathname: string;
   onNavigate: () => void;
 }) => {
-  const Icon = iconRegistry[item.icon];
+  const Icon = resolveIcon(item.icon);
   const children = item.items ?? [];
   const hasActiveChild = children.some((child) => pathname === child.href);
 
