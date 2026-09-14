@@ -8,6 +8,10 @@ Staff app for managing staff, groups, applications, and reports. Built from the
 HeroUI v3 + Next.js 16 App Router template; most section pages (`groups`,
 `applications`, `reports`) are still stubs awaiting real UI and data.
 
+See `docs/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring this app together
+with the sibling `auth-server` (better-auth) and `membership-applications` (FastAPI) repos —
+pick up at whichever phase is still marked `[ ]`.
+
 ## Commands
 
 Package manager is **pnpm** (`pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.npmrc`).
