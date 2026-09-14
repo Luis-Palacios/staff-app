@@ -4,9 +4,9 @@ import type {
 } from "@/api/applications-membership-api/types";
 
 import { apiFetch } from "@/lib/api-client";
-import { env } from "@/lib/env";
+import { env } from "@/lib/env/server";
 
-const BASE_URL = env.applicationsMembershipApiUrl;
+const BASE_URL = env.APPLICATIONS_MEMBERSHIP_API_URL;
 
 export function getRecentApplications(): Promise<
   ApplicationMembershipSummary[]
