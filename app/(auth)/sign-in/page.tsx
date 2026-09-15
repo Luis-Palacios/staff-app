@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -10,6 +11,7 @@ import { authClient } from "@/lib/auth-client";
 // from staff-app to auth-server works end-to-end (Phase 2 of docs/AUTH-INTEGRATION-ROADMAP.md).
 // It gets replaced by better-auth-ui in Phase 8.
 export default function SignInPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,11 @@ export default function SignInPage() {
 
     if (signInError) {
       setError(signInError.message ?? "Sign in failed");
+
+      return;
     }
+
+    router.push("/");
   }
 
   if (session.isPending) {

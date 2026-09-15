@@ -216,7 +216,7 @@ server-side code the same as any other env var.
 ---
 
 ## Phase 3.2 — Route protection & public/authenticated layout split
-`[ ]`
+`[x]`
 
 **Repo(s):** `staff-app`
 
@@ -230,6 +230,69 @@ from Phase 2 on purpose, see its notes above).
 still reach protected pages regardless of whether the same-origin cookie from Phase 3 exists.
 Splitting the layout also finally resolves the loose end noted in Phase 2 (the sign-in page
 rendering inside the full dashboard shell).
+
+Update: implemented as two layers, deliberately. `proxy.ts` (root — not `middleware.ts`;
+Next 16.2.6 detects `middleware.ts` but logs a deprecation warning pointing at `proxy.ts`,
+verified in `next/dist/build/index.js` and its loader template, which resolves the handler as
+`mod.proxy` for a file named `proxy.*` — same mechanism, just a renamed file/export) uses
+better-auth's `getSessionCookie` (`better-auth/cookies`) for a cheap, Edge-safe *optimistic*
+check: cookie present + `/sign-in` → redirect to `/`; cookie absent + protected route → redirect
+to `/sign-in`. `config.matcher` excludes `/api/*` (so the Phase 3 proxy is never intercepted),
+Next internals, and static files. This check can't verify the cookie is still valid (expired/
+revoked), so it's paired with an authoritative check in `app/(app)/layout.tsx` (an async Server
+Component) that calls a new `getServerSession()` helper and `redirect("/sign-in")` if it returns
+null.
+
+`getServerSession()` (`lib/get-server-session.ts`) deliberately does *not* reuse
+`authClient.getSession()` from `lib/auth-client.ts` — traced through
+`better-auth/dist/client/config.mjs` and `utils/url.mjs`: the client's `baseURL` resolution never
+receives a `request` object from `getClientConfig` (hardcoded `void 0`), so with no
+`BETTER_AUTH_URL`/`NEXT_PUBLIC_BETTER_AUTH_URL`/etc. env vars set it falls all the way back to the
+literal relative string `"/api/auth"` — fine in the browser (resolves against
+`window.location`), but Node's `fetch` has no document to anchor a relative URL against and would
+throw. `authClient` is also a module-level singleton whose session state lives in nanostore atoms
+at that same scope — reused correctly for one browser tab, but the wrong shape for a per-request
+server-side read across concurrent requests in one Node process. So instead: new
+`api/auth-api/{client.ts,types.ts}`, mirroring `api/applications-membership-api`'s existing
+pattern exactly (a plain fetch client, `BASE_URL` from `env`, no Next-specific APIs) — its
+`getSession(cookie)` calls `auth-server`'s `/api/auth/get-session` directly (server-to-server,
+bypassing the Phase 3 proxy, which exists for the browser's same-origin cookie, not for this).
+Confirmed by reading `better-auth/dist/api/routes/session.mjs` that this endpoint always answers
+`200` — `null` body when there's no valid session, `{ session, user }` otherwise — so `apiFetch`
+(which throws on `!response.ok`) only throws for genuine failures (auth-server down/5xx), never
+for "not signed in." `lib/get-server-session.ts` is the thin Next-specific glue on top: reads the
+incoming request's `cookie` header via `next/headers`' `headers()` and calls the client.
+`AuthRole`/`AuthSessionUser`/`AuthSession` in `api/auth-api/types.ts` mirror the role set from
+`auth-server/src/lib/auth.ts`'s `adminPlugin({ roles: {...} })` (`admin`, `user`,
+`smallGroupLeader`, `deacon`, `pending`, `elder`) — same hand-maintained-duplication tradeoff
+already described above for Phase 5. `NEXT_PUBLIC_AUTH_SERVER_URL` was added to
+`lib/env/server.ts`'s zod schema (same var from Phase 2/3, not a new one) so this client validates
+it the same way `APPLICATIONS_MEMBERSHIP_API_URL` already does, rather than reading
+`process.env` raw.
+
+Route groups: `app/(app)/layout.tsx` (new) does the authoritative check above and renders
+`<AppShell>{children}</AppShell>`; `app/(auth)/layout.tsx` (new) is a plain centered wrapper.
+`app/page.tsx`, `app/applications/**`, `app/groups/**`, and `app/users/page.tsx` moved (via
+`git mv`) under `app/(app)/`; `app/sign-in/page.tsx` moved under `app/(auth)/`. Route groups don't
+change URLs, so `/`, `/applications`, `/groups`, `/users`, `/sign-in` are unaffected. Root
+`app/layout.tsx` no longer wraps children in `<AppShell>` — that's now each group layout's job.
+`app/error.tsx` stayed at the root (route groups don't add an error-boundary segment, so it still
+covers both). Also closed a small gap noticed while wiring this up: `app/(auth)/sign-in/page.tsx`
+didn't redirect anywhere after a successful sign-in (you'd just sit on `/sign-in` seeing "Signed in
+as…" until navigating away manually) — added `router.push("/")` on success.
+
+Verified: `pnpm lint`, `npx tsc --noEmit`, and `next build` all clean (`next build`'s route table
+confirms `proxy.ts` is picked up as `ƒ Proxy (Middleware)`). Then live, with `auth-server` (`bun
+src/index.ts`) and `staff-app` (`pnpm dev`) both running against the real Postgres instance: signed
+up a throwaway account (confirmed `role: "pending"`, per Phase 1), signed in through the `/api/auth`
+proxy, and via `curl` confirmed all four cases — unauthenticated `/` → `307` to `/sign-in`;
+authenticated `/sign-in` → `307` to `/`; authenticated `/` → `200` and contains the `AppShell`'s
+`<aside>` sidebar markup; unauthenticated `/sign-in` → no `<aside>` markup anywhere in the response.
+Deleted the throwaway account afterward — directly via the database, since better-auth's
+self-service `delete-user` endpoint isn't enabled in `auth-server`'s config (404'd when tried).
+Browser extension wasn't connected this session, so — same caveat as Phase 3 — this was verified
+via `curl` rather than an actual browser's dev tools; worth a quick manual double-check in-browser
+next time it's convenient.
 
 **New concepts:** Next.js middleware for auth gating, reading a session in Server Components vs
 Client Components, structuring route groups for public vs authenticated layouts.
