@@ -1,4 +1,4 @@
-import type { AuthSession } from "@/api/auth-api/types";
+import type { AuthSession, AuthToken } from "@/api/auth-api/types";
 
 import { apiFetch } from "@/lib/api-client";
 import { env } from "@/lib/env/server";
@@ -12,6 +12,16 @@ const BASE_URL = env.NEXT_PUBLIC_AUTH_SERVER_URL;
 // better-auth/dist/api/routes/session.mjs) rather than throwing.
 export function getSession(cookie: string): Promise<AuthSession | null> {
   return apiFetch<AuthSession | null>(BASE_URL, "/api/auth/get-session", {
+    headers: { cookie },
+    cache: "no-store",
+  });
+}
+
+// Mints a short-lived JWT (role claim only, see auth-server's jwt.definePayload) from the
+// incoming session cookie - server-to-server, same reasoning as getSession above: this runs on
+// the server and forwards the cookie header it already has, no browser call involved.
+export function getToken(cookie: string): Promise<AuthToken> {
+  return apiFetch<AuthToken>(BASE_URL, "/api/auth/token", {
     headers: { cookie },
     cache: "no-store",
   });
