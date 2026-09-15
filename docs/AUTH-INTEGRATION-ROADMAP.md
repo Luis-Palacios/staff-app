@@ -302,7 +302,7 @@ Client Components, structuring route groups for public vs authenticated layouts.
 ---
 
 ## Phase 3.5 — Logout & basic user info in the topbar
-`[ ]`
+`[x]`
 
 **Repo(s):** `staff-app`
 
