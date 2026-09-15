@@ -40,7 +40,7 @@ marked `[ ]`.
   exists, no JWT involved. "Permission" (the per-resource CRUD grants in `statements.ts`) is not
   per-user data — it's *computed* from `role + the statements.ts definitions`. So:
   - `staff-app`'s own UI gating (nav menu in `config/site.ts`, route access) is driven by the
-    **session's role** (Phase 3.5), independent of the JWT entirely.
+    **session's role** (Phase 9), independent of the JWT entirely.
   - `membership-applications` has no session — the JWT is its only signal. The `jwt` plugin's
     payload is customized to include just the `role` claim (small, stable token — the standard
     "claims-based authorization" pattern, e.g. how Auth0/Okta/Cognito hand off `roles`/`groups`)
@@ -301,24 +301,48 @@ Client Components, structuring route groups for public vs authenticated layouts.
 
 ---
 
-## Phase 3.5 — Role-based nav & route gating
+## Phase 3.5 — Logout & basic user info in the topbar
 `[ ]`
 
 **Repo(s):** `staff-app`
 
-**What:** Now that `session.user.role` is reliably available server-side (via Phase 3.2's
-middleware/Server Components), filter `config/site.ts`'s `navItems` (and gate the matching
-routes) by role — decide the role→visible-nav-items mapping together when we plan this phase,
-and decide where that mapping lives (e.g. alongside `siteConfig` vs a dedicated
-`lib/permissions.ts`).
+**What:** The topbar's avatar is currently a hardcoded `SA` fallback with no menu — there's no way
+to sign out from the UI at all (only via the bare sign-out button on the Phase 2 sign-in-page stub,
+which requires already being on that page). Wire up the goal shown in
+`components/topbar.tsx`'s avatar: clicking it opens a menu with "Signed in as `<email>`", "My
+Profile" (→ `/users/me`, which already exists as a stub page), and "Logout".
 
-**Why:** Answers your original question about `site.ts` directly — it only needs the session, not
-the JWT. Kept as its own phase, separate from Phase 3's proxy work and Phase 3.2's
-middleware/route-group plumbing, since "is there a session" and "what does this session's role
-allow" are different questions with different failure modes.
+Decided while planning this phase:
+- **How the current user's data reaches `Topbar`:** not a prop threaded through `AppShell` (which
+  has no other reason to know about `user`, and it'd repeat for every future component that needs
+  it, e.g. `Sidebar` in Phase 9). Instead, a small client-side React Context
+  (`lib/user-context.tsx`): a `UserProvider` seeded once in `app/(app)/layout.tsx` from the
+  `getServerSession()` call already made there for the auth redirect check, and a `useCurrentUser()`
+  hook any descendant client component (`Topbar` now, `Sidebar` later) can call directly. One seam
+  at the root instead of drilling, and no second/redundant client-side session fetch (vs. calling
+  `authClient.useSession()` again inside `Topbar`).
+- **Menu component:** HeroUI's `Dropdown` compound component (`Dropdown.Root/Trigger/Popover/
+  Menu/Item`, built on `react-aria-components`' `Menu`) — same compound-component pattern already
+  used elsewhere (`Disclosure` in `sidebar.tsx`, `TextField`/`InputGroup` in `topbar.tsx`).
+  `Dropdown.Item` supports `href` directly (so "My Profile" needs no click handler) and a
+  `variant="danger"` (so "Logout" gets the red styling from the goal screenshot with no custom
+  CSS).
+- **Logout redirect:** `authClient.signOut()` followed by `router.push("/sign-in")`. The Phase 2
+  sign-in-page stub calls `signOut()` with no redirect (fine there, since you're already on
+  `/sign-in`), but the topbar is reachable from every protected page, so without an explicit
+  redirect the current page would stay mounted (with now-stale/unauthorized data) until the next
+  navigation.
+- **Avatar initials:** derived from `user.name` instead of the hardcoded `"SA"`.
+- **Role:** deliberately not shown in this menu — `user.role` is available on the session already,
+  but surfacing it is part of Phase 9's role-based UI work, not this phase.
 
-**New concepts:** deriving UI visibility from `role` without a network call, designing a
-role→visible-nav-items mapping and deciding where that mapping should live.
+**Why:** Closes an actual gap (no sign-out path in the UI) and replaces the hardcoded avatar
+placeholder with real session data — both self-contained UI changes that don't depend on
+role-based nav (deferred to Phase 9) or the JWT bridge (Phase 4).
+
+**New concepts:** React Context as the App Router idiom for handing server-fetched data down to
+an arbitrary depth of client components without prop drilling or a redundant fetch; HeroUI's
+`Dropdown` compound component.
 
 **New env vars:** none.
 
@@ -438,6 +462,32 @@ HeroUI v3.
 
 ---
 
+## Phase 9 — Role-based nav & route gating
+`[ ]`
+
+**Repo(s):** `staff-app`
+
+**What:** Now that `session.user.role` is reliably available server-side (via Phase 3.2's
+middleware/Server Components) and, since Phase 3.5, available to client components too via
+`useCurrentUser()`, filter `config/site.ts`'s `navItems` (and gate the matching routes) by role —
+decide the role→visible-nav-items mapping together when we plan this phase, and decide where that
+mapping lives (e.g. alongside `siteConfig` vs a dedicated `lib/permissions.ts`).
+
+**Why:** Answers the original question about `site.ts` directly — it only needs the session, not
+the JWT. Kept as its own phase, separate from Phase 3's proxy work and Phase 3.2's
+middleware/route-group plumbing, since "is there a session" and "what does this session's role
+allow" are different questions with different failure modes. Deliberately scheduled last — moved
+out of its original slot right after Phase 3.2 once it became clear the role→permission model
+needs more thought than a quick pass between other phases, and nothing later in this doc actually
+depends on it (Phase 4's JWT payload only needs `role` as a claim, not a nav mapping).
+
+**New concepts:** deriving UI visibility from `role` without a network call, designing a
+role→visible-nav-items mapping and deciding where that mapping should live.
+
+**New env vars:** none.
+
+---
+
 ## Later / stretch (not yet scheduled)
 
 - **Full permission-granularity enforcement in FastAPI** — Phase 5 starts with role checks;
@@ -453,10 +503,12 @@ HeroUI v3.
 
 ## Suggested order
 
-1 → 2 → 3 → 3.2 → 3.5 → 4 → 5 → 6 → 7 → 8. Reasoning: fix the cheap-but-important permission gap
-first (1), then build the session round-trip in the smallest possible slice (2) before adding the
-proxy on top of it (3), then add route protection and the public/authenticated layout split
-(3.2), then layer role-based nav/route gating once the session's role is reliably available
-(3.5), then bridge to the API (4–5) since that's the other half of your original question, then
-user management (6) — which is what makes provisioning practical and de-risks sign-up (7) — and
-finish with the UI-library swap (8) once the mechanics aren't in question anymore.
+1 → 2 → 3 → 3.2 → 3.5 → 4 → 5 → 6 → 7 → 8 → 9. Reasoning: fix the cheap-but-important permission
+gap first (1), then build the session round-trip in the smallest possible slice (2) before adding
+the proxy on top of it (3), then add route protection and the public/authenticated layout split
+(3.2), then close the logout gap and get real session data into the topbar (3.5) — small,
+self-contained, and it builds the `useCurrentUser()` context Phase 9 will also want — then bridge
+to the API (4–5) since that's the other half of the original question, then user management (6) —
+which is what makes provisioning practical and de-risks sign-up (7) — then the UI-library swap
+(8), and finish with role-based nav/route gating (9), pushed to last now that it's clear the
+role→permission model needs more thought than a quick pass between other phases.
