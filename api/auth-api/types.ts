@@ -26,3 +26,7 @@ export interface AuthSession {
   session: AuthSessionData;
   user: AuthSessionUser;
 }
+
+export interface AuthToken {
+  token: string;
+}

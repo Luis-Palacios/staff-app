@@ -349,7 +349,7 @@ an arbitrary depth of client components without prop drilling or a redundant fet
 ---
 
 ## Phase 4 — JWT bridge from staff-app to membership-applications
-`[ ]`
+`[x]`
 
 **Repo(s):** `auth-server` (JWT payload customization) + `staff-app` (reads `auth-server`'s token
 endpoint + JWKS path — verify exact routes empirically, don't assume)
@@ -373,6 +373,66 @@ to customize its payload, JWKS/JWT signature verification basics, short-lived-to
 (mint-per-request vs cache until near expiry, and the staleness window a `role` claim implies).
 
 **New env vars:** none new in `staff-app` (reuses `NEXT_PUBLIC_AUTH_SERVER_URL`).
+
+Update: traced the actual mounted routes from `better-auth`'s own plugin source
+(`dist/plugins/jwt/index.mjs`, `sign.mjs`) rather than assuming — token endpoint is
+`GET /api/auth/token` (session-gated via `sessionMiddleware`, same cookie-forwarding shape as
+Phase 3.2's `get-session` call), payload customization is the `jwt.definePayload(session)` option
+(receives `{ user, session }`, returns the custom claims; `sub`/`iat`/`exp`/`iss`/`aud` are set by
+better-auth itself regardless of what this returns). Verified live *before* touching any code: with
+no `definePayload` set, `/api/auth/token` was already minting a JWT containing better-auth's
+default payload — the *entire* `user` row (name, email, `emailVerified`, `banned`/`banReason`/
+`banExpires`, timestamps). Nothing consumed this token yet (Phase 5 doesn't exist), but it was a
+concrete, live example of the exact over-broad-claims problem this phase exists to prevent.
+
+`auth-server/src/lib/auth.ts`: added `jwt: { definePayload: ({ user }) => ({ role: user.role }) }`
+to the existing `jwt({...})` plugin call. `staff-app`: `api/auth-api/types.ts` gained a small
+`AuthToken { token: string }` type; `api/auth-api/client.ts` gained `getToken(cookie)` calling
+`GET /api/auth/token` with the forwarded cookie header (mirrors `getSession` exactly, except this
+endpoint throws rather than returning `null` for "no session" — confirmed via
+`sessionMiddleware`'s behavior in the plugin source); `lib/get-auth-token.ts` (new) reads the
+incoming request's cookie via `next/headers` and calls it, returning `null` only when there's no
+cookie at all (mirrors `get-server-session.ts`'s shape) — deliberately lets a mid-session-expiry
+or `auth-server`-outage error propagate as a thrown `ApiError` rather than swallowing it to `null`,
+since every call site sits inside `app/(app)/layout.tsx`, which already guarantees a valid session
+exists via Phase 3.2's redirect-to-`/sign-in` check, so a throw here can only mean a genuine race
+or failure, not "not signed in."
+
+Rather than repeating `const token = await getAuthToken()` + the `Authorization` header at every
+call site, added `lib/authenticated-fetch.ts` — a thin `authenticatedFetch<T>(baseUrl, path,
+options)` wrapper composing `apiFetch` (`lib/api-client.ts`) and `getAuthToken()`, attaching
+`Authorization: Bearer <token>` and spreading any caller-supplied `options.headers` last so they
+can still override it (same override-friendly composition `apiFetch` itself already uses for
+`Accept`/`Content-Type`). Deliberately not folded into `apiFetch` itself or `get-auth-token.ts`:
+`apiFetch` is also used by `api/auth-api/client.ts` for cookie-forwarding calls
+(`getSession`/`getToken`) that must never get a JWT attached, and `get-auth-token.ts` already
+imports from `api/auth-api/client.ts` — putting the wrapper in `api-client.ts` would create
+`api-client.ts` → `get-auth-token.ts` → `auth-api/client.ts` → `api-client.ts`, a circular import.
+`api/applications-membership-api/client.ts`'s `getRecentApplications`/`getApplicationDetail` were
+the only two existing call sites; both now go through `authenticatedFetch` instead of `apiFetch`
+directly, and dropped back to non-`async` (just returning the wrapper's promise) since it owns the
+`await` internally.
+
+No caching: a fresh JWT (15m expiry, `auth-server`'s `jwt` plugin default) is minted on every
+single call to `membership-applications`, even multiple calls in the same request. Deliberate for
+now — see the new Phase 10 below, added specifically to revisit this once it's worth the added
+complexity.
+
+Verified live in three steps, each confirming a different link in the chain: (1) decoded the
+token from `/api/auth/token` before the `definePayload` change — confirmed the full-user-row leak
+described above; (2) restarted `auth-server`, decoded the token again — confirmed the payload was
+now exactly `{ role, sub, iat, exp, iss, aud }`; (3) to confirm the header actually reaches
+`membership-applications` (not just that the page renders — `membership-applications` doesn't
+verify JWTs yet, so a working page proves nothing about the header being present or correct),
+temporarily overrode `staff-app`'s `APPLICATIONS_MEMBERSHIP_API_URL` (via a shell env var, not the
+`.env.local` file) to point at a throwaway local Node script that only echoes the headers of any
+request it receives, then loaded `/applications` in a real signed-in browser session and read the
+captured request: `GET /applications/recents` with `authorization: "Bearer <jwt>"`, the JWT
+decoding to the same role-only payload from step 2. Reverted the override and restarted `staff-app`
+normally immediately after. Also reran `pnpm exec tsc --noEmit` (both repos), `pnpm lint`
+(`staff-app`), and `pnpm exec biome check` (`auth-server`) after each of the five changes — all
+clean (the one `biome check` failure encountered was 9 pre-existing formatting errors in
+`tsconfig.json`, unrelated to this phase's files).
 
 ---
 
@@ -488,6 +548,33 @@ role→visible-nav-items mapping and deciding where that mapping should live.
 
 ---
 
+## Phase 10 — Cache the minted JWT until near expiry
+`[ ]`
+
+**Repo(s):** `staff-app`
+
+**What:** Phase 4's `lib/authenticated-fetch.ts` mints a brand-new JWT (via `getAuthToken()` →
+`auth-server`'s `GET /api/auth/token`) on *every* call to `membership-applications`, including
+multiple calls within the same incoming request. Add a cache in front of that — scoped per
+request at minimum (e.g. React's `cache()` so concurrent calls in one render dedupe into a single
+mint), and decide whether to go further with a short-lived cross-request cache keyed by session
+(bounded by the token's own expiry, so a cached token is never served past its `exp`).
+
+**Why:** Deferred deliberately during Phase 4 rather than built speculatively — at the time there
+were only two call sites (`getRecentApplications`, `getApplicationDetail`), each issuing at most
+one `membership-applications` call per request, so there was nothing to dedupe yet and no measured
+cost to justify the complexity. Revisit once either (a) a single request starts making multiple
+`membership-applications` calls, or (b) the per-request round-trip to `auth-server` for a token
+becomes a measured latency cost worth removing.
+
+**New concepts:** request-scoped memoization in React Server Components (`cache()` from `react`),
+the tradeoff between a cached token's staleness window and the round-trip cost of minting fresh
+every time — same tradeoff already flagged as a "new concept" back in Phase 4.
+
+**New env vars:** none expected.
+
+---
+
 ## Later / stretch (not yet scheduled)
 
 - **Full permission-granularity enforcement in FastAPI** — Phase 5 starts with role checks;
@@ -503,12 +590,14 @@ role→visible-nav-items mapping and deciding where that mapping should live.
 
 ## Suggested order
 
-1 → 2 → 3 → 3.2 → 3.5 → 4 → 5 → 6 → 7 → 8 → 9. Reasoning: fix the cheap-but-important permission
-gap first (1), then build the session round-trip in the smallest possible slice (2) before adding
-the proxy on top of it (3), then add route protection and the public/authenticated layout split
-(3.2), then close the logout gap and get real session data into the topbar (3.5) — small,
-self-contained, and it builds the `useCurrentUser()` context Phase 9 will also want — then bridge
-to the API (4–5) since that's the other half of the original question, then user management (6) —
-which is what makes provisioning practical and de-risks sign-up (7) — then the UI-library swap
-(8), and finish with role-based nav/route gating (9), pushed to last now that it's clear the
-role→permission model needs more thought than a quick pass between other phases.
+1 → 2 → 3 → 3.2 → 3.5 → 4 → 5 → 6 → 7 → 8 → 9 → 10. Reasoning: fix the cheap-but-important
+permission gap first (1), then build the session round-trip in the smallest possible slice (2)
+before adding the proxy on top of it (3), then add route protection and the public/authenticated
+layout split (3.2), then close the logout gap and get real session data into the topbar (3.5) —
+small, self-contained, and it builds the `useCurrentUser()` context Phase 9 will also want — then
+bridge to the API (4–5) since that's the other half of the original question, then user management
+(6) — which is what makes provisioning practical and de-risks sign-up (7) — then the UI-library
+swap (8), then role-based nav/route gating (9), pushed out once because the role→permission model
+needed more thought than a quick pass between other phases, and finally JWT caching (10), pushed
+to last because it's a pure optimization with no other phase depending on it and nothing to
+measure until real usage exists.
