@@ -1,11 +1,22 @@
+import { redirect } from "next/navigation";
+
 import {
   groupsBreadcrumb,
   groupsReportsBreadcrumb,
 } from "@/config/breadcrumbs";
 import { title } from "@/components/primitives";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
+import { getServerSession } from "@/lib/get-session";
+import { canView, parseRole } from "@/lib/permissions";
 
-export default function ReportsPage() {
+export default async function ReportsPage() {
+  const session = await getServerSession();
+  const role = parseRole(session?.user.role);
+
+  if (!canView(role, "smallGroupsReport")) {
+    redirect("/");
+  }
+
   return (
     <>
       <StaffAppPageHeader

@@ -16,7 +16,6 @@ import {
   Logo,
   ReportsIcon,
 } from "@/components/icons";
-import { siteConfig } from "@/config/site";
 
 const iconRegistry: Record<
   NavIconName,
@@ -42,6 +41,7 @@ const rowBase =
 
 interface SidebarProps {
   isOpen: boolean;
+  navItems: NavItem[];
   onNavigate: () => void;
 }
 
@@ -130,7 +130,7 @@ const CollapsibleItem = ({
   );
 };
 
-export const Sidebar = ({ isOpen, onNavigate }: SidebarProps) => {
+export const Sidebar = ({ isOpen, navItems, onNavigate }: SidebarProps) => {
   const pathname = usePathname();
 
   return (
@@ -171,7 +171,7 @@ export const Sidebar = ({ isOpen, onNavigate }: SidebarProps) => {
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
-          {siteConfig.navItems.map((item) =>
+          {navItems.map((item) =>
             item.items ? (
               <CollapsibleItem
                 key={item.label}

@@ -170,7 +170,7 @@ introduces middleware-based route protection, and restructuring the layout (e.g.
 ---
 
 ## Phase 3 — Reverse-proxy `/api/auth/*` + route protection
-`[ ]`
+`[~]`
 
 **Repo(s):** `staff-app`
 
@@ -184,25 +184,152 @@ that reads the session and redirects unauthenticated users away from protected r
 restructure routing so `/sign-in` (and any other public page) isn't wrapped in `<AppShell>` —
 e.g. an `(auth)` route group with its own plain layout alongside an `(app)` group that keeps the
 current `AppShell`-wrapped `app/layout.tsx` behavior (deferred here from Phase 2 on purpose, see
-its notes above). Then, now that `session.user.role` is reliably available server-side: filter
-`config/site.ts`'s `navItems`
-(and gate the matching routes) by role — decide the role→visible-nav-items mapping together when
-we plan this phase, and decide where that mapping lives (e.g. alongside `siteConfig` vs a
-dedicated `lib/permissions.ts`).
+its notes above). The role→visible-nav-items filtering originally scoped into this phase was
+pulled out into **Phase 3.5** below — see that phase for why.
 
 **Why:** This is the "same domain" trick you were reading about, minus the deployment
 constraint of putting everything under one apex domain. Confirms the whole cookie story works
-before building anything on top of it. The nav-gating piece answers your original question about
-`site.ts` directly — it only needs the session, not the JWT.
+before building anything on top of it.
 
 **New concepts:** Next.js `rewrites()` as a reverse proxy, how `Set-Cookie` passes through a
-proxy hop, Next.js middleware for auth gating, reading a session in Server Components vs Client
-Components, deriving UI visibility from `role` without a network call.
+proxy hop, Next.js middleware (renamed to Next.js *proxy* mid-phase, see Update below) for auth
+gating.
 
 **New env vars:** `staff-app/.env.example`: `AUTH_SERVER_INTERNAL_URL` (server-only — where
 Next.js's own server reaches `auth-server`; same as `AUTH_SERVER_URL` in local dev, diverges once
-these are separate Docker containers on an internal network). `AUTH_SERVER_URL` from Phase 2 can
-likely be removed once the browser no longer calls `auth-server` directly.
+these are separate Docker containers on an internal network). `AUTH_SERVER_URL` from Phase 2 was
+removed — the browser no longer calls `auth-server` directly, and `lib/env/client.ts` (which only
+ever held that one var) was deleted along with it.
+
+Update: `next.config.mjs`'s `rewrites()` reads `AUTH_SERVER_INTERNAL_URL` via plain
+`process.env` — tried routing it through `lib/env/server.ts` (for the zod validation) first, but
+confirmed empirically (`ERR_MODULE_NOT_FOUND` on a real `next build`) that `next.config.mjs` is
+loaded via native Node ESM *before* Next's TypeScript/webpack pipeline exists, so it can't import
+a `.ts` file at all — not a path-alias problem, TypeScript just isn't compiled yet at that point.
+`AUTH_SERVER_INTERNAL_URL` is still added to `lib/env/server.ts`'s schema for Phase 4's Route
+Handlers, just not usable from this one file.
+
+`lib/auth-client.ts`'s `baseURL` was also tried explicitly as the literal `"/api/auth"` (to make
+the source of the URL obvious in the code) before being dropped back to fully omitted — confirmed
+via `better-auth`'s own source (`node_modules/better-auth/dist/utils/url.mjs`:
+`getBaseURL` → `withPath` → `assertHasProtocol`) that *any* explicit `baseURL` is required to
+resolve via `new URL(...)`, which throws on a relative string unconditionally — in the browser at
+`createAuthClient()` construction time, not just during SSR prerendering (where this was first
+caught, via a real `next build`). Only the *implicit/omitted* path bypasses that check, via a
+`?? "/api/auth"` fallback in `client/config.mjs` that never goes through URL validation. Left
+omitted, with a long comment tracing the exact fallback branch instead.
+
+Also discovered via `next build`'s own deprecation warning: Next.js 16.2.6 deprecated the
+`middleware.ts` file convention in favor of `proxy.ts` (same mechanics, runs on the Node.js
+runtime rather than Edge). Built it as `proxy.ts` from the start once this surfaced.
+
+Verified live: `next build` no longer crashes on `/sign-in` (root-caused above) and the
+middleware deprecation warning is gone. Via `next dev`: unauthenticated `GET /` redirects to
+`/sign-in` (302); `/sign-in` itself renders without the `AppShell` wrapper; hitting
+`/api/auth/get-session` through the proxy produced a real `ECONNREFUSED` to `127.0.0.1:5000`
+(auth-server wasn't running locally) — confirming the rewrite targets the right host/port rather
+than misconfiguring the destination. A separate `/applications` build failure
+(`ECONNREFUSED` to a fake `APPLICATIONS_MEMBERSHIP_API_URL` used for testing) is unrelated —
+that page already fetched real backend data server-side before this phase touched anything.
+
+---
+
+## Phase 3.5 — Role-based nav gating
+`[x]`
+
+**Repo(s):** `staff-app` (nav/route gating) + `auth-server` (role definitions, found and fixed
+along the way — see Update)
+
+**What:** Pulled out of Phase 3 at your request, to first double-check how roles are actually
+defined in `auth-server/src/permissions/statements.ts` before committing to a mapping. Once
+that's settled: filter `config/site.ts`'s `navItems` (and gate the matching routes) by
+`session.user.role`, using a dedicated `lib/permissions.ts` (agreed during Phase 3 planning —
+keeps `config/site.ts` purely declarative, and gives Phase 5's later Python port of the same
+role→permission logic an obvious staff-app-side counterpart to point at).
+
+One proposed mapping was floated during Phase 3 planning, based on `statements.ts` as it stood
+then — `pending` sees nothing; `user`/`smallGroupLeader`/`deacon` see everything except `/users`
+(the Phase 6 admin/user-management page, which isn't a `statements.ts` resource at all); `admin`
+sees everything — but this needed to be re-confirmed against the roles as actually defined before
+building `lib/permissions.ts` around it, not assumed from that discussion.
+
+**Why:** Answers the original question about `site.ts` directly — it only needs the session, not
+the JWT — but the role definitions it depends on needed a second look first.
+
+**New concepts:** Reading a session in Server Components vs Client Components, deriving UI
+visibility from `role` without a network call.
+
+**New env vars:** none.
+
+Update: `statements.ts` went through several rounds of review before this phase's mapping was
+built (see auth-server's own history — not repeated here), including catching and fixing a real
+bug: `user`/`smallGroupLeader`/`deacon` were accidentally spreading better-auth's own
+`defaultStatements` (the *schema* for the admin-plugin's `user`/`session` resources — i.e. every
+possible action on *other accounts*) directly into their role grants instead of the app's own
+`statement` object, handing all three roles full admin-plugin account management (including
+`impersonate-admins`, which even `admin` didn't have) while leaving them with zero access to the
+app's actual data. Also separately fixed: `admin` itself was built from raw `defaultStatements`
+rather than `adminAc` (better-auth's own restricted built-in admin role), so it also carried
+`impersonate-admins` — switched to `{...statement, ...adminAc.statements}` so `admin` keeps full
+account management (ban/set-role/set-password/etc.) without being able to impersonate other
+admins. A `dashboard: ['view']` resource was also added to `statement` specifically so `admin`
+and `elder` (both of which spread `...statement` directly) pick it up automatically, while
+`smallGroupLeader`/`deacon`/`user`/`pending` (which build their own literal statement objects)
+don't — gating the Dashboard nav item/route to elder+admin only, at your request.
+
+Final role→resource table this phase's `lib/permissions.ts` encodes (`view`/`list`-equivalent
+action only — nav visibility and route gating only care about "can this role see this section at
+all," not full CRUD granularity):
+
+| Resource | `pending` | `user` | `smallGroupLeader` | `deacon` | `elder` | `admin` |
+|---|---|---|---|---|---|---|
+| `dashboard` | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
+| `smallGroups` | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ |
+| `smallGroupsReport` | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ |
+| `membershipApplications` | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
+| `userAccounts` (auth-server's `user` resource) | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
+
+Built: `lib/get-session.ts` (`getServerSession()`) — Server Components can't use `authClient` (a
+`"use client"` singleton) and `staff-app` holds no `better-auth` server instance of its own
+(`auth-server` owns the DB/secret), so this calls `auth-server`'s `/api/auth/get-session`
+directly, server-to-server, forwarding the incoming request's cookie via `next/headers`. Verified
+against the actual endpoint source
+(`node_modules/better-auth/dist/api/routes/session.mjs`): requires the cookie header
+(`requireHeaders: true`), returns `{ session, user } | null`.
+
+`lib/permissions.ts` — hand-ported role table above (`Role`/`Resource` types, `parseRole` to
+safely narrow an untrusted role string, `canView`, `getVisibleNavItems`, `firstVisibleHref`).
+Deliberately duplicated from `statements.ts`, not synced automatically — same tradeoff Phase 5
+already accepts for the Python port, just TypeScript-to-TypeScript and earlier.
+
+`config/site.ts`'s `NavItem`/`NavChildItem` gained an optional `resource` field, set declaratively
+per nav entry (`dashboard`/`smallGroups`/`smallGroupsReport`/`membershipApplications`/
+`userAccounts`) — keeps the resource↔route association next to the nav structure it describes,
+while the interpretation of what a role can do with it stays in `lib/permissions.ts`.
+
+`app/(app)/layout.tsx` now computes the session/role once and passes role-filtered `navItems`
+down through `AppShell` → `Sidebar` (both threaded to accept `navItems` as a prop instead of
+`Sidebar` importing `siteConfig` directly). Each protected page (`/groups`, `/groups/reports`,
+`/applications`, `/users`) re-checks its own resource server-side and `redirect("/")`s if the role
+can't view it — nav hiding alone doesn't stop a direct URL hit, and Phase 3.5's own scope said to
+gate the routes, not just the nav.
+
+`/` (`app/(app)/page.tsx`) is the one special case, since Dashboard is itself gated: a role that
+can't view `dashboard` but can view something else (`smallGroupLeader`/`deacon`) redirects to its
+first visible section (`firstVisibleHref`) instead of showing nothing; a role with *no* visible
+section at all (`pending`/`user`) renders a "No access yet" message directly, at your request,
+rather than an empty shell or a redirect loop. Traced through: e.g. `deacon` hitting
+`/applications` directly → redirected to `/` → `/` redirects again to `/groups` (deacon's first
+visible section) — terminates in two hops, no loop, since each redirect target actually differs.
+
+Verified: a standalone `tsx` run of `getVisibleNavItems`/`firstVisibleHref`/`canView` against all
+six roles matched the table above exactly (`pending`/`user` → nothing; `smallGroupLeader`/`deacon`
+→ Groups only; `elder`/`admin` → everything). `next build` succeeds cleanly — every gated route
+shows up as `ƒ (Dynamic)` rather than being statically prerendered, since `getServerSession()`'s
+use of `next/headers` opts them out automatically (this also incidentally cleared the unrelated
+`/applications` build-time `ECONNREFUSED` noted in Phase 3's own Update, since that route is no
+longer attempted at build time either). Not yet verified against a *running* `auth-server` with
+real accounts per role — worth doing before treating this as fully proven in practice.
 
 ---
 
@@ -335,9 +462,10 @@ HeroUI v3.
 
 ## Suggested order
 
-1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. Reasoning: fix the cheap-but-important permission gap first (1),
-then build the session round-trip in the smallest possible slice (2) before adding the proxy on
-top of it (3), then bridge to the API (4–5) since that's the other half of your original
-question, then user management (6) — which is what makes provisioning practical and de-risks
-sign-up (7) — and finish with the UI-library swap (8) once the mechanics aren't in question
+1 → 2 → 3 → 3.5 → 4 → 5 → 6 → 7 → 8. Reasoning: fix the cheap-but-important permission gap first
+(1), then build the session round-trip in the smallest possible slice (2) before adding the proxy
+on top of it (3), then nav gating once the roles behind it are double-checked (3.5), then bridge
+to the API (4–5) since that's the other half of your original question, then user management (6)
+— which is what makes provisioning practical and de-risks sign-up (7) — and finish with the
+UI-library swap (8) once the mechanics aren't in question
 anymore.

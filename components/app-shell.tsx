@@ -1,11 +1,19 @@
 "use client";
 
+import type { NavItem } from "@/config/site";
+
 import { useEffect, useState } from "react";
 
 import { Sidebar } from "@/components/sidebar";
 import { Topbar } from "@/components/topbar";
 
-export const AppShell = ({ children }: { children: React.ReactNode }) => {
+export const AppShell = ({
+  children,
+  navItems,
+}: {
+  children: React.ReactNode;
+  navItems: NavItem[];
+}) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Lock body scroll while the mobile sidebar overlay is open.
@@ -21,6 +29,7 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
     <div className="flex min-h-screen">
       <Sidebar
         isOpen={isSidebarOpen}
+        navItems={navItems}
         onNavigate={() => setIsSidebarOpen(false)}
       />
       <div className="flex min-w-0 flex-1 flex-col">

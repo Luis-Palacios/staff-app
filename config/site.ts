@@ -1,4 +1,5 @@
 import type { ComponentType, SVGProps } from "react";
+import type { Resource } from "@/lib/permissions";
 
 import { UserGroupIcon } from "@heroicons/react/24/solid";
 
@@ -18,6 +19,8 @@ export type NavIconName =
 export type NavChildItem = {
   label: string;
   href: string;
+  /** The auth-server resource (see lib/permissions.ts) this link is gated by. */
+  resource: Resource;
 };
 
 export type NavItem = {
@@ -26,6 +29,9 @@ export type NavItem = {
   icon: NavIconName | HeroIcon;
   /** Leaf link. Omit when the item only groups `items`. */
   href?: string;
+  /** The auth-server resource (see lib/permissions.ts) this link is gated by. Leaf items only —
+   * a group's visibility instead follows whether any of its `items` are visible. */
+  resource?: Resource;
   /** Nested links — renders the item as a collapsible group. */
   items?: NavChildItem[];
 };
@@ -38,6 +44,7 @@ export const siteConfig = {
       label: "Dashboard",
       icon: "dashboard",
       href: "/",
+      resource: "dashboard",
     },
     {
       label: "Groups",
@@ -46,10 +53,12 @@ export const siteConfig = {
         {
           label: "List",
           href: "/groups",
+          resource: "smallGroups",
         },
         {
           label: "Reports",
           href: "/groups/reports",
+          resource: "smallGroupsReport",
         },
       ],
     },
@@ -57,11 +66,13 @@ export const siteConfig = {
       label: "Applications",
       icon: "applications",
       href: "/applications",
+      resource: "membershipApplications",
     },
     {
       label: "Users",
       icon: UserGroupIcon,
       href: "/users",
+      resource: "userAccounts",
     },
   ] satisfies NavItem[],
   links: {
