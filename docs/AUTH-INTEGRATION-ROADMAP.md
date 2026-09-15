@@ -438,7 +438,7 @@ clean (the one `biome check` failure encountered was 9 pre-existing formatting e
 ---
 
 ## Phase 5 — membership-applications verifies the JWT
-`[ ]`
+`[x]`
 
 **Repo(s):** `membership-applications`
 
@@ -463,6 +463,63 @@ request.
 
 **New env vars:** `membership-applications/.env.example`: `AUTH_SERVER_JWKS_URL` (or equivalent —
 however Phase 4's investigation resolves the actual path).
+
+Update: went with `pyjwt[crypto]` over `python-jose` — better-auth's `jwt` plugin defaults to
+`EdDSA` (Ed25519) with no algorithm override in `auth-server/src/lib/auth.ts`, and `python-jose`
+has weak/no support for `OKP`-type (Ed25519) JWKs; PyJWT's `cryptography` backend handles it
+natively. Went with a single `AUTH_SERVER_URL` (bare origin, e.g. `http://localhost:5000`) instead
+of the `AUTH_SERVER_JWKS_URL` sketched above — the JWKS path is derived from it in code
+(`{auth_server_url}/api/auth/.well-known/jwks.json`, confirmed by reading the `jwt` plugin's route
+registration plus the Hono mount point in `auth-server/src/index.ts`), and the same origin is also
+the expected `iss`/`aud` on every token (both default to `new URL(BETTER_AUTH_URL).origin` per
+better-auth's `sign.mjs`), so one var avoids two overlapping values drifting apart. Caught live
+while wiring this up: pydantic's `AnyUrl` type (already used for `assimilation_database_url`)
+*adds* a trailing slash to a bare-origin URL (`"http://localhost:5000"` →
+`"http://localhost:5000/"`), which would have silently broken every `iss`/`aud` comparison since
+better-auth's `iss`/`aud` never has one — `auth_server_url` stayed a plain `str` with a
+`field_validator` stripping any trailing slash defensively instead.
+
+New module `api/jwt_auth.py`: a module-level `PyJWKClient` (`cache_keys=True, lifespan=300`, so
+the JWKS document and resolved key objects are both cached rather than refetched per request), an
+`AuthClaims` Pydantic model (`sub`/`role`, `role` deliberately a plain `str` not a `Literal` — see
+"Why" above), and `get_current_claims` — a FastAPI dependency that verifies signature/expiry/
+issuer/audience (`algorithms=["EdDSA"]` pinned explicitly, never derived from the token's own
+header, which is what prevents an algorithm-confusion attack) and returns `AuthClaims`, or raises a
+`401` with `WWW-Authenticate: Bearer` on any failure (deliberately not distinguishing *why* it
+failed in the response body, to avoid giving a caller a verification oracle). Token extraction
+originally hand-rolled `Authorization` header parsing, then switched to FastAPI's built-in
+`fastapi.security.HTTPBearer` instead — same 401/`WWW-Authenticate` behavior, but it also registers
+a Bearer security scheme in the OpenAPI schema, which is what makes `/docs` show an "Authorize"
+button per protected route; a raw `request.headers` read is invisible to OpenAPI generation, so
+without this swap `/docs` would have had no way to attach a token at all. `CurrentClaimsDep =
+Annotated[AuthClaims, Depends(get_current_claims)]` also added alongside the plain function,
+mirroring `dependencies.py`'s `SessionDep` pattern — unused this phase, but it's what Phase 9 will
+consume once a route actually needs to read `role`.
+
+Wired as a router-level dependency (`APIRouter(..., dependencies=[Depends(get_current_claims)])`)
+on both `applications.router` and `people.router`, rather than as a per-route parameter — enforces
+auth on every route under `/applications` and `/people` without touching each route's signature,
+and without anything reading the claims yet (matching this phase's authentication-only scope).
+`/` and `/health` in `main.py` stay open since they're registered directly on `app`, not through
+either router. Confirmed `dependencies=[...]` specifically requires literal `Depends(...)`
+instances (`Sequence[Depends]`), not the `CurrentClaimsDep` `Annotated` alias — the alias only
+works as a route *parameter* annotation, which is a separate FastAPI code path.
+
+Also fixed two things unrelated to the JWT work but found while getting the venv/type-checker
+clean during this phase: `CLAUDE.md`'s documented `uv sync` silently uninstalls the `api` workspace
+member's own dependencies (`fastapi`, `slowapi`, now `pyjwt`) since plain `uv sync` only syncs the
+root project, not workspace members — fixed the doc to say `uv sync --all-packages`. And two
+pre-existing `ty check` failures in `main.py` (slowapi's exception-handler type not matching
+Starlette's typed `add_exception_handler` signature; `engine.pool`'s static type being the
+abstract `Pool` base, missing `size()`/`checkedout()`/`overflow()`) — fixed with narrow, commented
+`assert isinstance(...)` type-narrowing (each with a `noqa: S101`, matching the existing inline-
+suppression style in `run.py`), not suppressions of the underlying check.
+
+Verified live via `/docs`'s Swagger UI (Authorize button confirmed working once `HTTPBearer` was
+wired in): `/applications/recents` with no token → `401`; with a real JWT (signed in via
+`auth-server`, minted through `/api/auth/token`) pasted into Authorize → `200`; `/health` and `/`
+unaffected by either case, confirming the router-level dependency didn't leak onto routes outside
+`applications`/`people`.
 
 ---
 
