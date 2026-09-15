@@ -40,7 +40,7 @@ marked `[ ]`.
   exists, no JWT involved. "Permission" (the per-resource CRUD grants in `statements.ts`) is not
   per-user data — it's *computed* from `role + the statements.ts definitions`. So:
   - `staff-app`'s own UI gating (nav menu in `config/site.ts`, route access) is driven by the
-    **session's role** (Phase 3), independent of the JWT entirely.
+    **session's role** (Phase 3.5), independent of the JWT entirely.
   - `membership-applications` has no session — the JWT is its only signal. The `jwt` plugin's
     payload is customized to include just the `role` claim (small, stable token — the standard
     "claims-based authorization" pattern, e.g. how Auth0/Okta/Cognito hand off `roles`/`groups`)
@@ -163,7 +163,7 @@ something that moves.
 
 Known, deliberate loose end: the sign-in page still renders inside the full dashboard shell
 (sidebar/topbar) since `app/layout.tsx` wraps everything in `<AppShell>` unconditionally — no
-route-group split between public/authenticated pages exists yet. Left as-is on purpose; Phase 3
+route-group split between public/authenticated pages exists yet. Left as-is on purpose; Phase 3.2
 introduces middleware-based route protection, and restructuring the layout (e.g. an `(auth)` vs
 `(app)` route group) belongs with that work rather than being done twice.
 
@@ -175,34 +175,71 @@ introduces middleware-based route protection, and restructuring the layout (e.g.
 **Repo(s):** `staff-app`
 
 **What:** Add a `rewrites()` entry in `next.config.mjs` forwarding `/api/auth/:path*` to
-`auth-server`'s `/api/auth/:path*`, and simplify `lib/auth-client.ts` by dropping the `baseURL`
-option entirely — see Phase 2's notes on why better-auth's own relative-path default
+`auth-server`'s `/api/auth/:path*` (destination built from `NEXT_PUBLIC_AUTH_SERVER_URL`, reused
+server-side here — see New env vars below), and simplify `lib/auth-client.ts` by dropping the
+`baseURL` option entirely — see Phase 2's notes on why better-auth's own relative-path default
 (`"/api/auth"`) then does the right thing automatically, no env var needed by the browser at all.
 Verify the cookie now shows up as same-origin (check
-dev tools: `Domain` should be unset/host-only, not `auth-server`'s host). Add Next.js middleware
-that reads the session and redirects unauthenticated users away from protected routes. Also
-restructure routing so `/sign-in` (and any other public page) isn't wrapped in `<AppShell>` —
-e.g. an `(auth)` route group with its own plain layout alongside an `(app)` group that keeps the
-current `AppShell`-wrapped `app/layout.tsx` behavior (deferred here from Phase 2 on purpose, see
-its notes above). Then, now that `session.user.role` is reliably available server-side: filter
-`config/site.ts`'s `navItems`
-(and gate the matching routes) by role — decide the role→visible-nav-items mapping together when
-we plan this phase, and decide where that mapping lives (e.g. alongside `siteConfig` vs a
-dedicated `lib/permissions.ts`).
+dev tools: `Domain` should be unset/host-only, not `auth-server`'s host).
 
 **Why:** This is the "same domain" trick you were reading about, minus the deployment
 constraint of putting everything under one apex domain. Confirms the whole cookie story works
-before building anything on top of it. The nav-gating piece answers your original question about
-`site.ts` directly — it only needs the session, not the JWT.
+before building anything on top of it.
 
 **New concepts:** Next.js `rewrites()` as a reverse proxy, how `Set-Cookie` passes through a
-proxy hop, Next.js middleware for auth gating, reading a session in Server Components vs Client
-Components, deriving UI visibility from `role` without a network call.
+proxy hop.
 
-**New env vars:** `staff-app/.env.example`: `AUTH_SERVER_INTERNAL_URL` (server-only — where
-Next.js's own server reaches `auth-server`; same as `AUTH_SERVER_URL` in local dev, diverges once
-these are separate Docker containers on an internal network). `AUTH_SERVER_URL` from Phase 2 can
-likely be removed once the browser no longer calls `auth-server` directly.
+**New env vars:** none new. `NEXT_PUBLIC_AUTH_SERVER_URL` (from Phase 2) is kept and reused as the
+`rewrites()` destination — even though the browser stops needing it directly once `baseURL` is
+dropped, we're deliberately not introducing a separate server-only var (e.g.
+`AUTH_SERVER_INTERNAL_URL`) just for that; Next.js can read a `NEXT_PUBLIC_`-prefixed var from
+server-side code the same as any other env var.
+
+---
+
+## Phase 3.2 — Route protection & public/authenticated layout split
+`[ ]`
+
+**Repo(s):** `staff-app`
+
+**What:** Add Next.js middleware that reads the session and redirects unauthenticated users away
+from protected routes. Also restructure routing so `/sign-in` (and any other public page) isn't
+wrapped in `<AppShell>` — e.g. an `(auth)` route group with its own plain layout alongside an
+`(app)` group that keeps the current `AppShell`-wrapped `app/layout.tsx` behavior (deferred here
+from Phase 2 on purpose, see its notes above).
+
+**Why:** This is the actual authentication gate — without it, an unauthenticated visitor can
+still reach protected pages regardless of whether the same-origin cookie from Phase 3 exists.
+Splitting the layout also finally resolves the loose end noted in Phase 2 (the sign-in page
+rendering inside the full dashboard shell).
+
+**New concepts:** Next.js middleware for auth gating, reading a session in Server Components vs
+Client Components, structuring route groups for public vs authenticated layouts.
+
+**New env vars:** none.
+
+---
+
+## Phase 3.5 — Role-based nav & route gating
+`[ ]`
+
+**Repo(s):** `staff-app`
+
+**What:** Now that `session.user.role` is reliably available server-side (via Phase 3.2's
+middleware/Server Components), filter `config/site.ts`'s `navItems` (and gate the matching
+routes) by role — decide the role→visible-nav-items mapping together when we plan this phase,
+and decide where that mapping lives (e.g. alongside `siteConfig` vs a dedicated
+`lib/permissions.ts`).
+
+**Why:** Answers your original question about `site.ts` directly — it only needs the session, not
+the JWT. Kept as its own phase, separate from Phase 3's proxy work and Phase 3.2's
+middleware/route-group plumbing, since "is there a session" and "what does this session's role
+allow" are different questions with different failure modes.
+
+**New concepts:** deriving UI visibility from `role` without a network call, designing a
+role→visible-nav-items mapping and deciding where that mapping should live.
+
+**New env vars:** none.
 
 ---
 
@@ -230,7 +267,7 @@ keeps the token small and means its shape doesn't need to change every time `sta
 to customize its payload, JWKS/JWT signature verification basics, short-lived-token tradeoffs
 (mint-per-request vs cache until near expiry, and the staleness window a `role` claim implies).
 
-**New env vars:** none new in `staff-app` (reuses `AUTH_SERVER_INTERNAL_URL`).
+**New env vars:** none new in `staff-app` (reuses `NEXT_PUBLIC_AUTH_SERVER_URL`).
 
 ---
 
@@ -270,7 +307,7 @@ however Phase 4's investigation resolves the actual path).
 **What:** An admin-only section in `staff-app` to list users and assign one of the roles from
 `statements.ts` (`admin`, `smallGroupLeader`, `deacon`, plus whatever Phase 1 introduces),
 using better-auth's admin-plugin client methods (`listUsers`, `setRole`, etc.) through the
-Phase 3 proxy. Gated by the same middleware/role check built in Phase 3.
+Phase 3 proxy. Gated by the same middleware (Phase 3.2) and role check (Phase 3.5) built earlier.
 
 **Why:** This is what makes admin-provisioned accounts (the Phase 0 decision) practical day to
 day, and it's the prerequisite for safely enabling sign-up in Phase 7.
@@ -335,9 +372,10 @@ HeroUI v3.
 
 ## Suggested order
 
-1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. Reasoning: fix the cheap-but-important permission gap first (1),
-then build the session round-trip in the smallest possible slice (2) before adding the proxy on
-top of it (3), then bridge to the API (4–5) since that's the other half of your original
-question, then user management (6) — which is what makes provisioning practical and de-risks
-sign-up (7) — and finish with the UI-library swap (8) once the mechanics aren't in question
-anymore.
+1 → 2 → 3 → 3.2 → 3.5 → 4 → 5 → 6 → 7 → 8. Reasoning: fix the cheap-but-important permission gap
+first (1), then build the session round-trip in the smallest possible slice (2) before adding the
+proxy on top of it (3), then add route protection and the public/authenticated layout split
+(3.2), then layer role-based nav/route gating once the session's role is reliably available
+(3.5), then bridge to the API (4–5) since that's the other half of your original question, then
+user management (6) — which is what makes provisioning practical and de-risks sign-up (7) — and
+finish with the UI-library swap (8) once the mechanics aren't in question anymore.
