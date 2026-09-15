@@ -170,7 +170,7 @@ introduces middleware-based route protection, and restructuring the layout (e.g.
 ---
 
 ## Phase 3 — Reverse-proxy `/api/auth/*` + route protection
-`[ ]`
+`[x]`
 
 **Repo(s):** `staff-app`
 
@@ -181,6 +181,24 @@ server-side here — see New env vars below), and simplify `lib/auth-client.ts` 
 (`"/api/auth"`) then does the right thing automatically, no env var needed by the browser at all.
 Verify the cookie now shows up as same-origin (check
 dev tools: `Domain` should be unset/host-only, not `auth-server`'s host).
+
+Update: `next.config.mjs` reads `process.env.NEXT_PUBLIC_AUTH_SERVER_URL` directly (not through
+`lib/env/client.ts`'s zod schema) since this file is loaded by Node before Next's TS/bundler
+pipeline exists, so it can't import a `.ts` module. Dropping `baseURL` from `lib/auth-client.ts`
+left `lib/env/client.ts` with no remaining callers (it existed solely to validate that one
+browser-side var), so it was deleted outright rather than kept around unused —
+`lib/env/server.ts` and `lib/env/format-error.ts` are untouched and still in use. Verified live:
+started both `auth-server` and `staff-app`, then `curl -D -` a sign-in request straight at
+`staff-app`'s own origin (`localhost:3000/api/auth/sign-in/email`) — got back a real `200` with
+the actual admin user record (email/role from the database), which `staff-app` has no way to
+produce itself, confirming the request was genuinely forwarded to and answered by `auth-server`.
+The response's `Set-Cookie` header carries no `Domain` attribute
+(`better-auth.session_token=...; Max-Age=604800; Path=/; HttpOnly; SameSite=Lax`), so a browser
+receiving it from `localhost:3000` scopes it host-only to `staff-app`'s own origin, not
+`auth-server`'s — the same-origin cookie goal this phase was after. (Browser extension wasn't
+connected this session, so this was verified via `curl` rather than an actual browser's
+dev tools — worth a quick manual double-check in-browser next time it's convenient, though the
+`Set-Cookie` header inspected here is exactly what the browser would have parsed.)
 
 **Why:** This is the "same domain" trick you were reading about, minus the deployment
 constraint of putting everything under one apex domain. Confirms the whole cookie story works
