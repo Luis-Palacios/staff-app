@@ -45,9 +45,10 @@ marked `[ ]`.
     payload is customized to include just the `role` claim (small, stable token — the standard
     "claims-based authorization" pattern, e.g. how Auth0/Okta/Cognito hand off `roles`/`groups`)
     rather than a precomputed permission set, so the token doesn't have to change shape every time
-    `statements.ts` does (Phase 4). `membership-applications` then computes role→permission itself
-    from a small Python port of the same mapping (Phase 5) — a deliberate, reviewed duplication,
-    not synced automatically, acceptable at the current scale (4 roles, 4 custom resources).
+    `statements.ts` does (Phase 4). `membership-applications` verifies the JWT itself (Phase 5),
+    then computes role→permission from a small Python port of the same mapping (Phase 9) — a
+    deliberate, reviewed duplication, not synced automatically, acceptable at the current scale
+    (4 roles, 4 custom resources).
   - Tradeoff accepted: a role change takes effect on `membership-applications` only once a new JWT
     is minted (bounded by the token's expiry), not instantly — the alternative (FastAPI calling
     back to `auth-server` per request) would keep it live but defeats stateless JWT verification
@@ -443,20 +444,22 @@ clean (the one `biome check` failure encountered was 9 pre-existing formatting e
 
 **What:** Add a JWT-verification dependency (new dependency needed — e.g. `python-jose` or
 `PyJWT`, plus a JWKS client with caching so it's not fetching the JWKS on every request) that
-validates the `Authorization: Bearer` header against `auth-server`'s JWKS and extracts the `role`
-claim set in Phase 4. Write a small Python port of the relevant parts of `statements.ts` (a
-role→permission mapping, e.g. a dict/enum — deliberately hand-maintained, reviewed together
-whenever `statements.ts` changes, not auto-synced) and use it to gate the `applications` and
-`people` routers per-route, not just "is there a valid role."
+validates the `Authorization: Bearer` header against `auth-server`'s JWKS — signature, expiry,
+issuer/audience — and rejects requests with a missing/invalid/expired token. Expose the decoded
+claims (including the `role` claim set in Phase 4) to route handlers via a FastAPI dependency, but
+stop there: no role→permission mapping, no per-route gating by role yet. That's authorization, not
+authentication, and it's deliberately deferred to Phase 9, where it's designed alongside
+`staff-app`'s own role-based gating instead of in isolation.
 
 **Why:** Right now `membership-applications` trusts every request unconditionally — this closes
-that. Since the JWT carries only `role` (Phase 4's decision), `membership-applications` is the
-one that has to turn that into an actual authorization decision — this is where that logic lives.
+that by requiring a genuinely valid JWT before anything else happens. Keeping this phase to
+authentication only (not also authorization) keeps it small and testable in isolation: "does a
+bad/missing/expired token get rejected" is a clean yes/no, whereas "does this role get to do this"
+pulls in a whole mapping design that deserves its own phase (Phase 9).
 
 **New concepts:** FastAPI dependencies for auth (`Depends(...)`), verifying a JWT against a JWKS
 endpoint (vs a shared secret), caching a JWKS fetch so verification doesn't hit the network per
-request, deliberately duplicating a small piece of authorization logic across two languages as a
-maintained contract rather than a shared library.
+request.
 
 **New env vars:** `membership-applications/.env.example`: `AUTH_SERVER_JWKS_URL` (or equivalent —
 however Phase 4's investigation resolves the actual path).
@@ -525,26 +528,38 @@ HeroUI v3.
 ## Phase 9 — Role-based nav & route gating
 `[ ]`
 
-**Repo(s):** `staff-app`
+**Repo(s):** `staff-app` + `membership-applications`
 
-**What:** Now that `session.user.role` is reliably available server-side (via Phase 3.2's
-middleware/Server Components) and, since Phase 3.5, available to client components too via
-`useCurrentUser()`, filter `config/site.ts`'s `navItems` (and gate the matching routes) by role —
-decide the role→visible-nav-items mapping together when we plan this phase, and decide where that
-mapping lives (e.g. alongside `siteConfig` vs a dedicated `lib/permissions.ts`).
+**What:** Two role→permission mappings, designed together since they're the same underlying
+model expressed twice (see the "Role vs permission" architecture note above):
+- `staff-app`: now that `session.user.role` is reliably available server-side (via Phase 3.2's
+  middleware/Server Components) and, since Phase 3.5, available to client components too via
+  `useCurrentUser()`, filter `config/site.ts`'s `navItems` (and gate the matching routes) by
+  role — decide the role→visible-nav-items mapping together when we plan this phase, and decide
+  where that mapping lives (e.g. alongside `siteConfig` vs a dedicated `lib/permissions.ts`).
+- `membership-applications`: now that Phase 5 verifies the JWT and exposes its decoded claims
+  (including `role`) to route handlers, write a small Python port of the relevant parts of
+  `statements.ts` (a role→permission mapping, e.g. a dict/enum — deliberately hand-maintained,
+  reviewed together whenever `statements.ts` changes, not auto-synced) and use it to gate the
+  `applications` and `people` routers per-route, not just "is there a valid role."
 
 **Why:** Answers the original question about `site.ts` directly — it only needs the session, not
-the JWT. Kept as its own phase, separate from Phase 3's proxy work and Phase 3.2's
-middleware/route-group plumbing, since "is there a session" and "what does this session's role
-allow" are different questions with different failure modes. Deliberately scheduled last — moved
-out of its original slot right after Phase 3.2 once it became clear the role→permission model
-needs more thought than a quick pass between other phases, and nothing later in this doc actually
-depends on it (Phase 4's JWT payload only needs `role` as a claim, not a nav mapping).
+the JWT. Also picks up the authorization half of what Phase 5 originally scoped in — deliberately
+split out so `membership-applications`' role→permission mapping gets designed alongside
+`staff-app`'s nav mapping instead of being worked out in isolation and revisited later. Kept as
+its own phase, separate from Phase 3's proxy work and Phase 3.2's middleware/route-group plumbing
+and from Phase 5's JWT verification, since "is there a session/valid token" and "what does this
+role allow" are different questions with different failure modes. Deliberately scheduled last —
+moved out of its original slot right after Phase 3.2 once it became clear the role→permission
+model needs more thought than a quick pass between other phases.
 
 **New concepts:** deriving UI visibility from `role` without a network call, designing a
-role→visible-nav-items mapping and deciding where that mapping should live.
+role→visible-nav-items mapping and deciding where that mapping should live, deliberately
+duplicating a small piece of authorization logic across two languages (TypeScript's
+`statements.ts` and a Python port) as a maintained contract rather than a shared library.
 
-**New env vars:** none.
+**New env vars:** none (membership-applications' `AUTH_SERVER_JWKS_URL` was already added in
+Phase 5).
 
 ---
 
@@ -577,7 +592,7 @@ every time — same tradeoff already flagged as a "new concept" back in Phase 4.
 
 ## Later / stretch (not yet scheduled)
 
-- **Full permission-granularity enforcement in FastAPI** — Phase 5 starts with role checks;
+- **Full permission-granularity enforcement in FastAPI** — Phase 9 starts with role checks;
   decide later whether to mirror `statements.ts`'s per-resource CRUD statements exactly.
 - **Dockerizing all three** — each repo containerized, plus whatever local dev story (e.g.
   docker-compose) makes running all three together easy. Explicitly out of scope for this doc
@@ -595,9 +610,11 @@ permission gap first (1), then build the session round-trip in the smallest poss
 before adding the proxy on top of it (3), then add route protection and the public/authenticated
 layout split (3.2), then close the logout gap and get real session data into the topbar (3.5) —
 small, self-contained, and it builds the `useCurrentUser()` context Phase 9 will also want — then
-bridge to the API (4–5) since that's the other half of the original question, then user management
-(6) — which is what makes provisioning practical and de-risks sign-up (7) — then the UI-library
-swap (8), then role-based nav/route gating (9), pushed out once because the role→permission model
-needed more thought than a quick pass between other phases, and finally JWT caching (10), pushed
-to last because it's a pure optimization with no other phase depending on it and nothing to
+bridge to the API with the JWT (4) and have `membership-applications` verify it (5) — authentication
+only, since that's the other half of the original question and doesn't need the role→permission
+model settled yet — then user management (6) — which is what makes provisioning practical and
+de-risks sign-up (7) — then the UI-library swap (8), then role-based nav/route gating for both
+`staff-app` and `membership-applications` together (9), pushed out once because the role→permission
+model needed more thought than a quick pass between other phases, and finally JWT caching (10),
+pushed to last because it's a pure optimization with no other phase depending on it and nothing to
 measure until real usage exists.
