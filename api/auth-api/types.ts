@@ -30,3 +30,22 @@ export interface AuthSession {
 export interface AuthToken {
   token: string;
 }
+
+export interface AdminUserListItem {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+  role: AuthRole | null;
+  banned: boolean | null;
+  banReason: string | null;
+  banExpires: string | null;
+}
+
+export interface AdminListUsersResponse {
+  users: AdminUserListItem[];
+  total: number;
+}
