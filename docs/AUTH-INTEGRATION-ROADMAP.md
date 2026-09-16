@@ -524,7 +524,7 @@ unaffected by either case, confirming the router-level dependency didn't leak on
 ---
 
 ## Phase 6 — User management UI (admin only)
-`[ ]`
+`[x]`
 
 **Repo(s):** `staff-app` (reads/writes via `auth-server`'s admin-plugin endpoints, no
 `auth-server` code changes expected)
@@ -541,6 +541,76 @@ day, and it's the prerequisite for safely enabling sign-up in Phase 7.
 (not just an authenticated-gated one).
 
 **New env vars:** none new.
+
+Update: built in two increments, planned separately per this doc's own working process.
+
+*List view.* `api/auth-api/types.ts` gained `AdminUserListItem`/`AdminListUsersResponse`;
+`api/auth-api/client.ts` gained `listUsers(cookie)`, following `getSession`/`getToken`'s existing
+cookie-forwarding pattern straight to `auth-server` — deliberately **not** routed through
+`lib/authenticated-fetch.ts` (Phase 4's JWT bridge), since `auth-server`'s admin routes are
+session-cookie-gated (`adminMiddleware`), not JWT-verified. Confirmed by reading better-auth's own
+`admin/routes.mjs` that an absent `limit`/`offset` means "no limit clause," not a hidden default
+page size, so `listUsers` fetches everything unpaged (matching the existing `getRecentApplications`
+precedent) with no query string at all — a hand-picked cap would've been a regression, not a safety
+net. `app/(app)/users/page.tsx` replaced its stub with a Suspense-wrapped list
+(`app/(app)/users/_components/{users-list,users-summary-table,user-card-summary,
+users-list-skeleton}.tsx`), structurally mirroring the `applications` list feature exactly (desktop
+`Table` + mobile `Card` grid, matching skeleton pair, route-level `loading.tsx`). Table/card show
+Name, Email, a humanized+colored Role chip (`role-display.ts`'s `roleLabel`/`roleChipColor` —
+`admin`→danger, `pending`→warning, everything else neutral, since 6 roles have no real severity
+ordering), a Status chip (`user-status-chips.tsx`: Banned/Unverified/Active), and `createdAt` via
+the existing `LocalDateTime`.
+
+Gating: **who can view `/users` is admin or elder** (not admin-only as originally scoped above) —
+`auth-server`'s `statements.ts` actually grants `elder` the same `user: [..., 'set-role']`
+permission as `admin`, just without `delete`/`set-password`, so gating stricter than that would
+contradict what the backend already allows. Implemented as an inline check at the top of
+`page.tsx` (`redirect("/")` otherwise), explicitly commented as a **temporary stopgap** — it exists
+only because `listUsers`/`setRole` already 403 for every other role, not as this pass's attempt at
+real authorization design. Meant to be replaced by Phase 9's role→permission model; deliberately
+not extracted into a `requireRole()` helper for one caller.
+
+*Role assignment, scoped narrowly.* Rather than full inline role editing for every user, this pass
+only lets an admin/elder assign a role to a user **currently in `role: "pending"`** — reassigning
+an already-assigned user's role (promotion/demotion) is a separate, riskier feature (e.g. "can the
+last admin demote themselves") deferred to a future pass. New
+`app/(app)/users/_components/assign-pending-role.tsx` (`"use client"`) renders inline, right in the
+Role cell/card footer, when `user.role === "pending"` — a HeroUI `Select` (all 5 non-pending roles,
+labeled via `role-display.ts`'s newly-exported `ROLE_LABELS`) plus an `Assign` button
+(`isPending` state via HeroUI's built-in `Button` prop) calling
+`authClient.admin.setRole({ userId, role })` directly from the browser — no new server code needed,
+since `adminClient()` was already registered in `lib/auth-client.ts` and resolves through the
+Phase 3 proxy automatically. Follows the `{ data, error }` (never-throws) convention already
+established by `authClient.signIn.email` in the Phase 2 sign-in page — same
+`if (error) setError(error.message ?? fallback)` shape. On success, `useRouter().refresh()`
+re-fetches the Server Component list (no existing "mutate then refresh" precedent in this repo, but
+it's the standard, safe Next.js App Router way to do this); the control unmounts naturally once the
+refreshed row is no longer `pending`.
+
+One deliberate UX guard: **assigning `admin` specifically requires a native `window.confirm(...)`**
+before the request fires — the one role transition worth friction, per discussion; no confirmation
+for the other 4 roles, and no confirmation UI was built for `elder` despite also holding
+user-management permissions (treated as a normal assignment). Chose a native `confirm()` over a
+custom two-step button or a modal since no dialog/modal component exists anywhere in this codebase
+yet, and building one for a single edge case would've been premature.
+
+One real bug caught by `tsc`, not by inspection: `lib/auth-client.ts`'s `adminClient()` was called
+with no arguments, which defaults its internal role typing to just `"admin" | "user"` — so
+`authClient.admin.setRole({ role: "elder" })` failed to type-check. Fixed by passing a `roles` map
+built from a local `createAccessControl({})` + `.newRole({})` per role name (role *names* only, no
+real statements — this client never runs `hasPermission`/`checkRolePermission` itself), mirroring
+the same hand-maintained-duplication tradeoff already documented on `AuthRole` in
+`api/auth-api/types.ts`.
+
+Verified: `pnpm lint`, `npx tsc --noEmit`, and `pnpm build` all clean throughout. Browser extension
+wasn't connected this session, so live verification used a mix of `curl` (signed in as the real
+admin account, confirmed `listUsers`/`setRole`/`ban-user` all reachable through the `/api/auth`
+proxy with the right `Origin` header, and diffed the server-rendered HTML's chip classes/labels
+against three throwaway test accounts covering every role/status combination — pending, promoted to
+`smallGroupLeader`, and banned) and the user manually clicking through the actual Select → Assign →
+native-confirm → row-updates flow in their own browser, which they confirmed works end-to-end,
+including the `Admin`-specific confirmation dialog. Throwaway test accounts were intentionally left
+in the dev DB (not cleaned up) at the user's request.
 
 ---
 

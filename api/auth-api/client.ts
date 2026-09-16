@@ -1,4 +1,8 @@
-import type { AuthSession, AuthToken } from "@/api/auth-api/types";
+import type {
+  AdminListUsersResponse,
+  AuthSession,
+  AuthToken,
+} from "@/api/auth-api/types";
 
 import { apiFetch } from "@/lib/api-client";
 import { env } from "@/lib/env/server";
@@ -25,4 +29,20 @@ export function getToken(cookie: string): Promise<AuthToken> {
     headers: { cookie },
     cache: "no-store",
   });
+}
+
+// Session-cookie-gated (admin plugin's adminMiddleware), same reasoning as getSession/getToken
+// above — not JWT-based, so this doesn't go through lib/authenticated-fetch.ts. No query params:
+// an absent limit/offset means "no limit clause" server-side (verified in better-auth's
+// admin/routes.mjs), not a hidden default page size — a hand-picked cap here would be a
+// regression, not a safety net.
+export function listUsers(cookie: string): Promise<AdminListUsersResponse> {
+  return apiFetch<AdminListUsersResponse>(
+    BASE_URL,
+    "/api/auth/admin/list-users",
+    {
+      headers: { cookie },
+      cache: "no-store",
+    },
+  );
 }
