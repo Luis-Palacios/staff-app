@@ -20,6 +20,7 @@ export default function ApplicationsSummaryTable({
         <Table.Content aria-label="Membership applications table content">
           <Table.Header>
             <Table.Column className="text-center">#</Table.Column>
+            <Table.Column className="text-center">Actions</Table.Column>
             <Table.Column isRowHeader className="text-center">
               Application ID
             </Table.Column>
@@ -30,12 +31,22 @@ export default function ApplicationsSummaryTable({
             <Table.Column className="text-center">Generated Date</Table.Column>
             <Table.Column className="text-center">Fulfilment Date</Table.Column>
             <Table.Column className="text-center">Is Fulfilled</Table.Column>
-            <Table.Column className="text-center">Actions</Table.Column>
           </Table.Header>
           <Table.Body>
             {data.map((application, index) => (
               <Table.Row key={application.applicationId}>
                 <Table.Cell>{index + 1}</Table.Cell>
+                <Table.Cell>
+                  <Link
+                    className={buttonVariants({
+                      size: "sm",
+                      variant: "secondary",
+                    })}
+                    href={`/applications/${application.applicationId}`}
+                  >
+                    Details
+                  </Link>
+                </Table.Cell>
                 <Table.Cell>{application.applicationId}</Table.Cell>
                 <Table.Cell>{application.personId}</Table.Cell>
                 <Table.Cell>{application.personFullName}</Table.Cell>
@@ -49,17 +60,6 @@ export default function ApplicationsSummaryTable({
                   <Chip color={application.isFulfilled ? "success" : "warning"}>
                     {application.isFulfilled ? "Yes" : "No"}
                   </Chip>
-                </Table.Cell>
-                <Table.Cell>
-                  <Link
-                    className={buttonVariants({
-                      size: "sm",
-                      variant: "secondary",
-                    })}
-                    href={`/applications/${application.applicationId}`}
-                  >
-                    Show more
-                  </Link>
                 </Table.Cell>
               </Table.Row>
             ))}
