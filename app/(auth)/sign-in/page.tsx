@@ -5,6 +5,7 @@ import type { SubmitEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
+import { ProgressBar, ProgressBarTrack } from "@heroui/react";
 
 import { authClient } from "@/lib/auth/auth-client";
 
@@ -43,7 +44,13 @@ export default function SignInPage() {
   }
 
   if (session.isPending) {
-    return <p>Loading session…</p>;
+    return (
+      <ProgressBar isIndeterminate aria-label="Loading" className="w-md">
+        <ProgressBarTrack>
+          <ProgressBar.Fill />
+        </ProgressBarTrack>
+      </ProgressBar>
+    );
   }
 
   if (session.data) {
