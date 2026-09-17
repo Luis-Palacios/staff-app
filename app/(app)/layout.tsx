@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { getServerSession } from "@/lib/get-server-session";
+import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { AppShell } from "@/components/app-shell";
 import { UserProvider } from "@/lib/contexts/user-context";
 

@@ -6,7 +6,7 @@ import UsersListSkeleton from "./_components/users-list-skeleton";
 
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { usersBreadcrumb } from "@/config/breadcrumbs";
-import { getServerSession } from "@/lib/get-server-session";
+import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 
 export default async function UsersPage() {
   const session = await getServerSession();

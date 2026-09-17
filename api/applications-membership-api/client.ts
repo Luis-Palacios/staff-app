@@ -3,7 +3,7 @@ import type {
   ApplicationMembershipSummary,
 } from "@/api/applications-membership-api/types";
 
-import { authenticatedFetch } from "@/lib/authenticated-fetch";
+import { authenticatedFetch } from "@/api/authenticated-fetch";
 import { env } from "@/lib/env/server";
 
 const BASE_URL = env.APPLICATIONS_MEMBERSHIP_API_URL;

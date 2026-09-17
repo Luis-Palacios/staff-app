@@ -4,7 +4,7 @@ import type { SubmitEvent } from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
 
 // Deliberately bare (plain HTML, no HeroUI) — matches sign-in/page.tsx's Phase 2 style.
 // It gets replaced by better-auth-ui in Phase 8.

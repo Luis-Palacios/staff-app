@@ -4,7 +4,7 @@ import type {
   AuthToken,
 } from "@/api/auth-api/types";
 
-import { apiFetch } from "@/lib/api-client";
+import { apiFetch } from "@/api/api-client";
 import { env } from "@/lib/env/server";
 
 const BASE_URL = env.NEXT_PUBLIC_AUTH_SERVER_URL;

@@ -1,7 +1,7 @@
-import type { ApiFetchOptions } from "@/lib/api-client";
+import type { ApiFetchOptions } from "@/api/api-client";
 
-import { apiFetch } from "@/lib/api-client";
-import { getAuthToken } from "@/lib/get-auth-token";
+import { apiFetch } from "@/api/api-client";
+import { getAuthToken } from "@/api/auth-api/helpers/get-auth-token";
 
 // Wraps apiFetch for calls that need the JWT bridge (Phase 4) - mints a fresh token per call
 // (no caching yet, see docs/AUTH-INTEGRATION-ROADMAP.md) and attaches it as a Bearer header.

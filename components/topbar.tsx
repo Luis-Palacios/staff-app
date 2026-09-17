@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { MenuIcon, SearchIcon, Logo } from "@/components/icons";
 import { useCurrentUser } from "@/lib/contexts/user-context";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
 
 interface TopbarProps {
   onMenuClick: () => void;

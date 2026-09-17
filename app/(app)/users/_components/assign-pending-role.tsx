@@ -8,7 +8,7 @@ import { Button, ListBox, Select } from "@heroui/react";
 
 import { ROLE_LABELS } from "./role-display";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
 
 const ASSIGNABLE_ROLES = (Object.keys(ROLE_LABELS) as AuthRole[]).filter(
   (role) => role !== "pending",

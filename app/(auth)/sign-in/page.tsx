@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
 
 // Deliberately bare (plain HTML, no HeroUI) — this page exists to prove the session round-trip
 // from staff-app to auth-server works end-to-end (Phase 2 of docs/AUTH-INTEGRATION-ROADMAP.md).
