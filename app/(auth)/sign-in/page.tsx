@@ -1,9 +1,10 @@
 "use client";
 
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -18,7 +19,7 @@ export default function SignInPage() {
 
   const session = authClient.useSession();
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
@@ -28,6 +29,11 @@ export default function SignInPage() {
     });
 
     if (signInError) {
+      if (signInError.code === "EMAIL_NOT_VERIFIED") {
+        router.push(`/needs-verification?email=${encodeURIComponent(email)}`);
+
+        return;
+      }
       setError(signInError.message ?? "Sign in failed");
 
       return;
@@ -83,6 +89,13 @@ export default function SignInPage() {
       <button className="w-fit rounded border px-4 py-2" type="submit">
         Sign in
       </button>
+
+      <p>
+        Don&apos;t have an account?{" "}
+        <Link className="underline" href="/sign-up">
+          Sign up
+        </Link>
+      </p>
     </form>
   );
 }

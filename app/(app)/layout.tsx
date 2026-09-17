@@ -15,6 +15,10 @@ export default async function AppLayout({
     redirect("/sign-in");
   }
 
+  if (!session.user.emailVerified) {
+    redirect("/needs-verification");
+  }
+
   return (
     <UserProvider user={session.user}>
       <AppShell>{children}</AppShell>

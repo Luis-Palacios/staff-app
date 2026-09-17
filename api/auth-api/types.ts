@@ -14,6 +14,7 @@ export interface AuthSessionUser {
   email: string;
   name: string;
   role: AuthRole;
+  emailVerified: boolean;
 }
 
 export interface AuthSessionData {

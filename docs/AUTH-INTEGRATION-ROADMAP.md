@@ -615,7 +615,7 @@ in the dev DB (not cleaned up) at the user's request.
 ---
 
 ## Phase 7 — Enable sign-up
-`[ ]`
+`[x]`
 
 **Repo(s):** `staff-app` (+ confirm `auth-server`'s `emailAndPassword`/signup config is what you
 want — e.g. email verification)
@@ -630,6 +630,65 @@ verification, if you turn it on).
 
 **New env vars:** TBD depending on whether email verification is enabled (would need an email
 provider).
+
+Update: `auth-server` already had `emailAndPassword.requireEmailVerification: true` and a
+working Resend-backed `emailVerification` config (`sendOnSignUp: true`,
+`autoSignInAfterVerification: true`) from earlier work — no `auth-server` changes were needed
+for this phase, only wiring up `staff-app`'s side of a flow it hadn't built yet.
+
+Key finding that reshaped the original idea: the instinct going in was "check `session.user`
+in `app/(app)/layout.tsx` and redirect if not verified." That doesn't work as the *primary*
+mechanism, because better-auth never issues a session for an unverified account in the first
+place — confirmed by reading better-auth's own route source (`dist/api/routes/sign-up.mjs`,
+`dist/api/routes/sign-in.mjs`): `POST /api/auth/sign-up/email` with verification required
+returns `200 { token: null, user }` with no `Set-Cookie` at all, and `POST /api/auth/sign-in/email`
+for a correct-password-but-unverified account throws `403 { code: "EMAIL_NOT_VERIFIED", message:
+"Email not verified" }` — also no session. So an unverified user never reaches the app layout
+with a session to inspect; `getServerSession()` returns `null` for them exactly like any other
+logged-out visitor. The real gate had to happen at the two client call sites (sign-up response,
+sign-in error), not in the server layout.
+
+Also decided: the verification link in the email points at `auth-server` directly (a plain GET
+link clicked from an inbox, not a proxied browser fetch), so `autoSignInAfterVerification`'s
+session cookie gets set on `auth-server`'s own origin — `staff-app` never sees it, per the BFF
+cookie-scoping design from Phase 3. Not fought — both the sign-up form and the resend button
+pass an explicit absolute `callbackURL` (`${window.location.origin}/sign-in?verified=1`) so
+clicking the emailed link lands back on `staff-app`'s own `/sign-in`, where the user signs in
+normally and gets a real same-origin session, rather than relying on the cross-origin cookie.
+
+Changes: `api/auth-api/types.ts` gained `emailVerified: boolean` on `AuthSessionUser` (better-auth
+already returned this field on `get-session`/sign-in/sign-up responses — the type just didn't
+expose it; no `client.ts` changes needed, and it's available via `useCurrentUser()` for free since
+`UserProvider` already types `user` as `AuthSessionUser`). New `app/(auth)/sign-up/page.tsx`
+(mirrors `sign-in/page.tsx`'s deliberately bare style — name/email/password fields,
+`authClient.signUp.email(...)`, branches on `data.token === null` to redirect to
+`/needs-verification?email=...` instead of `/`). New `app/(auth)/needs-verification/page.tsx`
+(plain async Server Component reading `email` from `searchParams`) +
+`_components/resend-verification-button.tsx` (`"use client"`, calls
+`authClient.sendVerificationEmail({ email, callbackURL })` — works with no session, looked up by
+email). `sign-in/page.tsx` now special-cases `signInError.code === "EMAIL_NOT_VERIFIED"` to
+redirect to `/needs-verification` instead of showing a generic error, and gained a "Don't have an
+account? Sign up" link. `proxy.ts`'s `PUBLIC_PATHS` extended to
+`["/sign-in", "/sign-up", "/needs-verification"]`. `app/(app)/layout.tsx` gained a
+defense-in-depth check (`if (!session.user.emailVerified) redirect("/needs-verification")`) after
+the existing null-session check — not the primary mechanism per the finding above, but cheap
+insurance against e.g. an admin manually flipping `emailVerified` back to `false` on an existing
+session. Also swapped `FormEvent` → `SubmitEvent` in both auth pages' submit handlers
+(`@types/react` flags `FormEvent` as `@deprecated FormEvent doesn't actually exist`).
+
+Verified live end-to-end: signed up a throwaway account — confirmed no session cookie was set and
+the browser landed on `/needs-verification?email=...`; the Resend-sent verification email
+arrived; signing in with that same unverified account directly from `/sign-in` also redirected to
+`/needs-verification` rather than showing a generic error; clicking the emailed verification link
+did not leave the browser signed into `staff-app` (confirming the cross-origin cookie behavior
+above) and landed on `/sign-in?verified=1`; signing in again there succeeded and landed on `/`,
+with `role: "pending"` (Phase 1 behavior unaffected).
+
+One known, deliberately deferred follow-up: the verification email landed in the recipient's
+spam/junk folder — a Resend/DNS deliverability issue (`RESEND_FROM_EMAIL` domain likely missing
+verified SPF/DKIM/DMARC records in Resend's dashboard), not a bug in the flow itself. Left as-is
+for now since the actual sign-up → verify → sign-in mechanics all work; worth fixing in
+`auth-server`'s email/DNS config separately, not blocking this phase.
 
 ---
 
