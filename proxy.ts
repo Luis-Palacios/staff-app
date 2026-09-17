@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
-const PUBLIC_PATHS = new Set(["/sign-in"]);
+const PUBLIC_PATHS = new Set(["/sign-in", "/sign-up", "/needs-verification"]);
 
 export function proxy(request: NextRequest) {
   const hasSessionCookie = Boolean(getSessionCookie(request));
