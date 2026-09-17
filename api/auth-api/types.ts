@@ -1,13 +1,6 @@
-// Mirrors auth-server/src/lib/auth.ts's adminPlugin({ roles: {...} }) — kept in sync by hand,
-// same "reviewed duplication" tradeoff as the role→permission mapping described in
-// docs/AUTH-INTEGRATION-ROADMAP.md.
-export type AuthRole =
-  | "admin"
-  | "user"
-  | "smallGroupLeader"
-  | "deacon"
-  | "pending"
-  | "elder";
+import type { AuthRole } from "@/lib/auth/roles";
+
+export type { AuthRole };
 
 export interface AuthSessionUser {
   id: string;
