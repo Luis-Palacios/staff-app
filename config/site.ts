@@ -59,9 +59,18 @@ export const siteConfig = {
       href: "/applications",
     },
     {
-      label: "Users",
+      label: "Access",
       icon: UserGroupIcon,
-      href: "/users",
+      items: [
+        {
+          label: "Users",
+          href: "/users",
+        },
+        {
+          label: "Invites",
+          href: "/users/invites",
+        },
+      ],
     },
   ] satisfies NavItem[],
   links: {
