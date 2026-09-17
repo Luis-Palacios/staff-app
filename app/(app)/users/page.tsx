@@ -7,6 +7,7 @@ import UsersListSkeleton from "./_components/users-list-skeleton";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { usersBreadcrumb } from "@/config/breadcrumbs";
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
+import { STAFF_ADMIN_ROLES } from "@/lib/auth/roles";
 
 export default async function UsersPage() {
   const session = await getServerSession();
@@ -16,10 +17,7 @@ export default async function UsersPage() {
   // render and then fail fetching data. Replace with the real role→permission model designed in
   // Phase 9 (role-based nav & route gating) once that phase exists; don't build this out further
   // (no requireRole() helper, no other pages copying this check) until then.
-  if (
-    !session ||
-    (session.user.role !== "admin" && session.user.role !== "elder")
-  ) {
+  if (!session || !STAFF_ADMIN_ROLES.includes(session.user.role)) {
     redirect("/");
   }
 

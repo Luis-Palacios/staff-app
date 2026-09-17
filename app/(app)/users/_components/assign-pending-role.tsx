@@ -1,17 +1,14 @@
 "use client";
 
-import type { AuthRole } from "@/api/auth-api/types";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ListBox, Select } from "@heroui/react";
 
-import { ROLE_LABELS } from "./role-display";
-
 import { authClient } from "@/lib/auth/auth-client";
+import { AuthRole, ROLE_LABELS } from "@/lib/auth/roles";
 
 const ASSIGNABLE_ROLES = (Object.keys(ROLE_LABELS) as AuthRole[]).filter(
-  (role) => role !== "pending",
+  (role) => role !== AuthRole.Pending,
 );
 
 export function AssignPendingRole({
@@ -30,7 +27,7 @@ export function AssignPendingRole({
     if (!selectedRole) return;
 
     if (
-      selectedRole === "admin" &&
+      selectedRole === AuthRole.Admin &&
       !window.confirm(`Assign the Admin role to ${userName}?`)
     ) {
       return;
