@@ -1,4 +1,5 @@
 import type {
+  AdminListInvitesResponse,
   AdminListUsersResponse,
   AuthSession,
   AuthToken,
@@ -40,6 +41,22 @@ export function listUsers(cookie: string): Promise<AdminListUsersResponse> {
   return apiFetch<AdminListUsersResponse>(
     BASE_URL,
     "/api/auth/admin/list-users",
+    {
+      headers: { cookie },
+      cache: "no-store",
+    },
+  );
+}
+
+// Not one of better-auth's own endpoints - this hits auth-server's custom /api/custom-auth/invites
+// route (see its own file for why: better-invite's own GET /invite/list hard-scopes results to
+// `createdByUserId === the caller`, so an admin and an elder would each only ever see invites
+// they personally sent). Same session-cookie-gated, server-to-server pattern as listUsers above -
+// the route verifies the forwarded cookie itself, this call doesn't grant anything by itself.
+export function listInvites(cookie: string): Promise<AdminListInvitesResponse> {
+  return apiFetch<AdminListInvitesResponse>(
+    BASE_URL,
+    "/api/custom-auth/invites",
     {
       headers: { cookie },
       cache: "no-store",

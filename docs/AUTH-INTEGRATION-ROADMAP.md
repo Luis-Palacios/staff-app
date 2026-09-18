@@ -692,6 +692,321 @@ for now since the actual sign-up → verify → sign-in mechanics all work; wort
 
 ---
 
+## Phase 7.2 — Block pending-role users at the layout
+`[x]`
+
+**Repo(s):** `staff-app`
+
+**What:** `app/(app)/layout.tsx`'s authoritative session check (Phase 3.2) already redirects an
+unauthenticated visitor to `/sign-in` and, since Phase 7, an unverified one to
+`/needs-verification`. This closed the remaining gap in the middle of the "sign up → get
+promoted" flow: a user who is both authenticated *and* verified but still holds the `admin`
+plugin's `pending` default role (Phase 1) — i.e. signed up (Phase 7) but not yet assigned a real
+role by an admin/elder (Phase 6) — could still reach the full `AppShell` and every page inside
+it, since nothing checked `role` at the layout level. Added a third check,
+`if (session.user.role === AuthRole.Pending) redirect("/needs-role")`, right after the
+`emailVerified` check and before rendering `<UserProvider><AppShell>`, plus a new
+`app/(auth)/needs-role/page.tsx` — a plain client component (matching the other `(auth)` pages'
+bare style, though it does use one HeroUI `Button`) explaining that no role has been assigned yet
+and offering a sign-out action.
+
+**Why:** Without this, a verified-but-pending account could browse the dashboard shell and any
+page that doesn't do its own role check — which, per Phase 6's notes, is every page except
+`/users` itself (and that page's gate was explicitly called out as a page-by-page stopgap, not a
+systemic one). This makes "pending means no access" actually hold at the one place all
+authenticated routes already funnel through, instead of relying on every future page remembering
+to check.
+
+**New concepts:** none new — same `redirect()`-in-a-Server-Component pattern as the
+`emailVerified` check one line above it.
+
+**New env vars:** none.
+
+Update: implemented as described above; committed as `d23739f` ("forbid access to pending
+role"). Deliberately **not** added to `proxy.ts`'s `PUBLIC_PATHS`/matcher logic (Phase 3.2's
+cheap, cookie-presence-only pre-check) — `/needs-role` isn't a *public* page (it only means
+anything once a session already exists), so it falls through that middleware unaffected by
+design, same as any other authenticated route; the actual gate lives solely in the layout's
+authoritative check. Confirmed via the existing code and its commit history rather than a fresh
+live test in this session — the logic is a straightforward conditional redirect matching the
+`emailVerified` check right above it, which *was* verified live in Phase 7.
+
+One nuance worth carrying into Phase 8's planning: this redirect fires on every request to any
+`(app)` route for a pending user, but there's no live push when an admin assigns a role
+mid-session — only a redirect on the next navigation/refresh. Same "role changes need a fresh
+request to take effect" tradeoff already accepted for the JWT claim in Phase 4/10.
+
+---
+
+## Phase 7.5 — Invite system (auth-server + staff-app)
+`[x]`
+
+**Repo(s):** `auth-server` (new dependency, permission statement, plugin config, migration, one
+new custom route) + `staff-app` (new dependency, client plugin registration, a full page).
+
+**What:** Admin/elder can send an email invite pre-assigned to a specific role, instead of the
+only previous option (Phase 7's open sign-up landing everyone on `pending`, then Phase 6's UI to
+manually promote them). Chosen approach and why, in brief (full reasoning was worked through
+conversationally before any code was written, including reading the actual source of every
+option rather than trusting documentation):
+
+- **Not better-auth's `organization` plugin.** It brings its own, separate access-control system
+  (org roles like `owner`/`admin`/`member`) completely independent of this project's existing
+  `accessControl`/`statements.ts`, and using it for invites alone would mean either running two
+  parallel role systems or writing a hook to sync org roles back onto `user.role` anyway — with
+  nothing else in this stack (JWT, FastAPI, nav) ever knowing what an org role is. Multi-tenancy
+  is explicitly a "much later" concern per this project's own scope, so adopting `organization`
+  now would mean building a role model likely to be reworked once real tenancy boundaries are
+  actually decided.
+- **Not hand-rolled from scratch.** Would mean re-deriving a token-expiry/resend/cancel/race-
+  condition state machine that a maintained library already provides.
+- **`better-invite`** (github.com/better-invite/better-invite, MIT, TypeScript, ~59 stars,
+  actively maintained) - a `betterAuth` plugin installed alongside `admin`, with `role` as a
+  plain string end-to-end (no organization concept at all), a `sendUserInvitation` callback
+  matching the existing Resend callback shape, a full invite lifecycle
+  (pending/rejected/canceled/used, plus a virtual "expired" derived from `expiresAt` at read
+  time - never persisted), and an `inviteClient()` companion for `staff-app`'s `authClient`.
+
+`auth-server` changes:
+- `package.json`: `better-invite@^0.5.7` (peer dep `better-auth: ^1.6.11`, compatible with the
+  pinned `^1.7.2`).
+- `src/permissions/statements.ts`: added `invites: ['create', 'cancel']` to the shared
+  `statement` object that only `admin`/`elder` spread into their role - the same boundary Phase 6
+  already uses for user management, reused rather than duplicated.
+- `src/lib/auth.ts`: added the `invite({...})` plugin - `canCreateInvite`/`canCancelInvite` gated
+  via `{ statement: 'invites', permissions: [...] }` (this forwards, inside `better-invite`'s own
+  source, straight to the `admin` plugin's `userHasPermission` endpoint - so "who can invite" is
+  never a separate check from "who manages users"), `invitationTokenExpiresIn: 7 days` (how long
+  the link itself stays valid before being clicked), `inviteCookieMaxAge: 24 hours` (how long the
+  browser holds the invite token between clicking the link and *finishing* sign-up - deliberately
+  much longer than better-invite's own 10-minute default, since this project's sign-up requires a
+  *second*, separate verification email before the role-upgrade hook can fire - see "Still
+  requires email verification" below), and `sendUserInvitation` calling Resend in the same shape
+  as `sendResetPassword`/`sendVerificationEmail`.
+  - **Real typing gotcha, worth remembering if this file's `plugins` array is touched again:**
+    `authConfig` had to move from a `: BetterAuthOptions` annotation to `satisfies
+    BetterAuthOptions` (preserves literal plugin types instead of erasing them - needed to get
+    `auth.api.userHasPermission`/`auth.api.getSession` properly typed for in-process use, which
+    they weren't before this phase - this was the *first* in-process `auth.api.*` call in this
+    codebase). That surfaced a genuine bug in `better-invite`'s own published types: its
+    `dist/index.d.mts` imports `InviteType`/`InviteTypeWithId` from an internal module it never
+    re-exports from its public entry point, so TypeScript (`TS2883`) refuses to let that type
+    flow into any inferred/exported position - including `auth`'s own export. Fixed by widening
+    just the `invite(...)` plugin's return value to the generic `BetterAuthPlugin` at the point
+    it's inserted into the array (costs nothing: `auth-server` never calls this plugin's own
+    endpoints in-process, only `staff-app`'s browser does via `authClient.invite.*`). Worth
+    filing upstream at some point.
+- New migration (`drizzle/`) for the `invite`/`inviteUse` tables, generated via the documented
+  `pnpm dlx auth@latest generate` flow and applied with `pnpm drizzle-kit migrate`.
+- **New custom route, `GET /api/custom-auth/invites`** (`src/routes/custom-auth/{index,invites}.ts`,
+  mounted in `src/index.ts` alongside `/health`, *not* under `/api/auth/*`). Exists because
+  `better-invite`'s own `GET /invite/list` hard-scopes results to
+  `where: [{ field: "createdByUserId", value: session.user.id }]` with **no config to bypass
+  it** (confirmed by reading the route source directly) - so an admin and an elder would each
+  only ever see invites *they personally* sent, never each other's. Same restriction applies to
+  cancellation (`/invite/cancel` throws unconditionally if `invitation.createdByUserId !==
+  inviterUser.id`, checked *before* any permission config). The new route gives admin/elder
+  visibility across every outstanding invite regardless of sender - it verifies the session
+  itself (`auth.api.getSession({ headers })`) and the `invites` permission
+  (`auth.api.userHasPermission`) before running a plain Drizzle query joining `invite` to `user`
+  (for who sent each one); cancelling still goes through `better-invite`'s own endpoint, so a
+  viewer can *see* another admin's invite but only *cancel* their own. `/api/custom-auth/*` is
+  meant as a reusable namespace for any future query against the auth DB that no existing
+  better-auth/better-invite endpoint can do - not a one-off.
+
+`staff-app` changes:
+- `package.json`: `better-invite@^0.5.7`; `lib/auth/auth-client.ts` registers `inviteClient()`
+  alongside the existing `adminClient({ roles })`.
+- `api/auth-api/types.ts`/`client.ts`: `AdminInviteListItem`/`AdminListInvitesResponse`/
+  `InviteStatus` types, and `listInvites(cookie)` calling the new `/api/custom-auth/invites`
+  route - same cookie-forwarding, server-to-server pattern as `listUsers`, not routed through the
+  browser proxy.
+- `app/(app)/users/invites/`: replaced the placeholder page with the full feature, structured
+  exactly like Phase 6's users page (role-gated `page.tsx` → `Suspense` → server-fetched list →
+  desktop `Table` + mobile `Card` grid, plus a matching skeleton). New pieces:
+  `_components/invites-list.tsx` (server component; also threads the *current* signed-in user's
+  id down, from the `getServerSession()` call `page.tsx` already made - needed nowhere in the
+  Phase 6 users list, but required here so each row knows whether to render a working Cancel
+  button), `invites-summary-table.tsx`/`invite-card-summary.tsx`, `invite-status-chips.tsx`
+  (status label/color, including deriving the virtual "expired" state), `cancel-invite-button.tsx`
+  (`"use client"`, calls `authClient.invite.cancel({ token })` - keyed by `token`, not `id`, per
+  `better-invite`'s own schema - `router.refresh()` on success, no confirmation dialog since
+  cancelling is low-stakes/reversible), and `new-invite-form.tsx` (`"use client"`, HeroUI
+  `TextField` + `Select`, calls `authClient.invite.create(...)`, with the same admin-specific
+  `window.confirm` guard `AssignPendingRole` already uses for promoting someone *to* admin).
+  Only `redirectToAfterUpgrade` (→ `${window.location.origin}/`) is sent on that call - see below
+  for why `redirectToSignUp`/`redirectToSignIn` are deliberately *not* sent.
+
+**Two real bugs found in `better-invite` while testing this live, and how each was routed around**
+(first pass at this phase configured `defaultRedirectToSignUp`/`defaultRedirectToSignIn` in
+`auth.ts` and had `new-invite-form.tsx` send per-invite `redirectToSignUp`/`redirectToSignIn` -
+that whole approach was abandoned once live testing surfaced the second bug below; both are
+described here so the history isn't lost, and because the second one shaped the final design):
+
+1. **Type-export gap** (cosmetic, described above under the `authConfig` typing note) -
+   `InviteType`/`InviteTypeWithId` used internally but never re-exported from the package's public
+   entry point, tripping TypeScript's `TS2883`. Worked around locally; costs nothing at runtime.
+2. **`activate-invite-callback.ts` drops `callbackURL` entirely** - confirmed by reading the
+   source: the `GET /invite/:token` route (what an emailed link hits directly) parses
+   `callbackURL` from its own query-string schema, but then calls the shared activation logic with
+   only `ctx.params` (just `{ token }`) instead of merging in `ctx.query` - so the query param
+   never reaches the code that would use it, and every click silently falls through to
+   `options.defaultRedirectToSignIn` regardless of whether the invitee is new or already has an
+   account. Confirmed live: a first attempt (before this was understood) landed on
+   `http://localhost:5000/auth/sign-in`, a 404 - `defaultRedirectToSignIn` defaults to a relative
+   path that resolves against `auth-server`'s own origin, which serves no HTML pages at all.
+3. **A deeper mismatch this second bug exposed, not just a config miss**: `better-invite`'s
+   cookie-based hand-off (store the invite token in a signed cookie, redirect the browser to a
+   sign-up/sign-in page, read the cookie back once that form's endpoint is hit) implicitly assumes
+   the sign-up/sign-in UI is served from the *same origin* as `auth-server` itself. That conflicts
+   with this project's own, deliberate BFF architecture (Phase 0/3): `staff-app` is a separate
+   origin that proxies `/api/auth/*` server-side specifically so cookies stay same-origin *from
+   the browser's perspective*. A cookie `auth-server` sets while the browser is sitting on its own
+   origin (which is where the raw emailed link lands, before any `staff-app` page has loaded) is
+   scoped to `auth-server`'s origin - and would never be sent back on a request the browser
+   believes is going to `staff-app`'s different origin, once redirected there. (In local dev this
+   accidentally still worked, because cookies are scoped by hostname only - `localhost:5000` and
+   `localhost:3000` share a hostname and cookies ignore port, unlike CORS. In production, where
+   `staff-app` and `auth-server` will almost certainly be genuinely different hostnames, this would
+   have silently broken.)
+
+**The fix**, once both were understood: stop using `activate-invite-callback.ts`'s buggy GET route
+entirely. `better-invite` ships a second, unaffected endpoint doing the same underlying work -
+`POST /invite/activate` (JSON in: `{ token }`, JSON out: `{ action, redirectTo }`) - meant to be
+called from application code via `authClient.invite.activate(...)` rather than clicked as a raw
+link. So:
+- `auth-server`'s `sendUserInvitation` (in `auth.ts`) no longer uses the plugin-built `url` it's
+  handed at all. It builds its own link instead, pointing straight at a new `staff-app` page:
+  `${config.staffAppUrl}/accept-invite?token=...&email=...` (both `token` and the invitee's
+  `email` come directly from `sendUserInvitation`'s own callback data). `config.staffAppUrl` is a
+  new env var, `STAFF_APP_URL`, validated with `z.url(...)` in `src/lib/config.ts` exactly like
+  `BETTER_AUTH_URL`, and defensively trailing-slash-stripped in the same derived-values section as
+  `corsOrigins` - the single canonical origin `staff-app` is served from, distinct from
+  `CORS_ORIGINS` (a list, for the CORS allow-list) since this needs to be one unambiguous value.
+  `defaultRedirectToSignUp`/`defaultRedirectToSignIn` were removed from the `invite({...})` config
+  entirely - they're never read by this new flow.
+- New `app/(auth)/accept-invite/page.tsx` (async Server Component, reads `token`/`email` from
+  `searchParams`) + `_components/accept-invite-client.tsx` (`"use client"`, calls
+  `authClient.invite.activate({ token })` on mount through the *existing* same-origin `/api/auth/*`
+  proxy - same origin as every other session-cookie interaction, which is what actually fixes bug
+  3 above, not just bug 2). If the response's `action` is `REDIRECT_TO_AFTER_UPGRADE` (the invitee
+  was already logged in - e.g. testing while signed in as admin), the invite is consumed
+  immediately and the page redirects straight to `redirectTo`. Otherwise it shows a plain "Create
+  account" / "Sign in" choice - both links carry the invited `email` forward as a query param
+  rather than the page trying to guess which one is right (which is exactly what bug 2 made
+  impossible to do reliably server-side anyway).
+- `proxy.ts` gained a new `ALWAYS_ALLOWED_PATHS` set (currently just `/accept-invite`), distinct
+  from `PUBLIC_PATHS`: `PUBLIC_PATHS` also *redirects away* from the page when a session cookie is
+  already present (correct for `/sign-in`/`/sign-up`, wrong here - an already-logged-in user
+  clicking an invite link still needs to hit this page for the immediate-consumption branch above
+  to ever run, not get bounced to `/` first).
+- **The invited email carries through to sign-up, and is locked there, not just pre-filled.**
+  This isn't only a convenience: `better-invite`'s own role-upgrade logic (`consumeInvite`)
+  validates the signing-up user's email against the invitation's stored email(s) before applying
+  the role - typing a different email at sign-up would silently leave the invite unconsumed, with
+  no error surfaced anywhere. To make that structurally hard to hit, `sign-up/page.tsx` and
+  `sign-in/page.tsx` were both split into a thin async Server Component (`searchParams` → an
+  `initialEmail` prop, matching `needs-verification/page.tsx`'s existing pattern) plus a
+  `_components/{sign-up,sign-in}-form.tsx` client component holding the previous form logic. On
+  sign-up specifically, the email `<input>` is `disabled` (not just pre-filled) whenever
+  `initialEmail` is present, with a short note explaining why; sign-in's is pre-filled but left
+  editable (no correctness reason to lock it there - a returning user may legitimately want to
+  sign into a different existing account).
+
+**Still requires email verification - invites don't bypass Phase 7.** Traced through
+`better-auth`'s own `sign-up.mjs`: with `requireEmailVerification: true` set globally,
+`/sign-up/email` **hardcodes** skipping session creation (`shouldSkipAutoSignIn`) based on that
+static option, not on the specific user's `emailVerified` value - so there is no hook-based way
+to special-case invited users without abandoning better-auth's own sign-up endpoint entirely and
+hand-rolling one. (A `requireEmailVerificationOnInvitation`-style option was floated during
+planning and confirmed, by reading `better-invite`'s actual published types directly, not to
+exist in the package - a hallucinated/incorrect example, not a real option.) So the real flow for
+an invited user is: click invite link → invite token cookie set → sign-up form (unverified
+account created, no session yet) → **separate** verification email (Phase 7's existing one) →
+click it → `autoSignInAfterVerification` creates a session at `/verify-email` → `better-invite`'s
+hook (which matches that exact path) sees the still-valid cookie and upgrades the role there, in
+the same request, before redirecting to `redirectToAfterUpgrade`. The 24-hour `inviteCookieMaxAge`
+above exists specifically to survive that two-email round trip. Known failure mode if the cookie
+does expire first: the account still gets created and verified normally, but the role upgrade
+silently never fires (lands as `pending`; the invitation row stays `status: "pending"` forever
+with nothing surfaced to anyone) - the existing Phase 6 admin UI is the manual fallback, same as
+any other pending signup.
+
+**New concepts:** better-auth plugin composition beyond the ones already in `auth.ts`
+(`admin`/`jwt`/`openAPI`); calling a better-auth endpoint in-process via `auth.api.*` instead of
+over HTTP (and the TypeScript portability pitfall that comes with it, see above); a third-party
+plugin's own internal permission-check plumbing (`checkPermissions` forwarding to
+`userHasPermission`) as a reuse target instead of writing a parallel check; cookie same-origin
+scoping in a BFF/proxy architecture, and why cookies are scoped by hostname only (port is ignored,
+unlike CORS's origin model) - which is what let the first, buggy approach limp along in local dev
+while masking a real production-breaking issue; routing around a third-party plugin's broken
+redirect-based entry point by calling its JSON API surface directly from application code instead,
+rather than patching or forking the plugin.
+
+**New env vars:** `auth-server/.env`: `STAFF_APP_URL` (see above - the canonical `staff-app`
+origin, used to build the invite-acceptance link).
+
+Update: `pnpm exec tsc --noEmit`, `pnpm exec biome check` (`auth-server`), `pnpm lint` /
+`pnpm exec tsc --noEmit` (`staff-app`), and a full `pnpm build` (`staff-app`) all clean throughout.
+**Verified live end-to-end**, including hitting both bugs above for real before they were
+understood and fixed: created an invite, received the actual email (inviter name/email correctly
+attributed), clicked the link, landed on `/accept-invite`, chose "Create account," confirmed the
+invited email arrived locked into the sign-up form, completed sign-up, verified via the separate
+verification email, and landed back in the app with the invited role applied.
+
+**Bearing on Phase 8 (swap in `better-auth-ui[heroui]`) - read this before starting that phase:**
+- `lib/auth/auth-client.ts`'s `authClient` now carries **two** plugin registrations
+  (`adminClient({ roles })` and `inviteClient()`), not one. Swapping sign-in/sign-up forms to
+  `better-auth-ui` must keep both - `inviteClient()` isn't something the UI library would ever
+  add on its own, since `better-invite` isn't a `better-auth` core plugin, and `/accept-invite`
+  depends on `authClient.invite.activate(...)` regardless of which library renders anything else.
+- **`sign-up/page.tsx` and `sign-in/page.tsx` are no longer single files.** Each is now a thin
+  async Server Component (reads `searchParams`, e.g. `?email=...` from `/accept-invite`) plus a
+  `_components/{sign-up,sign-in}-form.tsx` client component taking `initialEmail` as a prop -
+  matching `needs-verification/page.tsx`'s existing pattern. Whatever `better-auth-ui` component(s)
+  replace the form logic need to preserve this: an externally-supplied initial email value that
+  sign-up specifically renders as **disabled**, not just pre-filled (see the correctness reason
+  above - a typo-proofed email is what makes the invite reliably consumable, not a UX nicety).
+  Confirm `better-auth-ui`'s sign-up primitive actually supports a controlled/disabled email field
+  before assuming this carries over for free.
+- `/accept-invite` (`app/(auth)/accept-invite/`) is a new page, deliberately bare/custom (no
+  HeroUI, matching every other `(auth)` page except `needs-role`'s one-off `Button`) - it's not one
+  of the traditional "sign in / sign up" forms `better-auth-ui` targets, but it's part of the same
+  route group and the same overall flow. Decide explicitly whether Phase 8 restyles it too, rather
+  than leaving it as the one visually-inconsistent page by accident.
+- `proxy.ts` gained a new concept, `ALWAYS_ALLOWED_PATHS`, alongside the existing `PUBLIC_PATHS` -
+  worth knowing about if Phase 8 touches routing/middleware for any reason, since the two sets
+  mean different things (`PUBLIC_PATHS` bounces an already-authenticated visitor away;
+  `ALWAYS_ALLOWED_PATHS` doesn't).
+- The actual role-upgrade hook (`better-invite`'s `hooks.ts`) fires on the *underlying*
+  `/sign-up/email`, `/sign-in/email`, and `/verify-email` endpoint calls - not on anything UI-
+  library-specific, so it should keep working unchanged regardless of which component renders the
+  form that triggers those calls. This part *is* now verified live (see above) for the
+  `/verify-email` path specifically - re-verify it again once Phase 8's forms are in place, since
+  the component swap is still a real change to how those calls get made.
+- **Known, still-unverified edge case, independent of Phase 8**: `/sign-in/email` is normally
+  called via `authClient.signIn.email(...)` - a `fetch()` expecting a JSON response. If someone
+  with a pending invite cookie signs in through the normal form (the "invite an existing,
+  already-verified user" case - not the primary new-invitee path, which goes through
+  `/verify-email` instead and is unaffected), `better-invite`'s hook calls `ctx.redirect(...)`
+  instead of letting the normal JSON response through, which `fetch` follows transparently -
+  likely surfacing as a confusing "error" in the sign-in form even though the account/role update
+  actually succeeded server-side. Worth a live test and, if confirmed, a fix (e.g. having the
+  sign-in form treat a JSON-parse failure as ambiguous-but-possibly-successful rather than a hard
+  error) - not solved as part of this phase.
+- Confirm whatever `better-auth-ui` sign-up component Phase 8 adopts still supports passing an
+  explicit `callbackURL` - Phase 7's existing forms rely on this for the verification-email
+  redirect (landing back on `staff-app`'s own `/sign-in` rather than a cross-origin `auth-server`
+  page). This is independent of the invite flow, which no longer uses `callbackURL` at all on the
+  `activate` call, but both mechanisms need to keep working side by side.
+- Phase 7.2's pending-role block (`app/(app)/layout.tsx` → `/needs-role`) and the whole
+  `/users/invites` admin page are both **outside Phase 8's scope** - the former is a plain
+  custom redirect with no form to swap, the latter is an admin dashboard page built entirely in
+  HeroUI already, not one of the public auth forms `better-auth-ui` targets. Worth stating
+  explicitly so neither gets touched by accident while Phase 8 is in progress.
+
+---
+
 ## Phase 8 — Swap in better-auth-ui[heroui]
 `[ ]`
 
@@ -791,16 +1106,20 @@ every time — same tradeoff already flagged as a "new concept" back in Phase 4.
 
 ## Suggested order
 
-1 → 2 → 3 → 3.2 → 3.5 → 4 → 5 → 6 → 7 → 8 → 9 → 10. Reasoning: fix the cheap-but-important
-permission gap first (1), then build the session round-trip in the smallest possible slice (2)
-before adding the proxy on top of it (3), then add route protection and the public/authenticated
-layout split (3.2), then close the logout gap and get real session data into the topbar (3.5) —
-small, self-contained, and it builds the `useCurrentUser()` context Phase 9 will also want — then
-bridge to the API with the JWT (4) and have `membership-applications` verify it (5) — authentication
-only, since that's the other half of the original question and doesn't need the role→permission
-model settled yet — then user management (6) — which is what makes provisioning practical and
-de-risks sign-up (7) — then the UI-library swap (8), then role-based nav/route gating for both
-`staff-app` and `membership-applications` together (9), pushed out once because the role→permission
-model needed more thought than a quick pass between other phases, and finally JWT caching (10),
-pushed to last because it's a pure optimization with no other phase depending on it and nothing to
-measure until real usage exists.
+1 → 2 → 3 → 3.2 → 3.5 → 4 → 5 → 6 → 7 → 7.2 → 7.5 → 8 → 9 → 10. Reasoning: fix the
+cheap-but-important permission gap first (1), then build the session round-trip in the smallest
+possible slice (2) before adding the proxy on top of it (3), then add route protection and the
+public/authenticated layout split (3.2), then close the logout gap and get real session data into
+the topbar (3.5) — small, self-contained, and it builds the `useCurrentUser()` context Phase 9
+will also want — then bridge to the API with the JWT (4) and have `membership-applications`
+verify it (5) — authentication only, since that's the other half of the original question and
+doesn't need the role→permission model settled yet — then user management (6) — which is what
+makes provisioning practical and de-risks sign-up (7) — then close the gap sign-up's own two-step
+flow leaves open (7.2), then invites (7.5) — both slotted in right after sign-up since they
+directly extend the account-provisioning story Phases 1/6/7 already built, and both had to exist
+before Phase 8's UI swap could be planned with the full picture in view — then the UI-library
+swap itself (8), then role-based nav/route gating for both `staff-app` and
+`membership-applications` together (9), pushed out once because the role→permission model needed
+more thought than a quick pass between other phases, and finally JWT caching (10), pushed to last
+because it's a pure optimization with no other phase depending on it and nothing to measure until
+real usage exists.
