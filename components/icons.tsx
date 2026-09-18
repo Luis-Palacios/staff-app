@@ -133,6 +133,31 @@ export const SunFilledIcon = ({
   </svg>
 );
 
+export const SystemIcon = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    fill="none"
+    focusable="false"
+    height={size || height}
+    role="presentation"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={2}
+    viewBox="0 0 24 24"
+    width={size || width}
+    {...props}
+  >
+    <rect height="14" rx="2" width="20" x="2" y="3" />
+    <path d="M8 21h8M12 17v4" />
+  </svg>
+);
+
 export const HeartFilledIcon = ({
   size = 24,
   width,
