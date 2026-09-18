@@ -11,8 +11,13 @@ import { authClient } from "@/lib/auth/auth-client";
 
 // Deliberately bare (plain HTML, no HeroUI) — this page exists to prove the session round-trip
 // from staff-app to auth-server works end-to-end (Phase 2 of docs/AUTH-INTEGRATION-ROADMAP.md).
-// It gets replaced by better-auth-ui in Phase 8.
-export function SignInForm({ initialEmail }: { initialEmail: string | null }) {
+export function SignInForm({
+  initialEmail,
+  notice,
+}: {
+  initialEmail: string | null;
+  notice: string | null;
+}) {
   const router = useRouter();
   const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
@@ -71,6 +76,8 @@ export function SignInForm({ initialEmail }: { initialEmail: string | null }) {
 
   return (
     <form className="flex max-w-sm flex-col gap-4" onSubmit={handleSubmit}>
+      {notice ? <p className="text-green-600">{notice}</p> : null}
+
       <label className="flex flex-col gap-1">
         Email
         <input
@@ -90,6 +97,17 @@ export function SignInForm({ initialEmail }: { initialEmail: string | null }) {
           onChange={(event) => setPassword(event.target.value)}
         />
       </label>
+
+      <Link
+        className="w-fit text-sm underline"
+        href={
+          email
+            ? `/forgot-password?email=${encodeURIComponent(email)}`
+            : "/forgot-password"
+        }
+      >
+        Forgot password?
+      </Link>
 
       {error ? <p className="text-red-500">{error}</p> : null}
 

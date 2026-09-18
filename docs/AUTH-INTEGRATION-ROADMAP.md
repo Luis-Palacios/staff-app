@@ -954,7 +954,11 @@ attributed), clicked the link, landed on `/accept-invite`, chose "Create account
 invited email arrived locked into the sign-up form, completed sign-up, verified via the separate
 verification email, and landed back in the app with the invited role applied.
 
-**Bearing on Phase 8 (swap in `better-auth-ui[heroui]`) - read this before starting that phase:**
+**Bearing on Phase 8 (originally scoped as swapping in `better-auth-ui[heroui]`) - written before
+that phase started; Phase 8 itself ended up reversed to a hand-rolled `/reset-password` instead of
+adopting the library (see its own notes), so the points below that concern sign-in/sign-up now
+matter for Phase 8.5's styling pass instead, since that's the phase that actually touches those
+forms next:**
 - `lib/auth/auth-client.ts`'s `authClient` now carries **two** plugin registrations
   (`adminClient({ roles })` and `inviteClient()`), not one. Swapping sign-in/sign-up forms to
   `better-auth-ui` must keep both - `inviteClient()` isn't something the UI library would ever
@@ -1007,22 +1011,237 @@ verification email, and landed back in the app with the invited role applied.
 
 ---
 
-## Phase 8 — Swap in better-auth-ui[heroui]
+## Phase 8 — Bare `/reset-password`; `better-auth-ui` dropped entirely
+`[x]`
+
+**Repo(s):** `staff-app`
+
+**What:** Originally scoped as a full swap of every hand-rolled form (sign-in, sign-up, reset-
+password) for `better-auth-ui[heroui]`. Revisited before touching code, per this doc's own
+plan-first process, against two concerns raised going in: (1) does the library know anything about
+the `pending`-role gate (Phase 7.2), and (2) can it preserve the invite flow's locked (not just
+pre-filled) email field (Phase 7.5). Resolved by reading the actual current source of the package
+(`better-auth-ui/better-auth-ui` on GitHub, `packages/heroui/src/components/auth/*.tsx`, checked
+against `main` as of 2026-09-17 — the marketing docs at better-auth-ui.com don't go deep enough to
+answer either question, so source was the only reliable source of truth), not assumed from docs:
+
+- **Concern 1 is moot.** The library has no role/authorization concept anywhere — every component
+  is pure form-rendering plus `authClient` mutation calls plus its own client-side navigation
+  (`basePaths`/`viewPaths`/`navigate`). Phase 7.2's gate is a server-side redirect in
+  `app/(app)/layout.tsx`, entirely downstream of and blind to which component rendered the form
+  that produced the session. Swapping forms doesn't touch it either way, full swap or partial.
+- **Concern 2 is real, not a misreading.** `packages/heroui/src/components/auth/sign-up.tsx`'s
+  `SignUpProps` is `{ className?, socialLayout?, socialPosition?, variant?, onSignUpSuccess? }` —
+  no prop to inject a controlled/disabled email value; the form's `email` field is hardcoded to
+  `defaultValues: { email: "", ... }` internally, with no external override point.
+  `sign-in.tsx`'s `SignInProps` has the same gap (no email-prefill prop either, though sign-in's
+  email was only ever pre-filled-but-editable, not locked, so that side is lower-stakes). Also
+  relevant: the HeroUI package installs as a real npm dependency (`@better-auth-ui/heroui`), not
+  shadcn's copy-into-your-repo registry model, so there's no low-friction "just edit the source"
+  escape hatch without maintaining a fork.
+- **`ForgotPassword`/`ResetPassword`** (`packages/heroui/src/components/auth/{forgot-password,
+  reset-password}.tsx`) have neither problem — plain email-in/token-in, reset-link/reset-password-
+  out, no role or invite entanglement to fight.
+
+**Decision:** split the phase. Adopt `better-auth-ui[heroui]`'s `ForgotPassword`/`ResetPassword`
+components for the one piece that was still unbuilt (`/reset-password` didn't exist yet). Keep the
+existing hand-rolled `sign-in-form.tsx`/`sign-up-form.tsx` (Phase 7.5) as-is — styled with HeroUI
+primitives directly (already the pattern used elsewhere in the app), not routed through the
+library's `<SignIn>`/`<SignUp>`. This preserves the invite email-lock (a correctness property, not
+a cosmetic one — see Phase 7.5's notes on why a typo-proofed email is what makes an invite reliably
+consumable) without forking anything, at the cost of not having one consistent form library across
+every auth page.
+
+**Why:** Original reasoning (faster UI iteration once mechanics are understood) still holds for
+reset-password, which has no custom constraints. It doesn't hold for sign-in/sign-up once the
+actual prop surface was checked — adopting those would mean either weakening the invite guarantee
+or maintaining a forked component, both worse than the small amount of hand-rolled form code
+already working.
+
+**New concepts:** `better-auth-ui`'s API surface (confirmed via source, not docs, for this
+decision); `@better-auth-ui/heroui`/`@better-auth-ui/react`/`@better-auth-ui/core` as the current
+package split (newer than the `better-auth-ui[heroui]` extras-style name used earlier in this doc).
+
+**New env vars:** none expected.
+
+**Next:** plan the `ForgotPassword`/`ResetPassword` piece itself (routes, `AuthProvider` wiring,
+`basePaths`/`viewPaths` mapping onto `/reset-password`, how it plugs into the existing
+`(auth)` route group) before writing any code, per this doc's working process.
+
+**Update — reversed before any code was written.** While scoping the install step, the actual
+peer-dependency list for `@better-auth-ui/heroui` (checked via GitHub's `packages/heroui/package.json`,
+not assumed) turned out to be `@better-auth-ui/core`, `@better-auth-ui/react`, `@gravity-ui/icons`,
+`@internationalized/date`, `@tanstack/react-form`, `@tanstack/react-pacer`, `@tanstack/react-query`,
+`@tanstack/react-store`, `@tanstack/react-table`, and `bowser` — 10 new packages, none reused
+anywhere else in the app, to render two small forms (email-in / token-and-password-in). Weighed
+against that cost with the mechanics already fully understood (see below), decided it wasn't worth
+it even for the narrower reset-password-only scope — **`better-auth-ui` is dropped from this repo
+entirely**, not just deferred for sign-in/sign-up. `/reset-password` (and `/forgot-password`) get
+built hand-rolled, matching `sign-in-form.tsx`/`sign-up-form.tsx`'s existing pattern.
+
+This doesn't throw away the investigation above — the two real findings (no role/authorization
+concept to worry about; the invite email-lock gap) remain true and are exactly why a future
+reconsideration of `better-auth-ui` for sign-in/sign-up specifically would hit the same wall. What
+changed is only the reset-password cost/benefit call, once the dependency weight was concrete
+instead of assumed cheap.
+
+**The actual reset-password mechanics** (traced from `better-auth`'s own source —
+`dist/api/routes/password.mjs` — independent of whichever UI renders the form, so this reasoning
+carries over unchanged to the hand-rolled build):
+- `authClient.requestPasswordReset({ email, redirectTo })` → `POST /api/auth/request-password-reset`
+  (through the existing Phase 3 same-origin proxy, like every other mutation). `redirectTo` **must**
+  be an absolute URL on `staff-app`'s own origin (`${window.location.origin}/reset-password`) — the
+  same "absolute callbackURL, not relative" requirement Phase 7 already established for the
+  verification-email link, for the same reason: the emailed link is served from `auth-server` and
+  a relative `redirectTo` would resolve against *auth-server's* origin, not `staff-app`'s (a 404,
+  the same shape of bug Phase 7.5 hit and fixed for invites). `redirectTo`'s origin is checked by
+  better-auth's `originCheck` middleware against `trustedOrigins` — already satisfied, since
+  `staff-app`'s origin has to be in `auth-server`'s CORS/trusted-origins list for anything in this
+  app to work at all (Phase 2/3). No new `auth-server` config needed.
+- `auth-server` already has `emailAndPassword.sendResetPassword` wired (`src/lib/auth.ts`, existed
+  before this phase, unrelated to it) — it builds the emailed link itself:
+  `${auth-server origin}/api/auth/reset-password/:token?callbackURL=<our redirectTo>`, a plain GET
+  a mail client follows directly, same as the verification-email link.
+- Clicking it hits auth-server's `GET /reset-password/:token` (better-auth core route), which
+  validates the token then 307-redirects to `callbackURL` with `?token=<verificationToken>`
+  appended — since `callbackURL` is already absolute, this lands the browser on
+  `staff-app`'s own `/reset-password?token=...`, a plain cross-origin navigation carrying only a
+  query param, not a cookie — so this flow, unlike invites, never hits the cross-origin-cookie
+  problem Phase 7.5 had to route around.
+- `/reset-password` reads `token` from `searchParams`, and on submit calls
+  `authClient.resetPassword({ newPassword, token })` → `POST /api/auth/reset-password` (through the
+  proxy again, a normal `authClient` mutation).
+
+**Revised plan, hand-rolled, mirroring Phase 7's `sign-in`/`sign-up` pages exactly:**
+1. `app/(auth)/forgot-password/page.tsx` + `_components/forgot-password-form.tsx` — email input,
+   `authClient.requestPasswordReset({ email, redirectTo: `${window.location.origin}/reset-password` })`,
+   a "check your email" confirmation state on success (no separate `/reset-link-sent` route needed —
+   this can be inline state, unlike the needs-verification page which has to survive a full
+   navigation/redirect).
+2. `app/(auth)/reset-password/page.tsx` (reads `token` from `searchParams`, async Server Component
+   like `sign-in`/`sign-up`) + `_components/reset-password-form.tsx` (`"use client"`, new-password +
+   confirm fields, `authClient.resetPassword({ newPassword, token })`, redirect to `/sign-in` on
+   success).
+3. `proxy.ts`: `/forgot-password` joins `PUBLIC_PATHS` (same treatment as `/sign-in`/`/sign-up` —
+   bounce an already-authenticated visitor to `/`). `/reset-password` joins
+   `ALWAYS_ALLOWED_PATHS` alongside `/accept-invite`, not `PUBLIC_PATHS` — the token lives in the
+   query string, and `PUBLIC_PATHS`'s redirect-away-if-authenticated behavior would drop that query
+   string before the token could ever be consumed if the browser happens to already hold a session
+   cookie.
+4. "Forgot password?" link added to `sign-in-form.tsx`.
+5. Verify: `pnpm lint`, `npx tsc --noEmit`, `pnpm build`, then a live end-to-end test (request a
+   reset, follow the real emailed link, confirm it lands on `/reset-password` with a token, set a
+   new password, confirm sign-in works with it).
+
+**New env vars:** none.
+
+**Update — built as planned, plus two rounds of fixes found in live testing.** Steps 1–4 above went
+in as scoped, one piece at a time (`pnpm lint`/`npx tsc --noEmit`/`pnpm build` clean after each).
+Live testing against the real `auth-server`/Resend setup surfaced two gaps the plan hadn't covered,
+both fixed before calling this done:
+
+- **An expired/already-used reset link landed on a form that still looked usable.**
+  `auth-server`'s `GET /reset-password/:token` route (the one the emailed link hits directly)
+  redirects with `?error=INVALID_TOKEN` instead of `?token=...` when the token's dead — confirmed
+  live, not just from source. `/reset-password/page.tsx` wasn't reading that param at all, so the
+  form rendered normally and only failed at submit with a small red string next to still-live
+  password fields. Fixed by reading `error` from `searchParams` (new `invalidLink` prop threaded
+  into `ResetPasswordForm`) and swapping the *entire* form out for a dedicated "Reset link no longer
+  valid" state — heading, one explanatory sentence, a link to `/forgot-password` to request a new
+  one, a link back to `/sign-in` — shown before the form ever renders, not discovered via a failed
+  submit. The same state now also fires if `resetPassword` itself later returns
+  `code: "INVALID_TOKEN"` (token dies between page load and submit — e.g. a second tab), so both
+  failure points converge on one message instead of two different-looking errors. Deliberately
+  generic wording (doesn't distinguish expired vs. already-used vs. tampered) — same
+  don't-give-a-verification-oracle reasoning already applied to JWT verification in Phase 5.
+- **A successful reset silently dropped you on `/sign-in` with no confirmation.** Fixed by having
+  `reset-password-form.tsx` redirect to `/sign-in?reset=1` instead of a bare `/sign-in`, and having
+  `sign-in/page.tsx` read that (plus `email`) to compute a `notice` string passed into `SignInForm`,
+  rendered as a green success line above the form. While wiring this up, found `?verified=1` (used
+  by `sign-up-form.tsx`'s `callbackURL` and `resend-verification-button.tsx` since Phase 7) had the
+  *same* gap — `sign-in/page.tsx` never read it either, so that confirmation has been silently
+  dropped since Phase 7 shipped. Fixed both with the same mechanism rather than building a second
+  one-off: `notice` is `reset` → password-reset message, else `verified` → email-verified message,
+  else `null`. Known, accepted tradeoff: the banner is query-param-driven, so it survives a page
+  refresh rather than self-dismissing like a toast — fine for a one-time landing page, not treated
+  as a bug.
+
+Also added: the "Forgot password?" link on `sign-in-form.tsx` carries the currently-typed email
+into `/forgot-password?email=...` (mirrors the existing `initialEmail` prefill pattern already used
+by `sign-up`/`needs-verification`), and the two stale "It gets replaced by better-auth-ui in Phase 8"
+comments in `sign-in-form.tsx`/`sign-up-form.tsx` were removed now that that's no longer the plan.
+
+Verified live end-to-end: requested a reset, received the real Resend email, followed the link,
+landed on `/reset-password` with a token, set a new password, redirected to `/sign-in?reset=1` with
+the success banner showing, signed in with the new password successfully. Also verified the
+expired-link path by reusing an already-consumed link — landed on the "no longer valid" state as
+designed, not the form.
+
+---
+
+## Phase 8.5 — Style the auth pages with HeroUI
 `[ ]`
 
 **Repo(s):** `staff-app`
 
-**What:** Replace the hand-rolled forms from Phases 2/7 with `better-auth-ui[heroui]`, wired to
-the same `authClient` instance. Authorization/routing logic (middleware, role gates) is untouched
-— only the form rendering changes.
+**What:** Every page under `app/(auth)/` is currently bare HTML (`<label>`/`<input>`/`<button>`
+with plain `rounded border px-3 py-2` classes) or only partially styled. Restyle all of them with
+`@heroui/react` primitives, visually inspired by how `better-auth-ui[heroui]`'s own components look
+(Card-wrapped forms, labeled fields with inline validation styling, a password field with a
+show/hide toggle) — but hand-rolled directly in this app's own form components, not by installing
+the library (Phase 8's reversal reasoning still holds: no new dependency for this either).
+Confirmed via `node_modules/@heroui/react/dist/components`, the already-installed `@heroui/react`
+3.2.4 has every primitive `better-auth-ui[heroui]`'s components lean on —
+`Card`/`Card.Header`/`Card.Title`/`Card.Content`/`Card.Footer`, `TextField`, `Input`, `Label`,
+`Description`, `FieldError`, `InputGroup`/`InputGroup.Input`/`InputGroup.Suffix`, `Button`, `Link`
+— so this phase adds **zero new dependencies**. The password show/hide toggle (the one place
+`better-auth-ui` reaches for an icon, via `@gravity-ui/icons`) uses `@heroicons/react` instead —
+already a dependency and already this app's icon library (`components/topbar.tsx`,
+`components/sidebar.tsx`, `components/staff-app-breadcrumbs.tsx`), not a new one to match a
+library we deliberately chose not to install.
 
-**Why:** Faster iteration on UI polish once the underlying mechanics are understood and already
-working, so a UI-library bug can't be confused with an auth-mechanics bug.
+Also in scope: `app/(auth)/layout.tsx` itself (currently a bare centered `flex` wrapper with no
+branding) — every page's visual frame lives there, so it's worth a pass alongside the pages it
+wraps rather than leaving it as the one unstyled element around a newly-styled card.
 
-**New concepts:** `better-auth-ui`'s API surface, how far its theming/customization goes with
-HeroUI v3.
+**Full file scope:**
+- `app/(auth)/layout.tsx` — shared wrapper/frame
+- `app/(auth)/sign-in/_components/sign-in-form.tsx`
+- `app/(auth)/sign-up/_components/sign-up-form.tsx`
+- `app/(auth)/forgot-password/_components/forgot-password-form.tsx`
+- `app/(auth)/reset-password/_components/reset-password-form.tsx` (including the "reset link no
+  longer valid" empty state added in Phase 8)
+- `app/(auth)/needs-verification/page.tsx` + `_components/resend-verification-button.tsx`
+- `app/(auth)/needs-role/page.tsx` (already partially styled — just a `Button` — bring the rest of
+  the page in line)
+- `app/(auth)/accept-invite/_components/accept-invite-client.tsx` (all three of its states: loading,
+  error, and the create-account/sign-in choice)
 
-**New env vars:** none expected.
+**Why:** These pages are every unauthenticated visitor's first impression of the app, and the
+current bare-HTML styling was always a placeholder (see Phase 2's own comment: "deliberately bare
+... proves the session round-trip works"), not a deliberate design choice. Doing this now, after
+Phase 8, means restyling covers every auth page that exists (including the two Phase 8 just added)
+in one consistent pass instead of half now and half later.
+
+**New concepts:** `@heroui/react`'s `Card`/`TextField`/`InputGroup` compound-component patterns —
+already used elsewhere in this app (`TextField`/`InputGroup` in `components/topbar.tsx`,
+`Disclosure` in `components/sidebar.tsx`) but not yet in any auth page; building a password
+visibility toggle with `InputGroup.Suffix` + an icon-only `Button`.
+
+**New env vars:** none.
+
+**Plan (to work through in increments, per this doc's own working process — not one big diff):**
+1. `sign-in-form.tsx` first — highest-traffic page, establishes the shared look (Card layout, field
+   styling, button/link styling) the rest of the phase reuses.
+2. `sign-up-form.tsx` — same patterns, plus the existing disabled-email-from-invite state (Phase
+   7.5) needs to keep rendering clearly once it's a styled `TextField` instead of a raw `<input
+   disabled>`.
+3. `forgot-password-form.tsx` + `reset-password-form.tsx` (including its invalid-link state) — built
+   together since they're the two newest, smallest pages.
+4. `needs-verification/page.tsx` + `resend-verification-button.tsx`.
+5. `needs-role/page.tsx` + `accept-invite-client.tsx` — lowest-traffic pages, last.
+6. `app/(auth)/layout.tsx` — once every page it wraps has its final look, adjust the shared frame
+   (spacing, optional branding) to fit.
 
 ---
 
@@ -1106,7 +1325,7 @@ every time — same tradeoff already flagged as a "new concept" back in Phase 4.
 
 ## Suggested order
 
-1 → 2 → 3 → 3.2 → 3.5 → 4 → 5 → 6 → 7 → 7.2 → 7.5 → 8 → 9 → 10. Reasoning: fix the
+1 → 2 → 3 → 3.2 → 3.5 → 4 → 5 → 6 → 7 → 7.2 → 7.5 → 8 → 8.5 → 9 → 10. Reasoning: fix the
 cheap-but-important permission gap first (1), then build the session round-trip in the smallest
 possible slice (2) before adding the proxy on top of it (3), then add route protection and the
 public/authenticated layout split (3.2), then close the logout gap and get real session data into
@@ -1117,8 +1336,11 @@ doesn't need the role→permission model settled yet — then user management (6
 makes provisioning practical and de-risks sign-up (7) — then close the gap sign-up's own two-step
 flow leaves open (7.2), then invites (7.5) — both slotted in right after sign-up since they
 directly extend the account-provisioning story Phases 1/6/7 already built, and both had to exist
-before Phase 8's UI swap could be planned with the full picture in view — then the UI-library
-swap itself (8), then role-based nav/route gating for both `staff-app` and
+before Phase 8's UI swap could be planned with the full picture in view — then reset-password (8,
+scope reversed mid-phase from a `better-auth-ui` swap to a hand-rolled build, see its own notes),
+then a single styling pass over every auth page including the two Phase 8 just added (8.5) — placed
+after 8 rather than interleaved page-by-page so it covers the complete, final set of auth pages in
+one consistent pass — then role-based nav/route gating for both `staff-app` and
 `membership-applications` together (9), pushed out once because the role→permission model needed
 more thought than a quick pass between other phases, and finally JWT caching (10), pushed to last
 because it's a pure optimization with no other phase depending on it and nothing to measure until
