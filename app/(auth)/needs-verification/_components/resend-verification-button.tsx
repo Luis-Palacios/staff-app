@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Alert, Button, InputGroup, TextField } from "@heroui/react";
+import { Label } from "@heroui/react/label";
 
 import { authClient } from "@/lib/auth/auth-client";
 
@@ -33,32 +35,44 @@ export function ResendVerificationButton({
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       {initialEmail === null ? (
-        <label className="flex flex-col gap-1">
-          Email
-          <input
-            className="rounded border px-3 py-2"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </label>
+        <TextField isRequired type="email" value={email} onChange={setEmail}>
+          <Label className="text-base">Email</Label>
+          <InputGroup>
+            <InputGroup.Input autoComplete="email" className="text-base" />
+          </InputGroup>
+        </TextField>
       ) : null}
 
-      {error ? <p className="text-red-500">{error}</p> : null}
+      {error ? (
+        <Alert status="danger">
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Description>{error}</Alert.Description>
+          </Alert.Content>
+        </Alert>
+      ) : null}
 
       {status === "sent" ? (
-        <p>Verification email sent — check your inbox.</p>
+        <Alert status="success">
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Description>
+              Verification email sent — check your inbox.
+            </Alert.Description>
+          </Alert.Content>
+        </Alert>
       ) : (
-        <button
-          className="w-fit rounded border px-4 py-2"
-          disabled={status === "sending" || !email}
+        <Button
+          fullWidth
+          isDisabled={!email}
+          isPending={status === "sending"}
           type="button"
-          onClick={handleResend}
+          onPress={handleResend}
         >
-          {status === "sending" ? "Sending…" : "Resend verification email"}
-        </button>
+          Resend verification email
+        </Button>
       )}
     </div>
   );

@@ -4,11 +4,14 @@ import type { SubmitEvent } from "react";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Link from "next/link";
+import { Alert, Button } from "@heroui/react";
+import { Card } from "@heroui/react/card";
+import { Link } from "@heroui/react/link";
+
+import { PasswordField } from "../../_components/password-field";
 
 import { authClient } from "@/lib/auth/auth-client";
 
-// Deliberately bare (plain HTML, no HeroUI) — matches sign-in-form.tsx/sign-up-form.tsx's style.
 export function ResetPasswordForm({
   invalidLink,
   token,
@@ -59,52 +62,74 @@ export function ResetPasswordForm({
 
   if (tokenInvalid) {
     return (
-      <section className="flex max-w-sm flex-col gap-4">
-        <h1 className="text-lg font-semibold">Reset link no longer valid</h1>
-        <p>
-          This password reset link has expired or was already used. Request a
-          new one to continue.
-        </p>
-        <Link
-          className="w-fit rounded border px-4 py-2"
-          href="/forgot-password"
-        >
-          Request a new link
-        </Link>
-        <Link className="underline" href="/sign-in">
-          Back to sign in
-        </Link>
-      </section>
+      <Card.Root className="w-full max-w-sm md:max-w-md lg:max-w-xl">
+        <Card.Header>
+          <Card.Title className="text-lg">
+            Reset link no longer valid
+          </Card.Title>
+          <Card.Description className="text-base">
+            This password reset link has expired or was already used. Request a
+            new one to continue.
+          </Card.Description>
+        </Card.Header>
+        <Card.Footer className="flex flex-col gap-3">
+          <Button fullWidth onPress={() => router.push("/forgot-password")}>
+            Request a new link
+          </Button>
+          <Link className="text-base" href="/sign-in">
+            Back to sign in
+          </Link>
+        </Card.Footer>
+      </Card.Root>
     );
   }
 
   return (
-    <form className="flex max-w-sm flex-col gap-4" onSubmit={handleSubmit}>
-      <label className="flex flex-col gap-1">
-        New password
-        <input
-          className="rounded border px-3 py-2"
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-      </label>
+    <form
+      className="w-full max-w-sm md:max-w-md lg:max-w-xl"
+      onSubmit={handleSubmit}
+    >
+      <Card.Root className="w-full">
+        <Card.Header>
+          <Card.Title className="text-lg">Reset password</Card.Title>
+          <Card.Description className="text-base">
+            Choose a new password below.
+          </Card.Description>
+        </Card.Header>
 
-      <label className="flex flex-col gap-1">
-        Confirm new password
-        <input
-          className="rounded border px-3 py-2"
-          type="password"
-          value={confirmPassword}
-          onChange={(event) => setConfirmPassword(event.target.value)}
-        />
-      </label>
+        <Card.Content className="flex flex-col gap-4">
+          <PasswordField
+            isRequired
+            autoComplete="new-password"
+            label="New password"
+            value={password}
+            onChange={setPassword}
+          />
 
-      {error ? <p className="text-red-500">{error}</p> : null}
+          <PasswordField
+            isRequired
+            autoComplete="new-password"
+            label="Confirm new password"
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+          />
 
-      <button className="w-fit rounded border px-4 py-2" type="submit">
-        Reset password
-      </button>
+          {error ? (
+            <Alert status="danger">
+              <Alert.Indicator />
+              <Alert.Content>
+                <Alert.Description>{error}</Alert.Description>
+              </Alert.Content>
+            </Alert>
+          ) : null}
+        </Card.Content>
+
+        <Card.Footer>
+          <Button fullWidth type="submit">
+            Reset password
+          </Button>
+        </Card.Footer>
+      </Card.Root>
     </form>
   );
 }

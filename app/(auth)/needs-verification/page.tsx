@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { Card } from "@heroui/react/card";
+import { Link } from "@heroui/react/link";
 
 import { ResendVerificationButton } from "./_components/resend-verification-button";
 
@@ -10,23 +11,30 @@ export default async function NeedsVerificationPage({
   const { email } = await searchParams;
 
   return (
-    <section className="flex max-w-sm flex-col gap-4">
-      <h1 className="text-lg font-semibold">Check your email</h1>
+    <Card.Root className="w-full max-w-sm md:max-w-md lg:max-w-xl">
+      <Card.Header>
+        <Card.Title className="text-lg">Check your email</Card.Title>
+        <Card.Description className="text-base">
+          {email ? (
+            <>
+              We sent a verification link to <strong>{email}</strong>. Click it,
+              then sign in.
+            </>
+          ) : (
+            "We sent you a verification link by email. Click it, then sign in."
+          )}
+        </Card.Description>
+      </Card.Header>
 
-      {email ? (
-        <p>
-          We sent a verification link to <strong>{email}</strong>. Click it,
-          then sign in.
-        </p>
-      ) : (
-        <p>We sent you a verification link by email. Click it, then sign in.</p>
-      )}
+      <Card.Content>
+        <ResendVerificationButton initialEmail={email ?? null} />
+      </Card.Content>
 
-      <ResendVerificationButton initialEmail={email ?? null} />
-
-      <Link className="underline" href="/sign-in">
-        Back to sign in
-      </Link>
-    </section>
+      <Card.Footer className="flex flex-col">
+        <Link className="text-base" href="/sign-in">
+          Back to sign in
+        </Link>
+      </Card.Footer>
+    </Card.Root>
   );
 }
