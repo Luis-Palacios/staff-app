@@ -15,6 +15,7 @@
 		"@heroui/styles": "3.2.4",
 		"@tanstack/react-query": "^5.102.8",
 		"better-auth": "^1.7.4",
+		"better-invite": "^0.5.7",
 		"clsx": "2.1.1",
 		"intl-messageformat": "10.7.16",
 		"next": "16.2.6",

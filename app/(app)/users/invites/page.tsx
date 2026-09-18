@@ -1,4 +1,9 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
+
+import InvitesList from "./_components/invites-list";
+import InvitesListSkeleton from "./_components/invites-list-skeleton";
+import { NewInviteForm } from "./_components/new-invite-form";
 
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { usersBreadcrumb } from "@/config/breadcrumbs";
@@ -8,7 +13,7 @@ import { STAFF_ADMIN_ROLES } from "@/lib/auth/roles";
 export default async function InvitesPage() {
   const session = await getServerSession();
 
-  // TEMPORARY: hardcoded role check, kept only because auth-server's listUsers endpoint itself
+  // TEMPORARY: hardcoded role check, kept only because auth-server's /api/custom-auth/invites
   // 403s for any role other than admin/elder (see statements.ts) — without this the page would
   // render and then fail fetching data. Replace with the real role→permission model designed in
   // Phase 9 (role-based nav & route gating) once that phase exists; don't build this out further
@@ -27,7 +32,10 @@ export default async function InvitesPage() {
         title="Invites"
       />
       <section className="flex flex-col gap-4">
-        <p>Invites page content goes here.</p>
+        <NewInviteForm />
+        <Suspense fallback={<InvitesListSkeleton />}>
+          <InvitesList currentUserId={session.user.id} />
+        </Suspense>
       </section>
     </>
   );
