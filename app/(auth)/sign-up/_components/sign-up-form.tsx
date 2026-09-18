@@ -62,7 +62,12 @@ export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
           <TextField isRequired type="text" value={name} onChange={setName}>
             <Label className="text-base">Name</Label>
             <InputGroup>
-              <InputGroup.Input autoComplete="name" className="text-base" />
+              <InputGroup.Input
+                autoComplete="name"
+                // eslint-disable-next-line jsx-a11y/no-autofocus -- first enabled field when email is fixed by an invite link; focusing it on load is the expected pattern for a dedicated auth page
+                autoFocus={initialEmail !== null}
+                className="text-base"
+              />
             </InputGroup>
           </TextField>
 
@@ -75,7 +80,12 @@ export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
           >
             <Label className="text-base">Email</Label>
             <InputGroup>
-              <InputGroup.Input autoComplete="email" className="text-base" />
+              <InputGroup.Input
+                autoComplete="email"
+                // eslint-disable-next-line jsx-a11y/no-autofocus -- first field when email isn't fixed by an invite link; focusing it on load is the expected pattern for a dedicated auth page
+                autoFocus={initialEmail === null}
+                className="text-base"
+              />
             </InputGroup>
             {initialEmail !== null && (
               <p className="text-sm text-muted-foreground">
