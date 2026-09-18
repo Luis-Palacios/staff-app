@@ -12,5 +12,16 @@
   :root {
     /* Adjust container-lg to your desired value */
     --container-lg: 80rem; /* e.g., 1280px instead of default 75rem */
+
+    /*
+     * HeroUI's default theme ships `--field-border: transparent` and
+     * `--field-border-width: 0px`, plus a `--field-background` that
+     * matches `--surface` exactly, so inputs placed on a Card (sign-in,
+     * sign-up, forgot/reset-password) are visually indistinguishable
+     * from the card behind them in both themes. Give fields a real,
+     * visible border that tracks the theme's border token instead.
+     */
+    --field-border: var(--border);
+    --field-border-width: 1px;
   }
 }

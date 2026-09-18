@@ -75,7 +75,12 @@ export function ForgotPasswordForm({
           <TextField isRequired type="email" value={email} onChange={setEmail}>
             <Label className="text-base">Email</Label>
             <InputGroup>
-              <InputGroup.Input autoComplete="email" className="text-base" />
+              <InputGroup.Input
+                // eslint-disable-next-line jsx-a11y/no-autofocus -- only field on this page; focusing it on load is the expected pattern for a dedicated auth page
+                autoFocus
+                autoComplete="email"
+                className="text-base"
+              />
             </InputGroup>
           </TextField>
 
