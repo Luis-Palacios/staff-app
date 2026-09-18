@@ -1180,7 +1180,7 @@ designed, not the form.
 ---
 
 ## Phase 8.5 — Style the auth pages with HeroUI
-`[ ]`
+`[x]`
 
 **Repo(s):** `staff-app`
 
@@ -1242,6 +1242,130 @@ visibility toggle with `InputGroup.Suffix` + an icon-only `Button`.
 5. `needs-role/page.tsx` + `accept-invite-client.tsx` — lowest-traffic pages, last.
 6. `app/(auth)/layout.tsx` — once every page it wraps has its final look, adjust the shared frame
    (spacing, optional branding) to fit.
+
+**Update — two decisions made before writing any code, per this doc's own plan-first process:**
+
+1. **Password show/hide toggle: shared component, not duplicated.** Used in 4 password inputs
+   across 3 files (sign-in: 1, sign-up: 1, reset-password: new + confirm = 2). New
+   `app/(auth)/_components/password-field.tsx` — the first component shared across the `(auth)`
+   route group's pages rather than living under one page's own `_components/` — wraps
+   `TextField`/`InputGroup`/`Label` with an `InputGroup.Suffix` toggle button
+   (`@heroicons/react/24/outline`'s `EyeIcon`/`EyeSlashIcon`, confirmed via
+   `node_modules/@heroui/react/dist/components/button/button.d.ts` that `isIconOnly`/`variant="ghost"`/
+   `size="sm"` are real `Button` props before using them). Weighed against the project's own default
+   preference for inline duplication over premature abstraction, but four fields across three files
+   tipped it the other way — confirmed with the user before building rather than assumed.
+2. **Error/success messages: HeroUI `Alert`, not plain colored `<p>` text.** Confirmed live (read
+   `node_modules/@heroui/react/dist/components/alert/alert.js`) that `Alert.Indicator` auto-renders
+   the right icon per `status` with no children needed, and `status="danger"`/`"success"` are real
+   variants (`@heroui/styles`' `alertVariants`) — used everywhere a page previously rendered
+   `<p className="text-red-500">`/`<p className="text-green-600">`.
+
+Every other primitive (`Card.Root/Header/Title/Description/Content/Footer`, `TextField`+`Label`+
+`InputGroup`, `Select.Root` where relevant, `Button` with `isPending`/`fullWidth`/`variant`) already
+had a precedent elsewhere in the app (`user-card-summary.tsx`, `new-invite-form.tsx`,
+`topbar.tsx`) — followed those exactly, including which import path each component uses
+(`Card`/`Label`/`Link` from their own `@heroui/react/<name>` submodule, `Button`/`TextField`/
+`Select`/`InputGroup`/`ProgressBar`/`Alert` from the `@heroui/react` root barrel, matching the
+existing split surveyed across the codebase before writing anything). Inter-page links
+(`href="/sign-up"`, "Back to sign in", etc.) switched from `next/link` to HeroUI's own `Link`
+(`@heroui/react/link`) to match how the rest of the app already links between pages (e.g.
+`application-card-summary.tsx`) — no `RouterProvider` is configured, so this is a plain anchor
+navigation, not client-side routed, same as everywhere else already.
+
+Built in the planned order (1–6 above), `pnpm lint` / `npx tsc --noEmit` / `pnpm build` clean after
+each. `app/(auth)/layout.tsx` gained a small branding row (`Logo` from `components/icons.tsx` +
+`siteConfig.name`) above the centered content, once every page it wraps had its final look.
+
+**Verified live in a real browser** (previously only ever done via `curl` for earlier phases —
+this was the first phase in this doc verified with the Chrome extension actually connected):
+`/reset-password` (both the normal form and the `?error=INVALID_TOKEN` "no longer valid" state),
+`/accept-invite` (loading + the missing-token error state — the "choose" state wasn't reachable
+without a real invite token, but shares the identical `Card`/`Button` pattern already confirmed
+elsewhere), `/sign-in`, `/sign-up` (both plain and with `?email=...` to confirm the invite-locked
+email field), `/forgot-password`, and `/needs-verification`. `/needs-role` correctly redirects to
+`/sign-in` when signed out (Phase 7.2's gate working as designed — it's only reachable with a real
+pending-role session) and wasn't forced into an authenticated state just to screenshot it, since it
+shares the same `Card`/`Button` pattern already verified working on every other page. Confirmed the
+password toggle actually flips the input's `type` attribute and its `aria-label`
+(`read_page`'s accessibility tree, not just a visual screenshot) and that the invite-locked email
+field's value is real (`el.value`/`el.disabled` via `javascript_tool`), not a placeholder that
+merely looks filled-in.
+
+**One real bug found by this live pass, not by inspection:** `Card.Footer`'s own base style
+(confirmed via `getComputedStyle` on `[data-slot="card-footer"]`) is `display:flex;
+flex-direction:row; align-items:center` — fine for a `fullWidth` `Button` (stretches regardless)
+or a multi-button row (`accept-invite`'s two side-by-side buttons), but a *single*, non-`fullWidth`
+`Link` in an unstyled footer sits at the row's start (left) instead of centered under the card,
+unlike every other footer in this phase that explicitly sets `flex flex-col` (which centers via
+that same `align-items: center`, just on the column's cross-axis instead). Two footers had this
+exact shape — `needs-verification/page.tsx` and `forgot-password-form.tsx`'s "sent" state — both
+fixed by adding `className="flex flex-col"` to `Card.Footer` there, matching the rest.
+
+**A second real bug, reported by the user after using the pages** (not caught by the live pass
+above, since it only showed up once real content pushed the layout to its natural height): on
+`/sign-in`, "Forgot password?" sat flush against the "Sign in" button with no gap; on `/sign-up`,
+the password field sat flush against the "Sign up" button. Root cause, confirmed via
+`getComputedStyle`: `.card`'s own CSS (`node_modules/@heroui/styles/dist/heroui.min.css`) is
+`display:flex; flex-direction:column; gap:12px`, applied between `Card.Root`'s **direct**
+children — but `sign-in-form.tsx`/`sign-up-form.tsx`/`forgot-password-form.tsx`/
+`reset-password-form.tsx` all nested `<form onSubmit={...}>` *inside* `Card.Root`, wrapping
+`Card.Content` + `Card.Footer`. That put a plain, non-flex `<form>` element between them and the
+card's own flex container, silently defeating the gap between Content and Footer specifically
+(Header-to-form still got its gap fine, since Header and the form are themselves direct
+siblings — which is why this was easy to miss visually one section at a time). Fixed in all four
+files by moving `<form>` to wrap `Card.Root` from the *outside* instead
+(`<form><Card.Root>...</Card.Root></form>`), keeping `Card.Header`/`Card.Content`/`Card.Footer` as
+direct flex children of `.card` so the 12px gap applies between all three sections again — a plain
+`<div>` (what `Card.Root` always renders, confirmed via
+`node_modules/@heroui/react/dist/components/card/card.js` — it has no `asChild`/polymorphic
+support) nests inside a `<form>` validly, and the submit button still fires the form's `onSubmit`
+regardless of nesting depth. Verified via `getComputedStyle` (content-to-footer gap measured at
+12px, matching `.card`'s own `gap`) and visually in the browser on all four pages.
+
+**A third bug, introduced by the second fix itself, reported by the user immediately after:**
+moving `<form>` outside `Card.Root` shrank every card to ~259px instead of the intended
+`max-w-sm` (384px) — confirmed via `getBoundingClientRect()`. Cause: `<form>` is a plain block
+element with no explicit width; as a child of the `(auth)` layout's centered flex container
+(`align-items: center`), it sizes to its own shrink-to-fit content width rather than stretching.
+`Card.Root`'s `w-full` then resolved against that shrunk, content-sized `<form>` instead of the
+viewport-relative width it get before (when `Card.Root` itself, not `<form>`, was the flex
+container's direct child). Fixed by moving the `w-full max-w-sm` classes from `Card.Root` onto
+the `<form>` itself in all four files, leaving `Card.Root` at plain `w-full` (100% of the now
+explicitly-sized form). Verified via `getBoundingClientRect()` (384px again) and visually — cards
+are back to their original size with the Phase 8.5-fix spacing intact.
+
+**Follow-up: made the card responsive to `md`/`lg` viewports, per user request** (`max-w-sm` alone
+looked too small on a typical laptop screen). Applied `md:max-w-md lg:max-w-lg` on top of the
+existing `max-w-sm` across all 8 `Card.Root`/`<form>` width declarations in `(auth)` (via a scoped
+`sed`, then verified each file). **Caught live before shipping it**: `lg:max-w-lg` rendered the
+card at **1280px**, not the expected 512px — `getComputedStyle` showed `max-width: 1280px` on the
+element. Root cause: `styles/globals.css` has a project-wide `:root { --container-lg: 80rem; }`
+override (with its own comment: "e.g., 1280px instead of default 75rem") for the dashboard's own
+layout needs — and Tailwind v4's `max-w-lg` utility reads from that same `--container-lg` token,
+so *any* future use of `max-w-lg` anywhere in this app inherits the dashboard's oversized value,
+not the standard 32rem. `md` (`--container-md`) is untouched, so `max-w-md` still means 448px as
+expected — only `lg` is a landmine. Swapped `lg:max-w-lg` → `lg:max-w-xl` (576px, an untouched
+default token) instead, giving a `384px → 448px → 576px` progression across `sm`/`md`/`lg`
+breakpoints without hitting the override. Verified via `getComputedStyle` (576px at a 1440px+
+viewport) and visually; `sm`/no-`md`/`lg` behavior at a mobile width was unaffected (still shrinks
+to `w-full` under 384px, per the pre-existing `w-full max-w-sm` base).
+
+**Follow-up: bumped text size to match the now-bigger card, per user request.** Confirmed via
+`getComputedStyle` that every text element in the `(auth)` pages — `Card.Title`, `Card.Description`,
+`Label`, `InputGroup.Input`, `Alert.Description`, `Link`, plain `<p>` — was rendering at a flat
+14px (`text-sm`), since none of HeroUI's slot components inherit font-size from an ancestor (each
+sets its own explicit `font-size` in `@heroui/styles`, so a single wrapper-level size bump would
+have done nothing). Bumped one step each: `Card.Title` → `text-lg` (18px, since it's the one
+heading); everything else that was `text-sm` → `text-base` (16px); the one `text-xs` note (the
+invite-locked-email hint in `sign-up-form.tsx`) → `text-sm`. Applied via scoped `sed` across all 8
+`(auth)` files for the literal, attribute-free patterns (`<Card.Title>`, `<Card.Description>`,
+`<Label>`, the four `InputGroup.Input autoComplete="email"/>` call sites, the one `="name"` one,
+the repeated `<Link href="/sign-in">Back to sign in</Link>`), then `password-field.tsx`'s own
+`InputGroup.Input` by hand (covers all 4 password fields at once, since every page reuses it).
+**Deliberately left `Button` text size untouched** — buttons are already visually prominent via
+their own padding/height/color, unlike plain text, so bumping their label size wasn't part of this
+pass; revisit if it still looks small next to the now-larger surrounding text.
 
 ---
 

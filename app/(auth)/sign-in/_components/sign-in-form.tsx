@@ -2,15 +2,24 @@
 
 import type { SubmitEvent } from "react";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Link from "next/link";
-import { ProgressBar, ProgressBarTrack } from "@heroui/react";
+import { useRouter } from "next/navigation";
+import {
+  Alert,
+  Button,
+  InputGroup,
+  ProgressBar,
+  ProgressBarTrack,
+  TextField,
+} from "@heroui/react";
+import { Card } from "@heroui/react/card";
+import { Label } from "@heroui/react/label";
+import { Link } from "@heroui/react/link";
+
+import { PasswordField } from "../../_components/password-field";
 
 import { authClient } from "@/lib/auth/auth-client";
 
-// Deliberately bare (plain HTML, no HeroUI) — this page exists to prove the session round-trip
-// from staff-app to auth-server works end-to-end (Phase 2 of docs/AUTH-INTEGRATION-ROADMAP.md).
 export function SignInForm({
   initialEmail,
   notice,
@@ -50,7 +59,7 @@ export function SignInForm({
 
   if (session.isPending) {
     return (
-      <ProgressBar isIndeterminate aria-label="Loading" className="w-md">
+      <ProgressBar isIndeterminate aria-label="Loading" className="w-72">
         <ProgressBarTrack>
           <ProgressBar.Fill />
         </ProgressBarTrack>
@@ -60,67 +69,95 @@ export function SignInForm({
 
   if (session.data) {
     return (
-      <section className="flex flex-col gap-4">
-        <p>Signed in as {session.data.user.email}</p>
-        <p>Role: {session.data.user.role ?? "(none)"}</p>
-        <button
-          className="w-fit rounded border px-4 py-2"
-          type="button"
-          onClick={() => authClient.signOut()}
-        >
-          Sign out
-        </button>
-      </section>
+      <Card.Root className="w-full max-w-sm md:max-w-md lg:max-w-xl">
+        <Card.Header>
+          <Card.Title className="text-lg">Signed in</Card.Title>
+          <Card.Description className="text-base">
+            {session.data.user.email}
+          </Card.Description>
+        </Card.Header>
+        <Card.Content>
+          <p className="text-base text-muted-foreground">
+            Role: {session.data.user.role ?? "(none)"}
+          </p>
+        </Card.Content>
+        <Card.Footer>
+          <Button variant="outline" onPress={() => authClient.signOut()}>
+            Sign out
+          </Button>
+        </Card.Footer>
+      </Card.Root>
     );
   }
 
   return (
-    <form className="flex max-w-sm flex-col gap-4" onSubmit={handleSubmit}>
-      {notice ? <p className="text-green-600">{notice}</p> : null}
+    <form
+      className="w-full max-w-sm md:max-w-md lg:max-w-xl"
+      onSubmit={handleSubmit}
+    >
+      <Card.Root className="w-full">
+        <Card.Header>
+          <Card.Title className="text-lg">Sign in</Card.Title>
+          <Card.Description className="text-base">
+            Sign in to your staff-app account
+          </Card.Description>
+        </Card.Header>
 
-      <label className="flex flex-col gap-1">
-        Email
-        <input
-          className="rounded border px-3 py-2"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-      </label>
+        <Card.Content className="flex flex-col gap-4">
+          {notice ? (
+            <Alert status="success">
+              <Alert.Indicator />
+              <Alert.Content>
+                <Alert.Description>{notice}</Alert.Description>
+              </Alert.Content>
+            </Alert>
+          ) : null}
 
-      <label className="flex flex-col gap-1">
-        Password
-        <input
-          className="rounded border px-3 py-2"
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-      </label>
+          <TextField isRequired type="email" value={email} onChange={setEmail}>
+            <Label className="text-base">Email</Label>
+            <InputGroup>
+              <InputGroup.Input autoComplete="email" className="text-base" />
+            </InputGroup>
+          </TextField>
 
-      <Link
-        className="w-fit text-sm underline"
-        href={
-          email
-            ? `/forgot-password?email=${encodeURIComponent(email)}`
-            : "/forgot-password"
-        }
-      >
-        Forgot password?
-      </Link>
+          <PasswordField
+            isRequired
+            autoComplete="current-password"
+            label="Password"
+            value={password}
+            onChange={setPassword}
+          />
 
-      {error ? <p className="text-red-500">{error}</p> : null}
+          <Link
+            className="w-fit text-base"
+            href={
+              email
+                ? `/forgot-password?email=${encodeURIComponent(email)}`
+                : "/forgot-password"
+            }
+          >
+            Forgot password?
+          </Link>
 
-      <button className="w-fit rounded border px-4 py-2" type="submit">
-        Sign in
-      </button>
+          {error ? (
+            <Alert status="danger">
+              <Alert.Indicator />
+              <Alert.Content>
+                <Alert.Description>{error}</Alert.Description>
+              </Alert.Content>
+            </Alert>
+          ) : null}
+        </Card.Content>
 
-      <p>
-        Don&apos;t have an account?{" "}
-        <Link className="underline" href="/sign-up">
-          Sign up
-        </Link>
-      </p>
+        <Card.Footer className="flex flex-col gap-3">
+          <Button fullWidth type="submit">
+            Sign in
+          </Button>
+          <p className="text-base text-muted-foreground">
+            Don&apos;t have an account? <Link href="/sign-up">Sign up</Link>
+          </p>
+        </Card.Footer>
+      </Card.Root>
     </form>
   );
 }

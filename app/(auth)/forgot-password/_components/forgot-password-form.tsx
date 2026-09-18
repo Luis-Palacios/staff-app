@@ -3,11 +3,13 @@
 import type { SubmitEvent } from "react";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Alert, Button, InputGroup, TextField } from "@heroui/react";
+import { Card } from "@heroui/react/card";
+import { Label } from "@heroui/react/label";
+import { Link } from "@heroui/react/link";
 
 import { authClient } from "@/lib/auth/auth-client";
 
-// Deliberately bare (plain HTML, no HeroUI) — matches sign-in-form.tsx/sign-up-form.tsx's style.
 export function ForgotPasswordForm({
   initialEmail,
 }: {
@@ -39,46 +41,63 @@ export function ForgotPasswordForm({
 
   if (status === "sent") {
     return (
-      <section className="flex max-w-sm flex-col gap-4">
-        <h1 className="text-lg font-semibold">Check your email</h1>
-        <p>
-          If <strong>{email}</strong> has an account, we sent a link to reset
-          its password.
-        </p>
-        <Link className="underline" href="/sign-in">
-          Back to sign in
-        </Link>
-      </section>
+      <Card.Root className="w-full max-w-sm md:max-w-md lg:max-w-xl">
+        <Card.Header>
+          <Card.Title className="text-lg">Check your email</Card.Title>
+          <Card.Description className="text-base">
+            If <strong>{email}</strong> has an account, we sent a link to reset
+            its password.
+          </Card.Description>
+        </Card.Header>
+        <Card.Footer className="flex flex-col">
+          <Link className="text-base" href="/sign-in">
+            Back to sign in
+          </Link>
+        </Card.Footer>
+      </Card.Root>
     );
   }
 
   return (
-    <form className="flex max-w-sm flex-col gap-4" onSubmit={handleSubmit}>
-      <label className="flex flex-col gap-1">
-        Email
-        <input
-          className="rounded border px-3 py-2"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-      </label>
+    <form
+      className="w-full max-w-sm md:max-w-md lg:max-w-xl"
+      onSubmit={handleSubmit}
+    >
+      <Card.Root className="w-full">
+        <Card.Header>
+          <Card.Title className="text-lg">Forgot password</Card.Title>
+          <Card.Description className="text-base">
+            We&apos;ll email you a link to reset it.
+          </Card.Description>
+        </Card.Header>
 
-      {error ? <p className="text-red-500">{error}</p> : null}
+        <Card.Content className="flex flex-col gap-4">
+          <TextField isRequired type="email" value={email} onChange={setEmail}>
+            <Label className="text-base">Email</Label>
+            <InputGroup>
+              <InputGroup.Input autoComplete="email" className="text-base" />
+            </InputGroup>
+          </TextField>
 
-      <button
-        className="w-fit rounded border px-4 py-2"
-        disabled={status === "sending"}
-        type="submit"
-      >
-        {status === "sending" ? "Sending…" : "Send reset link"}
-      </button>
+          {error ? (
+            <Alert status="danger">
+              <Alert.Indicator />
+              <Alert.Content>
+                <Alert.Description>{error}</Alert.Description>
+              </Alert.Content>
+            </Alert>
+          ) : null}
+        </Card.Content>
 
-      <p>
-        <Link className="underline" href="/sign-in">
-          Back to sign in
-        </Link>
-      </p>
+        <Card.Footer className="flex flex-col gap-3">
+          <Button fullWidth isPending={status === "sending"} type="submit">
+            Send reset link
+          </Button>
+          <Link className="text-base" href="/sign-in">
+            Back to sign in
+          </Link>
+        </Card.Footer>
+      </Card.Root>
     </form>
   );
 }

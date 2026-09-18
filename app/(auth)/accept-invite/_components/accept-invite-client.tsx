@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button, ProgressBar, ProgressBarTrack } from "@heroui/react";
+import { Card } from "@heroui/react/card";
 
 import { authClient } from "@/lib/auth/auth-client";
 
@@ -52,43 +54,55 @@ export function AcceptInviteClient({
   }, [token, router]);
 
   if (state.status === "loading") {
-    return <p>One moment…</p>;
+    return (
+      <ProgressBar
+        isIndeterminate
+        aria-label="Checking invite"
+        className="w-72"
+      >
+        <ProgressBarTrack>
+          <ProgressBar.Fill />
+        </ProgressBarTrack>
+      </ProgressBar>
+    );
   }
 
   if (state.status === "error") {
     return (
-      <section className="flex max-w-sm flex-col gap-4">
-        <h1 className="text-lg font-semibold">Invite not valid</h1>
-        <p>{state.message}</p>
-      </section>
+      <Card.Root className="w-full max-w-sm md:max-w-md lg:max-w-xl">
+        <Card.Header>
+          <Card.Title className="text-lg">Invite not valid</Card.Title>
+          <Card.Description className="text-base">
+            {state.message}
+          </Card.Description>
+        </Card.Header>
+      </Card.Root>
     );
   }
 
   const emailQuery = email ? `?email=${encodeURIComponent(email)}` : "";
 
   return (
-    <section className="flex max-w-sm flex-col gap-4">
-      <h1 className="text-lg font-semibold">You&apos;ve been invited</h1>
-      <p>
-        Create an account to accept this invite, or sign in if you already have
-        one.
-      </p>
-      <div className="flex gap-2">
-        <button
-          className="w-fit rounded border px-4 py-2"
-          type="button"
-          onClick={() => router.push(`/sign-up${emailQuery}`)}
-        >
+    <Card.Root className="w-full max-w-sm md:max-w-md lg:max-w-xl">
+      <Card.Header>
+        <Card.Title className="text-lg">You&apos;ve been invited</Card.Title>
+        <Card.Description className="text-base">
+          Create an account to accept this invite, or sign in if you already
+          have one.
+        </Card.Description>
+      </Card.Header>
+      <Card.Footer className="flex gap-2">
+        <Button fullWidth onPress={() => router.push(`/sign-up${emailQuery}`)}>
           Create account
-        </button>
-        <button
-          className="w-fit rounded border px-4 py-2"
-          type="button"
-          onClick={() => router.push(`/sign-in${emailQuery}`)}
+        </Button>
+        <Button
+          fullWidth
+          variant="outline"
+          onPress={() => router.push(`/sign-in${emailQuery}`)}
         >
           Sign in
-        </button>
-      </div>
-    </section>
+        </Button>
+      </Card.Footer>
+    </Card.Root>
   );
 }
