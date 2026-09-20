@@ -159,7 +159,7 @@ export const Sidebar = ({ isOpen, onNavigate }: SidebarProps) => {
             href="/"
             onClick={onNavigate}
           >
-            <Logo size={60} />
+            <Logo size={61.5} />
           </NextLink>
           <button
             aria-label="Close menu"

@@ -17,6 +17,10 @@ export function getRecentApplications(): Promise<
   );
 }
 
+export function getRecentApplicationsCount(): Promise<number> {
+  return authenticatedFetch<number>(BASE_URL, "/applications/recents/count");
+}
+
 export function getApplicationDetail(
   id: string,
 ): Promise<ApplicationMembershipDetail> {
