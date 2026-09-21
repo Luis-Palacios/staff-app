@@ -40,7 +40,7 @@ export default async function ApplicationDetail({
         ]}
         title={`Application from:  ${personFullName}`}
       />
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 items-start gap-4">
         <Card.Root>
           <Card.Header>
             <Card.Title>{personFullName}</Card.Title>
