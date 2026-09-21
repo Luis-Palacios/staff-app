@@ -15,3 +15,17 @@ export interface ApplicationMembershipDetail
   conversion: string;
   lifeAfter: string;
 }
+
+export interface PersonEventSummary {
+  eventId: number;
+  personId: number;
+  eventName: string;
+  eventDate: string;
+  eventTypeName: string;
+}
+
+export interface PersonAssistanceSummary {
+  personId: number;
+  assistanceDate: string;
+  assistanceTypeId: number;
+}

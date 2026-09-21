@@ -57,36 +57,13 @@ export function SignInForm({
     router.push("/");
   }
 
-  if (session.isPending) {
+  if (session.isPending || session.data) {
     return (
       <ProgressBar isIndeterminate aria-label="Loading" className="w-72">
         <ProgressBarTrack>
           <ProgressBar.Fill />
         </ProgressBarTrack>
       </ProgressBar>
-    );
-  }
-
-  if (session.data) {
-    return (
-      <Card.Root className="w-full max-w-sm md:max-w-md lg:max-w-xl">
-        <Card.Header>
-          <Card.Title className="text-lg">Signed in</Card.Title>
-          <Card.Description className="text-base">
-            {session.data.user.email}
-          </Card.Description>
-        </Card.Header>
-        <Card.Content>
-          <p className="text-base text-muted-foreground">
-            Role: {session.data.user.role ?? "(none)"}
-          </p>
-        </Card.Content>
-        <Card.Footer>
-          <Button variant="outline" onPress={() => authClient.signOut()}>
-            Sign out
-          </Button>
-        </Card.Footer>
-      </Card.Root>
     );
   }
 
