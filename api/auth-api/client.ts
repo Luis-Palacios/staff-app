@@ -8,7 +8,7 @@ import type {
 import { apiFetch } from "@/api/api-client";
 import { env } from "@/lib/env/server";
 
-const BASE_URL = env.NEXT_PUBLIC_AUTH_SERVER_URL;
+const BASE_URL = env.AUTH_SERVER_URL;
 
 // Server-to-server: calls auth-server directly, not through the /api/auth proxy (Phase 3) —
 // that proxy exists so a *browser* fetch lands its Set-Cookie same-origin; this runs on the
