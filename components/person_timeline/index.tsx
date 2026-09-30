@@ -54,8 +54,10 @@ export default async function PersonTimeline({
 }: {
   personId: number;
 }) {
-  const personEvents = await getPersonEventsSummary(personId);
-  const personFirstAssistance = await getFirstPersonAssistanceSummary(personId);
+  const [personEvents, personFirstAssistance] = await Promise.all([
+    getPersonEventsSummary(personId),
+    getFirstPersonAssistanceSummary(personId),
+  ]);
 
   const firstAssistanceEvent: PersonEventSummary = {
     eventId: 0,
