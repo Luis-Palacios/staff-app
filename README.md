@@ -39,7 +39,7 @@ npm run dev
 
 ### Get your token when you are login
 ```bash
-http://localhost:3000/api/auth/token
+http://localhost:3001/api/auth/token
 ```
 
 ## License

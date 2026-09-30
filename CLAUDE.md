@@ -17,7 +17,7 @@ pick up at whichever phase is still marked `[ ]`.
 Package manager is **pnpm** (`pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.npmrc`).
 
 - `pnpm install` — install dependencies
-- `pnpm dev` — dev server at http://localhost:3000
+- `pnpm dev` — dev server at http://localhost:3001
 - `pnpm build` — production build
 - `pnpm start` — serve the production build
 - `pnpm lint` — ESLint with `--fix` (auto-formats; there is no separate Prettier script — Prettier runs through `eslint-plugin-prettier`)
