@@ -8,6 +8,7 @@ import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { getApplicationDetail } from "@/api/applications-membership-api/client";
 import { LocalDateTime } from "@/components/local-date-time";
 import PersonTimeline from "@/components/person_timeline";
+import PersonTimelineSkeleton from "@/components/person_timeline/skeleton";
 
 export default async function ApplicationDetail({
   params,
@@ -101,7 +102,7 @@ export default async function ApplicationDetail({
             <Card.Title>Timeline</Card.Title>
           </Card.Header>
           <Card.Content>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<PersonTimelineSkeleton />}>
               <PersonTimeline personId={personId} />
             </Suspense>
           </Card.Content>
