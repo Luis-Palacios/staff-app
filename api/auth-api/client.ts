@@ -6,9 +6,7 @@ import type {
 } from "@/api/auth-api/types";
 
 import { apiFetch } from "@/api/api-client";
-import { env } from "@/lib/env/server";
-
-const BASE_URL = env.AUTH_SERVER_URL;
+import { getEnv } from "@/lib/env/server";
 
 // Server-to-server: calls auth-server directly, not through the /api/auth proxy (Phase 3) —
 // that proxy exists so a *browser* fetch lands its Set-Cookie same-origin; this runs on the
@@ -16,17 +14,21 @@ const BASE_URL = env.AUTH_SERVER_URL;
 // (auth-server answers 200 + null body, never 4xx, for that case — verified in
 // better-auth/dist/api/routes/session.mjs) rather than throwing.
 export function getSession(cookie: string): Promise<AuthSession | null> {
-  return apiFetch<AuthSession | null>(BASE_URL, "/api/auth/get-session", {
-    headers: { cookie },
-    cache: "no-store",
-  });
+  return apiFetch<AuthSession | null>(
+    getEnv().AUTH_SERVER_URL,
+    "/api/auth/get-session",
+    {
+      headers: { cookie },
+      cache: "no-store",
+    },
+  );
 }
 
 // Mints a short-lived JWT (role claim only, see auth-server's jwt.definePayload) from the
 // incoming session cookie - server-to-server, same reasoning as getSession above: this runs on
 // the server and forwards the cookie header it already has, no browser call involved.
 export function getToken(cookie: string): Promise<AuthToken> {
-  return apiFetch<AuthToken>(BASE_URL, "/api/auth/token", {
+  return apiFetch<AuthToken>(getEnv().AUTH_SERVER_URL, "/api/auth/token", {
     headers: { cookie },
     cache: "no-store",
   });
@@ -39,7 +41,7 @@ export function getToken(cookie: string): Promise<AuthToken> {
 // regression, not a safety net.
 export function listUsers(cookie: string): Promise<AdminListUsersResponse> {
   return apiFetch<AdminListUsersResponse>(
-    BASE_URL,
+    getEnv().AUTH_SERVER_URL,
     "/api/auth/admin/list-users",
     {
       headers: { cookie },
@@ -55,7 +57,7 @@ export function listUsers(cookie: string): Promise<AdminListUsersResponse> {
 // the route verifies the forwarded cookie itself, this call doesn't grant anything by itself.
 export function listInvites(cookie: string): Promise<AdminListInvitesResponse> {
   return apiFetch<AdminListInvitesResponse>(
-    BASE_URL,
+    getEnv().AUTH_SERVER_URL,
     "/api/custom-auth/invites",
     {
       headers: { cookie },

@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
-import { env } from "@/lib/env/server";
+import { getEnv } from "@/lib/env/server";
 
 // better-auth's endpoints, forwarded to auth-server. Done here rather than in next.config.mjs's
 // rewrites() because those are evaluated once at `next build` and frozen into
@@ -34,7 +34,7 @@ export function proxy(request: NextRequest) {
     const { pathname, search } = request.nextUrl;
 
     return NextResponse.rewrite(
-      new URL(pathname + search, env.AUTH_SERVER_URL),
+      new URL(pathname + search, getEnv().AUTH_SERVER_URL),
     );
   }
 
