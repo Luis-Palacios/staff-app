@@ -1,0 +1,31 @@
+# Docker sends everything not excluded here to the build. Unlike .gitignore, patterns are anchored
+# to the context root and * doesn't cross /, so use **/ for "at any depth". Every line should match
+# something that exists in this repo.
+
+# Secrets, at any depth and in any variant (.env, .env.local, .env.production, ...). next build
+# loads .env* files itself and inlines NEXT_PUBLIC_* values into the client bundle.
+**/.env*
+
+# Full history, including any secret ever committed and later deleted.
+.git
+
+# Host installs and build output. node_modules has native binaries for the host OS.
+**/node_modules
+.next
+next-env.d.ts
+*.tsbuildinfo
+
+# Docker's own files and dev-only tooling: next build doesn't run ESLint or Prettier.
+Dockerfile
+.dockerignore
+.editorconfig
+.gitattributes
+.gitignore
+.prettierrc
+eslint.config.mjs
+
+# Docs and editor/agent/CI config.
+**/*.md
+docs
+.github
+.vscode
