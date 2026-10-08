@@ -2,7 +2,7 @@
 
 ## Commands
 
-Use pnpm; the repository has `pnpm-lock.yaml`, `pnpm-workspace.yaml`, and `.npmrc`.
+Use pnpm 12.3.4, pinned in `package.json` (`devEngines` + `packageManager`). Use `pnpm exec`/`pnpm dlx`, not `npx`: npm refuses to run here because of `devEngines`.
 
 ```bash
 pnpm install
@@ -10,7 +10,7 @@ pnpm dev                 # Next.js development server at http://localhost:3001
 pnpm build               # production build
 pnpm start               # production server at http://localhost:3001
 pnpm lint                # ESLint with --fix; applies Prettier fixes too
-npx tsc --noEmit         # type-check
+pnpm exec tsc --noEmit   # type-check
 pnpm exec eslint --fix app/(app)/users/page.tsx  # lint/fix one TS/TSX file
 ```
 
