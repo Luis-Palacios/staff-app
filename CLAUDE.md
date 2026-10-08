@@ -14,14 +14,15 @@ pick up at whichever phase is still marked `[ ]`.
 
 ## Commands
 
-Package manager is **pnpm** (`pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.npmrc`).
+Package manager is **pnpm 12.3.4**, pinned in `package.json` (`devEngines` + `packageManager`).
+Use `pnpm exec`/`pnpm dlx`, not `npx`: npm refuses to run here because of `devEngines`.
 
 - `pnpm install` — install dependencies
 - `pnpm dev` — dev server at http://localhost:3001
 - `pnpm build` — production build
 - `pnpm start` — serve the production build
 - `pnpm lint` — ESLint with `--fix` (auto-formats; there is no separate Prettier script — Prettier runs through `eslint-plugin-prettier`)
-- `npx tsc --noEmit` — type-check (tsconfig is `noEmit`, so this is the only way to check types without a build)
+- `pnpm exec tsc --noEmit` — type-check (tsconfig is `noEmit`, so this is the only way to check types without a build)
 
 There is **no test runner** configured. If asked to add tests, confirm the framework choice first.
 
