@@ -3,6 +3,14 @@
 	"version": "0.0.1",
 	"type": "module",
 	"private": true,
+	"devEngines": {
+		"packageManager": {
+			"name": "pnpm",
+			"version": "12.3.4",
+			"onFail": "download"
+		}
+	},
+	"packageManager": "pnpm@12.3.4",
 	"scripts": {
 		"dev": "next dev -p 3001",
 		"build": "next build",
