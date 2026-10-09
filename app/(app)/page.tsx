@@ -29,6 +29,7 @@ import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { EmptyState } from "@/components/empty-state";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { AuthRole, STAFF_ADMIN_ROLES } from "@/lib/auth/roles";
+import { mapSettled, settle } from "@/lib/settle";
 
 export default async function DashboardPage() {
   const session = await getServerSession();
@@ -47,8 +48,11 @@ export default async function DashboardPage() {
   // Start every fetch now and await none of them here, so they run in
   // parallel. Each section awaits its own promise inside a Suspense boundary,
   // and sections that need the same data share one promise (one request).
-  const applications = getRecentApplications();
-  const awaitingFulfilment = applications.then(
+  // settle() turns a failed fetch into { ok: false }, so a failing service
+  // shows an error in its own section instead of reaching app/error.tsx.
+  const applications = settle(getRecentApplications());
+  const awaitingFulfilment = mapSettled(
+    applications,
     (list) => list.filter((application) => !application.isFulfilled).length,
   );
 
@@ -58,11 +62,15 @@ export default async function DashboardPage() {
   if (isStaffAdmin) {
     const cookie = (await headers()).get("cookie") ?? "";
 
-    pendingUsers = listUsers(cookie).then(({ users }) =>
-      users.filter((user) => user.role === AuthRole.Pending),
+    pendingUsers = settle(
+      listUsers(cookie).then(({ users }) =>
+        users.filter((user) => user.role === AuthRole.Pending),
+      ),
     );
-    openInvites = listInvites(cookie).then(({ invites }) =>
-      invites.filter((invite) => deriveInviteStatus(invite) === "pending"),
+    openInvites = settle(
+      listInvites(cookie).then(({ invites }) =>
+        invites.filter((invite) => deriveInviteStatus(invite) === "pending"),
+      ),
     );
   }
 
@@ -93,38 +101,38 @@ export default async function DashboardPage() {
       />
 
       <div className="flex flex-col gap-7">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(210px,1fr))] sm:gap-4">
           <StatTile
             href="/applications"
             icon={DocumentTextIcon}
             label="New applications"
             sub="Last 60 days"
-            value={getRecentApplicationsCount()}
+            value={settle(getRecentApplicationsCount())}
           />
           <StatTile
+            attention
             href="/applications"
             icon={ClockIcon}
             label="Awaiting fulfilment"
             sub="Not yet presented"
-            tone="warning"
             value={awaitingFulfilment}
           />
           {pendingUsers && openInvites && (
             <>
               <StatTile
+                attention
                 href="/users"
                 icon={UserIcon}
                 label="Waiting for a role"
                 sub="New sign-ups"
-                tone="warning"
-                value={pendingUsers.then((users) => users.length)}
+                value={mapSettled(pendingUsers, (users) => users.length)}
               />
               <StatTile
                 href="/users/invites"
                 icon={EnvelopeIcon}
                 label="Open invites"
                 sub="Sent, not accepted"
-                value={openInvites.then((invites) => invites.length)}
+                value={mapSettled(openInvites, (invites) => invites.length)}
               />
             </>
           )}

@@ -1,4 +1,5 @@
 import type { ApplicationMembershipSummary } from "@/api/applications-membership-api/types";
+import type { Settled } from "@/lib/settle";
 
 import { Suspense } from "react";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
@@ -20,10 +21,20 @@ const row =
 async function RecentApplicationsList({
   applications,
 }: {
-  applications: Promise<ApplicationMembershipSummary[]>;
+  applications: Promise<Settled<ApplicationMembershipSummary[]>>;
 }) {
+  const result = await applications;
+
+  if (!result.ok) {
+    return (
+      <p className={clsx(row, "text-sm text-danger")}>
+        Couldn&apos;t load recent applications.
+      </p>
+    );
+  }
+
   // ISO dates sort as strings, newest first.
-  const recent = [...(await applications)]
+  const recent = [...result.value]
     .sort((a, b) => b.generatedDate.localeCompare(a.generatedDate))
     .slice(0, RECENT_LIMIT);
 
@@ -93,7 +104,7 @@ function RecentApplicationsListSkeleton() {
 export function RecentApplicationsCard({
   applications,
 }: {
-  applications: Promise<ApplicationMembershipSummary[]>;
+  applications: Promise<Settled<ApplicationMembershipSummary[]>>;
 }) {
   return (
     <section
@@ -109,7 +120,7 @@ export function RecentApplicationsCard({
           </p>
         </div>
         <NextLink
-          className="text-sm font-semibold text-link underline decoration-gold-500 underline-offset-4"
+          className="whitespace-nowrap text-sm font-semibold text-link underline decoration-gold-500 underline-offset-4"
           href="/applications"
         >
           View all

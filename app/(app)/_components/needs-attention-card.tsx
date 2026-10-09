@@ -2,6 +2,7 @@ import type {
   AdminInviteListItem,
   AdminUserListItem,
 } from "@/api/auth-api/types";
+import type { Settled } from "@/lib/settle";
 
 import { ChevronRightIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
 import { Skeleton } from "@heroui/react/skeleton";
@@ -15,62 +16,72 @@ import { card, title } from "@/components/primitives";
 
 const cardClasses = card({ className: "flex flex-col gap-3.5 px-[22px] py-5" });
 
+const errorLine = "text-sm text-danger";
+
 // Admin/elder only. Users waiting for a role (assignable right here) and a
 // link to invites nobody has accepted yet. Renders nothing when both are
-// empty, so the side column doesn't carry an empty card.
+// empty, so the side column doesn't carry an empty card. A half that failed
+// to load shows a one-line error and the other half still renders.
 export async function NeedsAttentionCard({
   pendingUsers: pendingUsersPromise,
   openInvites: openInvitesPromise,
 }: {
-  pendingUsers: Promise<AdminUserListItem[]>;
-  openInvites: Promise<AdminInviteListItem[]>;
+  pendingUsers: Promise<Settled<AdminUserListItem[]>>;
+  openInvites: Promise<Settled<AdminInviteListItem[]>>;
 }) {
   const [pendingUsers, openInvites] = await Promise.all([
     pendingUsersPromise,
     openInvitesPromise,
   ]);
 
-  if (pendingUsers.length === 0 && openInvites.length === 0) {
+  const showUsers = !pendingUsers.ok || pendingUsers.value.length > 0;
+  const showInvites = !openInvites.ok || openInvites.value.length > 0;
+
+  if (!showUsers && !showInvites) {
     return null;
   }
-
-  const inviteCount = openInvites.length;
 
   return (
     <section className={cardClasses}>
       <h2 className={title({ size: "sm" })}>Needs your attention</h2>
 
-      {pendingUsers.length > 0 && (
+      {showUsers && (
         <div className="flex flex-col gap-2.5">
           <h3 className="text-[13px] font-semibold text-muted">
             Waiting for a role
           </h3>
-          <ul className="flex flex-col gap-3">
-            {pendingUsers.map((user) => (
-              <li
-                key={user.id}
-                className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2"
-              >
-                <span className="flex min-w-0 flex-col">
-                  <span className="truncate text-[14.5px] font-semibold text-heading">
-                    {user.name}
+          {pendingUsers.ok ? (
+            <ul className="flex flex-col gap-3">
+              {pendingUsers.value.map((user) => (
+                <li
+                  key={user.id}
+                  className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2"
+                >
+                  <span className="flex min-w-0 flex-col">
+                    <span className="truncate text-[14.5px] font-semibold text-heading">
+                      {user.name}
+                    </span>
+                    <span className="truncate text-[13px] text-muted">
+                      {user.email}
+                    </span>
                   </span>
-                  <span className="truncate text-[13px] text-muted">
-                    {user.email}
-                  </span>
-                </span>
-                <AssignPendingRole userId={user.id} userName={user.name} />
-              </li>
-            ))}
-          </ul>
+                  <AssignPendingRole userId={user.id} userName={user.name} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className={errorLine}>Couldn&apos;t load users.</p>
+          )}
         </div>
       )}
 
-      {pendingUsers.length > 0 && inviteCount > 0 && (
-        <hr className="border-separator" />
+      {showUsers && showInvites && <hr className="border-separator" />}
+
+      {showInvites && !openInvites.ok && (
+        <p className={errorLine}>Couldn&apos;t load invites.</p>
       )}
 
-      {inviteCount > 0 && (
+      {openInvites.ok && openInvites.value.length > 0 && (
         <NextLink
           className="flex items-center gap-3 rounded-control text-sm"
           href="/users/invites"
@@ -84,9 +95,11 @@ export async function NeedsAttentionCard({
           </span>
           <span className="flex-1">
             <strong className="font-semibold text-heading">
-              {inviteCount} {inviteCount === 1 ? "invite" : "invites"}
+              {openInvites.value.length}{" "}
+              {openInvites.value.length === 1 ? "invite" : "invites"}
             </strong>{" "}
-            {inviteCount === 1 ? "hasn't" : "haven't"} been accepted yet
+            {openInvites.value.length === 1 ? "hasn't" : "haven't"} been
+            accepted yet
           </span>
           <ChevronRightIcon
             aria-hidden="true"
