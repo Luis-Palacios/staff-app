@@ -1,19 +1,12 @@
 import type { ComponentType, SVGProps } from "react";
 
-import { UserGroupIcon } from "@heroicons/react/24/solid";
-
 export type SiteConfig = typeof siteConfig;
 
 /** A Heroicons (or otherwise compatible) SVG icon component. */
 export type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 /** Icon keys resolved by the sidebar's icon registry (`components/sidebar.tsx`). */
-export type NavIconName =
-  | "dashboard"
-  | "groups"
-  | "applications"
-  | "reports"
-  | "balances";
+export type NavIconName = "dashboard" | "groups" | "applications" | "access";
 
 export type NavChildItem = {
   label: string;
@@ -70,7 +63,7 @@ export const siteConfig = {
     },
     {
       label: "Access",
-      icon: UserGroupIcon,
+      icon: "access",
       items: [
         {
           label: "Users",
