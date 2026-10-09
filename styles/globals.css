@@ -117,8 +117,13 @@
     --segment-shadow: none;
   }
 
-  /* Gold focus halo for non-HeroUI elements (plain links, our badges). */
-  :focus-visible {
+  /*
+   * Gold focus halo for non-HeroUI elements (plain links and buttons). HeroUI
+   * components (marked with data-slot) draw their own ring from --focus, and
+   * matching every element also hit focused containers like an open menu,
+   * where the popover clipped the halo into a stray gold line.
+   */
+  :where(a, button:not([data-slot]), summary):focus-visible {
     outline: none;
     box-shadow: var(--shadow-focus);
   }
