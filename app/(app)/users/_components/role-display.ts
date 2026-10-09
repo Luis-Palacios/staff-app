@@ -1,15 +1,18 @@
+import type { StatusBadgeProps } from "@/components/status-badge";
+
 import { AuthRole, ROLE_LABELS } from "@/lib/auth/roles";
 
-// Only default | accent | danger | success | warning exist on HeroUI's Chip (no "secondary") —
-// verified in @heroui/styles' chipVariants. With 6 roles and no real severity ordering between
-// most of them, only the two ends worth flagging get a distinct color.
-export function roleChipColor(
+// Most roles have no severity ordering between them, so they share the neutral
+// badge; only the two ends worth flagging stand out. Admin gets the accent
+// tone, and Pending gets a hollow warning ring because it's waiting on someone.
+export function roleBadgeProps(
   role: AuthRole | null,
-): "default" | "danger" | "warning" {
-  if (role === AuthRole.Admin) return "danger";
-  if (role === AuthRole.Pending) return "warning";
+): Pick<StatusBadgeProps, "tone" | "variant"> {
+  if (role === AuthRole.Admin) return { tone: "accent" };
+  if (role === AuthRole.Pending)
+    return { tone: "warning", variant: "ring-dot" };
 
-  return "default";
+  return { tone: "neutral" };
 }
 
 export function roleLabel(role: AuthRole | null): string {

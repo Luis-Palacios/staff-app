@@ -57,6 +57,7 @@
 
     --heading: #0B2341;                /* custom: page/card titles */
     --eyebrow: #8A5B00;                /* custom: gold-800 eyebrow text */
+    --subtle: #8D9AAB;                 /* custom: decorative only (chevrons, hollow dots), not text */
     --rail: #0B2341;                   /* custom: sidebar, same in both modes */
     --rail-edge: #0B2341;
     /* custom: segmented controls (theme switch). Track and selected pill swap
@@ -110,6 +111,7 @@
 
     --heading: #F4F6F9;
     --eyebrow: #F2B544;
+    --subtle: #5E7391;
     --rail: #0B2341;
     --rail-edge: #1F3B60;
     --segment: #0B2341;
@@ -132,6 +134,7 @@
 @theme inline {
   --color-heading: var(--heading);
   --color-eyebrow: var(--eyebrow);
+  --color-subtle: var(--subtle);
   --color-rail: var(--rail);
   --color-rail-edge: var(--rail-edge);
   --color-segment: var(--segment);

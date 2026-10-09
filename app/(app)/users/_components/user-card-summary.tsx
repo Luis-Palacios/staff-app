@@ -1,12 +1,12 @@
 import type { AdminUserListItem } from "@/api/auth-api/types";
 
 import { Card } from "@heroui/react/card";
-import { Chip } from "@heroui/react/chip";
 
 import { AssignPendingRole } from "./assign-pending-role";
-import { roleChipColor, roleLabel } from "./role-display";
+import { roleBadgeProps, roleLabel } from "./role-display";
 import { UserStatusChips } from "./user-status-chips";
 
+import { StatusBadge } from "@/components/status-badge";
 import { LocalDateTime } from "@/components/local-date-time";
 
 export default function UserCardSummary({ user }: { user: AdminUserListItem }) {
@@ -28,7 +28,9 @@ export default function UserCardSummary({ user }: { user: AdminUserListItem }) {
         {user.role === "pending" ? (
           <AssignPendingRole userId={user.id} userName={user.name} />
         ) : (
-          <Chip color={roleChipColor(user.role)}>{roleLabel(user.role)}</Chip>
+          <StatusBadge {...roleBadgeProps(user.role)}>
+            {roleLabel(user.role)}
+          </StatusBadge>
         )}
         <UserStatusChips user={user} />
       </Card.Footer>

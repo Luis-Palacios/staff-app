@@ -15,3 +15,7 @@ export function formatLocalDateTime(iso: string): string {
 export function formatLocalDate(iso: string): string {
   return formatLocal(iso, { dateStyle: "medium" });
 }
+
+export function formatLocalTime(iso: string): string {
+  return formatLocal(iso, { timeStyle: "short" });
+}

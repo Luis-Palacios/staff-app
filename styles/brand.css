@@ -1,7 +1,8 @@
 /*
  * ekklesiaio brand theme: FILTERED COPY of ../landing-page/brand/theme.css.
  *
- * Removed: --color-muted, --color-surface, --color-danger and --color-field.
+ * Removed: --color-muted, --color-surface, --color-danger, --color-field and
+ * --color-subtle (now a light/dark token in globals.css).
  * HeroUI (@heroui/styles/dist/themes/shared/theme.css) already registers those
  * names as theme-aware utilities (e.g. --color-muted: var(--muted)); redefining
  * them here would pin `text-muted`, `bg-surface`, etc. to their light values.
@@ -33,7 +34,6 @@
 
   /* ---------- Neutrals (cool, derived from navy) ---------- */
   --color-ink:      #33445A; /* body text on light — ~9:1 */
-  --color-subtle:   #8D9AAB; /* decorative only (dashes, hollow dots) — not for text */
   --color-on-dark:  #C3CDDA; /* body text on navy-900 */
   --color-line:     #E2E5EA; /* borders, dividers */
   --color-line-strong: #D5DBE3;
