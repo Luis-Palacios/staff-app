@@ -103,7 +103,16 @@ to guess them.
     Each section awaits its own inside a `Suspense`, and sections that need the same data
     share one promise (tile 2 and the recent card share `getRecentApplications()`; tile 3
     and the attention card share `listUsers`).
-  - Stat tiles render their frame and labels at once; only the number suspends.
+  - **Failures stay in their section.** Every dashboard fetch goes through `settle()`
+    (`lib/settle.ts`), which returns `{ ok: false }` instead of rejecting and logs the
+    error on the server; `mapSettled()` derives counts from it. A failed tile shows "—" +
+    "Couldn't load"; the cards show a one-line `text-danger` error. Use the same helper
+    for any page that shows several independent sources.
+  - Stat tiles: the link and its frame show at once; the body (number, sub-label, tone)
+    suspends. `attention` tiles ("Awaiting fulfilment", "Waiting for a role") use the
+    warning tone only while their count is above 0. Two columns below `sm`, `p-4`.
+  - `app/error.tsx` is a centered `EmptyState` (new `action` slot, `as="h1"`) with a
+    "Try again" primary button. It replaces the whole `(app)` layout, shell included.
   - "Recent" is the API's **60-day** window, counted back from the newest application
     (`DEFAULT_RECENT_WINDOW` in membership-applications), not the canvas's 30 days.
     Labels say "Last 60 days".
