@@ -30,7 +30,12 @@ export function EmptyState({
       <span className="flex size-11 items-center justify-center rounded-tile bg-accent-soft text-accent-soft-foreground">
         <Icon aria-hidden="true" className="size-[22px]" strokeWidth={1.6} />
       </span>
-      <Heading className={titleStyles({ className: "text-xl leading-snug" })}>
+      <Heading
+        className={titleStyles({
+          size: "sm",
+          className: "text-xl leading-snug",
+        })}
+      >
         {title}
       </Heading>
       {children && (
