@@ -12,6 +12,10 @@ See `docs/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring t
 with the sibling `auth-server` (better-auth) and `membership-applications` (FastAPI) repos —
 pick up at whichever phase is still marked `[ ]`.
 
+See `docs/BRAND-RESTYLE.md` for the staged plan applying the ekklesiaio brand (tokens →
+HeroUI variables, fonts, logo, shell, screens). Do one stage per change and confirm it
+works in light and dark before starting the next.
+
 ## Commands
 
 Package manager is **pnpm 12.3.4**, pinned in `package.json` (`devEngines` + `packageManager`).
@@ -42,7 +46,7 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   See `docs/dashboard-layout.md` for the full rationale and a porting guide for
   pulling more widgets from the `nextui-dashboard-template`.
 - **`app/providers.tsx`** wraps the tree in `next-themes` only. Theme is
-  class-based, defaults to `dark` (`themeProps` passed from `app/layout.tsx`).
+  class-based, defaults to `system` (`themeProps` passed from `app/layout.tsx`).
   Add other client-side providers here.
 - **HeroUI v3** (`@heroui/react`, `@heroui/styles`) is the component library.
   v3's API differs significantly from v2 — components are compound (e.g.
@@ -50,9 +54,10 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   `components/topbar.tsx`; `Disclosure.Trigger/Content/Body/Indicator` in
   `components/sidebar.tsx`). Check current v3 docs rather than assuming v2 props.
 - **Tailwind CSS v4** — configured entirely in `styles/globals.css` via
-  `@import "tailwindcss"`, `@import "@heroui/styles"`, `@theme { ... }`, and a
-  `dark` custom variant. There is no `tailwind.config.*` file. PostCSS uses
-  `@tailwindcss/postcss`.
+  `@import "tailwindcss"`, `@import "@heroui/styles"`, `@import "./brand.css"`
+  (filtered copy of the ekklesiaio brand palette), a `dark` custom variant, and
+  a `@layer base` block mapping the brand onto HeroUI's theme variables (light +
+  dark). There is no `tailwind.config.*` file. PostCSS uses `@tailwindcss/postcss`.
 - **Config-driven navigation** — `config/site.ts` (`siteConfig`) is the single
   source for site name, description (used in `metadata`), and nav items. Add or
   rename routes there, not inline in the sidebar. `NavItem` is either a leaf
@@ -60,8 +65,10 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   resolve through `iconRegistry` in `components/sidebar.tsx`.
 - **`components/primitives.ts`** — `title()` / `subtitle()` `tailwind-variants`
   helpers used for page headings; reuse these instead of ad-hoc heading classes.
-- **`config/fonts.ts`** — `next/font/google` (Inter as `--font-sans`, Fira Code
-  as `--font-mono`); wired in via `fontSans.variable` on `<body>`.
+- **`config/fonts.ts`** — `next/font/google` brand trio: Figtree (body,
+  `--font-figtree` → `font-sans`), Newsreader (`--font-newsreader` →
+  `font-display`), Inter (wordmark only, `--font-inter` → `font-logo`); all three
+  `.variable`s go on `<body>`.
 - **Path alias** — `@/*` maps to the repo root (`@/config/site`, `@/components/sidebar`).
 
 ## Conventions enforced by ESLint

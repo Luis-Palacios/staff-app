@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
-import { fontSans } from "@/config/fonts";
+import { fontDisplay, fontLogo, fontSans } from "@/config/fonts";
 
 export const metadata: Metadata = {
   title: {
@@ -13,15 +13,12 @@ export const metadata: Metadata = {
     template: `%s - ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
+    { media: "(prefers-color-scheme: light)", color: "#FBFAF7" },
+    { media: "(prefers-color-scheme: dark)", color: "#081A31" },
   ],
 };
 
@@ -31,14 +28,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="en">
+    // Font variables go on <html>, not <body>: brand.css defines `--font-sans:
+    // var(--font-figtree), …` on :root, so --font-figtree must exist there too.
+    <html
+      suppressHydrationWarning
+      className={clsx(
+        fontSans.variable,
+        fontDisplay.variable,
+        fontLogo.variable,
+      )}
+      lang="en"
+    >
       <head />
-      <body
-        className={clsx(
-          "min-h-screen text-foreground bg-background font-sans antialiased",
-          fontSans.variable,
-        )}
-      >
+      <body className="min-h-screen text-foreground bg-background font-sans antialiased">
         <Providers themeProps={{ attribute: "class", defaultTheme: "system" }}>
           {children}
         </Providers>
