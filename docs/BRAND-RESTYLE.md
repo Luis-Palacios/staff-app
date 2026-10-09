@@ -12,6 +12,78 @@ lints, type-checks and works in light and dark before the next one starts.
 - **Out of scope:** Groups and report-submission screens (designed in a later session), and
   per-church branding (later; see the "workspace" slot in Stage 2).
 
+## Progress (handoff log)
+
+Work happens on the **`brand-restyle`** branch, **one commit per stage**. `main` has an
+identical-content copy of Stage 1 (`def9ed2`), so merging the branch is conflict-free.
+
+| Stage | Status | Commit |
+| --- | --- | --- |
+| 1. Tokens, fonts, theme mapping | ✅ done | `0e63dea` |
+| 2. Logo and workspace slot | ✅ done | `03f24ff` |
+| 3. Shell (sidebar, topbar, theme switch) | ✅ done | `7ec4bbe` + focus-halo fix |
+| 4. Shared page patterns | ⏭ **next** | |
+| 5–9 | not started | |
+
+**Pick up at Stage 4.** Read the canvas artboards first (the Artifact tool's `read` with
+`path: "project/<Name>.dc.html"`: `Dashboard`, `Applications`, `ApplicationDetail`,
+`SignIn`, `Sidebar`, `Topbar`). They hold exact px values and colors, so you don't have
+to guess them.
+
+### Decisions and deviations so far (already in the code)
+
+- **Brand components** live in `components/brand/`:
+  - `EkklesiaioMark` and `EkklesiaioLogo` take `tone: "on-dark" | "on-light" | "auto"`.
+    `auto` is an addition to this spec: it keeps the one allowed `dark:` swap inside the
+    component.
+  - `WorkspaceBadge` reads `siteConfig.workspace`, or a `workspace` prop for per-church
+    branding later.
+  - The old PETRA `Logo` was deleted; recover it from `0e63dea`.
+- **Inter** loads as the variable font (no `weight` list), so the wordmark's 650 weight
+  renders exactly.
+- **Segmented-control tokens:** `--segment`, `--segment-selected` and `--segment-shadow`
+  (`bg-segment`, `bg-segment-selected`, `shadow-segment`) in `globals.css`. The track and
+  the selected pill swap surfaces between modes. **Reuse them for the Stage 6 status
+  filter.**
+- **Restyling HeroUI components:** first read their CSS in
+  `node_modules/@heroui/styles/dist/components/<name>.css`.
+  - Many expose CSS variables, e.g. `--toggle-button-*`. Set those with Tailwind
+    arbitrary properties rather than overriding their selectors (see
+    `components/theme-switch.tsx`).
+  - `InputGroup.Prefix` and `InputGroup.Suffix` draw divider borders; remove them with
+    `border-0`.
+- **Focus halo:**
+  - The global `:focus-visible` halo is scoped to
+    `:where(a, button:not([data-slot]), summary)`. Applied to every element, it also hit
+    focused HeroUI menus and showed a stray gold line.
+  - HeroUI components draw their own ring from `--focus`.
+  - On the navy rail, the sidebar redefines both `--focus` and `--shadow-focus` to
+    gold-500. Do the same for any other navy panel, such as the Stage 8 sign-in brand
+    panel.
+- **Sidebar footer version** comes from `NEXT_PUBLIC_APP_VERSION`, set in
+  `next.config.mjs` from `npm_package_version`.
+- **Nav icons:** Heroicons outline at stroke 1.6 through `iconRegistry`
+  (`NavIconName` = `dashboard | groups | applications | access`). `components/icons.tsx`
+  now only holds `ChevronDownIcon` (used by the application detail page), `MenuIcon` and
+  `CloseIcon`.
+- **Topbar:**
+  - Side padding is `px-4 lg:px-8`.
+  - Below `sm` the search field collapses behind an icon button and opens on its own row.
+  - The account avatar is a plain `<span>`, not HeroUI `Avatar`, so its colors are exact.
+
+### Gotchas
+
+- **Stale CSS in dev.** If brand colors or fonts don't show after CSS changes, Turbopack
+  is serving cached CSS. You can tell from the served CSS: it still has
+  `--font-sans: "font"` or `--accent: #0485f7`. Stop `pnpm dev`, run
+  `Remove-Item -Recurse -Force .next`, and restart. Touching the files does not help.
+- **Restart after editing `next.config.mjs`.** The dev server restarts when it changes and
+  may not come back up on its own.
+- **Width checks in the automation browser.** The window may not resize. Check 1024 and
+  390 by loading the app in same-origin iframes of those widths instead.
+- **Old-palette grep:** the remaining hits are in Stage 5 (`app/(app)/page.tsx`) and
+  Stage 7 (`components/person_timeline/index.tsx`) files. Those stages fix them.
+
 ## Principles (read before every stage)
 
 1. **Colors go through HeroUI's variables.** HeroUI v3 reads every color from CSS variables
@@ -27,7 +99,7 @@ lints, type-checks and works in light and dark before the next one starts.
 5. **No component-level `dark:` overrides** unless a token can't express it. If you need
    one, it probably means a token is missing; add the token instead.
 
-## Stage 1: Tokens, fonts and theme mapping
+## Stage 1: Tokens, fonts and theme mapping ✅
 
 **Files:** `styles/brand.css` (new), `styles/globals.css`, `config/fonts.ts`,
 `app/layout.tsx`, `config/site.ts`.
@@ -217,7 +289,7 @@ In `app/layout.tsx` put all three `.variable`s on `<body>` (body already has `fo
 edits. Buttons are navy (light) or gold (dark), fields have visible borders, the page is
 paper or navy-950, and Figtree is the body font.
 
-## Stage 2: Logo and workspace slot
+## Stage 2: Logo and workspace slot ✅
 
 **Files:** `components/brand/ekklesiaio-logo.tsx` (new), `components/brand/workspace-badge.tsx`
 (new), `components/icons.tsx`, every `Logo` usage (`sidebar.tsx`, `topbar.tsx`,
@@ -240,7 +312,7 @@ paper or navy-950, and Figtree is the body font.
   it with a `dark:` class swap or pass both and hide one; the mark is the one place a
   `dark:` switch is fine).
 
-## Stage 3: Shell (sidebar, topbar, theme switch)
+## Stage 3: Shell (sidebar, topbar, theme switch) ✅
 
 Match the canvas's **Sidebar** and **Topbar** artboards.
 

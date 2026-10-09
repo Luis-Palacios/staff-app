@@ -36,15 +36,19 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   `layout.tsx` + `page.tsx`. `app/layout.tsx` is the root shell: fonts,
   `Providers`, and `<AppShell>` (which renders the sidebar, top bar, and the
   `max-w-7xl` main region). Older section layouts still use a centered
-  `max-w-lg text-center` wrapper; `app/balances/layout.tsx` uses a plain
-  left-aligned one — prefer that for new sections.
+  `max-w-lg text-center` wrapper; prefer a plain left-aligned one for new sections.
 - **Dashboard shell** — `components/app-shell.tsx` (client; holds the mobile
   sidebar open state + body scroll lock) composes `components/sidebar.tsx`
-  (bordered left rail, per-item icons, collapsible nested groups via HeroUI
-  `Disclosure`, off-canvas + backdrop below `lg`) and `components/topbar.tsx`
-  (wide search, theme switch, GitHub link, avatar, hamburger below `lg`).
-  See `docs/dashboard-layout.md` for the full rationale and a porting guide for
-  pulling more widgets from the `nextui-dashboard-template`.
+  (navy brand rail in both modes: logo, `WorkspaceBadge`, Heroicons-outline nav
+  items, collapsible groups via HeroUI `Disclosure`, off-canvas + backdrop below
+  `lg`) and `components/topbar.tsx` (search with Ctrl/⌘ K hint, segmented
+  `ThemeSwitch`, account menu; hamburger + mark below `lg`, search collapses
+  behind an icon below `sm`). See `docs/dashboard-layout.md` for the shell's
+  structure and `docs/BRAND-RESTYLE.md` for its styling.
+- **Brand components** — `components/brand/` holds `EkklesiaioMark` /
+  `EkklesiaioLogo` (`tone: "on-dark" | "on-light" | "auto"`) and
+  `WorkspaceBadge` (reads `siteConfig.workspace`; the hook for per-church
+  branding).
 - **`app/providers.tsx`** wraps the tree in `next-themes` only. Theme is
   class-based, defaults to `system` (`themeProps` passed from `app/layout.tsx`).
   Add other client-side providers here.

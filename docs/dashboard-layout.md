@@ -1,5 +1,11 @@
 # Dashboard layout — notes & porting guide
 
+> **Styling note (2026-10):** the shell's *look* has since been restyled to the
+> ekklesiaio brand (navy rail, Heroicons outline nav, segmented theme switch,
+> account menu). See `docs/BRAND-RESTYLE.md` (Stage 3) for the current visuals.
+> The structure, data model and responsive behaviour described here still apply;
+> the table below is the historical record of the first pass.
+
 This app's shell (sidebar + top bar) was reworked to resemble the
 [`Siumauricio/nextui-dashboard-template`](https://github.com/Siumauricio/nextui-dashboard-template)
 dark dashboard. That template targets **NextUI v2**; this repo is on **HeroUI v3
@@ -14,10 +20,10 @@ this.
 | --- | --- | --- |
 | App shell (holds mobile sidebar open/close state, body scroll lock) | `components/app-shell.tsx` | `"use client"`. Renders `<Sidebar>` + `<Topbar>` + `<main>`. Replaces the old single `<Navbar>`. |
 | Left sidebar with right border, per-item icons, active state, collapsible groups | `components/sidebar.tsx` | `"use client"`. Desktop: `lg:sticky` rail, `w-64`, `border-r border-separator`. Mobile: fixed, `-translate-x-full`, slides in on `isOpen`, dark backdrop. |
-| Top bar with wide search + right cluster | `components/topbar.tsx` | `"use client"`. Search is `flex-1 sm:max-w-2xl` (the "extend the search input" ask). Right cluster = theme switch, GitHub link, avatar. Hamburger + small logo show `lg:hidden`. |
+| Top bar with wide search + right cluster | `components/topbar.tsx` | `"use client"`. Search is `flex-1 max-w-[520px]`, collapsed behind an icon button below `sm`. Right cluster = theme switch, account menu (avatar + name + role). Hamburger + brand mark show `lg:hidden`. |
 | Nav data model with nesting | `config/site.ts` | `navItems: NavItem[]`; `NavItem` has `icon`, optional `href` (leaf) OR optional `items` (collapsible group). `navMenuItems` was deleted — the sidebar drives both desktop and mobile now. |
-| Nav / chrome icons | `components/icons.tsx` | Hand-rolled 24×24 stroke SVGs (`DashboardIcon`, `GroupsIcon`, `ApplicationsIcon`, `ReportsIcon`, `BalancesIcon`, `ChevronDownIcon`, `MenuIcon`, `CloseIcon`). Same `IconSvgProps` contract as the existing icons. No icon library is installed. |
-| `Balances` nested example + stub routes | `app/balances/{layout,page}.tsx`, `app/balances/transactions/page.tsx` | Demonstrates a collapsible group with two children. |
+| Nav / chrome icons | `@heroicons/react/24/outline` + `components/icons.tsx` | Nav icons are Heroicons outline, mapped in `iconRegistry` (`components/sidebar.tsx`). `components/icons.tsx` keeps only `ChevronDownIcon`, `MenuIcon`, `CloseIcon`. |
+| ~~`Balances` nested example + stub routes~~ | ~~`app/balances/*`~~ | Since removed; `Groups` and `Access` are the live collapsible-group examples. |
 | Root layout wiring | `app/layout.tsx` | Now just `<Providers><AppShell>{children}</AppShell></Providers>`. The old `container mx-auto max-w-7xl` main + empty footer are gone; `<main>` inside `AppShell` keeps `max-w-7xl` centering. |
 
 ### Removed on purpose (per the request)
@@ -71,8 +77,8 @@ auto-rotates on `data-expanded` — no manual chevron state needed.
   `document.body.style.overflow = "hidden"` while open.
 - `>= lg`: sidebar is `lg:sticky lg:translate-x-0` and always visible; hamburger,
   mobile logo and backdrop are hidden.
-- Search is `flex-1` down to `sm`, capped at `max-w-2xl` from `sm` up. GitHub link
-  is `hidden sm:inline-flex`.
+- Search is `flex-1` capped at `max-w-[520px]`. Below `sm` it is hidden behind a
+  search icon button that opens it on its own row. Account name/role hide below `md`.
 
 > Verified: `pnpm build` + `npx tsc --noEmit` pass, no console errors, desktop
 > render matches the target. The mobile breakpoint was **not** screenshot-tested
@@ -109,17 +115,11 @@ the main area is still the section stubs.
 
 ## Known gaps / follow-ups
 
-- **`pnpm lint` is broken repo-wide** (pre-existing, unrelated to this change):
-  `eslint-config-next`'s `plugin:@next/next/recommended` trips the flat-config
-  compat layer with `Unexpected top-level property "name"`. Type-check via
-  `npx tsc --noEmit` still works.
 - **Other section layouts** (`app/{groups,applications,reports}/layout.tsx`) still
   use the template's centered `max-w-lg text-center` wrapper, which looks odd
-  inside the dashboard shell. `app/balances/layout.tsx` uses a plain
-  left-aligned wrapper — copy that when those sections get real content.
+  inside the dashboard shell. Use a plain left-aligned wrapper when those
+  sections get real content.
 - **Collapsed disclosure panels** keep their child links in the a11y tree /
   tab order (height-clipped only). Fine for now; revisit if keyboard nav matters.
-- **Avatar** is initials-only (`SA`). Swap in `<Avatar.Image src=... />` when
-  there's a real user.
-- **`config/site.ts` `links`** still carries the template's twitter/discord/docs/
-  sponsor URLs; only `links.github` is used (top-bar icon).
+- **Account avatar** shows the signed-in user's initials (a styled `<span>` in
+  `components/topbar.tsx`). Swap in a photo when the auth server provides one.
