@@ -24,7 +24,18 @@ export const subtitle = tv({
 });
 
 // Content card surface. The hairline shadow is light-only: on navy it would
-// just muddy the border.
+// just muddy the border. `interactive` is for a card that is itself a link:
+// a hover border, plus the focus halo restated, because the shadow utilities
+// here outrank the global halo (a base-layer rule). The dark: copy beats
+// dark:shadow-none.
 export const card = tv({
   base: "rounded-card border border-border bg-surface shadow-[0_1px_2px_rgb(11_35_65/0.05)] dark:shadow-none",
+  variants: {
+    interactive: {
+      true: [
+        "transition-colors hover:border-field-border",
+        "focus-visible:shadow-[var(--shadow-focus)] dark:focus-visible:shadow-[var(--shadow-focus)]",
+      ],
+    },
+  },
 });

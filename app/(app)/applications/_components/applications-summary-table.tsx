@@ -46,7 +46,13 @@ export default function ApplicationsSummaryTable({
               <span className="sr-only">Actions</span>
             </Table.Column>
           </Table.Header>
-          <Table.Body>
+          <Table.Body
+            renderEmptyState={() => (
+              <p className="px-[22px] py-6 text-sm text-muted">
+                No applications match these filters.
+              </p>
+            )}
+          >
             {data.map((application) => {
               const href = `/applications/${application.applicationId}`;
 

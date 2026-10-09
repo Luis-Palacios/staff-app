@@ -1,25 +1,9 @@
-import ApplicationCardSummary from "./application-card-summary";
-import ApplicationsSummaryTable from "./applications-summary-table";
+import ApplicationsBrowser from "./applications-browser";
 
 import { getRecentApplications } from "@/api/applications-membership-api/client";
 
 export default async function MembershipApplicationsList() {
   const data = await getRecentApplications();
 
-  return (
-    <>
-      <div className="hidden md:block">
-        <ApplicationsSummaryTable data={data} />
-      </div>
-
-      <div className="grid gap-3 md:hidden">
-        {data.map((application) => (
-          <ApplicationCardSummary
-            key={application.applicationId}
-            application={application}
-          />
-        ))}
-      </div>
-    </>
-  );
+  return <ApplicationsBrowser applications={data} />;
 }

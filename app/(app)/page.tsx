@@ -111,7 +111,7 @@ export default async function DashboardPage() {
           />
           <StatTile
             attention
-            href="/applications"
+            href="/applications?status=pending"
             icon={ClockIcon}
             label="Awaiting fulfilment"
             sub="Not yet presented"

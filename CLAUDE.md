@@ -69,7 +69,8 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   (`icon` + `href`) or a collapsible group (`icon` + `items[]`); icon keys
   resolve through `iconRegistry` in `components/sidebar.tsx`.
 - **`components/primitives.ts`** — `title()` (Newsreader display heading,
-  `sm`/`md`/`lg`), `subtitle()` (muted body) and `card()` (content card surface)
+  `sm`/`md`/`lg`), `subtitle()` (muted body) and `card()` (content card surface;
+  `interactive: true` for a card that is itself a link)
   `tailwind-variants` helpers; reuse these instead of ad-hoc classes.
 - **Shared page patterns** (brand-restyle Stage 4) — reuse rather than restyling
   HeroUI inline: `StaffAppPageHeader` (breadcrumbs, eyebrow, title, description,
