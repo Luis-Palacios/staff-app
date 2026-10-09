@@ -22,11 +22,12 @@ rebased onto `main`, which already has Stage 1 (`def9ed2`), so merging is confli
 | 1. Tokens, fonts, theme mapping | ✅ done | `def9ed2` |
 | 2. Logo and workspace slot | ✅ done | `617e604` |
 | 3. Shell (sidebar, topbar, theme switch) | ✅ done | `9ec18db` + focus-halo fix `a65e71a` |
-| 4. Shared page patterns | ✅ done | `e10e57e` |
-| 5. Dashboard | ⏭ **next** | |
-| 6–9 | not started | |
+| 4. Shared page patterns | ✅ done | `e10e57e` + follow-ups `3efb0fe`, `f31e120` |
+| 5. Dashboard | ✅ done | see `git log` |
+| 6. Applications list | ⏭ **next** | |
+| 7–9 | not started | |
 
-**Pick up at Stage 5.** Read the canvas artboards first (the Artifact tool's `read` with
+**Pick up at Stage 6.** Read the canvas artboards first (the Artifact tool's `read` with
 `path: "project/<Name>.dc.html"`: `Dashboard`, `Applications`, `ApplicationDetail`,
 `SignIn`, `Sidebar`, `Topbar`). They hold exact px values and colors, so you don't have
 to guess them.
@@ -94,6 +95,29 @@ to guess them.
 - **Table keyboard focus:** react-aria's grid moves focus to the row (arrow keys move
   between cells), and HeroUI draws a gold ring around the focused row. Links inside
   cells aren't separate Tab stops; that's react-aria's grid pattern, not a bug.
+- **Page titles** are 30px below `sm` and 38px from `sm` up (`title({ size: "md" })`), so
+  long titles don't wrap on phones. To restyle a title at another size, start from `sm`
+  (as `EmptyState` does): overriding `md` with a bare `text-*` leaves its `sm:text-[38px]`.
+- **Stage 5 dashboard** (`app/(app)/page.tsx` + `app/(app)/_components/`):
+  - The page starts every fetch at once without awaiting and passes the promises down.
+    Each section awaits its own inside a `Suspense`, and sections that need the same data
+    share one promise (tile 2 and the recent card share `getRecentApplications()`; tile 3
+    and the attention card share `listUsers`).
+  - Stat tiles render their frame and labels at once; only the number suspends.
+  - "Recent" is the API's **60-day** window, counted back from the newest application
+    (`DEFAULT_RECENT_WINDOW` in membership-applications), not the canvas's 30 days.
+    Labels say "Last 60 days".
+  - The subtitle follows the spec ("…this week."), not the canvas's "…at Iglesia Petra
+    this week."
+  - "Awaiting fulfilment" links to `/applications`. Point it at `?status=pending` once
+    Stage 6 adds the filter.
+  - The greeting and date eyebrow fill in after mount (browser clock and locale), like
+    `LocalFormattedDate`. `LocalShortDate` ("Oct 8") is new in `components/`.
+  - **Focus on `card()` links:** `card()`'s shadow utilities beat the global halo (a
+    base-layer rule), so a link styled as a card restates it with
+    `focus-visible:shadow-[var(--shadow-focus)] dark:focus-visible:shadow-[var(--shadow-focus)]`
+    (the `dark:` copy is needed to beat `dark:shadow-none`). Rows inside an
+    `overflow-hidden` card use an inset ring instead, since the halo would be clipped.
 
 ### Gotchas
 
@@ -110,8 +134,9 @@ to guess them.
 - **`tailwind-variants` merges classes with `tailwind-merge`.** A `text-*` size drops
   any `leading-*` before it (font sizes set their own line height), so put the leading
   after the size, as `title()` does.
-- **Old-palette grep:** the remaining hits are in Stage 5 (`app/(app)/page.tsx`) and
-  Stage 7 (`components/person_timeline/index.tsx`) files. Those stages fix them.
+- **Old-palette grep:** the only real hit left is Stage 7's
+  `components/person_timeline/index.tsx`. `text-warning-soft-foreground` hits are false
+  positives.
 
 ## Principles (read before every stage)
 
