@@ -8,7 +8,7 @@ export default async function MembershipApplicationsList() {
 
   return (
     <>
-      <div className="hidden md:inline-block text-center justify-center">
+      <div className="hidden md:block">
         <ApplicationsSummaryTable data={data} />
       </div>
 

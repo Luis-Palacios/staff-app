@@ -1,7 +1,8 @@
 import { Card } from "@heroui/react/card";
-import { Chip } from "@heroui/react/chip";
 import { Link } from "@heroui/react/link";
 import { buttonVariants } from "@heroui/react";
+
+import { ApplicationStatusBadge } from "./application-status-badge";
 
 import { ApplicationMembershipSummary } from "@/api/applications-membership-api/types";
 import { LocalDateTime } from "@/components/local-date-time";
@@ -29,9 +30,7 @@ export default function ApplicationCardSummary({
         </div>
       </Card.Content>
       <Card.Footer className="flex items-center justify-between">
-        <Chip color={application.isFulfilled ? "success" : "warning"}>
-          {application.isFulfilled ? "Yes" : "No"}
-        </Chip>
+        <ApplicationStatusBadge isFulfilled={application.isFulfilled} />
         <Link
           className={buttonVariants({
             size: "sm",

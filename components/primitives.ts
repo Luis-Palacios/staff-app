@@ -1,53 +1,30 @@
 import { tv } from "tailwind-variants";
 
+// Display heading in Newsreader. `sm` is a card title, `md` a page title
+// (the <h1> in StaffAppPageHeader), `lg` a hero-sized heading.
 export const title = tv({
-  base: "tracking-tight inline font-semibold",
+  // Leading sits after each size: tailwind-merge drops a leading-* that comes
+  // before a text-* size, because Tailwind font sizes set their own line height.
+  base: "font-display font-medium tracking-[-0.015em] text-heading",
   variants: {
-    color: {
-      violet: "from-[#FF1CF7] to-[#b249f8]",
-      yellow: "from-[#FF705B] to-[#FFB457]",
-      blue: "from-[#5EA2EF] to-[#0072F5]",
-      cyan: "from-[#00b7fa] to-[#01cfea]",
-      green: "from-[#6FEE8D] to-[#17c964]",
-      pink: "from-[#FF72E1] to-[#F54C7A]",
-      foreground: "dark:from-[#FFFFFF] dark:to-[#4B4B4B]",
-    },
     size: {
-      sm: "text-3xl lg:text-4xl",
-      md: "text-[2.3rem] lg:text-5xl",
-      lg: "text-4xl lg:text-6xl",
-    },
-    fullWidth: {
-      true: "w-full block",
+      sm: "text-2xl leading-[1.1]",
+      md: "text-[38px] leading-[1.1]",
+      lg: "text-5xl leading-[1.1]",
     },
   },
   defaultVariants: {
     size: "md",
   },
-  compoundVariants: [
-    {
-      color: [
-        "violet",
-        "yellow",
-        "blue",
-        "cyan",
-        "green",
-        "pink",
-        "foreground",
-      ],
-      class: "bg-clip-text text-transparent bg-gradient-to-b",
-    },
-  ],
 });
 
+// Muted body text under a heading.
 export const subtitle = tv({
-  base: "w-full md:w-1/2 my-2 text-lg lg:text-xl text-muted block max-w-full",
-  variants: {
-    fullWidth: {
-      true: "!w-full",
-    },
-  },
-  defaultVariants: {
-    fullWidth: true,
-  },
+  base: "text-base text-muted",
+});
+
+// Content card surface. The hairline shadow is light-only: on navy it would
+// just muddy the border.
+export const card = tv({
+  base: "rounded-card border border-border bg-surface shadow-[0_1px_2px_rgb(11_35_65/0.05)] dark:shadow-none",
 });

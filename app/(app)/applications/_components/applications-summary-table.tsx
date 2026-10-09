@@ -2,70 +2,103 @@
 
 import type { ApplicationMembershipSummary } from "@/api/applications-membership-api/types";
 
-import { Chip, Link, Table, buttonVariants } from "@heroui/react";
+import { Table } from "@heroui/react";
 
-import { LocalDateTime } from "@/components/local-date-time";
+import { ApplicationStatusBadge } from "./application-status-badge";
+
+import {
+  DataTableFooter,
+  DataTableOpenLink,
+  DataTablePrimaryCell,
+  dataTable,
+} from "@/components/data-table";
+import { LocalDate } from "@/components/local-date";
+import { LocalTime } from "@/components/local-time";
 
 export default function ApplicationsSummaryTable({
   data,
 }: {
   data: ApplicationMembershipSummary[];
 }) {
+  const { root, column, row, cell } = dataTable();
+
   return (
     <Table
-      aria-label="Membership applications table"
+      aria-label="Membership applications"
+      className={root()}
       id="applications-summary-table"
+      variant="secondary"
     >
       <Table.ScrollContainer>
-        <Table.Content aria-label="Membership applications table content">
+        <Table.Content
+          aria-label="Membership applications"
+          className="min-w-[760px]"
+        >
           <Table.Header>
-            <Table.Column className="text-center">#</Table.Column>
-            <Table.Column className="text-center">Actions</Table.Column>
-            <Table.Column isRowHeader className="text-center">
-              Application ID
+            <Table.Column isRowHeader className={column()}>
+              Person
             </Table.Column>
-            <Table.Column className="text-center">Person ID</Table.Column>
-            <Table.Column className="text-center">
-              Person Full Name
+            <Table.Column className={column()}>Application</Table.Column>
+            <Table.Column className={column()}>Submitted</Table.Column>
+            <Table.Column className={column()}>Fulfilled</Table.Column>
+            <Table.Column className={column()}>Status</Table.Column>
+            <Table.Column className={column()}>
+              <span className="sr-only">Actions</span>
             </Table.Column>
-            <Table.Column className="text-center">Generated Date</Table.Column>
-            <Table.Column className="text-center">Fulfilment Date</Table.Column>
-            <Table.Column className="text-center">Is Fulfilled</Table.Column>
           </Table.Header>
           <Table.Body>
-            {data.map((application, index) => (
-              <Table.Row key={application.applicationId}>
-                <Table.Cell>{index + 1}</Table.Cell>
-                <Table.Cell>
-                  <Link
-                    className={buttonVariants({
-                      size: "sm",
-                      variant: "secondary",
-                    })}
-                    href={`/applications/${application.applicationId}`}
-                  >
-                    Details
-                  </Link>
-                </Table.Cell>
-                <Table.Cell>{application.applicationId}</Table.Cell>
-                <Table.Cell>{application.personId}</Table.Cell>
-                <Table.Cell>{application.personFullName}</Table.Cell>
-                <Table.Cell>
-                  <LocalDateTime value={application.generatedDate} />
-                </Table.Cell>
-                <Table.Cell>
-                  <LocalDateTime value={application.fulfilmentDate} />
-                </Table.Cell>
-                <Table.Cell>
-                  <Chip color={application.isFulfilled ? "success" : "warning"}>
-                    {application.isFulfilled ? "Yes" : "No"}
-                  </Chip>
-                </Table.Cell>
-              </Table.Row>
-            ))}
+            {data.map((application) => {
+              const href = `/applications/${application.applicationId}`;
+
+              return (
+                <Table.Row key={application.applicationId} className={row()}>
+                  <Table.Cell className={cell()}>
+                    <DataTablePrimaryCell
+                      href={href}
+                      name={application.personFullName}
+                      secondary={`Person #${application.personId}`}
+                    />
+                  </Table.Cell>
+                  <Table.Cell className={cell()}>
+                    #{application.applicationId}
+                  </Table.Cell>
+                  <Table.Cell className={cell()}>
+                    <span className="flex flex-col">
+                      <span className="text-heading">
+                        <LocalDate value={application.generatedDate} />
+                      </span>
+                      <span className="text-[12.5px] text-muted">
+                        <LocalTime value={application.generatedDate} />
+                      </span>
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell className={cell()}>
+                    {application.isFulfilled ? (
+                      <span className="text-heading">
+                        <LocalDate value={application.fulfilmentDate} />
+                      </span>
+                    ) : (
+                      <span className="text-muted">Not yet</span>
+                    )}
+                  </Table.Cell>
+                  <Table.Cell className={cell()}>
+                    <ApplicationStatusBadge
+                      isFulfilled={application.isFulfilled}
+                    />
+                  </Table.Cell>
+                  <Table.Cell className={cell({ className: "text-right" })}>
+                    <DataTableOpenLink
+                      href={href}
+                      label={`Open application from ${application.personFullName}`}
+                    />
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })}
           </Table.Body>
         </Table.Content>
       </Table.ScrollContainer>
+      <DataTableFooter total={data.length} />
     </Table>
   );
 }

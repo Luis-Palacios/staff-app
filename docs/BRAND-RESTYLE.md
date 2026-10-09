@@ -15,17 +15,18 @@ lints, type-checks and works in light and dark before the next one starts.
 ## Progress (handoff log)
 
 Work happens on the **`brand-restyle`** branch, **one commit per stage**. `main` has an
-identical-content copy of Stage 1 (`def9ed2`), so merging the branch is conflict-free.
+copy of Stage 1 (`def9ed2`), and the branch was rebased onto it, so merging is conflict-free.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Tokens, fonts, theme mapping | ✅ done | `0e63dea` |
-| 2. Logo and workspace slot | ✅ done | `03f24ff` |
-| 3. Shell (sidebar, topbar, theme switch) | ✅ done | `7ec4bbe` + focus-halo fix |
-| 4. Shared page patterns | ⏭ **next** | |
-| 5–9 | not started | |
+| 1. Tokens, fonts, theme mapping | ✅ done | `def9ed2` |
+| 2. Logo and workspace slot | ✅ done | `617e604` |
+| 3. Shell (sidebar, topbar, theme switch) | ✅ done | `9ec18db` + focus-halo fix `a65e71a` |
+| 4. Shared page patterns | ✅ done | "Brand restyle — Stage 4" |
+| 5. Dashboard | ⏭ **next** | |
+| 6–9 | not started | |
 
-**Pick up at Stage 4.** Read the canvas artboards first (the Artifact tool's `read` with
+**Pick up at Stage 5.** Read the canvas artboards first (the Artifact tool's `read` with
 `path: "project/<Name>.dc.html"`: `Dashboard`, `Applications`, `ApplicationDetail`,
 `SignIn`, `Sidebar`, `Topbar`). They hold exact px values and colors, so you don't have
 to guess them.
@@ -38,7 +39,7 @@ to guess them.
     component.
   - `WorkspaceBadge` reads `siteConfig.workspace`, or a `workspace` prop for per-church
     branding later.
-  - The old PETRA `Logo` was deleted; recover it from `0e63dea`.
+  - The old PETRA `Logo` was deleted; recover it from `def9ed2` (Stage 1, the last commit that has it).
 - **Inter** loads as the variable font (no `weight` list), so the wordmark's 650 weight
   renders exactly.
 - **Segmented-control tokens:** `--segment`, `--segment-selected` and `--segment-shadow`
@@ -70,6 +71,29 @@ to guess them.
   - Side padding is `px-4 lg:px-8`.
   - Below `sm` the search field collapses behind an icon button and opens on its own row.
   - The account avatar is a plain `<span>`, not HeroUI `Avatar`, so its colors are exact.
+- **Stage 4 shared pieces (reuse these in Stages 5–9):**
+  - `StaffAppPageHeader({ breadcrumbs?, eyebrow?, title, description?, actions? })`.
+    Breadcrumbs are optional (the dashboard has none); the first crumb is always
+    "Dashboard". Crumb items no longer take an `icon`.
+  - `title({ size })` / `subtitle()` / `card()` in `components/primitives.ts`.
+  - `StatusBadge` (`components/status-badge.tsx`) and `ApplicationStatusBadge`
+    (`applications/_components`). Neutral is `bg-default text-muted`, so roles read
+    differently from the accent (Admin) badge in light mode, where the spec's navy-soft
+    neutral looked the same as accent.
+  - `InitialsAvatar` (`sm` 36 / `md` 38 / `lg` 64) and `initialsOf()`.
+  - `components/data-table.tsx`: `dataTable()` slot classes for HeroUI `Table` with
+    `variant="secondary"`, plus `DataTablePrimaryCell`, `DataTableOpenLink` and
+    `DataTableFooter` (pagination is visual-only, TODO until the APIs page).
+  - `EmptyState` (`components/empty-state.tsx`), `LocalTime`.
+- **`--subtle` is a light/dark token now** (`#8D9AAB` / `#5E7391`), moved out of
+  `brand.css`. Decorative only (chevrons, separators); never text.
+- **Applications table already has the Stage 6 columns** (Person, Application, Submitted,
+  Fulfilled, Status, Open). Stage 6 still owns the status filter, the search input, the
+  page title/description and the mobile cards. "Not yet" is `text-muted`, not the
+  canvas's subtle grey, which fails text contrast.
+- **Table keyboard focus:** react-aria's grid moves focus to the row (arrow keys move
+  between cells), and HeroUI draws a gold ring around the focused row. Links inside
+  cells aren't separate Tab stops; that's react-aria's grid pattern, not a bug.
 
 ### Gotchas
 
@@ -81,6 +105,11 @@ to guess them.
   may not come back up on its own.
 - **Width checks in the automation browser.** The window may not resize. Check 1024 and
   390 by loading the app in same-origin iframes of those widths instead.
+- **Keyboard checks in the automation browser.** Synthetic Tab presses don't move focus.
+  Use `el.focus({ focusVisible: true })` in a script and read the computed `box-shadow`.
+- **`tailwind-variants` merges classes with `tailwind-merge`.** A `text-*` size drops
+  any `leading-*` before it (font sizes set their own line height), so put the leading
+  after the size, as `title()` does.
 - **Old-palette grep:** the remaining hits are in Stage 5 (`app/(app)/page.tsx`) and
   Stage 7 (`components/person_timeline/index.tsx`) files. Those stages fix them.
 

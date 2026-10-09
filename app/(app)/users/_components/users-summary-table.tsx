@@ -2,12 +2,13 @@
 
 import type { AdminUserListItem } from "@/api/auth-api/types";
 
-import { Chip, Table } from "@heroui/react";
+import { Table } from "@heroui/react";
 
 import { AssignPendingRole } from "./assign-pending-role";
-import { roleChipColor, roleLabel } from "./role-display";
+import { roleBadgeProps, roleLabel } from "./role-display";
 import { UserStatusChips } from "./user-status-chips";
 
+import { StatusBadge } from "@/components/status-badge";
 import { LocalDateTime } from "@/components/local-date-time";
 
 export default function UsersSummaryTable({
@@ -37,9 +38,9 @@ export default function UsersSummaryTable({
                   {user.role === "pending" ? (
                     <AssignPendingRole userId={user.id} userName={user.name} />
                   ) : (
-                    <Chip color={roleChipColor(user.role)}>
+                    <StatusBadge {...roleBadgeProps(user.role)}>
                       {roleLabel(user.role)}
-                    </Chip>
+                    </StatusBadge>
                   )}
                 </Table.Cell>
                 <Table.Cell>

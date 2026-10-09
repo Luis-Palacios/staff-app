@@ -1,9 +1,11 @@
+import { ChartBarIcon } from "@heroicons/react/24/outline";
+
+import { EmptyState } from "@/components/empty-state";
+import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import {
   groupsBreadcrumb,
   groupsReportsBreadcrumb,
 } from "@/config/breadcrumbs";
-import { title } from "@/components/primitives";
-import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 
 export default function ReportsPage() {
   return (
@@ -12,11 +14,10 @@ export default function ReportsPage() {
         breadcrumbs={[groupsBreadcrumb, groupsReportsBreadcrumb]}
         title="Reports"
       />
-      <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-        <div className="inline-block max-w-lg text-center justify-center">
-          <h1 className={title()}>Reports</h1>
-        </div>
-      </section>
+      <EmptyState icon={ChartBarIcon} title="No reports yet">
+        Weekly reports from group leaders will show up here once groups start
+        submitting them.
+      </EmptyState>
     </>
   );
 }

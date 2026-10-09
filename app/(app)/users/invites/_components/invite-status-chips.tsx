@@ -1,6 +1,6 @@
 import type { AdminInviteListItem, InviteStatus } from "@/api/auth-api/types";
 
-import { Chip } from "@heroui/react";
+import { StatusBadge, type StatusBadgeProps } from "@/components/status-badge";
 
 // "expired" is virtual, never persisted (see AdminInviteListItem's own comment) - a still-
 // "pending" row whose expiresAt has passed is what better-invite's own /invite/list computes at
@@ -25,17 +25,17 @@ const STATUS_LABELS: Record<DisplayInviteStatus, string> = {
   expired: "Expired",
 };
 
-// Same 4-color constraint as role-display.ts (default | danger | warning | success | accent are
-// the only options on HeroUI's Chip - no "secondary").
-const STATUS_COLORS: Record<
+// Pending is still waiting on the invitee, so it gets the hollow ring; the
+// rest are final states and get a solid dot.
+const STATUS_BADGES: Record<
   DisplayInviteStatus,
-  "default" | "danger" | "warning" | "success"
+  Pick<StatusBadgeProps, "tone" | "variant">
 > = {
-  pending: "default",
-  used: "success",
-  rejected: "danger",
-  canceled: "default",
-  expired: "warning",
+  pending: { tone: "warning", variant: "ring-dot" },
+  used: { tone: "success" },
+  rejected: { tone: "danger" },
+  canceled: { tone: "neutral" },
+  expired: { tone: "warning" },
 };
 
 export function InviteStatusChip({
@@ -45,5 +45,9 @@ export function InviteStatusChip({
 }) {
   const status = deriveInviteStatus(invite);
 
-  return <Chip color={STATUS_COLORS[status]}>{STATUS_LABELS[status]}</Chip>;
+  return (
+    <StatusBadge {...STATUS_BADGES[status]}>
+      {STATUS_LABELS[status]}
+    </StatusBadge>
+  );
 }
