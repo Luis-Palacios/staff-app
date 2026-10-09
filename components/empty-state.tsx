@@ -1,5 +1,7 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
 
+import clsx from "clsx";
+
 import { title as titleStyles } from "@/components/primitives";
 
 // Placeholder for a section with nothing in it yet: dashed card, icon tile,
@@ -20,7 +22,10 @@ export function EmptyState({
 }) {
   return (
     <section
-      className={`flex flex-col items-start gap-2.5 rounded-card border border-dashed border-field-border px-[22px] py-6 ${className ?? ""}`}
+      className={clsx(
+        "flex flex-col items-start gap-2.5 rounded-card border border-dashed border-field-border px-[22px] py-6",
+        className,
+      )}
     >
       <span className="flex size-11 items-center justify-center rounded-tile bg-accent-soft text-accent-soft-foreground">
         <Icon aria-hidden="true" className="size-[22px]" strokeWidth={1.6} />

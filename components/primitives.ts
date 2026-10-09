@@ -9,7 +9,7 @@ export const title = tv({
   variants: {
     size: {
       sm: "text-2xl leading-[1.1]",
-      md: "text-[38px] leading-[1.1]",
+      md: "text-[30px] leading-[1.1] sm:text-[38px]",
       lg: "text-5xl leading-[1.1]",
     },
   },
