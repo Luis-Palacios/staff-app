@@ -1,11 +1,20 @@
-import { Fira_Code as FontMono, Inter as FontSans } from "next/font/google";
+import { Figtree, Inter, Newsreader } from "next/font/google";
 
-export const fontSans = FontSans({
+export const fontSans = Figtree({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-figtree",
 });
 
-export const fontMono = FontMono({
+export const fontDisplay = Newsreader({
   subsets: ["latin"],
-  variable: "--font-mono",
+  variable: "--font-newsreader",
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+});
+
+/** Wordmark only. */
+export const fontLogo = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["600", "700"],
 });

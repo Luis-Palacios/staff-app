@@ -1,27 +1,124 @@
 @import "tailwindcss";
 @import "@heroui/styles";
+@import "./brand.css";
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
-	--font-sans: "font", sans-serif;
-	--font-mono: "monospace", monospace;
+/*
+ * Map the ekklesiaio brand onto HeroUI's theme variables. HeroUI reads every
+ * color from these, and Tailwind exposes them as theme-aware utilities
+ * (`bg-surface`, `text-muted`, `bg-accent`, …). This layer comes after the
+ * HeroUI import, so it wins over HeroUI's defaults.
+ */
+@layer base {
+  :root,
+  [data-theme="light"] {
+    --container-lg: 80rem;
+
+    --background: #FBFAF7;            /* paper */
+    --foreground: #33445A;            /* ink: body text */
+    --surface: #FFFFFF;
+    --surface-secondary: #F1F4F8;     /* navy-50 */
+    --surface-tertiary: #EAF0F7;      /* navy-100 */
+    --overlay: #FFFFFF;
+    --muted: #56667A;
+    --default: #F1F4F8;
+    --default-foreground: #0B2341;
+    --accent: #0B2341;                /* navy: primary buttons, selection */
+    --accent-foreground: #FFFFFF;
+    --focus: #8A5B00;                 /* gold-800: plain gold-500 is ~1.7:1 on paper, fails WCAG 1.4.11 */
+    --shadow-focus: 0 0 0 2px var(--background), 0 0 0 4px var(--focus);
+    --link: #0B2341;
+    --border: #E2E5EA;
+    --separator: #EEF0F3;
+
+    --field-background: #FFFFFF;
+    --field-foreground: #0B2341;
+    --field-border: #C9D0DA;
+    --field-border-width: 1px;
+    --field-placeholder: #56667A;
+
+    --success: #1F8A55;
+    --success-foreground: #FFFFFF;
+    --warning: #F2B544;
+    --warning-foreground: #0B2341;
+    --danger: #B42318;
+    --danger-foreground: #FFFFFF;
+
+    /* soft (badge) pairs: set explicitly, HeroUI's color-mix derivations fail contrast */
+    --success-soft: #E3F2EA;
+    --success-soft-foreground: #1E6B45;
+    --warning-soft: #FDF1D8;           /* gold-100 */
+    --warning-soft-foreground: #7A5100;/* gold-900 */
+    --danger-soft: #FDECEA;
+    --danger-soft-foreground: #B42318;
+    --accent-soft: #EAF0F7;
+    --accent-soft-foreground: #0B2341;
+
+    --heading: #0B2341;                /* custom: page/card titles */
+    --eyebrow: #8A5B00;                /* custom: gold-800 eyebrow text */
+    --rail: #0B2341;                   /* custom: sidebar, same in both modes */
+    --rail-edge: #0B2341;
+
+    --radius: 0.625rem;                /* 10px controls */
+    --field-radius: 0.625rem;
+  }
+
+  .dark,
+  [data-theme="dark"] {
+    --background: #081A31;            /* navy-950 */
+    --foreground: #C3CDDA;            /* on-dark */
+    --surface: #0B2341;               /* navy-900 */
+    --surface-secondary: #13325A;     /* navy-800 */
+    --surface-tertiary: #1A3D69;
+    --overlay: #13325A;
+    --muted: #93A3B8;
+    --default: #13325A;
+    --default-foreground: #F4F6F9;
+    --accent: #F2B544;                /* gold: primary buttons, selection */
+    --accent-foreground: #0B2341;
+    --focus: #F2B544;
+    --link: #F7D48F;
+    --border: #1F3B60;
+    --separator: #173052;
+
+    --field-background: #0B2341;
+    --field-foreground: #F4F6F9;
+    --field-border: #2E4A70;
+    --field-placeholder: #93A3B8;
+
+    --success: #8EDDB4;
+    --success-foreground: #0B2341;
+    --warning: #F2B544;
+    --warning-foreground: #0B2341;
+    --danger: #FDA29B;
+    --danger-foreground: #0B2341;
+
+    --success-soft: rgb(142 221 180 / 0.12);
+    --success-soft-foreground: #8EDDB4;
+    --warning-soft: rgb(242 181 68 / 0.14);
+    --warning-soft-foreground: #F7D48F;
+    --danger-soft: rgb(253 162 155 / 0.12);
+    --danger-soft-foreground: #FDA29B;
+    --accent-soft: #13325A;
+    --accent-soft-foreground: #F7D48F;
+
+    --heading: #F4F6F9;
+    --eyebrow: #F2B544;
+    --rail: #0B2341;
+    --rail-edge: #1F3B60;
+  }
+
+  /* Gold focus halo for non-HeroUI elements (plain links, our badges). */
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
 }
 
-@layer base {
-  :root {
-    /* Adjust container-lg to your desired value */
-    --container-lg: 80rem; /* e.g., 1280px instead of default 75rem */
-
-    /*
-     * HeroUI's default theme ships `--field-border: transparent` and
-     * `--field-border-width: 0px`, plus a `--field-background` that
-     * matches `--surface` exactly, so inputs placed on a Card (sign-in,
-     * sign-up, forgot/reset-password) are visually indistinguishable
-     * from the card behind them in both themes. Give fields a real,
-     * visible border that tracks the theme's border token instead.
-     */
-    --field-border: var(--border);
-    --field-border-width: 1px;
-  }
+@theme inline {
+  --color-heading: var(--heading);
+  --color-eyebrow: var(--eyebrow);
+  --color-rail: var(--rail);
+  --color-rail-edge: var(--rail-edge);
 }

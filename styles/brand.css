@@ -1,0 +1,82 @@
+/*
+ * ekklesiaio brand theme: FILTERED COPY of ../landing-page/brand/theme.css.
+ *
+ * Removed: --color-muted, --color-surface, --color-danger and --color-field.
+ * HeroUI (@heroui/styles/dist/themes/shared/theme.css) already registers those
+ * names as theme-aware utilities (e.g. --color-muted: var(--muted)); redefining
+ * them here would pin `text-muted`, `bg-surface`, etc. to their light values.
+ * Their light/dark values now live in the HeroUI variable mapping in
+ * globals.css. --color-field-disabled is renamed --color-field-muted so it
+ * doesn't sit in HeroUI's field-* namespace.
+ *
+ * Added: dark-mode palette extras (navy-700, *-on-dark) used by the design.
+ *
+ * Fonts are loaded with next/font in config/fonts.ts and exposed as
+ * --font-figtree, --font-newsreader and --font-inter.
+ */
+
+@theme {
+  /* ---------- Brand ---------- */
+  --color-navy-950: #081A31; /* footer */
+  --color-navy-900: #0B2341; /* brand navy: headings, primary buttons, dark sections */
+  --color-navy-800: #13325A; /* raised surface on navy (success box on dark) */
+  --color-navy-100: #EAF0F7; /* chips, icon tiles */
+  --color-navy-50:  #F1F4F8; /* tinted sections */
+
+  --color-gold-500: #F2B544; /* brand gold: accents, CTA buttons (navy text on top) */
+  --color-gold-300: #F7D48F; /* disabled CTA */
+  --color-gold-200: #F3E2B8; /* border on gold tint */
+  --color-gold-100: #FDF1D8; /* badge / chip fill */
+  --color-gold-50:  #FBF6EA; /* callout fill */
+  --color-gold-800: #8A5B00; /* gold-ish TEXT on light backgrounds (eyebrows) — 5.6:1 */
+  --color-gold-900: #7A5100; /* text on gold-100 / gold-50 */
+
+  /* ---------- Neutrals (cool, derived from navy) ---------- */
+  --color-ink:      #33445A; /* body text on light — ~9:1 */
+  --color-subtle:   #8D9AAB; /* decorative only (dashes, hollow dots) — not for text */
+  --color-on-dark:  #C3CDDA; /* body text on navy-900 */
+  --color-line:     #E2E5EA; /* borders, dividers */
+  --color-line-strong: #D5DBE3;
+  --color-line-subtle: #EEF0F3; /* dividers and tracks inside cards */
+  --color-field-muted: #F4F5F7; /* input fill while submitting */
+  --color-paper:    #FBFAF7; /* page background (warm off-white) */
+
+  /* ---------- Feedback ---------- */
+  --color-danger-on-dark: #FDA29B; /* error text/border on navy */
+
+  /* ---------- Dark-mode extras (staff app) ---------- */
+  --color-navy-700: #1A3D69;  /* surface-tertiary on dark */
+  --color-line-on-dark: #1F3B60;
+  --color-muted-on-dark: #93A3B8;
+  --color-heading-on-dark: #F4F6F9;
+
+  /* ---------- Typography ---------- */
+  --font-display: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  --font-sans:    var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-logo:    var(--font-inter), Arial, Helvetica, sans-serif; /* wordmark only */
+
+  /* Fluid display sizes (match the design's clamp() values) */
+  --text-display-xl: clamp(2.75rem, 6.2vw, 5rem);    /* hero h1: 44 → 80px */
+  --text-display-xl--line-height: 1.02;
+  --text-display-xl--letter-spacing: -0.02em;
+  --text-display-lg: clamp(2.25rem, 4.6vw, 3.75rem); /* closing CTA h2: 36 → 60px */
+  --text-display-lg--line-height: 1.06;
+  --text-display-lg--letter-spacing: -0.015em;
+  --text-display-md: clamp(2.125rem, 4.2vw, 3.375rem); /* section h2: 34 → 54px */
+  --text-display-md--line-height: 1.08;
+  --text-display-md--letter-spacing: -0.015em;
+  --text-display-sm: clamp(1.5rem, 2.4vw, 1.875rem); /* mission/vision quotes: 24 → 30px */
+  --text-display-sm--line-height: 1.3;
+  --text-lead: clamp(1.0625rem, 1.5vw, 1.25rem);    /* hero paragraphs: 17 → 20px */
+  --text-lead--line-height: 1.6;
+
+  /* ---------- Radii ---------- */
+  --radius-control: 10px; /* inputs, buttons */
+  --radius-tile: 12px;    /* icon tiles, callouts */
+  --radius-card: 16px;    /* feature cards */
+  --radius-panel: 18px;   /* large panels, product illustrations */
+
+  /* ---------- Shadows ---------- */
+  --shadow-float: 0 1px 2px rgb(11 35 65 / 0.06), 0 24px 48px -16px rgb(11 35 65 / 0.22);
+  --shadow-focus: 0 0 0 4px rgb(242 181 68 / 0.45); /* focus ring (gold halo) */
+}
