@@ -14,15 +14,15 @@ lints, type-checks and works in light and dark before the next one starts.
 
 ## Progress (handoff log)
 
-Work happens on the **`brand-restyle`** branch, **one commit per stage**. `main` has an
-copy of Stage 1 (`def9ed2`), and the branch was rebased onto it, so merging is conflict-free.
+Work happens on the **`brand-restyle`** branch, **one commit per stage**. The branch was
+rebased onto `main`, which already has Stage 1 (`def9ed2`), so merging is conflict-free.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Tokens, fonts, theme mapping | ✅ done | `def9ed2` |
 | 2. Logo and workspace slot | ✅ done | `617e604` |
 | 3. Shell (sidebar, topbar, theme switch) | ✅ done | `9ec18db` + focus-halo fix `a65e71a` |
-| 4. Shared page patterns | ✅ done | "Brand restyle — Stage 4" |
+| 4. Shared page patterns | ✅ done | `e10e57e` |
 | 5. Dashboard | ⏭ **next** | |
 | 6–9 | not started | |
 

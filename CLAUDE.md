@@ -35,8 +35,9 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
 - **Next.js 16 App Router** (`app/`). Every section is a folder with its own
   `layout.tsx` + `page.tsx`. `app/layout.tsx` is the root shell: fonts,
   `Providers`, and `<AppShell>` (which renders the sidebar, top bar, and the
-  `max-w-7xl` main region). Older section layouts still use a centered
-  `max-w-lg text-center` wrapper; prefer a plain left-aligned one for new sections.
+  `max-w-7xl` main region). Pages start with `StaffAppPageHeader` and lay out
+  left-aligned below it; the users and invites lists still center their tables
+  until brand-restyle Stage 9.
 - **Dashboard shell** — `components/app-shell.tsx` (client; holds the mobile
   sidebar open state + body scroll lock) composes `components/sidebar.tsx`
   (navy brand rail in both modes: logo, `WorkspaceBadge`, Heroicons-outline nav
@@ -67,8 +68,15 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   rename routes there, not inline in the sidebar. `NavItem` is either a leaf
   (`icon` + `href`) or a collapsible group (`icon` + `items[]`); icon keys
   resolve through `iconRegistry` in `components/sidebar.tsx`.
-- **`components/primitives.ts`** — `title()` / `subtitle()` `tailwind-variants`
-  helpers used for page headings; reuse these instead of ad-hoc heading classes.
+- **`components/primitives.ts`** — `title()` (Newsreader display heading,
+  `sm`/`md`/`lg`), `subtitle()` (muted body) and `card()` (content card surface)
+  `tailwind-variants` helpers; reuse these instead of ad-hoc classes.
+- **Shared page patterns** (brand-restyle Stage 4) — reuse rather than restyling
+  HeroUI inline: `StaffAppPageHeader` (breadcrumbs, eyebrow, title, description,
+  actions), `StatusBadge` (dot + word; never HeroUI `Chip`), `InitialsAvatar`,
+  `EmptyState`, and `components/data-table.tsx` (`dataTable()` slot classes for
+  HeroUI `Table` `variant="secondary"` plus primary-cell, "Open" action and
+  footer components).
 - **`config/fonts.ts`** — `next/font/google` brand trio: Figtree (body,
   `--font-figtree` → `font-sans`), Newsreader (`--font-newsreader` →
   `font-display`), Inter (wordmark only, `--font-inter` → `font-logo`); all three
