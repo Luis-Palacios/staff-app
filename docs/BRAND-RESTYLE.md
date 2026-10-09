@@ -23,11 +23,12 @@ rebased onto `main`, which already has Stage 1 (`def9ed2`), so merging is confli
 | 2. Logo and workspace slot | ✅ done | `617e604` |
 | 3. Shell (sidebar, topbar, theme switch) | ✅ done | `9ec18db` + focus-halo fix `a65e71a` |
 | 4. Shared page patterns | ✅ done | `e10e57e` + follow-ups `3efb0fe`, `f31e120` |
-| 5. Dashboard | ✅ done | see `git log` |
-| 6. Applications list | ⏭ **next** | |
-| 7–9 | not started | |
+| 5. Dashboard | ✅ done | `7d6a7e6` + follow-up `181868a` |
+| 6. Applications list | ✅ done | see `git log` |
+| 7. Application detail | ⏭ **next** | |
+| 8–9 | not started | |
 
-**Pick up at Stage 6.** Read the canvas artboards first (the Artifact tool's `read` with
+**Pick up at Stage 7.** Read the canvas artboards first (the Artifact tool's `read` with
 `path: "project/<Name>.dc.html"`: `Dashboard`, `Applications`, `ApplicationDetail`,
 `SignIn`, `Sidebar`, `Topbar`). They hold exact px values and colors, so you don't have
 to guess them.
@@ -118,8 +119,7 @@ to guess them.
     Labels say "Last 60 days".
   - The subtitle follows the spec ("…this week."), not the canvas's "…at Iglesia Petra
     this week."
-  - "Awaiting fulfilment" links to `/applications`. Point it at `?status=pending` once
-    Stage 6 adds the filter.
+  - "Awaiting fulfilment" links to `/applications?status=pending`.
   - The greeting and date eyebrow fill in after mount (browser clock and locale), like
     `LocalFormattedDate`. `LocalShortDate` ("Oct 8") is new in `components/`.
   - **Focus on `card()` links:** `card()`'s shadow utilities beat the global halo (a
@@ -127,6 +127,24 @@ to guess them.
     `focus-visible:shadow-[var(--shadow-focus)] dark:focus-visible:shadow-[var(--shadow-focus)]`
     (the `dark:` copy is needed to beat `dark:shadow-none`). Rows inside an
     `overflow-hidden` card use an inset ring instead, since the halo would be clipped.
+
+- **Stage 6 applications list** (`applications/_components/applications-browser.tsx`):
+  - The API takes no filter parameters, so the status and text filters both run in the
+    browser over the fetched list. Segment counts follow the text filter.
+  - `?status=pending|fulfilled` is written with `window.history.replaceState`, not
+    `router.replace`: Next keeps `useSearchParams` in sync with it, and it doesn't
+    refetch the page from the server on every click.
+  - The text filter matches the name (case- and accent-insensitive, so "maria" finds
+    "María") or the application number, with or without `#`.
+  - **"Last 90 days" is left out**: the API has no date-range parameter, and "recent"
+    is a fixed 60-day window.
+  - `StatusFilter` reuses the `--segment` tokens like `ThemeSwitch`. The selected label
+    is `text-heading` and its count pill is `bg-accent`. Unselected pills are
+    `bg-border text-foreground` (the canvas's dark-mode pill is navy-800; `border` is
+    the closest token).
+  - **`card({ interactive: true })`** is for a card that is itself a link (stat tiles,
+    mobile application cards): hover border plus the restated focus halo.
+  - An `aria-live` line announces the result count when a filter changes.
 
 ### Gotchas
 

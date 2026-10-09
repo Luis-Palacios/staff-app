@@ -11,7 +11,8 @@ export default async function ApplicationsPage() {
     <>
       <StaffAppPageHeader
         breadcrumbs={[applicationsBreadcrumb]}
-        title="Membership Applications"
+        description="Testimonies from people preparing to become members. Open one to read it and see their journey so far."
+        title="Membership applications"
       />
       <section className="flex flex-col gap-4">
         <Suspense fallback={<MembershipApplicationsListSkeleton />}>

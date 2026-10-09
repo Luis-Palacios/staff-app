@@ -97,15 +97,11 @@ async function LoadedStatTile({
 // once; the body suspends on its own fetch, so a slow or failing service only
 // affects its own tile ("—" + "Couldn't load" on failure).
 export function StatTile({ href, ...props }: StatTileProps) {
-  // card()'s shadow utilities outrank the global focus halo (a base-layer
-  // rule), so the halo is restated here; the dark: copy beats dark:shadow-none.
   return (
     <NextLink
       className={card({
-        className: [
-          "flex flex-col gap-2.5 p-4 transition-colors hover:border-field-border sm:p-5",
-          "focus-visible:shadow-[var(--shadow-focus)] dark:focus-visible:shadow-[var(--shadow-focus)]",
-        ],
+        interactive: true,
+        className: "flex flex-col gap-2.5 p-4 sm:p-5",
       })}
       href={href}
     >
