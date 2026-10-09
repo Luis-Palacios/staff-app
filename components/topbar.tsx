@@ -5,7 +5,8 @@ import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 
 import { ThemeSwitch } from "@/components/theme-switch";
-import { MenuIcon, SearchIcon, Logo } from "@/components/icons";
+import { EkklesiaioMark } from "@/components/brand/ekklesiaio-logo";
+import { MenuIcon, SearchIcon } from "@/components/icons";
 import { useCurrentUser } from "@/lib/contexts/user-context";
 import { authClient } from "@/lib/auth/auth-client";
 
@@ -38,8 +39,12 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
         <MenuIcon size={22} />
       </button>
 
-      <NextLink className="flex items-center lg:hidden" href="/">
-        <Logo size={42} />
+      <NextLink
+        aria-label="ekklesiaio home"
+        className="flex items-center lg:hidden"
+        href="/"
+      >
+        <EkklesiaioMark size={32} tone="auto" />
       </NextLink>
 
       <TextField aria-label="Search" className="flex-1" type="search">
