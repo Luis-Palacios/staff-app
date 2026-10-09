@@ -30,9 +30,19 @@ export type NavItem = {
   items?: NavChildItem[];
 };
 
+/** The church this staff app is working in (shown in the sidebar's `WorkspaceBadge`). */
+export type Workspace = {
+  name: string;
+  /** Single letter for the badge tile. */
+  initial: string;
+};
+
 export const siteConfig = {
   name: "ekklesiaio",
   description: "Manage staff, groups, applications, and reports efficiently.",
+  // Hard-coded for now. Per-church branding will replace this with the
+  // signed-in user's church (and later its logo/colors).
+  workspace: { name: "Iglesia Petra", initial: "P" } satisfies Workspace,
   navItems: [
     {
       label: "Dashboard",

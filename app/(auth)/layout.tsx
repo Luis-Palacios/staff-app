@@ -1,4 +1,4 @@
-import { Logo } from "@/components/icons";
+import { EkklesiaioMark } from "@/components/brand/ekklesiaio-logo";
 
 export default function AuthLayout({
   children,
@@ -7,7 +7,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-4">
-      <Logo size={100} />
+      <EkklesiaioMark size={64} tone="auto" />
       {children}
     </div>
   );

@@ -13,9 +13,9 @@ import {
   CloseIcon,
   DashboardIcon,
   GroupsIcon,
-  Logo,
   ReportsIcon,
 } from "@/components/icons";
+import { EkklesiaioLogo } from "@/components/brand/ekklesiaio-logo";
 import { siteConfig } from "@/config/site";
 
 const iconRegistry: Record<
@@ -153,13 +153,14 @@ export const Sidebar = ({ isOpen, onNavigate }: SidebarProps) => {
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-auto items-center justify-center gap-2 border-b border-separator px-4 pt-1 pb-1">
+        <div className="flex h-auto items-center justify-center gap-2 border-b border-separator px-4 py-4">
           <NextLink
             className="flex items-center gap-2 font-semibold"
             href="/"
             onClick={onNavigate}
           >
-            <Logo size={61.5} />
+            {/* tone="auto" until Stage 3 turns the rail navy; then "on-dark". */}
+            <EkklesiaioLogo size={21} tone="auto" />
           </NextLink>
           <button
             aria-label="Close menu"

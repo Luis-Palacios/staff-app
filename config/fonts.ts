@@ -12,9 +12,11 @@ export const fontDisplay = Newsreader({
   axes: ["opsz"],
 });
 
-/** Wordmark only. */
+/**
+ * Wordmark only. Loaded as the variable font (no `weight` list) because the
+ * wordmark is drawn at weight 650, which the static 600/700 files can't render.
+ */
 export const fontLogo = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  weight: ["600", "700"],
 });
