@@ -59,6 +59,11 @@
     --eyebrow: #8A5B00;                /* custom: gold-800 eyebrow text */
     --rail: #0B2341;                   /* custom: sidebar, same in both modes */
     --rail-edge: #0B2341;
+    /* custom: segmented controls (theme switch). Track and selected pill swap
+       surfaces between modes, so they need their own tokens. */
+    --segment: #F1F4F8;
+    --segment-selected: #FFFFFF;
+    --segment-shadow: 0 1px 2px rgb(11 35 65 / 0.12);
 
     --radius: 0.625rem;                /* 10px controls */
     --field-radius: 0.625rem;
@@ -107,6 +112,9 @@
     --eyebrow: #F2B544;
     --rail: #0B2341;
     --rail-edge: #1F3B60;
+    --segment: #0B2341;
+    --segment-selected: #13325A;
+    --segment-shadow: none;
   }
 
   /* Gold focus halo for non-HeroUI elements (plain links, our badges). */
@@ -121,4 +129,7 @@
   --color-eyebrow: var(--eyebrow);
   --color-rail: var(--rail);
   --color-rail-edge: var(--rail-edge);
+  --color-segment: var(--segment);
+  --color-segment-selected: var(--segment-selected);
+  --shadow-segment: var(--segment-shadow);
 }

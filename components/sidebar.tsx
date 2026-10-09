@@ -1,32 +1,29 @@
 "use client";
 
-import type { NavIconName, NavItem } from "@/config/site";
+import type { HeroIcon, NavIconName, NavItem } from "@/config/site";
 
 import { Disclosure } from "@heroui/react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-
 import {
-  ApplicationsIcon,
-  BalancesIcon,
-  CloseIcon,
-  DashboardIcon,
-  GroupsIcon,
-  ReportsIcon,
-} from "@/components/icons";
+  DocumentTextIcon,
+  ShieldCheckIcon,
+  Squares2X2Icon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
+
+import { CloseIcon } from "@/components/icons";
 import { EkklesiaioLogo } from "@/components/brand/ekklesiaio-logo";
+import { WorkspaceBadge } from "@/components/brand/workspace-badge";
 import { siteConfig } from "@/config/site";
 
-const iconRegistry: Record<
-  NavIconName,
-  (props: { className?: string }) => React.ReactElement
-> = {
-  dashboard: DashboardIcon,
-  groups: GroupsIcon,
-  applications: ApplicationsIcon,
-  reports: ReportsIcon,
-  balances: BalancesIcon,
+// Heroicons outline (24px grid), drawn at stroke 1.6 by `NavIcon` below.
+const iconRegistry: Record<NavIconName, HeroIcon> = {
+  dashboard: Squares2X2Icon,
+  groups: UserGroupIcon,
+  applications: DocumentTextIcon,
+  access: ShieldCheckIcon,
 };
 
 const resolveIcon = (icon: NavItem["icon"]) =>
@@ -37,8 +34,16 @@ const isActivePath = (pathname: string, href: string) =>
     ? pathname === "/"
     : pathname === href || pathname.startsWith(`${href}/`);
 
+// Top-level rows (leaf links and group triggers); colors are set per state.
 const rowBase =
-  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors";
+  "flex min-h-[42px] items-center gap-3 rounded-[10px] px-3 text-[14.5px] transition-colors";
+
+// Resting rows only: on the active leaf, hover:bg-white/5 would replace navy-800.
+const rowRest = "font-medium text-on-dark hover:bg-white/5 hover:text-white";
+
+// Icons sit muted at rest and turn gold when their row (or a child) is active.
+const iconClass = (active: boolean) =>
+  clsx("size-5 shrink-0", active ? "text-gold-500" : "text-muted-on-dark");
 
 interface SidebarProps {
   isOpen: boolean;
@@ -59,16 +64,15 @@ const LeafLink = ({
 
   return (
     <NextLink
+      aria-current={active ? "page" : undefined}
       className={clsx(
         rowBase,
-        active
-          ? "bg-accent text-accent-foreground font-medium"
-          : "text-foreground hover:bg-surface-secondary",
+        active ? "bg-navy-800 font-semibold text-white" : rowRest,
       )}
       href={item.href!}
       onClick={onNavigate}
     >
-      <Icon className="size-5 shrink-0" />
+      <Icon className={iconClass(active)} strokeWidth={1.6} />
       <span className="flex-1">{item.label}</span>
     </NextLink>
   );
@@ -90,30 +94,29 @@ const CollapsibleItem = ({
   return (
     <Disclosure defaultExpanded={hasActiveChild}>
       <Disclosure.Trigger
-        className={clsx(
-          rowBase,
-          "w-full text-foreground hover:bg-surface-secondary",
-          hasActiveChild && "text-accent",
-        )}
+        // A group never gets the filled active state: only its icon turns
+        // gold, and the active child carries the highlight.
+        className={clsx(rowBase, rowRest, "w-full")}
       >
-        <Icon className="size-5 shrink-0" />
+        <Icon className={iconClass(hasActiveChild)} strokeWidth={1.6} />
         <span className="flex-1 text-left">{item.label}</span>
-        <Disclosure.Indicator />
+        <Disclosure.Indicator className="size-3.5 text-muted-on-dark" />
       </Disclosure.Trigger>
       <Disclosure.Content>
-        <Disclosure.Body className="!p-0 !pt-1">
-          <ul className="ml-4 flex flex-col gap-1 border-l border-separator pl-3">
+        <Disclosure.Body className="!p-0 !pt-0.5 !pb-1.5">
+          <ul className="ml-[22px] flex flex-col gap-0.5 border-l border-white/12 pl-3.5">
             {children.map((child) => {
               const active = pathname === child.href;
 
               return (
                 <li key={child.href}>
                   <NextLink
+                    aria-current={active ? "page" : undefined}
                     className={clsx(
                       "block rounded-lg px-3 py-2 text-sm transition-colors",
                       active
-                        ? "bg-accent text-accent-foreground font-medium"
-                        : "text-muted hover:bg-surface-secondary hover:text-foreground",
+                        ? "bg-gold-500/14 font-semibold text-gold-300"
+                        : "font-medium text-on-dark hover:bg-white/5 hover:text-white",
                     )}
                     href={child.href}
                     onClick={onNavigate}
@@ -147,31 +150,39 @@ export const Sidebar = ({ isOpen, onNavigate }: SidebarProps) => {
 
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-separator bg-background",
+          // The rail is navy in both modes (bg-rail), so its contents use the
+          // raw on-dark palette rather than theme-aware tokens. The focus halo
+          // is redefined too: light mode's gold-800 ring is meant for paper.
+          // --focus covers HeroUI controls (ring-focus); --shadow-focus covers
+          // our plain links (the global :focus-visible rule).
+          "fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-rail-edge bg-rail text-on-dark",
+          "[--focus:var(--color-gold-500)] [--shadow-focus:0_0_0_2px_var(--color-navy-900),0_0_0_4px_var(--color-gold-500)]",
           "transition-transform duration-200 ease-out",
           "lg:sticky lg:top-0 lg:h-screen lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-auto items-center justify-center gap-2 border-b border-separator px-4 py-4">
+        <div className="flex items-center justify-between gap-2 px-5 pt-5 pb-4">
           <NextLink
-            className="flex items-center gap-2 font-semibold"
+            aria-label="ekklesiaio home"
+            className="flex items-center rounded-lg"
             href="/"
             onClick={onNavigate}
           >
-            {/* tone="auto" until Stage 3 turns the rail navy; then "on-dark". */}
-            <EkklesiaioLogo size={21} tone="auto" />
+            <EkklesiaioLogo size={21} tone="on-dark" />
           </NextLink>
           <button
             aria-label="Close menu"
-            className="rounded-lg p-1 text-muted hover:bg-surface-secondary lg:hidden"
+            className="rounded-lg p-1 text-muted-on-dark hover:bg-white/5 hover:text-white lg:hidden"
             onClick={onNavigate}
           >
             <CloseIcon size={20} />
           </button>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+        <WorkspaceBadge className="mx-3.5 mb-3.5" />
+
+        <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-1.5">
           {siteConfig.navItems.map((item) =>
             item.items ? (
               <CollapsibleItem
@@ -190,6 +201,10 @@ export const Sidebar = ({ isOpen, onNavigate }: SidebarProps) => {
             ),
           )}
         </nav>
+
+        <p className="px-5 pt-4 pb-5 text-xs text-muted-on-dark">
+          Staff app · v{process.env.NEXT_PUBLIC_APP_VERSION}
+        </p>
       </aside>
     </>
   );

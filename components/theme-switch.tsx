@@ -3,18 +3,33 @@
 import { FC, Key, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { ToggleButton, ToggleButtonGroup } from "@heroui/react";
-
-import { SunFilledIcon, MoonFilledIcon, SystemIcon } from "@/components/icons";
+import {
+  ComputerDesktopIcon,
+  MoonIcon,
+  SunIcon,
+} from "@heroicons/react/24/outline";
+import clsx from "clsx";
 
 export interface ThemeSwitchProps {
   className?: string;
 }
 
 const THEME_OPTIONS = [
-  { key: "light", label: "Light", icon: SunFilledIcon },
-  { key: "dark", label: "Dark", icon: MoonFilledIcon },
-  { key: "system", label: "System", icon: SystemIcon },
+  { key: "light", label: "Light", icon: SunIcon },
+  { key: "dark", label: "Dark", icon: MoonIcon },
+  { key: "system", label: "System", icon: ComputerDesktopIcon },
 ] as const;
+
+// HeroUI's ToggleButton reads its colors from --toggle-button-* variables, so
+// we restyle it by setting those (to our --segment tokens) instead of fighting
+// its selectors. Unselected = transparent on the track; selected = raised pill.
+const segmentButton = clsx(
+  "h-[30px] w-[34px] min-w-0 rounded-[7px] px-0",
+  "[--toggle-button-bg:transparent] [--toggle-button-bg-hover:transparent] [--toggle-button-bg-pressed:transparent]",
+  "[--toggle-button-fg:var(--muted)] hover:[--toggle-button-fg:var(--foreground)]",
+  "[--toggle-button-bg-selected:var(--segment-selected)] [--toggle-button-bg-selected-hover:var(--segment-selected)] [--toggle-button-bg-selected-pressed:var(--segment-selected)]",
+  "[--toggle-button-fg-selected:var(--accent)] data-[selected=true]:shadow-segment",
+);
 
 export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -24,7 +39,9 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) return <div aria-hidden className="h-8 w-[104px]" />;
+  // Same footprint as the real control (3 × 34px + gaps + padding + border),
+  // so the topbar doesn't shift when it mounts.
+  if (!isMounted) return <div aria-hidden className="h-[38px] w-[114px]" />;
 
   const handleSelectionChange = (keys: Set<Key>) => {
     const [next] = keys;
@@ -36,14 +53,22 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
     <ToggleButtonGroup
       disallowEmptySelection
       aria-label="Theme"
-      className={className}
+      className={clsx(
+        "gap-0.5 rounded-[10px] border border-border bg-segment p-[3px]",
+        className,
+      )}
       selectedKeys={[theme ?? "system"]}
-      size="sm"
       onSelectionChange={handleSelectionChange}
     >
       {THEME_OPTIONS.map(({ key, label, icon: Icon }) => (
-        <ToggleButton key={key} isIconOnly aria-label={label} id={key}>
-          <Icon size={16} />
+        <ToggleButton
+          key={key}
+          isIconOnly
+          aria-label={label}
+          className={segmentButton}
+          id={key}
+        >
+          <Icon className="size-4" strokeWidth={1.8} />
         </ToggleButton>
       ))}
     </ToggleButtonGroup>

@@ -5,6 +5,11 @@ const nextConfig = {
   // actually loads, for a small container image. public/ and .next/static are NOT included;
   // the Dockerfile must copy them, or pages render without JS/CSS while /api/health stays 200.
   output: "standalone",
+  // Shown in the sidebar footer. pnpm sets npm_package_version when it runs a
+  // package.json script (dev/build), so this is the version at build time.
+  env: {
+    NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version ?? "",
+  },
 };
 
 export default nextConfig;

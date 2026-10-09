@@ -38,10 +38,10 @@ this.
 navItems: [
   { label: "Dashboard", icon: "dashboard", href: "/" },        // leaf
   {
-    label: "Balances", icon: "balances",                        // collapsible group
+    label: "Groups", icon: "groups",                            // collapsible group
     items: [
-      { label: "Overview", href: "/balances" },
-      { label: "Transactions", href: "/balances/transactions" },
+      { label: "List", href: "/groups" },
+      { label: "Reports", href: "/groups/reports" },
     ],
   },
 ]
@@ -49,12 +49,13 @@ navItems: [
 
 - **Add a top-level link:** add an object with `label`, `icon`, `href`.
 - **Add a nested menu:** give the item `items: [...]` instead of `href`.
-- **Add an icon:** add the key to `NavIconName` in `config/site.ts`, add the SVG
-  to `components/icons.tsx`, and register it in `iconRegistry` in
-  `components/sidebar.tsx`.
+- **Add an icon:** add the key to `NavIconName` in `config/site.ts` and map it
+  to a Heroicons **outline** (`@heroicons/react/24/outline`) component in
+  `iconRegistry` in `components/sidebar.tsx`. (An item's `icon` can also be an
+  icon component directly.)
 - **Active state:** leaves and parents use prefix matching
   (`/groups` is active on `/groups/123`); nested children use exact matching so
-  `/balances` and `/balances/transactions` don't both light up. A group auto-
+  `/groups` and `/groups/reports` don't both light up. A group auto-
   expands (`defaultExpanded`) when one of its children is the current route.
 
 Collapsible groups use HeroUI's `Disclosure` (`Disclosure.Trigger` /
