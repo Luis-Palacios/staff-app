@@ -51,8 +51,9 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   (navy brand rail in both modes: logo, `ChurchContextCard`, Heroicons-outline nav
   items, collapsible groups via HeroUI `Disclosure`, off-canvas + backdrop below
   `lg`) and `components/topbar.tsx` (search with Ctrl/⌘ K hint, segmented
-  `ThemeSwitch`, account menu; hamburger + mark below `lg`, search collapses
-  behind an icon below `sm`). See `docs/dashboard-layout.md` for the shell's
+  `ThemeSwitch`, account menu; below `lg` hamburger + mark + a read-only
+  ministry › church label; below `sm` search collapses behind an icon and the
+  theme options move into the account menu). See `docs/dashboard-layout.md` for the shell's
   structure and `docs/BRAND-RESTYLE.md` for its styling.
 - **Brand components** — `components/brand/` holds `EkklesiaioMark` /
   `EkklesiaioLogo` (`tone: "on-dark" | "on-light" | "auto"`) and

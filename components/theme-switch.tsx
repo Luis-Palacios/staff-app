@@ -14,7 +14,8 @@ export interface ThemeSwitchProps {
   className?: string;
 }
 
-const THEME_OPTIONS = [
+/** Shared with the account menu, which offers the same choices below `sm`. */
+export const THEME_OPTIONS = [
   { key: "light", label: "Light", icon: SunIcon },
   { key: "dark", label: "Dark", icon: MoonIcon },
   { key: "system", label: "System", icon: ComputerDesktopIcon },
