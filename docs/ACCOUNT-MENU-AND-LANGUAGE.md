@@ -22,7 +22,7 @@ light and dark, at desktop width and below `sm` (640px), before the next one sta
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Account menu restyle | ✅ done | see `git log` |
-| 2. Language picker (preference only) | [ ] | |
+| 2. Language picker (preference only) | ✅ done | see `git log` |
 
 ---
 
@@ -165,10 +165,15 @@ this plan.
 
 ### Done when
 
-- [ ] Fresh browser with Chrome set to Spanish → check on Español and `<html lang="es">`.
+- [x] Fresh browser with Chrome set to Spanish → check on Español and `<html lang="es">`.
       English browser → English. No cookie is written until the user picks.
-- [ ] Picking a language survives reload and sign-out/sign-in (cookie, not session).
-- [ ] Invalid cookie value (e.g. `fr`) falls back to the header, then `en`.
-- [ ] Works below `sm` (after Theme) and in both themes.
-- [ ] Lint and type-check clean. Update `CLAUDE.md` (architecture: locale
+- [x] Picking a language survives reload and sign-out/sign-in (cookie, not session).
+- [x] Invalid cookie value (e.g. `fr`) falls back to the header, then `en`.
+- [x] Works below `sm` (after Theme) and in both themes.
+- [x] Lint and type-check clean. Update `CLAUDE.md` (architecture: locale
       resolution + `lib/locale.ts`) and `docs/dashboard-layout.md` (menu contents).
+
+Notes from the build: `Accept-Language` picks the first entry whose primary
+subtag is *any* supported locale (so `en-US,en;q=0.9,es;q=0.8` stays English),
+skipping `q=0`. The root layout now reads cookies/headers, so every route,
+including the auth pages, renders per request.

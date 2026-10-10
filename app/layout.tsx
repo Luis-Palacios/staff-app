@@ -6,6 +6,7 @@ import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
 import { fontDisplay, fontLogo, fontSans } from "@/config/fonts";
+import { getLocale } from "@/lib/locale";
 
 export const metadata: Metadata = {
   title: {
@@ -22,11 +23,14 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Cookie, then the browser's Accept-Language, then "en" (lib/locale.ts).
+  const locale = await getLocale();
+
   return (
     // Font variables go on <html>, not <body>: brand.css defines `--font-sans:
     // var(--font-figtree), …` on :root, so --font-figtree must exist there too.
@@ -37,7 +41,7 @@ export default function RootLayout({
         fontDisplay.variable,
         fontLogo.variable,
       )}
-      lang="en"
+      lang={locale}
     >
       <head />
       <body className="min-h-screen text-foreground bg-background font-sans antialiased">

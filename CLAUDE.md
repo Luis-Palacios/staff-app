@@ -51,7 +51,8 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   (navy brand rail in both modes: logo, `ChurchContextCard`, Heroicons-outline nav
   items, collapsible groups via HeroUI `Disclosure`, off-canvas + backdrop below
   `lg`) and `components/topbar.tsx` (search with Ctrl/⌘ K hint, segmented
-  `ThemeSwitch`, account menu; below `lg` hamburger + mark + a read-only
+  `ThemeSwitch`, account menu (header, Language, My profile, Sign out; see
+  `docs/ACCOUNT-MENU-AND-LANGUAGE.md`); below `lg` hamburger + mark + a read-only
   ministry › church label; below `sm` search collapses behind an icon and the
   theme options move into the account menu). See `docs/dashboard-layout.md` for the shell's
   structure and `docs/BRAND-RESTYLE.md` for its styling.
@@ -63,6 +64,13 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   server-only, `cache()`d) is the only way to read the ministry and church;
   never read `siteConfig.ministry` / `siteConfig.churches` directly. See
   `docs/MINISTRY-CHURCH-CONTEXT.md`.
+- **Locale (preference only, no translations yet)** — `getLocale()`
+  (`lib/locale.ts`, server-only, `cache()`d) resolves `en`/`es` per request:
+  the `ekk_locale` cookie if valid, else `Accept-Language`, else `en`. It sets
+  `<html lang>` in `app/layout.tsx` and reaches the account menu as a `locale`
+  prop (`(app)` layout → `AppShell` → `Topbar`); the menu's picker calls the
+  `setLocale` server action. Client code imports constants and types from
+  `lib/locale-shared.ts`, never `lib/locale.ts`, and never reads the cookie.
 - **`app/providers.tsx`** wraps the tree in `next-themes` only. Theme is
   class-based, defaults to `system` (`themeProps` passed from `app/layout.tsx`).
   Add other client-side providers here.

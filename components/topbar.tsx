@@ -1,8 +1,15 @@
 "use client";
 
 import type { ChurchContext } from "@/config/site";
+import type { Locale } from "@/lib/locale-shared";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useOptimistic,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import {
   Dropdown,
   Header,
@@ -32,9 +39,13 @@ import { StatusBadge } from "@/components/status-badge";
 import { useCurrentUser } from "@/lib/contexts/user-context";
 import { authClient } from "@/lib/auth/auth-client";
 import { ROLE_LABELS } from "@/lib/auth/roles";
+import { isLocale, LOCALE_LABELS, LOCALES } from "@/lib/locale-shared";
+import { setLocale } from "@/app/(app)/_actions/set-locale";
 
 interface TopbarProps {
   context: ChurchContext;
+  /** Resolved on the server (lib/locale.ts); never read from the cookie here. */
+  locale: Locale;
   onMenuClick: () => void;
 }
 
@@ -90,12 +101,17 @@ function useIsMac() {
   return isMac;
 }
 
-export const Topbar = ({ context, onMenuClick }: TopbarProps) => {
+export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
   const { ministry, church } = context;
   const router = useRouter();
   const currentUser = useCurrentUser();
   const isMac = useIsMac();
   const { theme, setTheme } = useTheme();
+  // The check moves as soon as a language is picked. When the transition
+  // ends, useOptimistic falls back to the `locale` prop: the new one after
+  // setLocale's revalidation, or the old one if the action refused (a revert).
+  const [optimisticLocale, setOptimisticLocale] = useOptimistic(locale);
+  const [, startLocaleTransition] = useTransition();
   // Tailwind's `sm` (40rem). Below it the segmented theme switch is hidden to
   // make room for the church label, and its options move into the account
   // menu. A media query rather than `sm:hidden`: hidden items would still be
@@ -108,6 +124,15 @@ export const Topbar = ({ context, onMenuClick }: TopbarProps) => {
   useEffect(() => {
     if (isSearchOpen) searchInputRef.current?.focus();
   }, [isSearchOpen]);
+
+  function selectLocale(next: Locale) {
+    if (next === locale) return;
+
+    startLocaleTransition(async () => {
+      setOptimisticLocale(next);
+      await setLocale(next);
+    });
+  }
 
   async function handleSignOut() {
     await authClient.signOut();
@@ -311,8 +336,61 @@ export const Topbar = ({ context, onMenuClick }: TopbarProps) => {
                   ))}
                 </Dropdown.Section>
               )}
-              {/* TODO(Stage 2 of docs/ACCOUNT-MENU-AND-LANGUAGE.md): the
-                  Language section goes here. */}
+              {/* Preference only for now: until i18n lands, picking one
+                  moves the check and changes <html lang>. */}
+              <Dropdown.Section
+                disallowEmptySelection
+                className={menuGroup}
+                selectedKeys={[optimisticLocale]}
+                selectionMode="single"
+                onSelectionChange={(keys) => {
+                  const [next] = keys === "all" ? [] : [...keys];
+
+                  if (isLocale(next)) selectLocale(next);
+                }}
+              >
+                {/* self-stretch: .menu-section aligns its children to the
+                    start, so the row would otherwise hug its text. */}
+                <Header className="flex items-baseline justify-between gap-2 self-stretch px-2.5 pt-1.5 pb-1 text-xs font-semibold text-muted">
+                  <span>Language</span>
+                  <span className="font-normal">Default: your browser</span>
+                </Header>
+                {LOCALES.map((key) => {
+                  const { label, tag } = LOCALE_LABELS[key];
+
+                  return (
+                    <Dropdown.Item
+                      key={key}
+                      className={item()}
+                      id={key}
+                      textValue={label}
+                    >
+                      {({ isSelected }) => (
+                        <>
+                          <span
+                            aria-hidden="true"
+                            className="flex h-[18px] w-6 shrink-0 items-center justify-center rounded-[5px] border border-overlay-border text-[10px] font-bold tracking-[0.04em] text-muted"
+                          >
+                            {tag}
+                          </span>
+                          {/* Each name in its own language, so screen
+                              readers pronounce "Español" in Spanish. */}
+                          <span className="flex-1" lang={key}>
+                            {label}
+                          </span>
+                          {isSelected && (
+                            <CheckIcon
+                              aria-hidden="true"
+                              className="size-4 shrink-0 text-accent"
+                              strokeWidth={2.2}
+                            />
+                          )}
+                        </>
+                      )}
+                    </Dropdown.Item>
+                  );
+                })}
+              </Dropdown.Section>
               <Dropdown.Section aria-label="Profile" className={menuGroup}>
                 <Dropdown.Item
                   className={item()}

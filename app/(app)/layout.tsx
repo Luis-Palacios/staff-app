@@ -4,6 +4,7 @@ import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { AppShell } from "@/components/app-shell";
 import { UserProvider } from "@/lib/contexts/user-context";
 import { AuthRole } from "@/lib/auth/roles";
+import { getLocale } from "@/lib/locale";
 import { getChurchContext } from "@/lib/workspace";
 
 export default async function AppLayout({
@@ -26,10 +27,13 @@ export default async function AppLayout({
   }
 
   const context = await getChurchContext();
+  const locale = await getLocale();
 
   return (
     <UserProvider user={session.user}>
-      <AppShell context={context}>{children}</AppShell>
+      <AppShell context={context} locale={locale}>
+        {children}
+      </AppShell>
     </UserProvider>
   );
 }
