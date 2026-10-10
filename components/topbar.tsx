@@ -12,18 +12,23 @@ import {
   useMediaQuery,
 } from "@heroui/react";
 import {
+  ArrowRightStartOnRectangleIcon,
   CheckIcon,
   ChevronDownIcon,
   MagnifyingGlassIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { tv } from "tailwind-variants";
 
 import { THEME_OPTIONS, ThemeSwitch } from "@/components/theme-switch";
 import { EkklesiaioMark } from "@/components/brand/ekklesiaio-logo";
 import { MenuIcon } from "@/components/icons";
+import { InitialsAvatar, initialsOf } from "@/components/initials-avatar";
+import { StatusBadge } from "@/components/status-badge";
 import { useCurrentUser } from "@/lib/contexts/user-context";
 import { authClient } from "@/lib/auth/auth-client";
 import { ROLE_LABELS } from "@/lib/auth/roles";
@@ -33,11 +38,37 @@ interface TopbarProps {
   onMenuClick: () => void;
 }
 
-function getInitials(name: string): string {
-  const [first, last] = name.trim().split(/\s+/);
+// Navy/gold in light, gold/navy in dark: --accent-foreground is white in
+// light mode, so the avatars need an explicit dark: swap. Shared by the
+// trigger and the menu header so the two always match.
+const accountAvatarColors =
+  "bg-navy-900 text-gold-500 dark:bg-gold-500 dark:text-navy-900";
 
-  return `${first?.[0] ?? ""}${last?.[0] ?? ""}`.toUpperCase();
-}
+// Account menu groups and rows. HeroUI's .menu-item only tints on hover
+// (bg-default) and just rings keyboard focus, so arrowing through the menu
+// shows no row highlight. We set both states via react-aria's data-hovered /
+// data-focused attributes, which also lets Sign out swap in bg-danger-soft.
+// tv (not clsx) so the danger colors replace the defaults: with both classes
+// on the element, Tailwind's stylesheet order would pick the winner.
+const menuGroup = "w-full gap-0.5 border-t border-separator p-1.5";
+const menuItem = tv({
+  slots: {
+    base: "h-10 min-h-0 gap-2.5 rounded-[10px] px-2.5 py-0 text-sm font-medium text-heading data-focused:bg-surface-secondary data-hovered:bg-surface-secondary",
+    icon: "size-[18px] shrink-0 text-muted",
+  },
+  variants: {
+    danger: {
+      true: {
+        base: "text-danger data-focused:bg-danger-soft data-hovered:bg-danger-soft",
+        icon: "text-danger",
+      },
+    },
+  },
+});
+// Pass the variant per slot call (`item({ danger: true })`): slot functions
+// from separate menuItem() calls share state, so a second, danger-variant
+// menuItem() call would turn every row red.
+const { base: item, icon: itemIcon } = menuItem();
 
 /**
  * macOS users expect ⌘ in shortcut hints; everyone else gets "Ctrl".
@@ -173,15 +204,20 @@ export const Topbar = ({ context, onMenuClick }: TopbarProps) => {
         <Dropdown.Root>
           <Dropdown.Trigger
             aria-label={`Account menu, ${currentUser.name}`}
-            className="flex h-[42px] items-center gap-2.5 rounded-full pr-1 pl-1 hover:bg-surface-secondary md:pr-2.5"
+            // Open: keeps the hover tint and the chevron flips up. HeroUI
+            // scales a pressed trigger to 0.97 and react-aria keeps it
+            // "pressed" while the menu is open, so cancel that (as the
+            // church menu does).
+            className="group flex h-[42px] items-center gap-2.5 rounded-full pr-1 pl-1 hover:bg-surface-secondary aria-expanded:bg-surface-secondary data-pressed:transform-none md:pr-2.5"
           >
-            {/* Navy/gold in light, gold/navy in dark: --accent-foreground is
-                white in light mode, so this needs an explicit dark: swap. */}
             <span
               aria-hidden="true"
-              className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-navy-900 text-[13px] font-bold text-gold-500 dark:bg-gold-500 dark:text-navy-900"
+              className={clsx(
+                "flex size-[34px] shrink-0 items-center justify-center rounded-full text-[13px] font-bold",
+                accountAvatarColors,
+              )}
             >
-              {getInitials(currentUser.name)}
+              {initialsOf(currentUser.name)}
             </span>
             <span className="hidden flex-col items-start leading-tight md:flex">
               <span className="text-sm font-semibold text-heading">
@@ -192,22 +228,50 @@ export const Topbar = ({ context, onMenuClick }: TopbarProps) => {
               </span>
             </span>
             <ChevronDownIcon
-              className="hidden size-3.5 text-muted md:block"
+              aria-hidden="true"
+              className="hidden size-3.5 text-muted transition-transform group-aria-expanded:rotate-180 md:block"
               strokeWidth={2}
             />
           </Dropdown.Trigger>
-          <Dropdown.Popover placement="bottom end">
-            <div className="border-b border-separator px-3 py-2">
-              <p className="text-xs text-muted">Signed in as</p>
-              <p className="truncate text-sm font-medium">
-                {currentUser.email}
-              </p>
+          {/* Same frame as the church menu (w-72, 14px, overlay border and
+              shadow), but on bg-surface: the default bg-overlay is navy-800
+              in dark mode. No padding here; each group pads itself. */}
+          <Dropdown.Popover
+            className="w-72 max-w-[calc(100vw-2rem)] rounded-[14px] border border-overlay-border bg-surface p-0 shadow-overlay-menu"
+            offset={8}
+            placement="bottom end"
+          >
+            {/* Not a menu item, so it sits outside Dropdown.Menu. */}
+            <div className="flex items-center gap-3 px-4 pt-4 pb-3.5">
+              <InitialsAvatar
+                className={accountAvatarColors}
+                name={currentUser.name}
+                size="xl"
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="truncate text-[14.5px] font-semibold text-heading">
+                    {currentUser.name}
+                  </span>
+                  <StatusBadge className="shrink-0 text-[11.5px]" tone="accent">
+                    {ROLE_LABELS[currentUser.role] ?? currentUser.role}
+                  </StatusBadge>
+                </div>
+                <span
+                  className="truncate text-[13px] text-muted"
+                  title={currentUser.email}
+                >
+                  {currentUser.email}
+                </span>
+              </div>
             </div>
-            <Dropdown.Menu aria-label="Account">
+            {/* No padding or gap on the menu itself: each group carries
+                its own top border and padding. */}
+            <Dropdown.Menu aria-label="Account" className="gap-0 p-0">
               {!isSmUp && (
                 <Dropdown.Section
                   disallowEmptySelection
-                  className="border-b border-separator pb-1"
+                  className={menuGroup}
                   selectedKeys={[theme ?? "system"]}
                   selectionMode="single"
                   onSelectionChange={(keys) => {
@@ -216,16 +280,21 @@ export const Topbar = ({ context, onMenuClick }: TopbarProps) => {
                     if (typeof next === "string") setTheme(next);
                   }}
                 >
-                  <Header className="px-3 pt-1 pb-0.5 text-xs text-muted">
+                  <Header className="px-2.5 pt-1.5 pb-1 text-xs font-semibold text-muted">
                     Theme
                   </Header>
                   {THEME_OPTIONS.map(({ key, label, icon: Icon }) => (
-                    <Dropdown.Item key={key} id={key} textValue={label}>
+                    <Dropdown.Item
+                      key={key}
+                      className={item()}
+                      id={key}
+                      textValue={label}
+                    >
                       {({ isSelected }) => (
                         <>
                           <Icon
                             aria-hidden="true"
-                            className="size-4 shrink-0 text-muted"
+                            className={itemIcon()}
                             strokeWidth={1.8}
                           />
                           <span className="flex-1">{label}</span>
@@ -233,7 +302,7 @@ export const Topbar = ({ context, onMenuClick }: TopbarProps) => {
                             <CheckIcon
                               aria-hidden="true"
                               className="size-4 shrink-0 text-accent"
-                              strokeWidth={2}
+                              strokeWidth={2.2}
                             />
                           )}
                         </>
@@ -242,12 +311,37 @@ export const Topbar = ({ context, onMenuClick }: TopbarProps) => {
                   ))}
                 </Dropdown.Section>
               )}
-              <Dropdown.Item onAction={() => router.push("/users/me")}>
-                My Profile
-              </Dropdown.Item>
-              <Dropdown.Item variant="danger" onAction={handleSignOut}>
-                <span data-slot="label">Logout</span>
-              </Dropdown.Item>
+              {/* TODO(Stage 2 of docs/ACCOUNT-MENU-AND-LANGUAGE.md): the
+                  Language section goes here. */}
+              <Dropdown.Section aria-label="Profile" className={menuGroup}>
+                <Dropdown.Item
+                  className={item()}
+                  textValue="My profile"
+                  onAction={() => router.push("/users/me")}
+                >
+                  <UserCircleIcon
+                    aria-hidden="true"
+                    className={itemIcon()}
+                    strokeWidth={1.8}
+                  />
+                  <span className="flex-1">My profile</span>
+                </Dropdown.Item>
+              </Dropdown.Section>
+              <Dropdown.Section aria-label="Session" className={menuGroup}>
+                <Dropdown.Item
+                  className={item({ danger: true })}
+                  textValue="Sign out"
+                  variant="danger"
+                  onAction={handleSignOut}
+                >
+                  <ArrowRightStartOnRectangleIcon
+                    aria-hidden="true"
+                    className={itemIcon({ danger: true })}
+                    strokeWidth={1.8}
+                  />
+                  <span className="flex-1">Sign out</span>
+                </Dropdown.Item>
+              </Dropdown.Section>
             </Dropdown.Menu>
           </Dropdown.Popover>
         </Dropdown.Root>
