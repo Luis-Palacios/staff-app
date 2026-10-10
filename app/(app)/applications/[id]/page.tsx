@@ -1,112 +1,43 @@
-import { Card } from "@heroui/react/card";
-import { Accordion } from "@heroui/react/accordion";
-import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { Suspense } from "react";
 
-import { applicationsBreadcrumb } from "@/config/breadcrumbs";
-import { StaffAppPageHeader } from "@/components/staff-app-page-header";
+import { ApplicationDetailHeader } from "./_components/application-detail-header";
+import { DetailCardHeading } from "./_components/detail-card-heading";
+import { TestimonyCard } from "./_components/testimony-card";
+
 import { getApplicationDetail } from "@/api/applications-membership-api/client";
-import { LocalDateTime } from "@/components/local-date-time";
+import { card } from "@/components/primitives";
 import PersonTimeline from "@/components/person_timeline";
 import PersonTimelineSkeleton from "@/components/person_timeline/skeleton";
 
 export default async function ApplicationDetail({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
 
   const application = await getApplicationDetail(id);
 
-  const {
-    personFullName,
-    applicationId,
-    fulfilmentDate,
-    lifeBefore,
-    conversion,
-    lifeAfter,
-    personId,
-  } = application;
-
   return (
     <>
-      <StaffAppPageHeader
-        breadcrumbs={[
-          applicationsBreadcrumb,
-          {
-            label: personFullName,
-            href: `/applications/${applicationId}`,
-          },
-        ]}
-        title={`Application from:  ${personFullName}`}
-      />
-      <div className="grid md:grid-cols-2 items-start gap-4">
-        <Card.Root>
-          <Card.Header>
-            <Card.Title>{personFullName}</Card.Title>
-            <Card.Description>
-              Fulfilment Date: <LocalDateTime value={fulfilmentDate} />
-            </Card.Description>
-          </Card.Header>
-          <Card.Content>
-            <Accordion
-              allowsMultipleExpanded={true}
-              className="w-full max-w-md"
-              defaultExpandedKeys={["life_before_1"]}
-            >
-              <Accordion.Item id="life_before_1">
-                <Accordion.Heading>
-                  <Accordion.Trigger>
-                    Life Before
-                    <Accordion.Indicator>
-                      <ChevronDownIcon />
-                    </Accordion.Indicator>
-                  </Accordion.Trigger>
-                </Accordion.Heading>
-                <Accordion.Panel>
-                  <Accordion.Body>{lifeBefore}</Accordion.Body>
-                </Accordion.Panel>
-              </Accordion.Item>
-              <Accordion.Item id="conversion_2">
-                <Accordion.Heading>
-                  <Accordion.Trigger>
-                    Conversion
-                    <Accordion.Indicator>
-                      <ChevronDownIcon />
-                    </Accordion.Indicator>
-                  </Accordion.Trigger>
-                </Accordion.Heading>
-                <Accordion.Panel>
-                  <Accordion.Body>{conversion}</Accordion.Body>
-                </Accordion.Panel>
-              </Accordion.Item>
-              <Accordion.Item id="life_after_3">
-                <Accordion.Heading>
-                  <Accordion.Trigger>
-                    Life After
-                    <Accordion.Indicator>
-                      <ChevronDownIcon />
-                    </Accordion.Indicator>
-                  </Accordion.Trigger>
-                </Accordion.Heading>
-                <Accordion.Panel>
-                  <Accordion.Body>{lifeAfter}</Accordion.Body>
-                </Accordion.Panel>
-              </Accordion.Item>
-            </Accordion>
-          </Card.Content>
-        </Card.Root>
-        <Card.Root>
-          <Card.Header>
-            <Card.Title>Timeline</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <Suspense fallback={<PersonTimelineSkeleton />}>
-              <PersonTimeline personId={personId} />
-            </Suspense>
-          </Card.Content>
-        </Card.Root>
+      <ApplicationDetailHeader application={application} />
+      <div className="flex flex-wrap items-start gap-5">
+        <TestimonyCard
+          conversion={application.conversion}
+          lifeAfter={application.lifeAfter}
+          lifeBefore={application.lifeBefore}
+        />
+        <section
+          className={card({
+            className:
+              "flex min-w-0 flex-[2_1_340px] flex-col gap-[18px] px-6 pb-6 pt-5",
+          })}
+        >
+          <DetailCardHeading eyebrow="Journey">Timeline</DetailCardHeading>
+          <Suspense fallback={<PersonTimelineSkeleton />}>
+            <PersonTimeline personId={application.personId} />
+          </Suspense>
+        </section>
       </div>
     </>
   );

@@ -1,8 +1,15 @@
-import { AcademicCapIcon, BookOpenIcon } from "@heroicons/react/24/solid";
+import type { ComponentType, SVGProps } from "react";
+
+import {
+  AcademicCapIcon,
+  BookOpenIcon,
+  MapPinIcon,
+} from "@heroicons/react/24/outline";
+import clsx from "clsx";
 
 import { LocalDate } from "../local-date";
 
-import { ChildReachingIcon, PersonWaterIcon } from "./icons";
+import { DropIcon } from "./icons";
 
 import {
   getFirstPersonAssistanceSummary,
@@ -10,20 +17,27 @@ import {
 } from "@/api/applications-membership-api/person-service";
 import { PersonEventSummary } from "@/api/applications-membership-api/types";
 
-const eventTypeNameToIcon: Record<string, React.FC<any>> = {
-  "First Assistance": ChildReachingIcon,
-  Bautismo: PersonWaterIcon,
+type Icon = ComponentType<SVGProps<SVGSVGElement>>;
+
+const FIRST_ASSISTANCE = "First Assistance";
+
+const eventTypeNameToIcon: Record<string, Icon> = {
+  [FIRST_ASSISTANCE]: MapPinIcon,
+  Bautismo: DropIcon,
   "Doctrina Basica": BookOpenIcon,
   "Alto Funcionamiento S1": BookOpenIcon,
   "Presentacion de Miembros": AcademicCapIcon,
 };
 
-function getEventIcon(eventTypeName: string): React.FC<any> | undefined {
-  return eventTypeNameToIcon[eventTypeName];
-}
+// Display names for event types whose data key reads oddly on screen. The
+// key itself stays as the API sends it.
+const eventTypeNameToLabel: Record<string, string> = {
+  [FIRST_ASSISTANCE]: "First visit",
+};
 
-// The marker is the circle on the rail. "current" (the most recent event)
-// gets the solid accent tone; earlier events use the soft accent tone.
+// The marker is the circle on the rail. The current (most recent) event is
+// gold, the same in both modes; earlier events use the soft accent tone. The
+// ring separates the marker from the connector line behind it.
 function TimelineMarker({
   eventTypeName,
   isCurrent,
@@ -31,17 +45,23 @@ function TimelineMarker({
   eventTypeName: string;
   isCurrent: boolean;
 }) {
-  const EventIcon = getEventIcon(eventTypeName);
-  const tone = isCurrent
-    ? "bg-accent text-accent-foreground ring-accent-soft"
-    : "bg-accent-soft text-accent-soft-foreground ring-surface";
+  const EventIcon = eventTypeNameToIcon[eventTypeName];
 
   return (
     <span
-      className={`relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full ring-4 ${tone}`}
+      className={clsx(
+        "relative z-10 flex size-[38px] shrink-0 items-center justify-center rounded-full ring-4",
+        isCurrent
+          ? "bg-gold-500 text-navy-900 ring-marker-ring"
+          : "bg-accent-soft text-accent-soft-foreground ring-surface",
+      )}
     >
       {EventIcon ? (
-        <EventIcon height={20} width={20} />
+        <EventIcon
+          aria-hidden="true"
+          className="size-[18px]"
+          strokeWidth={1.7}
+        />
       ) : (
         <span className="size-2.5 rounded-full bg-current" />
       )}
@@ -62,9 +82,9 @@ export default async function PersonTimeline({
   const firstAssistanceEvent: PersonEventSummary = {
     eventId: 0,
     personId: personId,
-    eventName: "First Assistance",
+    eventName: FIRST_ASSISTANCE,
     eventDate: personFirstAssistance?.assistanceDate || "",
-    eventTypeName: "First Assistance",
+    eventTypeName: FIRST_ASSISTANCE,
   };
 
   const events: PersonEventSummary[] = [firstAssistanceEvent, ...personEvents];
@@ -73,13 +93,15 @@ export default async function PersonTimeline({
     <ol className="flex flex-col">
       {events.map((event, index) => {
         const isLast = index === events.length - 1;
+        // The API has no per-event description; the event's own name is the
+        // sub-line when it says more than its type.
         const showEventName = event.eventName !== event.eventTypeName;
 
         return (
           <li
             key={event.eventId}
-            aria-current={isLast ? "true" : undefined}
-            className="flex gap-4"
+            aria-current={isLast ? "step" : undefined}
+            className="flex gap-3.5"
           >
             {/* Rail: marker + connector line down to the next item */}
             <div className="flex flex-col items-center">
@@ -88,17 +110,26 @@ export default async function PersonTimeline({
                 isCurrent={isLast}
               />
               {!isLast && (
-                <span aria-hidden className="w-px flex-1 bg-separator" />
+                <span
+                  aria-hidden="true"
+                  className="my-1.5 min-h-[26px] w-0.5 flex-1 bg-separator"
+                />
               )}
             </div>
 
             {/* Content */}
-            <article className={`flex-1 pt-2 ${isLast ? "" : "pb-8"}`}>
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h3 className="text-sm font-semibold text-foreground">
-                  {event.eventTypeName}
+            <div
+              className={clsx(
+                "flex flex-1 flex-col gap-0.5 pt-2",
+                !isLast && "pb-[22px]",
+              )}
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                <h3 className="text-[14.5px] font-semibold text-heading">
+                  {eventTypeNameToLabel[event.eventTypeName] ??
+                    event.eventTypeName}
                 </h3>
-                <span className="text-xs text-muted">
+                <span className="text-[13px] text-muted">
                   {event.eventDate ? (
                     <LocalDate value={event.eventDate} />
                   ) : (
@@ -107,9 +138,9 @@ export default async function PersonTimeline({
                 </span>
               </div>
               {showEventName && (
-                <p className="mt-1 text-sm text-muted">{event.eventName}</p>
+                <p className="text-[13px] text-muted">{event.eventName}</p>
               )}
-            </article>
+            </div>
           </li>
         );
       })}

@@ -25,10 +25,11 @@ rebased onto `main`, which already has Stage 1 (`def9ed2`), so merging is confli
 | 4. Shared page patterns | ✅ done | `e10e57e` + follow-ups `3efb0fe`, `f31e120` |
 | 5. Dashboard | ✅ done | `7d6a7e6` + follow-up `181868a` |
 | 6. Applications list | ✅ done | `347ea35` + follow-up (see `git log`) |
-| 7. Application detail | ⏭ **next** | |
-| 8–9 | not started | |
+| 7. Application detail | ✅ done | see `git log` |
+| 8. Auth screens | ⏭ **next** | |
+| 9. Users and invites | not started | |
 
-**Pick up at Stage 7.** Read the canvas artboards first (the Artifact tool's `read` with
+**Pick up at Stage 8.** Read the canvas artboards first (the Artifact tool's `read` with
 `path: "project/<Name>.dc.html"`: `Dashboard`, `Applications`, `ApplicationDetail`,
 `SignIn`, `Sidebar`, `Topbar`). They hold exact px values and colors, so you don't have
 to guess them.
@@ -67,8 +68,8 @@ to guess them.
   `next.config.mjs` from `npm_package_version`.
 - **Nav icons:** Heroicons outline at stroke 1.6 through `iconRegistry`
   (`NavIconName` = `dashboard | groups | applications | access`). `components/icons.tsx`
-  now only holds `ChevronDownIcon` (used by the application detail page), `MenuIcon` and
-  `CloseIcon`.
+  now only holds `MenuIcon`, `CloseIcon` and an unused `ChevronDownIcon` (the detail
+  page uses Heroicons' outline chevron).
 - **Topbar:**
   - Side padding is `px-4 lg:px-8`.
   - Below `sm` the search field collapses behind an icon button and opens on its own row.
@@ -149,6 +150,24 @@ to guess them.
   - An `aria-live` line announces the result count when a filter changes.
   - `DataTableFooter` renders nothing when `total` is 0; the table's empty state says it.
 
+- **Stage 7 application detail** (`applications/[id]/` + `components/person_timeline`):
+  - `ApplicationDetailHeader` replaces `StaffAppPageHeader` (no avatar slot there) but
+    reuses `StaffAppBreadcrumbs`. A pending application's meta line ends "Not fulfilled
+    yet" instead of a Fulfilled date.
+  - `DetailCardHeading` (eyebrow + `title({ size: "sm" })`) tops both cards.
+  - Accordion triggers get `data-[focus-visible=true]:ring-inset`: HeroUI's ring sits
+    outside the trigger and the card's `overflow-hidden` clipped it.
+  - Testimony bodies use `whitespace-pre-line` so typed line breaks survive. **No
+    `lang`**: the API doesn't say which language a testimony is in.
+  - **`--marker-ring` token** (gold-100 light, gold-500/22 dark → `ring-marker-ring`)
+    for the gold current marker, instead of a `dark:` override.
+  - Heroicons has no water drop, so baptism uses a custom `DropIcon`
+    (`person_timeline/icons.tsx`) drawn in the outline style. The old FontAwesome-style
+    `ChildReachingIcon` / `PersonWaterIcon` are gone.
+  - Sub-line per event = the event's own name when it differs from its type (the API
+    has no description field). "First visit" is a display label for the
+    "First Assistance" key.
+
 ### Gotchas
 
 - **Stale CSS in dev.** If brand colors or fonts don't show after CSS changes, Turbopack
@@ -164,9 +183,8 @@ to guess them.
 - **`tailwind-variants` merges classes with `tailwind-merge`.** A `text-*` size drops
   any `leading-*` before it (font sizes set their own line height), so put the leading
   after the size, as `title()` does.
-- **Old-palette grep:** the only real hit left is Stage 7's
-  `components/person_timeline/index.tsx`. `text-warning-soft-foreground` hits are false
-  positives.
+- **Old-palette grep:** no real hits left after Stage 7. `text-warning-soft-foreground`
+  hits are false positives.
 
 ## Principles (read before every stage)
 
