@@ -31,7 +31,7 @@ export const dataTable = tv({
 
 // 34px outline button for row actions ("Open", "Cancel").
 export const smallOutlineButton =
-  "h-[34px] rounded-control px-3 text-[13px] font-semibold text-heading md:h-[34px]";
+  "h-[34px] px-3 text-[13px] font-semibold text-heading md:h-[34px]";
 
 // Avatar + name + muted secondary line. Use it in the row-header column. The
 // name links to `href` when the row has a page of its own.

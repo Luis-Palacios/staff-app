@@ -120,7 +120,7 @@ export function NewInviteForm() {
         </Select.Root>
 
         <Button
-          className="h-10 rounded-control px-[18px] font-semibold md:h-10"
+          className="h-10 px-[18px] font-semibold md:h-10"
           isDisabled={!email || !role}
           isPending={isSubmitting}
           type="submit"

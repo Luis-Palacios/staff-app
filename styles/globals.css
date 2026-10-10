@@ -134,6 +134,18 @@
   }
 }
 
+/*
+ * Buttons use the brand's 10px corners (--radius-control), not HeroUI's pill.
+ * Same layer as HeroUI's own .button rule and more specific, so it wins over
+ * it, while a utility on one button (rounded-full) still overrides this.
+ * Icon-only buttons keep their own shape.
+ */
+@layer components {
+  .button:not(.button--icon-only) {
+    border-radius: var(--radius-control);
+  }
+}
+
 @theme inline {
   --color-heading: var(--heading);
   --color-eyebrow: var(--eyebrow);
