@@ -65,6 +65,7 @@
     --segment: #F1F4F8;
     --segment-selected: #FFFFFF;
     --segment-shadow: 0 1px 2px rgb(11 35 65 / 0.12);
+    --segment-icon-selected: #8A5B00;  /* gold-800 outline around the gold fill: gold-500 alone is ~1.7:1 on white */
     /* custom: halo around the gold "current" timeline marker */
     --marker-ring: #FDF1D8;            /* gold-100 */
 
@@ -119,6 +120,7 @@
     --segment: #0B2341;
     --segment-selected: #13325A;
     --segment-shadow: none;
+    --segment-icon-selected: #F2B544;  /* gold-500 */
     --marker-ring: rgb(242 181 68 / 0.22); /* gold-500 at 22% */
   }
 

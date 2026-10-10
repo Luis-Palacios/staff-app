@@ -22,13 +22,15 @@ const THEME_OPTIONS = [
 
 // HeroUI's ToggleButton reads its colors from --toggle-button-* variables, so
 // we restyle it by setting those (to our --segment tokens) instead of fighting
-// its selectors. Unselected = transparent on the track; selected = raised pill.
+// its selectors. Unselected = transparent on the track; selected = raised pill
+// with a gold-filled icon (in both modes, so the active choice reads at a glance).
 const segmentButton = clsx(
   "h-[30px] w-[34px] min-w-0 rounded-[7px] px-0",
   "[--toggle-button-bg:transparent] [--toggle-button-bg-hover:transparent] [--toggle-button-bg-pressed:transparent]",
   "[--toggle-button-fg:var(--muted)] hover:[--toggle-button-fg:var(--foreground)]",
   "[--toggle-button-bg-selected:var(--segment-selected)] [--toggle-button-bg-selected-hover:var(--segment-selected)] [--toggle-button-bg-selected-pressed:var(--segment-selected)]",
-  "[--toggle-button-fg-selected:var(--accent)] data-[selected=true]:shadow-segment",
+  "[--toggle-button-fg-selected:var(--segment-icon-selected)] data-[selected=true]:shadow-segment",
+  "data-[selected=true]:[&_svg]:fill-warning",
 );
 
 export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
