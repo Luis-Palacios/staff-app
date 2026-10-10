@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button, InputGroup, ListBox, Select, TextField } from "@heroui/react";
 import { Label } from "@heroui/react/label";
 
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { card, title } from "@/components/primitives";
 import { authClient } from "@/lib/auth/auth-client";
 import { AuthRole, ROLE_LABELS } from "@/lib/auth/roles";
@@ -23,19 +24,24 @@ export function NewInviteForm() {
   const [role, setRole] = useState<AuthRole | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  // Admin invites need a second look before they go out.
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!email || !role) return;
 
-    if (
-      role === AuthRole.Admin &&
-      !window.confirm(`Send an admin invite to ${email}?`)
-    ) {
+    if (role === AuthRole.Admin) {
+      setIsConfirmOpen(true);
+
       return;
     }
 
+    sendInvite(email, role);
+  }
+
+  async function sendInvite(email: string, role: AuthRole) {
     setIsSubmitting(true);
     setError(null);
 
@@ -124,6 +130,17 @@ export function NewInviteForm() {
       </form>
 
       {error && <p className="text-sm text-danger">{error}</p>}
+
+      <ConfirmDialog
+        confirmLabel="Send admin invite"
+        isOpen={isConfirmOpen}
+        title="Send an admin invite?"
+        onConfirm={() => sendInvite(email, AuthRole.Admin)}
+        onOpenChange={setIsConfirmOpen}
+      >
+        {email} will be able to manage every user, role and invite once they
+        accept.
+      </ConfirmDialog>
     </section>
   );
 }
