@@ -271,14 +271,20 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
               <InitialsAvatar
                 className={accountAvatarColors}
                 name={currentUser.name}
-                size="xl"
+                size="lg"
               />
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <div className="flex min-w-0 items-center gap-2">
                   <span className="truncate text-[14.5px] font-semibold text-heading">
                     {currentUser.name}
                   </span>
-                  <StatusBadge className="shrink-0 text-[11.5px]" tone="accent">
+                  {/* White text in dark mode (not --accent-soft-foreground's gold):
+                      the menu already has gold avatar, check and theme icon,
+                      and the role is a label, not an accent. */}
+                  <StatusBadge
+                    className="shrink-0 text-[11.5px] dark:text-heading"
+                    tone="accent"
+                  >
                     {ROLE_LABELS[currentUser.role] ?? currentUser.role}
                   </StatusBadge>
                 </div>

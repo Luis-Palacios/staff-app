@@ -52,7 +52,7 @@ export function ApplicationDetailHeader({
         <InitialsAvatar
           className="bg-accent text-[22px] text-accent-foreground"
           name={personFullName}
-          size="lg"
+          size="xl"
         />
         <div className="flex flex-[1_1_320px] flex-col gap-2">
           <div className="flex flex-wrap items-center gap-3">

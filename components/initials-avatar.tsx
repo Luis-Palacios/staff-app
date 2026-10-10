@@ -18,8 +18,8 @@ const avatar = tv({
     size: {
       sm: "size-9 text-[12.5px]",
       md: "size-[38px] text-[13px]",
-      xl: "size-10 text-sm",
-      lg: "size-16 text-xl",
+      lg: "size-10 text-sm",
+      xl: "size-16 text-xl",
     },
   },
   defaultVariants: {
@@ -35,7 +35,7 @@ export function InitialsAvatar({
   className,
 }: {
   name: string;
-  size?: "sm" | "md" | "xl" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }) {
   return (
