@@ -497,7 +497,9 @@ Match the canvas's **Sidebar** and **Topbar** artboards.
   justified `dark:` switches, because `--accent-foreground` is white in light mode, not
   gold. Hide name and role below `md`. The role label comes from `ROLE_LABELS`.
 - Mobile: hamburger + `EkklesiaioMark` stay; hide the search field below `sm` behind a
-  search icon button.
+  search icon button. (Later changed by `docs/MINISTRY-CHURCH-CONTEXT.md` Stage 3: a
+  ministry › church label after the mark, 26px mark, 44px buttons, and the theme switch
+  moves into the account menu below `sm`.)
 
 ## Stage 4: Shared page patterns
 

@@ -40,8 +40,8 @@ of what changed and anything that differs from the canvas, so it can be reviewed
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Data seam and sidebar card | ✅ done | `6c09791` |
-| 2. Church menu (switching) | ✅ done | see `git log` |
-| 3. Context below `lg` + docs | ⬜ | |
+| 2. Church menu (switching) | ✅ done | `3051450` |
+| 3. Context below `lg` + docs | ✅ done | see `git log` |
 
 ### Decisions and deviations
 
@@ -92,6 +92,27 @@ of what changed and anything that differs from the canvas, so it can be reviewed
 - Testing tip: in the automation browser, real clicks on react-aria triggers (this menu
   and the account menu) were unreliable in an unfocused tab; keyboard (focus + Enter,
   arrows) was reliable. Worth one manual click test.
+
+**Stage 3**
+
+- **Topbar spacing below `lg` follows `OptionB-Phone`:** `gap-2`, `pl-2 pr-4 py-2.5`,
+  `min-h-16`, 26px mark (was 32px). From `lg` up the row is unchanged (`gap-3`, `px-8`,
+  72px). Measured at 390 (381 inside a scrolling iframe): label 165px, neither line
+  truncates.
+- The label is `flex-1` below `sm` but `sm:flex-initial` from `sm` up. With `flex-1` at
+  both, it split the width with the search field (700px: search squeezed to ~175px).
+- **The theme section uses `useMediaQuery("(min-width: 40rem)")`, not `sm:hidden`.**
+  Items hidden with CSS stay in react-aria's collection, so arrow keys would land on
+  them. It's a `Dropdown.Section` with its own single selection (`menuitemradio` +
+  `aria-checked`, group named by `Header` "Theme"). `THEME_OPTIONS` is exported from
+  `theme-switch.tsx` so both controls share one list. Picking a theme closes the menu.
+- The segmented switch is wrapped in `hidden sm:block` rather than given the classes,
+  which also hides its pre-mount placeholder (that placeholder ignores `className`).
+- Kept from before, unlike the artboard: the hamburger icon is `text-muted` (artboard:
+  navy) and the avatar trigger is 42px (artboard: 44px; the spec only names the
+  hamburger and search buttons).
+- `WorkspaceBadge` still appears twice in `BRAND-RESTYLE.md`, in the historical Stage 2
+  and Stage 3 specs (see Stage 1 above); no other doc mentions it or "Workspace".
 
 
 ## Why this design (short)

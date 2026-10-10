@@ -1,16 +1,27 @@
 "use client";
 
+import type { ChurchContext } from "@/config/site";
+
 import { useEffect, useRef, useState } from "react";
-import { Dropdown, InputGroup, Kbd, TextField } from "@heroui/react";
 import {
+  Dropdown,
+  Header,
+  InputGroup,
+  Kbd,
+  TextField,
+  useMediaQuery,
+} from "@heroui/react";
+import {
+  CheckIcon,
   ChevronDownIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 
-import { ThemeSwitch } from "@/components/theme-switch";
+import { THEME_OPTIONS, ThemeSwitch } from "@/components/theme-switch";
 import { EkklesiaioMark } from "@/components/brand/ekklesiaio-logo";
 import { MenuIcon } from "@/components/icons";
 import { useCurrentUser } from "@/lib/contexts/user-context";
@@ -18,6 +29,7 @@ import { authClient } from "@/lib/auth/auth-client";
 import { ROLE_LABELS } from "@/lib/auth/roles";
 
 interface TopbarProps {
+  context: ChurchContext;
   onMenuClick: () => void;
 }
 
@@ -47,10 +59,17 @@ function useIsMac() {
   return isMac;
 }
 
-export const Topbar = ({ onMenuClick }: TopbarProps) => {
+export const Topbar = ({ context, onMenuClick }: TopbarProps) => {
+  const { ministry, church } = context;
   const router = useRouter();
   const currentUser = useCurrentUser();
   const isMac = useIsMac();
+  const { theme, setTheme } = useTheme();
+  // Tailwind's `sm` (40rem). Below it the segmented theme switch is hidden to
+  // make room for the church label, and its options move into the account
+  // menu. A media query rather than `sm:hidden`: hidden items would still be
+  // in the menu's keyboard order.
+  const isSmUp = useMediaQuery("(min-width: 40rem)");
   // Below `sm` the search field is collapsed behind an icon button.
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -65,10 +84,12 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex min-h-[72px] flex-wrap items-center gap-3 border-b border-border bg-background/88 px-4 py-3.5 backdrop-blur lg:px-8">
+    // Below lg: tighter gaps and padding (OptionB-Phone) so the church label
+    // fits at 390px; the 44px buttons carry their own padding on the left.
+    <header className="sticky top-0 z-30 flex min-h-16 flex-wrap items-center gap-2 border-b border-border bg-background/88 py-2.5 pr-4 pl-2 backdrop-blur lg:min-h-[72px] lg:gap-3 lg:px-8 lg:py-3.5">
       <button
         aria-label="Open menu"
-        className="rounded-lg p-1 text-muted hover:bg-surface-secondary lg:hidden"
+        className="flex size-11 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary lg:hidden"
         onClick={onMenuClick}
       >
         <MenuIcon size={22} />
@@ -79,8 +100,27 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
         className="flex items-center lg:hidden"
         href="/"
       >
-        <EkklesiaioMark size={32} tone="auto" />
+        <EkklesiaioMark size={26} tone="auto" />
       </NextLink>
+
+      {/* Below lg the sidebar (and its church card) is off-canvas, so the
+          topbar says where you are. Text only: switching stays in the card,
+          one tap away behind the hamburger. From sm the search field is the
+          one that grows, so the label only takes its text's width. */}
+      <div className="ml-1 flex min-w-0 flex-1 flex-col sm:flex-initial border-l border-border pl-2.5 lg:hidden">
+        <span
+          className="truncate text-[11.5px] leading-[1.3] text-muted"
+          title={ministry.name}
+        >
+          {ministry.name}
+        </span>
+        <span
+          className="truncate text-[14.5px] leading-[1.3] font-semibold text-heading"
+          title={church.name}
+        >
+          {church.name}
+        </span>
+      </div>
 
       <TextField
         aria-label="Search"
@@ -118,16 +158,18 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
         </InputGroup>
       </TextField>
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-2 lg:gap-3">
         <button
           aria-expanded={isSearchOpen}
           aria-label="Search"
-          className="rounded-lg p-2 text-muted hover:bg-surface-secondary sm:hidden"
+          className="flex size-11 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary sm:hidden"
           onClick={() => setIsSearchOpen((open) => !open)}
         >
           <MagnifyingGlassIcon className="size-5" strokeWidth={1.8} />
         </button>
-        <ThemeSwitch />
+        <div className="hidden sm:block">
+          <ThemeSwitch />
+        </div>
         <Dropdown.Root>
           <Dropdown.Trigger
             aria-label={`Account menu, ${currentUser.name}`}
@@ -162,6 +204,44 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
               </p>
             </div>
             <Dropdown.Menu aria-label="Account">
+              {!isSmUp && (
+                <Dropdown.Section
+                  disallowEmptySelection
+                  className="border-b border-separator pb-1"
+                  selectedKeys={[theme ?? "system"]}
+                  selectionMode="single"
+                  onSelectionChange={(keys) => {
+                    const [next] = keys === "all" ? [] : [...keys];
+
+                    if (typeof next === "string") setTheme(next);
+                  }}
+                >
+                  <Header className="px-3 pt-1 pb-0.5 text-xs text-muted">
+                    Theme
+                  </Header>
+                  {THEME_OPTIONS.map(({ key, label, icon: Icon }) => (
+                    <Dropdown.Item key={key} id={key} textValue={label}>
+                      {({ isSelected }) => (
+                        <>
+                          <Icon
+                            aria-hidden="true"
+                            className="size-4 shrink-0 text-muted"
+                            strokeWidth={1.8}
+                          />
+                          <span className="flex-1">{label}</span>
+                          {isSelected && (
+                            <CheckIcon
+                              aria-hidden="true"
+                              className="size-4 shrink-0 text-accent"
+                              strokeWidth={2}
+                            />
+                          )}
+                        </>
+                      )}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Section>
+              )}
               <Dropdown.Item onAction={() => router.push("/users/me")}>
                 My Profile
               </Dropdown.Item>
