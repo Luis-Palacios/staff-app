@@ -1,6 +1,11 @@
 "use client";
 
-import type { HeroIcon, NavIconName, NavItem } from "@/config/site";
+import type {
+  ChurchContext,
+  HeroIcon,
+  NavIconName,
+  NavItem,
+} from "@/config/site";
 
 import { Disclosure } from "@heroui/react";
 import NextLink from "next/link";
@@ -15,7 +20,7 @@ import {
 
 import { CloseIcon } from "@/components/icons";
 import { EkklesiaioLogo } from "@/components/brand/ekklesiaio-logo";
-import { WorkspaceBadge } from "@/components/brand/workspace-badge";
+import { ChurchContextCard } from "@/components/brand/church-context";
 import { siteConfig } from "@/config/site";
 
 // Heroicons outline (24px grid), drawn at stroke 1.6 by `NavIcon` below.
@@ -46,6 +51,8 @@ const iconClass = (active: boolean) =>
   clsx("size-5 shrink-0", active ? "text-gold-500" : "text-muted-on-dark");
 
 interface SidebarProps {
+  /** The ministry and church shown under the logo. */
+  context: ChurchContext;
   isOpen: boolean;
   onNavigate: () => void;
 }
@@ -133,7 +140,7 @@ const CollapsibleItem = ({
   );
 };
 
-export const Sidebar = ({ isOpen, onNavigate }: SidebarProps) => {
+export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
   const pathname = usePathname();
 
   return (
@@ -180,7 +187,7 @@ export const Sidebar = ({ isOpen, onNavigate }: SidebarProps) => {
           </button>
         </div>
 
-        <WorkspaceBadge className="mx-3.5 mb-3.5" />
+        <ChurchContextCard className="mx-3.5 mb-3.5" context={context} />
 
         <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-1.5">
           {siteConfig.navItems.map((item) =>

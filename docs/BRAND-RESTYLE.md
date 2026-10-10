@@ -40,8 +40,8 @@ to guess them.
   - `EkklesiaioMark` and `EkklesiaioLogo` take `tone: "on-dark" | "on-light" | "auto"`.
     `auto` is an addition to this spec: it keeps the one allowed `dark:` swap inside the
     component.
-  - `WorkspaceBadge` reads `siteConfig.workspace`, or a `workspace` prop for per-church
-    branding later.
+  - `WorkspaceBadge` became `ChurchContextCard` (ministry › church, fed by
+    `getChurchContext()`); see `docs/MINISTRY-CHURCH-CONTEXT.md`.
   - The old PETRA `Logo` was deleted; recover it from `def9ed2` (Stage 1, the last commit that has it).
 - **Inter** loads as the variable font (no `weight` list), so the wordmark's 650 weight
   renders exactly.
@@ -470,7 +470,7 @@ Match the canvas's **Sidebar** and **Topbar** artboards.
 **Sidebar (`components/sidebar.tsx`):**
 - `bg-rail border-r border-rail-edge`, text `text-on-dark` (#C3CDDA), width stays `w-64`.
 - Header: `EkklesiaioLogo tone="on-dark"` (≈21px wordmark, 30px mark), left-aligned,
-  `px-5 pt-5 pb-4`, then `WorkspaceBadge` (`bg-white/6 rounded-tile mx-3.5 mb-3.5`).
+  `px-5 pt-5 pb-4`, then `WorkspaceBadge` (now `ChurchContextCard`) (`bg-white/6 rounded-tile mx-3.5 mb-3.5`).
 - Items: `min-h-[42px] rounded-[10px] px-3 gap-3 text-[14.5px]`. Icon `size-5`, color
   `muted-on-dark` at rest.
   - **Active leaf:** `bg-navy-800 text-white font-semibold`, **icon gold-500**.

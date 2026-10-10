@@ -39,13 +39,31 @@ of what changed and anything that differs from the canvas, so it can be reviewed
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Data seam and sidebar card | ⬜ | |
+| 1. Data seam and sidebar card | ✅ done | see `git log` |
 | 2. Church menu (switching) | ⬜ | |
 | 3. Context below `lg` + docs | ⬜ | |
 
 ### Decisions and deviations
 
-_(Fill in as stages land, like BRAND-RESTYLE.md.)_
+**Stage 1**
+
+- The Petra logo (`logoUrl`) is set, so the rail shows the logo tile, not the "P" letter
+  tile the *Done when* line mentions. The letter tile was checked by commenting out
+  `logoUrl` temporarily (32px circle, navy-800, gold-300, 14px bold).
+- "Ministerio Cristiano Petra" does **not** wrap: at 12px Figtree it is ~136px wide and the
+  text column is ~163px (the rail is `w-64` = 256px, not the canvas's 248px; even at 248 the
+  column is ~156px). The canvas shows it on one line too. `line-clamp-2` was verified with a
+  long name (clamps at 2 lines, 31.2px).
+- `MinistryMark` sizes itself with an inline `style` (`width`/`height` = `size`) instead of a
+  fixed `size-8`, so Stage 2 can reuse it at 28px. It always draws the white ring on the
+  logo variant; Stage 2 needs a way to swap it for the 1px `border` ring on the overlay.
+- `server-only` was already a dependency; nothing added.
+- Docs: `CLAUDE.md` and `BRAND-RESTYLE.md` → *Decisions* now name `ChurchContextCard` and
+  `getChurchContext()`. The `WorkspaceBadge` / "Iglesia Petra" mentions left in
+  `BRAND-RESTYLE.md` are the historical Stage 2 spec and the Stage 5 subtitle note; they
+  describe what was built then, so they stay (Stage 3 of the brand note adds "(now
+  `ChurchContextCard`)").
+
 
 ## Why this design (short)
 
