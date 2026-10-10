@@ -3,11 +3,18 @@
 import type { SubmitEvent } from "react";
 
 import { useState } from "react";
-import { Alert, Button, InputGroup, TextField } from "@heroui/react";
-import { Card } from "@heroui/react/card";
-import { Label } from "@heroui/react/label";
-import { Link } from "@heroui/react/link";
+import { Alert, Button } from "@heroui/react";
+import NextLink from "next/link";
 
+import { AuthHeading } from "../../_components/auth-heading";
+import {
+  authButton,
+  authFooterLine,
+  authStack,
+} from "../../_components/auth-styles";
+import { AuthTextField } from "../../_components/auth-text-field";
+
+import { textLink } from "@/components/primitives";
 import { authClient } from "@/lib/auth/auth-client";
 
 export function ForgotPasswordForm({
@@ -39,70 +46,61 @@ export function ForgotPasswordForm({
     setStatus("sent");
   }
 
+  const backToSignIn = (
+    <p className={authFooterLine}>
+      <NextLink className={textLink()} href="/sign-in">
+        Back to sign in
+      </NextLink>
+    </p>
+  );
+
   if (status === "sent") {
     return (
-      <Card.Root className="w-full max-w-sm md:max-w-md lg:max-w-xl">
-        <Card.Header>
-          <Card.Title className="text-lg">Check your email</Card.Title>
-          <Card.Description className="text-base">
-            If <strong>{email}</strong> has an account, we sent a link to reset
-            its password.
-          </Card.Description>
-        </Card.Header>
-        <Card.Footer className="flex flex-col">
-          <Link className="text-base" href="/sign-in">
-            Back to sign in
-          </Link>
-        </Card.Footer>
-      </Card.Root>
+      <div className={authStack}>
+        <AuthHeading title="Check your email">
+          If <strong className="text-heading">{email}</strong> has an account,
+          we sent a link to reset its password.
+        </AuthHeading>
+        {backToSignIn}
+      </div>
     );
   }
 
   return (
-    <form
-      className="w-full max-w-sm md:max-w-md lg:max-w-xl"
-      onSubmit={handleSubmit}
-    >
-      <Card.Root className="w-full">
-        <Card.Header>
-          <Card.Title className="text-lg">Forgot password</Card.Title>
-          <Card.Description className="text-base">
-            We&apos;ll email you a link to reset it.
-          </Card.Description>
-        </Card.Header>
+    <form className={authStack} onSubmit={handleSubmit}>
+      <AuthHeading title="Forgot password">
+        We&apos;ll email you a link to reset it.
+      </AuthHeading>
 
-        <Card.Content className="flex flex-col gap-4">
-          <TextField isRequired type="email" value={email} onChange={setEmail}>
-            <Label className="text-base">Email</Label>
-            <InputGroup>
-              <InputGroup.Input
-                // eslint-disable-next-line jsx-a11y/no-autofocus -- only field on this page; focusing it on load is the expected pattern for a dedicated auth page
-                autoFocus
-                autoComplete="email"
-                className="text-base"
-              />
-            </InputGroup>
-          </TextField>
+      <AuthTextField
+        // eslint-disable-next-line jsx-a11y/no-autofocus -- only field on this page; focusing it on load is the expected pattern for a dedicated auth page
+        autoFocus
+        isRequired
+        autoComplete="email"
+        label="Email"
+        type="email"
+        value={email}
+        onChange={setEmail}
+      />
 
-          {error ? (
-            <Alert status="danger">
-              <Alert.Indicator />
-              <Alert.Content>
-                <Alert.Description>{error}</Alert.Description>
-              </Alert.Content>
-            </Alert>
-          ) : null}
-        </Card.Content>
+      {error ? (
+        <Alert status="danger">
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Description>{error}</Alert.Description>
+          </Alert.Content>
+        </Alert>
+      ) : null}
 
-        <Card.Footer className="flex flex-col gap-3">
-          <Button fullWidth isPending={status === "sending"} type="submit">
-            Send reset link
-          </Button>
-          <Link className="text-base" href="/sign-in">
-            Back to sign in
-          </Link>
-        </Card.Footer>
-      </Card.Root>
+      <Button
+        fullWidth
+        className={authButton}
+        isPending={status === "sending"}
+        type="submit"
+      >
+        Send reset link
+      </Button>
+      {backToSignIn}
     </form>
   );
 }

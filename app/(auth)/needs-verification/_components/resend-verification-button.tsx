@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Alert, Button, InputGroup, TextField } from "@heroui/react";
-import { Label } from "@heroui/react/label";
+import { Alert, Button } from "@heroui/react";
+
+import { authButton, authStack } from "../../_components/auth-styles";
+import { AuthTextField } from "../../_components/auth-text-field";
 
 import { authClient } from "@/lib/auth/auth-client";
 
@@ -35,14 +37,16 @@ export function ResendVerificationButton({
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className={authStack}>
       {initialEmail === null ? (
-        <TextField isRequired type="email" value={email} onChange={setEmail}>
-          <Label className="text-base">Email</Label>
-          <InputGroup>
-            <InputGroup.Input autoComplete="email" className="text-base" />
-          </InputGroup>
-        </TextField>
+        <AuthTextField
+          isRequired
+          autoComplete="email"
+          label="Email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+        />
       ) : null}
 
       {error ? (
@@ -66,6 +70,7 @@ export function ResendVerificationButton({
       ) : (
         <Button
           fullWidth
+          className={authButton}
           isDisabled={!email}
           isPending={status === "sending"}
           type="button"

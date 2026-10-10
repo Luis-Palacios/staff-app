@@ -1,7 +1,11 @@
-import { Card } from "@heroui/react/card";
-import { Link } from "@heroui/react/link";
+import NextLink from "next/link";
+
+import { AuthHeading } from "../_components/auth-heading";
+import { authFooterLine, authStack } from "../_components/auth-styles";
 
 import { ResendVerificationButton } from "./_components/resend-verification-button";
+
+import { textLink } from "@/components/primitives";
 
 export default async function NeedsVerificationPage({
   searchParams,
@@ -11,30 +15,26 @@ export default async function NeedsVerificationPage({
   const { email } = await searchParams;
 
   return (
-    <Card.Root className="w-full max-w-sm md:max-w-md lg:max-w-xl">
-      <Card.Header>
-        <Card.Title className="text-lg">Check your email</Card.Title>
-        <Card.Description className="text-base">
-          {email ? (
-            <>
-              We sent a verification link to <strong>{email}</strong>. Click it,
-              then sign in.
-            </>
-          ) : (
-            "We sent you a verification link by email. Click it, then sign in."
-          )}
-        </Card.Description>
-      </Card.Header>
+    <div className={authStack}>
+      <AuthHeading title="Check your email">
+        {email ? (
+          <>
+            We sent a verification link to{" "}
+            <strong className="text-heading">{email}</strong>. Click it, then
+            sign in.
+          </>
+        ) : (
+          "We sent you a verification link by email. Click it, then sign in."
+        )}
+      </AuthHeading>
 
-      <Card.Content>
-        <ResendVerificationButton initialEmail={email ?? null} />
-      </Card.Content>
+      <ResendVerificationButton initialEmail={email ?? null} />
 
-      <Card.Footer className="flex flex-col">
-        <Link className="text-base" href="/sign-in">
+      <p className={authFooterLine}>
+        <NextLink className={textLink()} href="/sign-in">
           Back to sign in
-        </Link>
-      </Card.Footer>
-    </Card.Root>
+        </NextLink>
+      </p>
+    </div>
   );
 }
