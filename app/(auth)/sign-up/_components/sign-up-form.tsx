@@ -4,12 +4,19 @@ import type { SubmitEvent } from "react";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Button, InputGroup, TextField } from "@heroui/react";
-import { Card } from "@heroui/react/card";
-import { Label } from "@heroui/react/label";
+import { Alert, Button } from "@heroui/react";
+import NextLink from "next/link";
 
+import { AuthHeading } from "../../_components/auth-heading";
+import {
+  authButton,
+  authFooterLine,
+  authStack,
+} from "../../_components/auth-styles";
+import { AuthTextField } from "../../_components/auth-text-field";
 import { PasswordField } from "../../_components/password-field";
 
+import { textLink } from "@/components/primitives";
 import { authClient } from "@/lib/auth/auth-client";
 
 export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
@@ -46,78 +53,64 @@ export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
   }
 
   return (
-    <form
-      className="w-full max-w-sm md:max-w-md lg:max-w-xl"
-      onSubmit={handleSubmit}
-    >
-      <Card.Root className="w-full">
-        <Card.Header>
-          <Card.Title className="text-lg">Create an account</Card.Title>
-          <Card.Description className="text-base">
-            Sign up for staff-app
-          </Card.Description>
-        </Card.Header>
+    <form className={authStack} onSubmit={handleSubmit}>
+      <AuthHeading title="Create an account">
+        Set up your staff account to get started.
+      </AuthHeading>
 
-        <Card.Content className="flex flex-col gap-4">
-          <TextField isRequired type="text" value={name} onChange={setName}>
-            <Label className="text-base">Name</Label>
-            <InputGroup>
-              <InputGroup.Input
-                autoComplete="name"
-                // eslint-disable-next-line jsx-a11y/no-autofocus -- first enabled field when email is fixed by an invite link; focusing it on load is the expected pattern for a dedicated auth page
-                autoFocus={initialEmail !== null}
-                className="text-base"
-              />
-            </InputGroup>
-          </TextField>
+      <AuthTextField
+        isRequired
+        autoComplete="name"
+        // eslint-disable-next-line jsx-a11y/no-autofocus -- first enabled field when email is fixed by an invite link; focusing it on load is the expected pattern for a dedicated auth page
+        autoFocus={initialEmail !== null}
+        label="Name"
+        value={name}
+        onChange={setName}
+      />
 
-          <TextField
-            isRequired
-            isDisabled={initialEmail !== null}
-            type="email"
-            value={email}
-            onChange={setEmail}
-          >
-            <Label className="text-base">Email</Label>
-            <InputGroup>
-              <InputGroup.Input
-                autoComplete="email"
-                // eslint-disable-next-line jsx-a11y/no-autofocus -- first field when email isn't fixed by an invite link; focusing it on load is the expected pattern for a dedicated auth page
-                autoFocus={initialEmail === null}
-                className="text-base"
-              />
-            </InputGroup>
-            {initialEmail !== null && (
-              <p className="text-sm text-muted-foreground">
-                Fixed by your invite — this email must match to activate it.
-              </p>
-            )}
-          </TextField>
+      <AuthTextField
+        isRequired
+        autoComplete="email"
+        // eslint-disable-next-line jsx-a11y/no-autofocus -- first field when email isn't fixed by an invite link; focusing it on load is the expected pattern for a dedicated auth page
+        autoFocus={initialEmail === null}
+        description={
+          initialEmail !== null
+            ? "Fixed by your invite — this email must match to activate it."
+            : undefined
+        }
+        isDisabled={initialEmail !== null}
+        label="Email"
+        type="email"
+        value={email}
+        onChange={setEmail}
+      />
 
-          <PasswordField
-            isRequired
-            autoComplete="new-password"
-            label="Password"
-            value={password}
-            onChange={setPassword}
-          />
+      <PasswordField
+        isRequired
+        autoComplete="new-password"
+        label="Password"
+        value={password}
+        onChange={setPassword}
+      />
 
-          {error ? (
-            <Alert status="danger">
-              <Alert.Indicator />
-              <Alert.Content>
-                <Alert.Description>{error}</Alert.Description>
-              </Alert.Content>
-            </Alert>
-          ) : null}
-        </Card.Content>
+      {error ? (
+        <Alert status="danger">
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Description>{error}</Alert.Description>
+          </Alert.Content>
+        </Alert>
+      ) : null}
 
-        <Card.Footer>
-          <Button fullWidth type="submit">
-            Sign up
-          </Button>
-        </Card.Footer>
-      </Card.Root>
+      <Button fullWidth className={authButton} type="submit">
+        Sign up
+      </Button>
+      <p className={authFooterLine}>
+        Already have an account?{" "}
+        <NextLink className={textLink()} href="/sign-in">
+          Sign in
+        </NextLink>
+      </p>
     </form>
   );
 }

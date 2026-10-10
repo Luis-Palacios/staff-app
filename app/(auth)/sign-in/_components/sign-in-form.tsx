@@ -4,20 +4,19 @@ import type { SubmitEvent } from "react";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Alert,
-  Button,
-  InputGroup,
-  ProgressBar,
-  ProgressBarTrack,
-  TextField,
-} from "@heroui/react";
-import { Card } from "@heroui/react/card";
-import { Label } from "@heroui/react/label";
-import { Link } from "@heroui/react/link";
+import { Alert, Button, ProgressBar, ProgressBarTrack } from "@heroui/react";
+import NextLink from "next/link";
 
+import { AuthHeading } from "../../_components/auth-heading";
+import {
+  authButton,
+  authFooterLine,
+  authStack,
+} from "../../_components/auth-styles";
+import { AuthTextField } from "../../_components/auth-text-field";
 import { PasswordField } from "../../_components/password-field";
 
+import { textLink } from "@/components/primitives";
 import { authClient } from "@/lib/auth/auth-client";
 
 export function SignInForm({
@@ -59,7 +58,7 @@ export function SignInForm({
 
   if (session.isPending || session.data) {
     return (
-      <ProgressBar isIndeterminate aria-label="Loading" className="w-72">
+      <ProgressBar isIndeterminate aria-label="Loading" className="w-full">
         <ProgressBarTrack>
           <ProgressBar.Fill />
         </ProgressBarTrack>
@@ -68,50 +67,38 @@ export function SignInForm({
   }
 
   return (
-    <form
-      className="w-full max-w-sm md:max-w-md lg:max-w-xl"
-      onSubmit={handleSubmit}
-    >
-      <Card.Root className="w-full">
-        <Card.Header>
-          <Card.Title className="text-lg">Sign in</Card.Title>
-          <Card.Description className="text-base">
-            Sign in to your staff-app account
-          </Card.Description>
-        </Card.Header>
+    <form className={authStack} onSubmit={handleSubmit}>
+      <AuthHeading title="Sign in">
+        Use the email your church invited you with.
+      </AuthHeading>
 
-        <Card.Content className="flex flex-col gap-4">
-          {notice ? (
-            <Alert status="success">
-              <Alert.Indicator />
-              <Alert.Content>
-                <Alert.Description>{notice}</Alert.Description>
-              </Alert.Content>
-            </Alert>
-          ) : null}
+      {notice ? (
+        <Alert status="success">
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Description>{notice}</Alert.Description>
+          </Alert.Content>
+        </Alert>
+      ) : null}
 
-          <TextField isRequired type="email" value={email} onChange={setEmail}>
-            <Label className="text-base">Email</Label>
-            <InputGroup>
-              <InputGroup.Input
-                // eslint-disable-next-line jsx-a11y/no-autofocus -- first field of the sign-in form; focusing it on load is the expected pattern for a dedicated auth page
-                autoFocus
-                autoComplete="email"
-                className="text-base"
-              />
-            </InputGroup>
-          </TextField>
+      <AuthTextField
+        // eslint-disable-next-line jsx-a11y/no-autofocus -- first field of the sign-in form; focusing it on load is the expected pattern for a dedicated auth page
+        autoFocus
+        isRequired
+        autoComplete="email"
+        label="Email"
+        type="email"
+        value={email}
+        onChange={setEmail}
+      />
 
-          <PasswordField
-            isRequired
-            autoComplete="current-password"
-            label="Password"
-            value={password}
-            onChange={setPassword}
-          />
-
-          <Link
-            className="w-fit text-base"
+      <PasswordField
+        isRequired
+        autoComplete="current-password"
+        label="Password"
+        labelAction={
+          <NextLink
+            className={textLink({ className: "text-sm" })}
             href={
               email
                 ? `/forgot-password?email=${encodeURIComponent(email)}`
@@ -119,27 +106,30 @@ export function SignInForm({
             }
           >
             Forgot password?
-          </Link>
+          </NextLink>
+        }
+        value={password}
+        onChange={setPassword}
+      />
 
-          {error ? (
-            <Alert status="danger">
-              <Alert.Indicator />
-              <Alert.Content>
-                <Alert.Description>{error}</Alert.Description>
-              </Alert.Content>
-            </Alert>
-          ) : null}
-        </Card.Content>
+      {error ? (
+        <Alert status="danger">
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Description>{error}</Alert.Description>
+          </Alert.Content>
+        </Alert>
+      ) : null}
 
-        <Card.Footer className="flex flex-col gap-3">
-          <Button fullWidth type="submit">
-            Sign in
-          </Button>
-          <p className="text-base text-muted-foreground">
-            Don&apos;t have an account? <Link href="/sign-up">Sign up</Link>
-          </p>
-        </Card.Footer>
-      </Card.Root>
+      <Button fullWidth className={authButton} type="submit">
+        Sign in
+      </Button>
+      <p className={authFooterLine}>
+        Don&apos;t have an account?{" "}
+        <NextLink className={textLink()} href="/sign-up">
+          Sign up
+        </NextLink>
+      </p>
     </form>
   );
 }

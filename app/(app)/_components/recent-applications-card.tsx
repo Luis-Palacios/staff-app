@@ -11,7 +11,7 @@ import { ApplicationStatusBadge } from "../applications/_components/application-
 
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { LocalShortDate } from "@/components/local-short-date";
-import { card, title } from "@/components/primitives";
+import { card, textLink, title } from "@/components/primitives";
 
 const RECENT_LIMIT = 5;
 
@@ -120,7 +120,7 @@ export function RecentApplicationsCard({
           </p>
         </div>
         <NextLink
-          className="whitespace-nowrap text-sm font-semibold text-link underline decoration-gold-500 underline-offset-4"
+          className={textLink({ className: "whitespace-nowrap text-sm" })}
           href="/applications"
         >
           View all

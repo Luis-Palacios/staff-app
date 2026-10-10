@@ -26,10 +26,10 @@ rebased onto `main`, which already has Stage 1 (`def9ed2`), so merging is confli
 | 5. Dashboard | ✅ done | `7d6a7e6` + follow-up `181868a` |
 | 6. Applications list | ✅ done | `347ea35` + follow-up (see `git log`) |
 | 7. Application detail | ✅ done | see `git log` |
-| 8. Auth screens | ⏭ **next** | |
-| 9. Users and invites | not started | |
+| 8. Auth screens | ✅ done | see `git log` |
+| 9. Users and invites | ⏭ **next** | |
 
-**Pick up at Stage 8.** Read the canvas artboards first (the Artifact tool's `read` with
+**Pick up at Stage 9.** Read the canvas artboards first (the Artifact tool's `read` with
 `path: "project/<Name>.dc.html"`: `Dashboard`, `Applications`, `ApplicationDetail`,
 `SignIn`, `Sidebar`, `Topbar`). They hold exact px values and colors, so you don't have
 to guess them.
@@ -167,6 +167,30 @@ to guess them.
   - Sub-line per event = the event's own name when it differs from its type (the API
     has no description field). "First visit" is a display label for the
     "First Assistance" key.
+
+- **Stage 8 auth screens** (`app/(auth)/`):
+  - `layout.tsx` is the two-panel frame; below `md` the brand panel is a logo-only bar
+    (`flex-col md:flex-row`, not the canvas's wrap). The panel redefines `--focus` and
+    `--shadow-focus` to gold like the sidebar. The Privacy link is
+    `siteConfig.links.privacy` (`https://ekklesiaio.com/privacy`; the landing page picks
+    `/en/` or `/es/`).
+  - Shared pieces in `(auth)/_components/`: `AuthHeading` (h1 + muted line),
+    `AuthTextField` (46px field, 14px semibold label, optional `description`),
+    `PasswordField` (same sizing, new `labelAction` slot for "Forgot password?") and
+    `auth-styles.ts` (`authStack` 22px column, `authButton` 48px with `rounded-control`,
+    `authFooterLine`).
+  - **`textLink()`** in `primitives.ts`: navy/gold-300 text with a gold underline. The
+    dashboard's "View all" uses it too.
+  - **Buttons:** HeroUI's default is a pill; the canvas uses 10px corners, so
+    `authButton` adds `rounded-control`. App-shell buttons ("Invite staff", "All
+    applications") are still pills: decide in Stage 9 whether to switch them globally.
+  - Buttons that only navigate (reset's "Request a new link", the invite's "Create
+    account" / "Sign in") are now `NextLink`s styled with `buttonVariants`.
+  - Signed-in users are redirected away from sign-in, sign-up and forgot-password by
+    `proxy.ts`. To view the frame while signed in, use `/reset-password?token=x` (form)
+    or `/reset-password` (invalid-link state).
+  - Copy: sign-up's description is now "Set up your staff account to get started.",
+    and it gained an "Already have an account? Sign in" line.
 
 ### Gotchas
 

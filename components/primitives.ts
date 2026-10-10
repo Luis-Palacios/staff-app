@@ -23,6 +23,11 @@ export const subtitle = tv({
   base: "text-base text-muted",
 });
 
+// Inline text link: navy (light) / gold-300 (dark) with a gold underline.
+export const textLink = tv({
+  base: "font-semibold text-link underline decoration-gold-500 underline-offset-4",
+});
+
 // Content card surface. The hairline shadow is light-only: on navy it would
 // just muddy the border. `interactive` is for a card that is itself a link:
 // a hover border, plus the focus halo restated, because the shadow utilities

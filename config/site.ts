@@ -36,6 +36,10 @@ export const siteConfig = {
   // Hard-coded for now. Per-church branding will replace this with the
   // signed-in user's church (and later its logo/colors).
   workspace: { name: "Iglesia Petra", initial: "P" } satisfies Workspace,
+  links: {
+    // The landing page redirects this to /en/ or /es/ for the visitor.
+    privacy: "https://ekklesiaio.com/privacy",
+  },
   navItems: [
     {
       label: "Dashboard",
