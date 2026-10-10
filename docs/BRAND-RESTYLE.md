@@ -24,7 +24,7 @@ rebased onto `main`, which already has Stage 1 (`def9ed2`), so merging is confli
 | 3. Shell (sidebar, topbar, theme switch) | ✅ done | `9ec18db` + focus-halo fix `a65e71a` |
 | 4. Shared page patterns | ✅ done | `e10e57e` + follow-ups `3efb0fe`, `f31e120` |
 | 5. Dashboard | ✅ done | `7d6a7e6` + follow-up `181868a` |
-| 6. Applications list | ✅ done | see `git log` |
+| 6. Applications list | ✅ done | `347ea35` + follow-up (see `git log`) |
 | 7. Application detail | ⏭ **next** | |
 | 8–9 | not started | |
 
@@ -112,8 +112,10 @@ to guess them.
   - Stat tiles: the link and its frame show at once; the body (number, sub-label, tone)
     suspends. `attention` tiles ("Awaiting fulfilment", "Waiting for a role") use the
     warning tone only while their count is above 0. Two columns below `sm`, `p-4`.
-  - `app/error.tsx` is a centered `EmptyState` (new `action` slot, `as="h1"`) with a
-    "Try again" primary button. It replaces the whole `(app)` layout, shell included.
+  - Errors render `ErrorState` (`components/error-state.tsx`): an `EmptyState` (new
+    `action` slot, `as="h1"`) with a "Try again" primary button. Page errors hit
+    `app/(app)/error.tsx`, which keeps the shell; `app/error.tsx` only catches the
+    `(app)` layout itself (session lookup) and centers the card on a bare page.
   - "Recent" is the API's **60-day** window, counted back from the newest application
     (`DEFAULT_RECENT_WINDOW` in membership-applications), not the canvas's 30 days.
     Labels say "Last 60 days".
@@ -145,6 +147,7 @@ to guess them.
   - **`card({ interactive: true })`** is for a card that is itself a link (stat tiles,
     mobile application cards): hover border plus the restated focus halo.
   - An `aria-live` line announces the result count when a filter changes.
+  - `DataTableFooter` renders nothing when `total` is 0; the table's empty state says it.
 
 ### Gotchas
 

@@ -90,17 +90,18 @@ export function DataTableOpenLink({
 }
 
 // "Showing X–Y of Z" + Previous/Next. Render it as a direct child of <Table>,
-// after Table.ScrollContainer.
+// after Table.ScrollContainer. Renders nothing when the list is empty, since
+// the table's empty state already says so.
 // TODO: the APIs don't paginate yet, so every list fits on one page and both
 // buttons stay disabled. Wire them up once there's a page/cursor parameter.
 export function DataTableFooter({ total }: { total: number }) {
   const { footer } = dataTable();
 
+  if (total === 0) return null;
+
   return (
     <Table.Footer className={footer()}>
-      <span>
-        {total === 0 ? "No results" : `Showing 1–${total} of ${total}`}
-      </span>
+      <span>{`Showing 1–${total} of ${total}`}</span>
       <span className="flex gap-2">
         <button
           disabled
