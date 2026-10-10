@@ -1,24 +1,54 @@
 "use client";
 
-import { FC, Key, useEffect, useState } from "react";
+import { ComponentProps, FC, Key, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { ToggleButton, ToggleButtonGroup } from "@heroui/react";
-import {
-  ComputerDesktopIcon,
-  MoonIcon,
-  SunIcon,
-} from "@heroicons/react/24/outline";
+import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
 export interface ThemeSwitchProps {
   className?: string;
 }
 
+/**
+ * Heroicons' outline ComputerDesktopIcon is a single path, so filling it (the
+ * selected state below) also floods the chin and stand and swallows the
+ * screen's bottom edge — in dark mode the gold stroke and fill match, so the
+ * line vanishes. Same outline, but with a screen-only fill layer underneath:
+ * the rect inherits the svg's fill, the outline path never fills.
+ */
+const SystemIcon: FC<ComponentProps<"svg">> = (props) => (
+  <svg
+    aria-hidden
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.5}
+    viewBox="0 0 24 24"
+    {...props}
+  >
+    <rect
+      fill="inherit"
+      height="11.25"
+      rx="2.25"
+      stroke="none"
+      width="18"
+      x="3"
+      y="3"
+    />
+    <path
+      d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 /** Shared with the account menu, which offers the same choices below `sm`. */
 export const THEME_OPTIONS = [
   { key: "light", label: "Light", icon: SunIcon },
   { key: "dark", label: "Dark", icon: MoonIcon },
-  { key: "system", label: "System", icon: ComputerDesktopIcon },
+  { key: "system", label: "System", icon: SystemIcon },
 ] as const;
 
 // HeroUI's ToggleButton reads its colors from --toggle-button-* variables, so
