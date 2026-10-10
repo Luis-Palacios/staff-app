@@ -11,7 +11,8 @@ const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
  * Makes `churchId` the church this user works in, by saving it in the
  * `ekk_church` cookie. Only ids from the user's own `churches` are accepted:
  * a server action is a public endpoint, so the id is checked here, not just
- * in the menu. The caller refreshes the router after it resolves.
+ * in the menu. Callers don't need `router.refresh()`: `revalidatePath` sends
+ * the re-rendered page back with the action's response.
  */
 export async function switchChurch(churchId: string): Promise<{ ok: boolean }> {
   const { churches } = await getChurchContext();

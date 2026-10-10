@@ -254,7 +254,8 @@ off-canvas sidebar, and nothing reads the config directly except `lib/workspace.
   the list this user may see.
 - Server action `switchChurch(churchId: string)`: validate against
   `getChurchContext().churches` (reject unknown ids), set the cookie, then
-  `revalidatePath("/", "layout")`. The client calls `router.refresh()` after it resolves.
+  `revalidatePath("/", "layout")`. That sends the re-rendered page back with the action's
+  response, so the client doesn't call `router.refresh()` (see Stage 2 decisions).
 - After a switch, stay on the same URL **unless** it's a detail page (`/applications/[id]`):
   those records belong to the old church, so go to the section's list
   (`/applications`). Put that rule in one small helper with a comment.
@@ -289,7 +290,7 @@ Match `OptionB-Menu` and `OptionB-Menu-Dark`.
   overlay (navy-800) and the hover disappears.
 - Selecting the current church just closes the menu. Selecting another: close, show a
   pending state on the trigger (the church line at 60% opacity is enough) while the action
-  runs, then refresh.
+  runs; the label updates when the action's response lands.
 - Accessibility: the trigger's accessible name must include both names (visible text
   does it; don't override with an `aria-label` that drops them). Items are
   `menuitemradio` with `aria-checked`, which HeroUI gives you with single selection.
