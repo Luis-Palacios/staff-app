@@ -29,6 +29,7 @@ export default async function InvitesPage() {
           usersBreadcrumb,
           { label: "Invites", href: "/users/invites" },
         ]}
+        description="Invite people to the staff workspace and see who has accepted. You can cancel an invite you sent until it's used."
         title="Invites"
       />
       <section className="flex flex-col gap-4">

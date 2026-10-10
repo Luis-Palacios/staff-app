@@ -36,8 +36,8 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   `layout.tsx` + `page.tsx`. `app/layout.tsx` is the root shell: fonts,
   `Providers`, and `<AppShell>` (which renders the sidebar, top bar, and the
   `max-w-7xl` main region). Pages start with `StaffAppPageHeader` and lay out
-  left-aligned below it; the users and invites lists still center their tables
-  until brand-restyle Stage 9.
+  left-aligned below it. List pages show a `dataTable()` table from `md` up
+  and `card()` summaries below it.
 - **Dashboard shell** — `components/app-shell.tsx` (client; holds the mobile
   sidebar open state + body scroll lock) composes `components/sidebar.tsx`
   (navy brand rail in both modes: logo, `WorkspaceBadge`, Heroicons-outline nav

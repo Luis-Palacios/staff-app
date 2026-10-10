@@ -11,14 +11,16 @@ export default async function UsersList() {
 
   return (
     <>
-      <div className="hidden md:inline-block text-center justify-center">
+      <div className="hidden md:block">
         <UsersSummaryTable data={users} />
       </div>
 
       <div className="grid gap-3 md:hidden">
-        {users.map((user) => (
-          <UserCardSummary key={user.id} user={user} />
-        ))}
+        {users.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted">No users yet.</p>
+        ) : (
+          users.map((user) => <UserCardSummary key={user.id} user={user} />)
+        )}
       </div>
     </>
   );
