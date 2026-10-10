@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ListBox, Select } from "@heroui/react";
 
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { authClient } from "@/lib/auth/auth-client";
 import { AuthRole, ROLE_LABELS } from "@/lib/auth/roles";
 
@@ -22,23 +23,28 @@ export function AssignPendingRole({
   const [selectedRole, setSelectedRole] = useState<AuthRole | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  async function handleAssign() {
+  // Admin is the one role that needs a second look before it's granted.
+  function handleAssign() {
     if (!selectedRole) return;
 
-    if (
-      selectedRole === AuthRole.Admin &&
-      !window.confirm(`Assign the Admin role to ${userName}?`)
-    ) {
+    if (selectedRole === AuthRole.Admin) {
+      setIsConfirmOpen(true);
+
       return;
     }
 
+    assign(selectedRole);
+  }
+
+  async function assign(role: AuthRole) {
     setIsSubmitting(true);
     setError(null);
 
     const { error: setRoleError } = await authClient.admin.setRole({
       userId,
-      role: selectedRole,
+      role,
     });
 
     if (setRoleError) {
@@ -90,6 +96,16 @@ export function AssignPendingRole({
       </div>
 
       {error && <p className="text-xs text-danger">{error}</p>}
+
+      <ConfirmDialog
+        confirmLabel="Make admin"
+        isOpen={isConfirmOpen}
+        title="Assign the Admin role?"
+        onConfirm={() => assign(AuthRole.Admin)}
+        onOpenChange={setIsConfirmOpen}
+      >
+        {userName} will be able to manage every user, role and invite.
+      </ConfirmDialog>
     </div>
   );
 }

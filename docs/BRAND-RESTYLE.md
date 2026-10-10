@@ -209,6 +209,11 @@ to guess them.
   - Cancel is a danger outline: `smallOutlineButton` (now exported from
     `data-table.tsx`) + danger text/border + `--button-bg-hover: var(--danger-soft)`.
   - `/users/me` is still a stub; nothing to restyle yet.
+  - **Admin confirmations** (separate commit): `components/confirm-dialog.tsx` is a
+    controlled HeroUI `AlertDialog` (warning icon, Cancel + confirm). It replaces
+    `window.confirm` for assigning the Admin role and for sending an admin invite; the
+    handler opens it only when the role is Admin. Escape and Cancel close it without
+    acting, and focus returns to the button that opened it.
 
 ### Gotchas
 
