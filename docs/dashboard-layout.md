@@ -24,7 +24,7 @@ this.
 | Nav data model with nesting | `config/site.ts` | `navItems: NavItem[]`; `NavItem` has `icon`, optional `href` (leaf) OR optional `items` (collapsible group). `navMenuItems` was deleted — the sidebar drives both desktop and mobile now. |
 | Nav / chrome icons | `@heroicons/react/24/outline` + `components/icons.tsx` | Nav icons are Heroicons outline, mapped in `iconRegistry` (`components/sidebar.tsx`). `components/icons.tsx` keeps only `ChevronDownIcon`, `MenuIcon`, `CloseIcon`. |
 | ~~`Balances` nested example + stub routes~~ | ~~`app/balances/*`~~ | Since removed; `Groups` and `Access` are the live collapsible-group examples. |
-| Root layout wiring | `app/layout.tsx` | Now just `<Providers><AppShell>{children}</AppShell></Providers>`. The old `container mx-auto max-w-7xl` main + empty footer are gone; `<main>` inside `AppShell` keeps `max-w-7xl` centering. |
+| Layout wiring | `app/layout.tsx`, `app/(app)/layout.tsx` | The root layout is just fonts, metadata and `<Providers>`. `app/(app)/layout.tsx` checks the session, then renders `<UserProvider><AppShell>{children}</AppShell></UserProvider>`; `<main>` inside `AppShell` keeps `max-w-7xl` centering. Auth pages use `app/(auth)/layout.tsx` instead, with no shell. |
 
 ### Removed on purpose (per the request)
 
@@ -115,10 +115,6 @@ the main area is still the section stubs.
 
 ## Known gaps / follow-ups
 
-- **Other section layouts** (`app/{groups,applications,reports}/layout.tsx`) still
-  use the template's centered `max-w-lg text-center` wrapper, which looks odd
-  inside the dashboard shell. Use a plain left-aligned wrapper when those
-  sections get real content.
 - **Collapsed disclosure panels** keep their child links in the a11y tree /
   tab order (height-clipped only). Fine for now; revisit if keyboard nav matters.
 - **Account avatar** shows the signed-in user's initials (a styled `<span>` in
