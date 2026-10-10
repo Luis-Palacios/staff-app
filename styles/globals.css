@@ -68,6 +68,11 @@
     --segment-icon-selected: #8A5B00;  /* gold-800 outline around the gold fill: gold-500 alone is ~1.7:1 on white */
     /* custom: halo around the gold "current" timeline marker */
     --marker-ring: #FDF1D8;            /* gold-100 */
+    /* custom: menus that sit on the page (church menu). HeroUI popovers have no
+       border, and its --overlay-shadow is shared with modals, selects, tooltips
+       and toasts, so these are scoped to the menus that use them. */
+    --overlay-border: #E2E5EA;         /* = --border */
+    --overlay-menu-shadow: 0 12px 32px rgb(11 35 65 / 0.16), 0 2px 6px rgb(11 35 65 / 0.08);
 
     --radius: 0.625rem;                /* 10px controls */
     --field-radius: 0.625rem;
@@ -122,6 +127,8 @@
     --segment-shadow: none;
     --segment-icon-selected: #F2B544;  /* gold-500 */
     --marker-ring: rgb(242 181 68 / 0.22); /* gold-500 at 22% */
+    --overlay-border: #2E4A70;         /* = --field-border: --border vanishes on navy-800 */
+    --overlay-menu-shadow: 0 12px 32px rgb(0 0 0 / 0.45);
   }
 
   /*
@@ -158,4 +165,6 @@
   --color-segment-selected: var(--segment-selected);
   --shadow-segment: var(--segment-shadow);
   --color-marker-ring: var(--marker-ring);
+  --color-overlay-border: var(--overlay-border);
+  --shadow-overlay-menu: var(--overlay-menu-shadow);
 }

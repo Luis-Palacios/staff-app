@@ -39,8 +39,8 @@ of what changed and anything that differs from the canvas, so it can be reviewed
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Data seam and sidebar card | ✅ done | see `git log` |
-| 2. Church menu (switching) | ⬜ | |
+| 1. Data seam and sidebar card | ✅ done | `6c09791` |
+| 2. Church menu (switching) | ✅ done | see `git log` |
 | 3. Context below `lg` + docs | ⬜ | |
 
 ### Decisions and deviations
@@ -63,6 +63,35 @@ of what changed and anything that differs from the canvas, so it can be reviewed
   `BRAND-RESTYLE.md` are the historical Stage 2 spec and the Stage 5 subtitle note; they
   describe what was built then, so they stay (Stage 3 of the brand note adds "(now
   `ChurchContextCard`)").
+
+**Stage 2**
+
+- **No `router.refresh()`.** `revalidatePath("/", "layout")` inside a server action already
+  sends the re-rendered page back with the action's response, so the label updates on its
+  own; a refresh would fetch the page twice. Only a detail page navigates
+  (`router.push(pathAfterChurchSwitch(pathname))`, `lib/path-after-church-switch.ts`).
+- **Menu shadow token is `--overlay-menu-shadow` (`shadow-overlay-menu`), not
+  `--shadow-overlay`.** HeroUI already owns `--shadow-overlay` (→ `--overlay-shadow`) for
+  modals, AlertDialog, selects, tooltips and toasts; overriding it would restyle all of
+  them. To use the brand shadow everywhere, override HeroUI's `--overlay-shadow` instead.
+- `--overlay-border` is `#E2E5EA` light / `#2E4A70` dark (the artboard's value). The
+  header mark's ring uses it too (`MinistryMark tone="on-light"`, which also rings the
+  letter tile: it's navy-800 on a navy-800 overlay in dark mode).
+- The divider is `bg-separator` as specified (`#173052` in dark), slightly fainter than
+  the artboard's `#1F3B60`.
+- HeroUI overrides on the trigger/popover: `data-pressed:transform-none` (HeroUI scales a
+  pressed trigger to 0.97 and react-aria keeps it "pressed" while the menu is open) and
+  `max-w-[calc(100vw-2rem)]` (HeroUI caps popovers at `48svw`, 187px at 390).
+- `Dropdown.Item` only takes a string `className`, so selected/hover styles use the
+  `data-selected:` / `not-data-selected:hover:` variants.
+- The switch runs in `useTransition`; `isPending` dims the church line to 60%. No
+  `aria-busy`: react-aria's `Button` drops it.
+- `switchChurch` returns `{ ok }` instead of throwing (Next hides thrown messages in
+  production). It doesn't check the session itself; once `getChurchContext()` reads the
+  session, a request without one gets an empty list and is rejected.
+- Testing tip: in the automation browser, real clicks on react-aria triggers (this menu
+  and the account menu) were unreliable in an unfocused tab; keyboard (focus + Enter,
+  arrows) was reliable. Worth one manual click test.
 
 
 ## Why this design (short)
@@ -275,6 +304,13 @@ you're in.
   away behind the hamburger. One switcher, one place.
 - At 390 it must fit beside the hamburger, mark, search icon button and avatar without
   wrapping; that's why both lines truncate.
+- **The theme switch has to move below `sm`.** Measured after Stage 1: at 390 the topbar
+  already holds hamburger, mark, search icon, the 3-button theme switch (~110px) and the
+  avatar, which leaves ~80px for the label ("Petra Man…", ministry unreadable). Below `sm`,
+  hide the segmented `ThemeSwitch` and put the same three options (Light / Dark / System)
+  in the account `Dropdown` as a single-selection section titled "Theme". From `sm` up
+  nothing changes. The canvas's `OptionB-Phone` artboard already shows the topbar without
+  the switch.
 - Make the hamburger and search icon buttons 44×44 if they aren't already (touch targets).
 
 ### 3b. Docs
