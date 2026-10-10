@@ -1,13 +1,18 @@
 import type { AdminInviteListItem } from "@/api/auth-api/types";
 
-import { Card } from "@heroui/react/card";
+import { roleBadgeProps, roleLabel } from "../../_components/role-display";
 
 import { CancelInviteButton } from "./cancel-invite-button";
+import { cancelToken, inviteEmail, inviterLabel } from "./invite-display";
 import { InviteStatusChip } from "./invite-status-chips";
 
-import { LocalDateTime } from "@/components/local-date-time";
-import { ROLE_LABELS } from "@/lib/auth/roles";
+import { InitialsAvatar } from "@/components/initials-avatar";
+import { LocalDate } from "@/components/local-date";
+import { card } from "@/components/primitives";
+import { StatusBadge } from "@/components/status-badge";
 
+// Mobile stand-in for a table row: avatar, email and status, then the role,
+// sender and date, and Cancel when the viewer sent a still-pending invite.
 export default function InviteCardSummary({
   invite,
   currentUserId,
@@ -15,26 +20,32 @@ export default function InviteCardSummary({
   invite: AdminInviteListItem;
   currentUserId: string;
 }) {
+  const email = inviteEmail(invite);
+  const token = cancelToken(invite, currentUserId);
+
   return (
-    <Card.Root key={invite.id}>
-      <Card.Header>
-        <Card.Title>{invite.emails?.[0] ?? invite.email ?? "—"}</Card.Title>
-        <Card.Description>{ROLE_LABELS[invite.role]}</Card.Description>
-      </Card.Header>
-      <Card.Content className="flex flex-col gap-1 text-sm">
-        <div>
-          Sent: <LocalDateTime value={invite.createdAt ?? ""} />
-        </div>
-        <div>
-          Invited by: {invite.inviterName ?? invite.inviterEmail ?? "—"}
-        </div>
-      </Card.Content>
-      <Card.Footer className="flex flex-wrap items-center gap-1">
+    <article className={card({ className: "flex flex-col gap-2.5 p-4" })}>
+      <div className="flex items-center gap-3">
+        <InitialsAvatar name={email} />
+        <h2 className="min-w-0 flex-1 truncate text-[15px] font-semibold text-heading">
+          {email}
+        </h2>
         <InviteStatusChip invite={invite} />
-        {invite.status === "pending" &&
-          invite.createdByUserId === currentUserId &&
-          invite.token && <CancelInviteButton token={invite.token} />}
-      </Card.Footer>
-    </Card.Root>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pl-12 text-[13px] text-muted">
+        <StatusBadge {...roleBadgeProps(invite.role)}>
+          {roleLabel(invite.role)}
+        </StatusBadge>
+        <span>
+          Sent <LocalDate value={invite.createdAt ?? ""} /> by{" "}
+          {inviterLabel(invite)}
+        </span>
+      </div>
+      {token && (
+        <div className="flex justify-end">
+          <CancelInviteButton email={email} token={token} />
+        </div>
+      )}
+    </article>
   );
 }

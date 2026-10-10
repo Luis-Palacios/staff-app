@@ -1,10 +1,13 @@
 "use client";
 
+import type { SubmitEvent } from "react";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, InputGroup, ListBox, Select, TextField } from "@heroui/react";
 import { Label } from "@heroui/react/label";
 
+import { card, title } from "@/components/primitives";
 import { authClient } from "@/lib/auth/auth-client";
 import { AuthRole, ROLE_LABELS } from "@/lib/auth/roles";
 
@@ -21,7 +24,9 @@ export function NewInviteForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit() {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+
     if (!email || !role) return;
 
     if (
@@ -59,28 +64,41 @@ export function NewInviteForm() {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-end gap-3">
+    <section className={card({ className: "flex flex-col gap-4 p-[22px]" })}>
+      <div>
+        <h2 className={title({ size: "sm" })}>Send an invite</h2>
+        <p className="mt-0.5 text-[13.5px] text-muted">
+          They&apos;ll get an email with a link to create their account.
+        </p>
+      </div>
+      <form className="flex flex-wrap items-end gap-3" onSubmit={handleSubmit}>
         <TextField
           isRequired
+          className="flex-[1_1_260px] gap-1.5"
           isDisabled={isSubmitting}
           type="email"
           value={email}
           onChange={setEmail}
         >
-          <Label>Email</Label>
-          <InputGroup>
-            <InputGroup.Input placeholder="person@example.com" />
+          <Label className="font-semibold text-heading">Email</Label>
+          <InputGroup className="h-10 w-full">
+            <InputGroup.Input
+              className="text-sm sm:text-sm"
+              placeholder="person@example.com"
+            />
           </InputGroup>
         </TextField>
 
         <Select.Root
+          isRequired
+          className="w-full gap-1.5 sm:w-[200px]"
           isDisabled={isSubmitting}
           placeholder="Choose a role"
           selectedKey={role}
           onSelectionChange={(key) => setRole(key as AuthRole | null)}
         >
-          <Select.Trigger>
+          <Label className="font-semibold text-heading">Role</Label>
+          <Select.Trigger className="h-10 min-h-10 items-center rounded-control py-0">
             <Select.Value />
             <Select.Indicator />
           </Select.Trigger>
@@ -96,15 +114,16 @@ export function NewInviteForm() {
         </Select.Root>
 
         <Button
+          className="h-10 rounded-control px-[18px] font-semibold md:h-10"
           isDisabled={!email || !role}
           isPending={isSubmitting}
-          onPress={handleSubmit}
+          type="submit"
         >
           Send invite
         </Button>
-      </div>
+      </form>
 
-      {error && <p className="text-danger text-xs">{error}</p>}
-    </div>
+      {error && <p className="text-sm text-danger">{error}</p>}
+    </section>
   );
 }

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
+import { InviteStaffLink } from "./_components/invite-staff-link";
 import UsersList from "./_components/users-list";
 import UsersListSkeleton from "./_components/users-list-skeleton";
 
@@ -23,7 +24,12 @@ export default async function UsersPage() {
 
   return (
     <>
-      <StaffAppPageHeader breadcrumbs={[usersBreadcrumb]} title="Users" />
+      <StaffAppPageHeader
+        actions={<InviteStaffLink />}
+        breadcrumbs={[usersBreadcrumb]}
+        description="Everyone with a staff account. People who just signed up wait here until you give them a role."
+        title="Users"
+      />
       <section className="flex flex-col gap-4">
         <Suspense fallback={<UsersListSkeleton />}>
           <UsersList />

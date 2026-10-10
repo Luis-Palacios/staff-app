@@ -29,29 +29,34 @@ export const dataTable = tv({
   },
 });
 
-const smallOutlineButton =
+// 34px outline button for row actions ("Open", "Cancel").
+export const smallOutlineButton =
   "h-[34px] rounded-control px-3 text-[13px] font-semibold text-heading md:h-[34px]";
 
-// Avatar + linked name + muted secondary line. Use it in the row-header column.
+// Avatar + name + muted secondary line. Use it in the row-header column. The
+// name links to `href` when the row has a page of its own.
 export function DataTablePrimaryCell({
   name,
   href,
   secondary,
 }: {
   name: string;
-  href: string;
+  href?: string;
   secondary?: ReactNode;
 }) {
+  const nameClass = "text-[14.5px] font-semibold text-heading";
+
   return (
     <span className="flex items-center gap-3">
       <InitialsAvatar name={name} />
       <span className="flex min-w-0 flex-col whitespace-nowrap">
-        <NextLink
-          className="text-[14.5px] font-semibold text-heading hover:underline"
-          href={href}
-        >
-          {name}
-        </NextLink>
+        {href ? (
+          <NextLink className={`${nameClass} hover:underline`} href={href}>
+            {name}
+          </NextLink>
+        ) : (
+          <span className={nameClass}>{name}</span>
+        )}
         {secondary && (
           <span className="text-[12.5px] text-muted">{secondary}</span>
         )}

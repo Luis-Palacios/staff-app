@@ -57,12 +57,13 @@ export function AssignPendingRole({
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
         <Select.Root
+          aria-label={`Role for ${userName}`}
           isDisabled={isSubmitting}
           placeholder="Choose"
           selectedKey={selectedRole}
           onSelectionChange={(key) => setSelectedRole(key as AuthRole | null)}
         >
-          <Select.Trigger>
+          <Select.Trigger className="h-[34px] min-h-[34px] min-w-[132px] items-center rounded-control py-0 text-[13px]">
             <Select.Value />
             <Select.Indicator />
           </Select.Trigger>
@@ -78,6 +79,7 @@ export function AssignPendingRole({
         </Select.Root>
 
         <Button
+          className="h-[34px] rounded-control px-3 text-[13px] font-semibold md:h-[34px]"
           isDisabled={!selectedRole}
           isPending={isSubmitting}
           size="sm"
@@ -87,7 +89,7 @@ export function AssignPendingRole({
         </Button>
       </div>
 
-      {error && <p className="text-danger text-xs">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
 }

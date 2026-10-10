@@ -6,11 +6,10 @@ import {
   UserGroupIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import { buttonVariants } from "@heroui/react";
 import { headers } from "next/headers";
-import NextLink from "next/link";
 import { redirect } from "next/navigation";
 
+import { InviteStaffLink } from "./users/_components/invite-staff-link";
 import { deriveInviteStatus } from "./users/invites/_components/invite-status-chips";
 import { Greeting, TodayDate } from "./_components/dashboard-greeting";
 import {
@@ -77,24 +76,7 @@ export default async function DashboardPage() {
   return (
     <>
       <StaffAppPageHeader
-        actions={
-          isStaffAdmin && (
-            <NextLink
-              className={buttonVariants({
-                variant: "primary",
-                className: "h-[42px] gap-2 px-[18px] md:h-[42px]",
-              })}
-              href="/users/invites"
-            >
-              <EnvelopeIcon
-                aria-hidden="true"
-                className="size-[18px]"
-                strokeWidth={1.8}
-              />
-              Invite staff
-            </NextLink>
-          )
-        }
+        actions={isStaffAdmin && <InviteStaffLink />}
         description="Here's what needs your attention this week."
         eyebrow={<TodayDate />}
         title={<Greeting firstName={firstName} />}

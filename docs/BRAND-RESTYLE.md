@@ -27,9 +27,9 @@ rebased onto `main`, which already has Stage 1 (`def9ed2`), so merging is confli
 | 6. Applications list | ✅ done | `347ea35` + follow-up (see `git log`) |
 | 7. Application detail | ✅ done | see `git log` |
 | 8. Auth screens | ✅ done | see `git log` |
-| 9. Users and invites | ⏭ **next** | |
+| 9. Users and invites | ✅ done | see `git log` |
 
-**Pick up at Stage 9.** Read the canvas artboards first (the Artifact tool's `read` with
+**All nine stages are done.** Remaining follow-ups are listed under Stage 9 below. Read the canvas artboards first (the Artifact tool's `read` with
 `path: "project/<Name>.dc.html"`: `Dashboard`, `Applications`, `ApplicationDetail`,
 `SignIn`, `Sidebar`, `Topbar`). They hold exact px values and colors, so you don't have
 to guess them.
@@ -191,6 +191,24 @@ to guess them.
     or `/reset-password` (invalid-link state).
   - Copy: sign-up's description is now "Set up your staff account to get started.",
     and it gained an "Already have an account? Sign in" line.
+
+- **Stage 9 users and invites** (`app/(app)/users/**`):
+  - Both tables use `dataTable()` + `DataTableFooter`; `DataTablePrimaryCell`'s `href`
+    is now optional (users and invites have no detail page). Users: Person (name +
+    email) · Role · Status · Joined. Invites: Invitee (email + "Invited by") · Role
+    (badge, like users) · Status · Sent · Cancel.
+  - Mobile cards are `<article>`s (not links, since there's nowhere to go) built on
+    `card()`, with the role picker or Cancel inside.
+  - `InviteStaffLink` (`users/_components`) is the shared header action on the
+    dashboard and the users page.
+  - New-invite form is a `card()` with "Send an invite", labels above 40px fields (the
+    role select gained a visible label), and a real `<form>` so Enter submits.
+  - `AssignPendingRole` is 34px to match row actions and has an `aria-label` (it had no
+    label before). HeroUI's `Select.Trigger` doesn't center its value; add
+    `items-center` when you change its height.
+  - Cancel is a danger outline: `smallOutlineButton` (now exported from
+    `data-table.tsx`) + danger text/border + `--button-bg-hover: var(--danger-soft)`.
+  - `/users/me` is still a stub; nothing to restyle yet.
 
 ### Gotchas
 
