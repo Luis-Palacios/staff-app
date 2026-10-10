@@ -23,19 +23,42 @@ export type NavItem = {
   items?: NavChildItem[];
 };
 
-/** The church this staff app is working in (shown in the sidebar's `WorkspaceBadge`). */
-export type Workspace = {
+export type Ministry = {
+  id: string;
   name: string;
-  /** Single letter for the badge tile. */
+  /** Fallback for the tile when there is no logo. */
   initial: string;
+  /** Square/circular mark shown in a 32px circle. Optional: ministries upload
+   *  their own later; without one the tile shows `initial`. */
+  logoUrl?: string;
+};
+
+export type Church = {
+  id: string;
+  name: string;
+};
+
+/** What the shell shows: the ministry, the church this session works in, and the
+ *  churches the user may switch to (always includes `church`). */
+export type ChurchContext = {
+  ministry: Ministry;
+  church: Church;
+  churches: Church[];
 };
 
 export const siteConfig = {
   name: "ekklesiaio",
   description: "Manage staff, groups, applications, and reports efficiently.",
-  // Hard-coded for now. Per-church branding will replace this with the
-  // signed-in user's church (and later its logo/colors).
-  workspace: { name: "Iglesia Petra", initial: "P" } satisfies Workspace,
+  // Hard-coded until multi-tenancy exists. Read only through
+  // `getChurchContext()` (`lib/workspace.ts`), never directly: later the
+  // ministry and churches come from the session / auth-server.
+  ministry: {
+    id: "petra",
+    name: "Ministerio Cristiano Petra",
+    initial: "P",
+    logoUrl: "/ministries/petra-mark.png",
+  } satisfies Ministry,
+  churches: [{ id: "petra-managua", name: "Petra Managua" }] satisfies Church[],
   links: {
     // The landing page redirects this to /en/ or /es/ for the visitor.
     privacy: "https://ekklesiaio.com/privacy",

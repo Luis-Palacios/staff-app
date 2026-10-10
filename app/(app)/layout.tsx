@@ -4,6 +4,7 @@ import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { AppShell } from "@/components/app-shell";
 import { UserProvider } from "@/lib/contexts/user-context";
 import { AuthRole } from "@/lib/auth/roles";
+import { getChurchContext } from "@/lib/workspace";
 
 export default async function AppLayout({
   children,
@@ -24,9 +25,11 @@ export default async function AppLayout({
     redirect("/needs-role");
   }
 
+  const context = await getChurchContext();
+
   return (
     <UserProvider user={session.user}>
-      <AppShell>{children}</AppShell>
+      <AppShell context={context}>{children}</AppShell>
     </UserProvider>
   );
 }

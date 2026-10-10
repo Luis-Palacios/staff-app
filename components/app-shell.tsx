@@ -1,11 +1,18 @@
 "use client";
 
+import type { ChurchContext } from "@/config/site";
+
 import { useEffect, useState } from "react";
 
 import { Sidebar } from "@/components/sidebar";
 import { Topbar } from "@/components/topbar";
 
-export const AppShell = ({ children }: { children: React.ReactNode }) => {
+type AppShellProps = {
+  children: React.ReactNode;
+  context: ChurchContext;
+};
+
+export const AppShell = ({ children, context }: AppShellProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Lock body scroll while the mobile sidebar overlay is open.
@@ -20,6 +27,7 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex min-h-screen">
       <Sidebar
+        context={context}
         isOpen={isSidebarOpen}
         onNavigate={() => setIsSidebarOpen(false)}
       />

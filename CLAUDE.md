@@ -48,7 +48,7 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   layout itself.
 - **Dashboard shell** — `components/app-shell.tsx` (client; holds the mobile
   sidebar open state + body scroll lock) composes `components/sidebar.tsx`
-  (navy brand rail in both modes: logo, `WorkspaceBadge`, Heroicons-outline nav
+  (navy brand rail in both modes: logo, `ChurchContextCard`, Heroicons-outline nav
   items, collapsible groups via HeroUI `Disclosure`, off-canvas + backdrop below
   `lg`) and `components/topbar.tsx` (search with Ctrl/⌘ K hint, segmented
   `ThemeSwitch`, account menu; hamburger + mark below `lg`, search collapses
@@ -56,8 +56,12 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   structure and `docs/BRAND-RESTYLE.md` for its styling.
 - **Brand components** — `components/brand/` holds `EkklesiaioMark` /
   `EkklesiaioLogo` (`tone: "on-dark" | "on-light" | "auto"`) and
-  `WorkspaceBadge` (reads `siteConfig.workspace`; the hook for per-church
-  branding).
+  `ChurchContextCard` / `MinistryMark` (ministry › church card on the rail; the
+  hook for per-ministry/church branding).
+- **Ministry/church context** — `getChurchContext()` (`lib/workspace.ts`,
+  server-only, `cache()`d) is the only way to read the ministry and church;
+  never read `siteConfig.ministry` / `siteConfig.churches` directly. See
+  `docs/MINISTRY-CHURCH-CONTEXT.md`.
 - **`app/providers.tsx`** wraps the tree in `next-themes` only. Theme is
   class-based, defaults to `system` (`themeProps` passed from `app/layout.tsx`).
   Add other client-side providers here.
