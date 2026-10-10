@@ -38,15 +38,11 @@ export function ConfirmDialog({
             <p className="text-sm text-muted">{children}</p>
           </AlertDialog.Body>
           <AlertDialog.Footer>
-            <Button
-              className="rounded-control font-semibold"
-              slot="close"
-              variant="outline"
-            >
+            <Button className="font-semibold" slot="close" variant="outline">
               Cancel
             </Button>
             <Button
-              className="rounded-control font-semibold"
+              className="font-semibold"
               onPress={() => {
                 onOpenChange(false);
                 onConfirm();

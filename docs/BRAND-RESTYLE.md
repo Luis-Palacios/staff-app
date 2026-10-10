@@ -181,9 +181,11 @@ to guess them.
     `authFooterLine`).
   - **`textLink()`** in `primitives.ts`: navy/gold-300 text with a gold underline. The
     dashboard's "View all" uses it too.
-  - **Buttons:** HeroUI's default is a pill; the canvas uses 10px corners, so
-    `authButton` adds `rounded-control`. App-shell buttons ("Invite staff", "All
-    applications") are still pills: decide in Stage 9 whether to switch them globally.
+  - **Buttons:** HeroUI's default is a pill; the canvas uses 10px corners. Decided
+    after Stage 9: one rule in `globals.css` (`@layer components`,
+    `.button:not(.button--icon-only)`) gives every labelled button
+    `--radius-control`, so no per-button `rounded-control` is needed. Icon-only buttons
+    keep their own shape.
   - Buttons that only navigate (reset's "Request a new link", the invite's "Create
     account" / "Sign in") are now `NextLink`s styled with `buttonVariants`.
   - Signed-in users are redirected away from sign-in, sign-up and forgot-password by

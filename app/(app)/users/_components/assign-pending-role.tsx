@@ -85,7 +85,7 @@ export function AssignPendingRole({
         </Select.Root>
 
         <Button
-          className="h-[34px] rounded-control px-3 text-[13px] font-semibold md:h-[34px]"
+          className="h-[34px] px-3 text-[13px] font-semibold md:h-[34px]"
           isDisabled={!selectedRole}
           isPending={isSubmitting}
           size="sm"
