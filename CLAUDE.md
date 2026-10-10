@@ -32,12 +32,20 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
 
 ## Architecture
 
-- **Next.js 16 App Router** (`app/`). Every section is a folder with its own
-  `layout.tsx` + `page.tsx`. `app/layout.tsx` is the root shell: fonts,
-  `Providers`, and `<AppShell>` (which renders the sidebar, top bar, and the
-  `max-w-7xl` main region). Pages start with `StaffAppPageHeader` and lay out
-  left-aligned below it. List pages show a `dataTable()` table from `md` up
-  and `card()` summaries below it.
+- **Next.js 16 App Router** (`app/`). There are three layouts:
+  - `app/layout.tsx` (root): fonts, metadata and `Providers` only.
+  - `app/(app)/layout.tsx`: the session check (redirects to `/sign-in`,
+    `/needs-verification` or `/needs-role`), `UserProvider`, and `<AppShell>`
+    (sidebar, top bar and the `max-w-7xl` main region). Auth gating and shell
+    changes belong here.
+  - `app/(auth)/layout.tsx`: the two-panel sign-in frame for every auth page.
+
+  Sections are folders under `(app)` with a `page.tsx` and a `_components/`
+  folder, but no layout of their own. Pages start with `StaffAppPageHeader`
+  and lay out left-aligned below it. List pages show a `dataTable()` table from
+  `md` up and `card()` summaries below it. `app/(app)/error.tsx` renders page
+  errors inside the shell; `app/error.tsx` only catches errors in the `(app)`
+  layout itself.
 - **Dashboard shell** — `components/app-shell.tsx` (client; holds the mobile
   sidebar open state + body scroll lock) composes `components/sidebar.tsx`
   (navy brand rail in both modes: logo, `WorkspaceBadge`, Heroicons-outline nav
@@ -82,7 +90,7 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
 - **`config/fonts.ts`** — `next/font/google` brand trio: Figtree (body,
   `--font-figtree` → `font-sans`), Newsreader (`--font-newsreader` →
   `font-display`), Inter (wordmark only, `--font-inter` → `font-logo`); all three
-  `.variable`s go on `<body>`.
+  `.variable`s go on `<html>` (`brand.css` reads them on `:root`).
 - **Path alias** — `@/*` maps to the repo root (`@/config/site`, `@/components/sidebar`).
 
 ## Conventions enforced by ESLint
