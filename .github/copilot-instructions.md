@@ -36,7 +36,7 @@ There is no configured test runner or single-test command. Confirm the framework
 ## Authorization and roadmap
 
 - `lib/auth/roles.ts` is staff-app's role source of truth. `STAFF_ADMIN_ROLES` currently gates the Users and Invites pages because their upstream endpoints allow only admins and elders.
-- Role-based navigation and generalized route gating are intentionally deferred to Phase 9 of `docs/AUTH-INTEGRATION-ROADMAP.md`; do not create a parallel permission helper or copy the current temporary checks before that phase is designed. JWT request caching is likewise deferred to Phase 10.
+- Role-based navigation and generalized route gating are intentionally deferred to Phase 9 of `docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md`; do not create a parallel permission helper or copy the current temporary checks before that phase is designed. JWT request caching is likewise deferred to Phase 10.
 - The roadmap describes contracts with the sibling `auth-server` and `membership-applications` repositories. Treat role, JWT-claim, and service-endpoint changes as cross-repository contract changes and update the roadmap accordingly.
 
 ## Linting conventions

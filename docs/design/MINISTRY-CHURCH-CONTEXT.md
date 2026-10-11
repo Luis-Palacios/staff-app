@@ -29,7 +29,7 @@ of what changed and anything that differs from the canvas, so it can be reviewed
     `Sidebar` artboard (same card as `Main` above).
   - Read artboards with the Artifact tool's `read` and `path: "project/<Name>.dc.html"`. They
     hold exact px values and colors.
-- **Brand rules:** unchanged. Read `docs/BRAND-RESTYLE.md` → *Principles* before every stage
+- **Brand rules:** unchanged. Read `docs/design/BRAND-RESTYLE.md` → *Principles* before every stage
   (theme tokens for page content, raw navy/gold only on the rail, gold never carries text
   on a light background, focus is the gold halo, no new component-level `dark:` overrides).
 - **Placeholder data:** the canvas shows "Petra Masaya" and "Petra León" in the menu. They
@@ -310,8 +310,8 @@ the 390px off-canvas sidebar all work.
 
 ## Stage 3: Context below `lg` and docs
 
-**Files:** `components/topbar.tsx`, `CLAUDE.md`, `docs/dashboard-layout.md`,
-`docs/BRAND-RESTYLE.md` (Stage 2 notes).
+**Files:** `components/topbar.tsx`, `CLAUDE.md`, `docs/design/dashboard-layout.md`,
+`docs/design/BRAND-RESTYLE.md` (Stage 2 notes).
 
 ### 3a. Topbar label below `lg`
 
@@ -339,10 +339,10 @@ you're in.
 
 - `CLAUDE.md`: replace the `WorkspaceBadge` mentions with `ChurchContextCard` and add one
   line on `getChurchContext()` being the only way to read the ministry/church.
-- `docs/dashboard-layout.md`: its "Removed on purpose" list says the company/workspace
+- `docs/design/dashboard-layout.md`: its "Removed on purpose" list says the company/workspace
   dropdown was removed. Add a note that a church switcher came back in a different form,
   pointing here.
-- `docs/BRAND-RESTYLE.md` → Decisions: one line saying `WorkspaceBadge` became
+- `docs/design/BRAND-RESTYLE.md` → Decisions: one line saying `WorkspaceBadge` became
   `ChurchContextCard` (see this doc).
 - Fill in this doc's progress table and *Decisions and deviations*.
 

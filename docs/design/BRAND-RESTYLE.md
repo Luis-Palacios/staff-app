@@ -41,7 +41,7 @@ to guess them.
     `auto` is an addition to this spec: it keeps the one allowed `dark:` swap inside the
     component.
   - `WorkspaceBadge` became `ChurchContextCard` (ministry › church, fed by
-    `getChurchContext()`); see `docs/MINISTRY-CHURCH-CONTEXT.md`.
+    `getChurchContext()`); see `docs/design/MINISTRY-CHURCH-CONTEXT.md`.
   - The old PETRA `Logo` was deleted; recover it from `def9ed2` (Stage 1, the last commit that has it).
 - **Inter** loads as the variable font (no `weight` list), so the wordmark's 650 weight
   renders exactly.
@@ -497,7 +497,7 @@ Match the canvas's **Sidebar** and **Topbar** artboards.
   justified `dark:` switches, because `--accent-foreground` is white in light mode, not
   gold. Hide name and role below `md`. The role label comes from `ROLE_LABELS`.
 - Mobile: hamburger + `EkklesiaioMark` stay; hide the search field below `sm` behind a
-  search icon button. (Later changed by `docs/MINISTRY-CHURCH-CONTEXT.md` Stage 3: a
+  search icon button. (Later changed by `docs/design/MINISTRY-CHURCH-CONTEXT.md` Stage 3: a
   ministry › church label after the mark, 26px mark, 44px buttons, and the theme switch
   moves into the account menu below `sm`.)
 

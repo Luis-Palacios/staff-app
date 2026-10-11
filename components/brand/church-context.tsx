@@ -116,7 +116,7 @@ type ChurchContextCardProps = {
  * (same in light and dark).
  *
  * With one church it's a static label (not focusable). With more, the whole
- * card opens the church menu (docs/MINISTRY-CHURCH-CONTEXT.md, Stage 2).
+ * card opens the church menu (docs/design/MINISTRY-CHURCH-CONTEXT.md, Stage 2).
  *
  * This is the hook for per-ministry/church branding: the tile already shows the
  * ministry's logo when `logoUrl` is set.

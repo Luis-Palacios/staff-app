@@ -171,7 +171,7 @@ this plan.
 - [x] Invalid cookie value (e.g. `fr`) falls back to the header, then `en`.
 - [x] Works below `sm` (after Theme) and in both themes.
 - [x] Lint and type-check clean. Update `CLAUDE.md` (architecture: locale
-      resolution + `lib/locale.ts`) and `docs/dashboard-layout.md` (menu contents).
+      resolution + `lib/locale.ts`) and `docs/design/dashboard-layout.md` (menu contents).
 
 Notes from the build: `Accept-Language` picks the first entry whose primary
 subtag is *any* supported locale (so `en-US,en;q=0.9,es;q=0.8` stays English),

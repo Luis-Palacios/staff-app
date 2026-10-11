@@ -1,6 +1,6 @@
 // Single source of truth for auth role *names* within staff-app, mirroring
 // auth-server/src/permissions/statements.ts's role set by hand — see
-// docs/AUTH-INTEGRATION-ROADMAP.md for that cross-repo tradeoff.
+// docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md for that cross-repo tradeoff.
 export const AuthRole = {
   Admin: "admin",
   User: "user",

@@ -2,7 +2,7 @@
 
 > **Styling note (2026-10):** the shell's *look* has since been restyled to the
 > ekklesiaio brand (navy rail, Heroicons outline nav, segmented theme switch,
-> account menu). See `docs/BRAND-RESTYLE.md` (Stage 3) for the current visuals.
+> account menu). See `docs/design/BRAND-RESTYLE.md` (Stage 3) for the current visuals.
 > The structure, data model and responsive behaviour described here still apply;
 > the table below is the historical record of the first pass.
 
@@ -20,7 +20,7 @@ this.
 | --- | --- | --- |
 | App shell (holds mobile sidebar open/close state, body scroll lock) | `components/app-shell.tsx` | `"use client"`. Renders `<Sidebar>` + `<Topbar>` + `<main>`. Replaces the old single `<Navbar>`. |
 | Left sidebar with right border, per-item icons, active state, collapsible groups | `components/sidebar.tsx` | `"use client"`. Desktop: `lg:sticky` rail, `w-64`, `border-r border-separator`. Mobile: fixed, `-translate-x-full`, slides in on `isOpen`, dark backdrop. |
-| Top bar with wide search + right cluster | `components/topbar.tsx` | `"use client"`. Search is `flex-1 max-w-[520px]`, collapsed behind an icon button below `sm`. Right cluster = theme switch, account menu (avatar + name + role). Hamburger + brand mark show `lg:hidden`. *Since then:* a ministry › church label sits after the mark below `lg`, and below `sm` the theme switch moves into the account menu (`docs/MINISTRY-CHURCH-CONTEXT.md`, Stage 3). The account menu is a header (avatar, name, role pill, email) over groups: Theme (below `sm` only), Language (English/Español, a stored preference), My profile, Sign out (`docs/ACCOUNT-MENU-AND-LANGUAGE.md`). |
+| Top bar with wide search + right cluster | `components/topbar.tsx` | `"use client"`. Search is `flex-1 max-w-[520px]`, collapsed behind an icon button below `sm`. Right cluster = theme switch, account menu (avatar + name + role). Hamburger + brand mark show `lg:hidden`. *Since then:* a ministry › church label sits after the mark below `lg`, and below `sm` the theme switch moves into the account menu (`docs/design/MINISTRY-CHURCH-CONTEXT.md`, Stage 3). The account menu is a header (avatar, name, role pill, email) over groups: Theme (below `sm` only), Language (English/Español, a stored preference), My profile, Sign out (`docs/design/ACCOUNT-MENU-AND-LANGUAGE.md`). |
 | Nav data model with nesting | `config/site.ts` | `navItems: NavItem[]`; `NavItem` has `icon`, optional `href` (leaf) OR optional `items` (collapsible group). `navMenuItems` was deleted — the sidebar drives both desktop and mobile now. |
 | Nav / chrome icons | `@heroicons/react/24/outline` + `components/icons.tsx` | Nav icons are Heroicons outline, mapped in `iconRegistry` (`components/sidebar.tsx`). `components/icons.tsx` keeps only `ChevronDownIcon`, `MenuIcon`, `CloseIcon`. |
 | ~~`Balances` nested example + stub routes~~ | ~~`app/balances/*`~~ | Since removed; `Groups` and `Access` are the live collapsible-group examples. |
@@ -32,7 +32,7 @@ this.
   logo + app name (`components/sidebar/companies-dropdown.tsx` in the template).
   A church switcher has since come back in a different form: `ChurchContextCard`
   under the logo (a menu only when there's more than one church), plus a
-  read-only label in the topbar below `lg`. See `docs/MINISTRY-CHURCH-CONTEXT.md`.
+  read-only label in the topbar below `lg`. See `docs/design/MINISTRY-CHURCH-CONTEXT.md`.
 - **"Main Menu" / "General" / "Updates" section headers** — the template's
   `sidebar-menu.tsx`. We keep a single flat list; grouping is expressed by
   *collapsible* items instead.

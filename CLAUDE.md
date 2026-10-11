@@ -8,13 +8,13 @@ Staff app for managing staff, groups, applications, and reports. Built from the
 HeroUI v3 + Next.js 16 App Router template; most section pages (`groups`,
 `applications`, `reports`) are still stubs awaiting real UI and data.
 
-See `docs/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring this app together
+See `docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring this app together
 with the sibling `auth-server` (better-auth) and `membership-applications` (FastAPI) repos —
 pick up at whichever phase is still marked `[ ]`.
 
-See `docs/BRAND-RESTYLE.md` for the staged plan applying the ekklesiaio brand (tokens →
-HeroUI variables, fonts, logo, shell, screens). Do one stage per change and confirm it
-works in light and dark before starting the next.
+Design work (brand restyle, shell, account menu, ministry/church context) is implemented
+and paused; its specs and history live in `docs/design/`. Read them only when resuming
+design work or changing those areas — not needed for routine tasks.
 
 ## Commands
 
@@ -51,19 +51,16 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   (navy brand rail in both modes: logo, `ChurchContextCard`, Heroicons-outline nav
   items, collapsible groups via HeroUI `Disclosure`, off-canvas + backdrop below
   `lg`) and `components/topbar.tsx` (search with Ctrl/⌘ K hint, segmented
-  `ThemeSwitch`, account menu (header, Language, My profile, Sign out; see
-  `docs/ACCOUNT-MENU-AND-LANGUAGE.md`); below `lg` hamburger + mark + a read-only
-  ministry › church label; below `sm` search collapses behind an icon and the
-  theme options move into the account menu). See `docs/dashboard-layout.md` for the shell's
-  structure and `docs/BRAND-RESTYLE.md` for its styling.
+  `ThemeSwitch`, account menu (header, Language, My profile, Sign out); below `lg`
+  hamburger + mark + a read-only ministry › church label; below `sm` search collapses
+  behind an icon and the theme options move into the account menu).
 - **Brand components** — `components/brand/` holds `EkklesiaioMark` /
   `EkklesiaioLogo` (`tone: "on-dark" | "on-light" | "auto"`) and
   `ChurchContextCard` / `MinistryMark` (ministry › church card on the rail; the
   hook for per-ministry/church branding).
 - **Ministry/church context** — `getChurchContext()` (`lib/workspace.ts`,
   server-only, `cache()`d) is the only way to read the ministry and church;
-  never read `siteConfig.ministry` / `siteConfig.churches` directly. See
-  `docs/MINISTRY-CHURCH-CONTEXT.md`.
+  never read `siteConfig.ministry` / `siteConfig.churches` directly.
 - **Locale (preference only, no translations yet)** — `getLocale()`
   (`lib/locale.ts`, server-only, `cache()`d) resolves `en`/`es` per request:
   the `ekk_locale` cookie if valid, else `Accept-Language`, else `en`. It sets
