@@ -12,6 +12,9 @@ import type { Messages } from "next-intl";
 export const CLIENT_NAMESPACES = [
   "AccountMenu",
   "ChurchContext",
+  "ConfirmDialog",
+  "DataTable",
+  "ErrorState",
   "Nav",
   "Roles",
   "Sidebar",

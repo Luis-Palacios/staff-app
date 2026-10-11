@@ -1,19 +1,19 @@
 import { Skeleton } from "@heroui/react/skeleton";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 // Mirrors the <ol>/<li> layout of PersonTimeline (rail marker + connector,
 // then a title/date row) so the card doesn't jump when the data streams in.
+// Server only: "Loading" isn't a client namespace.
 export default function PersonTimelineSkeleton({
   items = 3,
 }: {
   items?: number;
 }) {
+  const t = useTranslations("Loading");
+
   return (
-    <ol
-      aria-busy="true"
-      aria-label="Loading timeline"
-      className="flex flex-col"
-    >
+    <ol aria-busy="true" aria-label={t("timeline")} className="flex flex-col">
       {Array.from({ length: items }).map((_, index) => {
         const isLast = index === items - 1;
 

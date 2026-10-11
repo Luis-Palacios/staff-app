@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { AlertDialog, Button } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 // Controlled yes/no dialog for actions that need a second look (granting
 // Admin). The caller opens it from its own handler, so it only appears when
@@ -22,6 +23,8 @@ export function ConfirmDialog({
   confirmLabel: string;
   onConfirm: () => void;
 }) {
+  const t = useTranslations("ConfirmDialog");
+
   return (
     <AlertDialog.Backdrop
       isKeyboardDismissDisabled={false}
@@ -39,7 +42,7 @@ export function ConfirmDialog({
           </AlertDialog.Body>
           <AlertDialog.Footer>
             <Button className="font-semibold" slot="close" variant="outline">
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               className="font-semibold"

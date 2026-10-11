@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { Button } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 import { EmptyState } from "@/components/empty-state";
 
@@ -16,6 +17,8 @@ export function ErrorState({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("ErrorState");
+
   useEffect(() => {
     // Log the error to an error reporting service
     /* eslint-disable no-console */
@@ -26,15 +29,14 @@ export function ErrorState({
     <EmptyState
       action={
         // Re-renders the segment, which retries its server fetches.
-        <Button onPress={() => reset()}>Try again</Button>
+        <Button onPress={() => reset()}>{t("retry")}</Button>
       }
       as="h1"
       className="w-full"
       icon={ExclamationTriangleIcon}
-      title="Something went wrong"
+      title={t("title")}
     >
-      This page couldn&apos;t load. Try again, and if it keeps happening, let
-      your administrator know.
+      {t("body")}
     </EmptyState>
   );
 }
