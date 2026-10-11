@@ -323,7 +323,7 @@ dates.
 - **Not verified in a browser:** dates in both languages. Checked by `pnpm exec tsc --noEmit`,
   `pnpm lint` and `pnpm build` only.
 
-### Stage 5 — Auth pages, part 1: sign-in, sign-up, password reset `[ ]`
+### Stage 5 — Auth pages, part 1: sign-in, sign-up, password reset `[x]`
 
 - `app/(auth)/layout.tsx` (the two-panel frame's copy), `AuthHeading`, `AuthTextField`
   and `PasswordField` (show/hide labels).
@@ -335,6 +335,20 @@ dates.
   unknown codes. It is reused by every later stage that calls `authClient`.
 - These pages are public, so the language comes from `Accept-Language` until the
   user has picked one. That is the expected behaviour.
+
+**Done (2026-10-11).** Notes:
+
+- **Namespaces added:** `AuthErrors`, `PasswordField`, `SignInForm`, `SignUpForm`,
+  `ForgotPasswordForm` and `ResetPasswordForm` (client), plus `AuthLayout` and
+  `SignInPage` (server only; the page translates the notice and passes it down).
+- **Error helper:** `useAuthErrorMessage()` in `lib/auth/use-auth-error-message.ts`
+  maps `error.code` to an `AuthErrors` key, matches HTTP 429 by status (rate limiting
+  has no code), and falls back to `AuthErrors.generic`. Stages 6, 10 and 11 reuse it.
+  Every form now shows that text instead of better-auth's English `error.message`.
+- **Left as is:** the `EMAIL_NOT_VERIFIED` and `INVALID_TOKEN` branches in the sign-in
+  and reset forms still redirect or switch screens before the helper runs.
+- **Not verified in a browser:** the pages in both languages or at 390px. Checked by
+  `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm build` only.
 
 ### Stage 6 — Auth pages, part 2: verification, pending role, invites `[ ]`
 

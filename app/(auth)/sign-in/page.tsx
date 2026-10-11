@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import { SignInForm } from "./_components/sign-in-form";
 
 export default async function SignInPage({
@@ -6,11 +8,12 @@ export default async function SignInPage({
   searchParams: Promise<{ email?: string; verified?: string; reset?: string }>;
 }) {
   const { email, verified, reset } = await searchParams;
+  const t = await getTranslations("SignInPage");
 
   const notice = reset
-    ? "Your password has been reset. Sign in with your new password."
+    ? t("notices.reset")
     : verified
-      ? "Your email is verified. Sign in to continue."
+      ? t("notices.verified")
       : null;
 
   return <SignInForm initialEmail={email ?? null} notice={notice} />;

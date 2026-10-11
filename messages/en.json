@@ -76,5 +76,76 @@
   "Loading": {
     "label": "Loading",
     "timeline": "Loading timeline"
+  },
+  "AuthLayout": {
+    "eyebrow": "Staff workspace",
+    "headline": "Know your people.",
+    "headlineEmphasis": "Care for them well.",
+    "body": "Membership applications, groups and the people behind them, all in one place for your church's staff.",
+    "privacy": "Privacy"
+  },
+  "AuthErrors": {
+    "generic": "Something went wrong. Try again.",
+    "invalidCredentials": "Incorrect email or password.",
+    "invalidEmail": "Enter a valid email address.",
+    "userAlreadyExists": "An account with this email already exists. Sign in instead.",
+    "passwordTooShort": "That password is too short.",
+    "passwordTooLong": "That password is too long.",
+    "emailNotVerified": "Verify your email before signing in.",
+    "invalidToken": "This link is no longer valid.",
+    "tooManyRequests": "Too many attempts. Wait a moment and try again."
+  },
+  "PasswordField": {
+    "show": "Show password",
+    "hide": "Hide password"
+  },
+  "SignInPage": {
+    "notices": {
+      "reset": "Your password has been reset. Sign in with your new password.",
+      "verified": "Your email is verified. Sign in to continue."
+    }
+  },
+  "SignInForm": {
+    "loading": "Loading",
+    "title": "Sign in",
+    "subtitle": "Use the email your church invited you with.",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "submit": "Sign in",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up"
+  },
+  "SignUpForm": {
+    "title": "Create an account",
+    "subtitle": "Set up your staff account to get started.",
+    "name": "Name",
+    "email": "Email",
+    "emailFixed": "Fixed by your invite — this email must match to activate it.",
+    "password": "Password",
+    "submit": "Sign up",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in"
+  },
+  "ForgotPasswordForm": {
+    "title": "Forgot password",
+    "subtitle": "We'll email you a link to reset it.",
+    "email": "Email",
+    "submit": "Send reset link",
+    "sentTitle": "Check your email",
+    "sentBody": "If <emailTag>{email}</emailTag> has an account, we sent a link to reset its password.",
+    "backToSignIn": "Back to sign in"
+  },
+  "ResetPasswordForm": {
+    "title": "Reset password",
+    "subtitle": "Choose a new password below.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "mismatch": "Passwords don't match",
+    "submit": "Reset password",
+    "invalidTitle": "Reset link no longer valid",
+    "invalidBody": "This password reset link has expired or was already used. Request a new one to continue.",
+    "requestNew": "Request a new link",
+    "backToSignIn": "Back to sign in"
   }
 }

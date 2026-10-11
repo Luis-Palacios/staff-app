@@ -4,6 +4,7 @@ import type { SubmitEvent } from "react";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Alert, Button, ProgressBar, ProgressBarTrack } from "@heroui/react";
 import NextLink from "next/link";
 
@@ -18,6 +19,7 @@ import { PasswordField } from "../../_components/password-field";
 
 import { textLink } from "@/components/primitives";
 import { authClient } from "@/lib/auth/auth-client";
+import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
 
 export function SignInForm({
   initialEmail,
@@ -26,6 +28,8 @@ export function SignInForm({
   initialEmail: string | null;
   notice: string | null;
 }) {
+  const t = useTranslations("SignInForm");
+  const authErrorMessage = useAuthErrorMessage();
   const router = useRouter();
   const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
@@ -48,7 +52,7 @@ export function SignInForm({
 
         return;
       }
-      setError(signInError.message ?? "Sign in failed");
+      setError(authErrorMessage(signInError));
 
       return;
     }
@@ -58,7 +62,7 @@ export function SignInForm({
 
   if (session.isPending || session.data) {
     return (
-      <ProgressBar isIndeterminate aria-label="Loading" className="w-full">
+      <ProgressBar isIndeterminate aria-label={t("loading")} className="w-full">
         <ProgressBarTrack>
           <ProgressBar.Fill />
         </ProgressBarTrack>
@@ -68,9 +72,7 @@ export function SignInForm({
 
   return (
     <form className={authStack} onSubmit={handleSubmit}>
-      <AuthHeading title="Sign in">
-        Use the email your church invited you with.
-      </AuthHeading>
+      <AuthHeading title={t("title")}>{t("subtitle")}</AuthHeading>
 
       {notice ? (
         <Alert status="success">
@@ -86,7 +88,7 @@ export function SignInForm({
         autoFocus
         isRequired
         autoComplete="email"
-        label="Email"
+        label={t("email")}
         type="email"
         value={email}
         onChange={setEmail}
@@ -95,7 +97,7 @@ export function SignInForm({
       <PasswordField
         isRequired
         autoComplete="current-password"
-        label="Password"
+        label={t("password")}
         labelAction={
           <NextLink
             className={textLink({ className: "text-sm" })}
@@ -105,7 +107,7 @@ export function SignInForm({
                 : "/forgot-password"
             }
           >
-            Forgot password?
+            {t("forgotPassword")}
           </NextLink>
         }
         value={password}
@@ -122,12 +124,12 @@ export function SignInForm({
       ) : null}
 
       <Button fullWidth className={authButton} type="submit">
-        Sign in
+        {t("submit")}
       </Button>
       <p className={authFooterLine}>
-        Don&apos;t have an account?{" "}
+        {t("noAccount")}{" "}
         <NextLink className={textLink()} href="/sign-up">
-          Sign up
+          {t("signUp")}
         </NextLink>
       </p>
     </form>

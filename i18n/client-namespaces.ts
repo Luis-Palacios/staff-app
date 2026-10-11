@@ -11,13 +11,19 @@ import type { Messages } from "next-intl";
  */
 export const CLIENT_NAMESPACES = [
   "AccountMenu",
+  "AuthErrors",
   "ChurchContext",
   "ConfirmDialog",
   "DataTable",
   "ErrorState",
+  "ForgotPasswordForm",
   "Nav",
+  "PasswordField",
+  "ResetPasswordForm",
   "Roles",
   "Sidebar",
+  "SignInForm",
+  "SignUpForm",
   "ThemeSwitch",
   "Topbar",
 ] as const satisfies readonly (keyof Messages)[];

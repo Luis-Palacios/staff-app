@@ -3,6 +3,7 @@
 import type { SubmitEvent } from "react";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Alert, Button } from "@heroui/react";
 import NextLink from "next/link";
 
@@ -16,12 +17,15 @@ import { AuthTextField } from "../../_components/auth-text-field";
 
 import { textLink } from "@/components/primitives";
 import { authClient } from "@/lib/auth/auth-client";
+import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
 
 export function ForgotPasswordForm({
   initialEmail,
 }: {
   initialEmail: string | null;
 }) {
+  const t = useTranslations("ForgotPasswordForm");
+  const authErrorMessage = useAuthErrorMessage();
   const [email, setEmail] = useState(initialEmail ?? "");
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +41,7 @@ export function ForgotPasswordForm({
     });
 
     if (resetError) {
-      setError(resetError.message ?? "Failed to send reset link");
+      setError(authErrorMessage(resetError));
       setStatus("idle");
 
       return;
@@ -49,7 +53,7 @@ export function ForgotPasswordForm({
   const backToSignIn = (
     <p className={authFooterLine}>
       <NextLink className={textLink()} href="/sign-in">
-        Back to sign in
+        {t("backToSignIn")}
       </NextLink>
     </p>
   );
@@ -57,9 +61,13 @@ export function ForgotPasswordForm({
   if (status === "sent") {
     return (
       <div className={authStack}>
-        <AuthHeading title="Check your email">
-          If <strong className="text-heading">{email}</strong> has an account,
-          we sent a link to reset its password.
+        <AuthHeading title={t("sentTitle")}>
+          {t.rich("sentBody", {
+            email,
+            emailTag: (chunks) => (
+              <strong className="text-heading">{chunks}</strong>
+            ),
+          })}
         </AuthHeading>
         {backToSignIn}
       </div>
@@ -68,16 +76,14 @@ export function ForgotPasswordForm({
 
   return (
     <form className={authStack} onSubmit={handleSubmit}>
-      <AuthHeading title="Forgot password">
-        We&apos;ll email you a link to reset it.
-      </AuthHeading>
+      <AuthHeading title={t("title")}>{t("subtitle")}</AuthHeading>
 
       <AuthTextField
         // eslint-disable-next-line jsx-a11y/no-autofocus -- only field on this page; focusing it on load is the expected pattern for a dedicated auth page
         autoFocus
         isRequired
         autoComplete="email"
-        label="Email"
+        label={t("email")}
         type="email"
         value={email}
         onChange={setEmail}
@@ -98,7 +104,7 @@ export function ForgotPasswordForm({
         isPending={status === "sending"}
         type="submit"
       >
-        Send reset link
+        {t("submit")}
       </Button>
       {backToSignIn}
     </form>

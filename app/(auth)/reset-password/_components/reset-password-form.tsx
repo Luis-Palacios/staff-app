@@ -4,6 +4,7 @@ import type { SubmitEvent } from "react";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Alert, Button, buttonVariants } from "@heroui/react";
 import NextLink from "next/link";
 
@@ -17,6 +18,7 @@ import { PasswordField } from "../../_components/password-field";
 
 import { textLink } from "@/components/primitives";
 import { authClient } from "@/lib/auth/auth-client";
+import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
 
 export function ResetPasswordForm({
   invalidLink,
@@ -25,6 +27,8 @@ export function ResetPasswordForm({
   invalidLink: boolean;
   token: string | null;
 }) {
+  const t = useTranslations("ResetPasswordForm");
+  const authErrorMessage = useAuthErrorMessage();
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -42,7 +46,7 @@ export function ResetPasswordForm({
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords don't match");
+      setError(t("mismatch"));
 
       return;
     }
@@ -58,7 +62,7 @@ export function ResetPasswordForm({
 
         return;
       }
-      setError(resetError.message ?? "Failed to reset password");
+      setError(authErrorMessage(resetError));
 
       return;
     }
@@ -69,10 +73,7 @@ export function ResetPasswordForm({
   if (tokenInvalid) {
     return (
       <div className={authStack}>
-        <AuthHeading title="Reset link no longer valid">
-          This password reset link has expired or was already used. Request a
-          new one to continue.
-        </AuthHeading>
+        <AuthHeading title={t("invalidTitle")}>{t("invalidBody")}</AuthHeading>
         <NextLink
           className={buttonVariants({
             fullWidth: true,
@@ -80,11 +81,11 @@ export function ResetPasswordForm({
           })}
           href="/forgot-password"
         >
-          Request a new link
+          {t("requestNew")}
         </NextLink>
         <p className={authFooterLine}>
           <NextLink className={textLink()} href="/sign-in">
-            Back to sign in
+            {t("backToSignIn")}
           </NextLink>
         </p>
       </div>
@@ -93,14 +94,12 @@ export function ResetPasswordForm({
 
   return (
     <form className={authStack} onSubmit={handleSubmit}>
-      <AuthHeading title="Reset password">
-        Choose a new password below.
-      </AuthHeading>
+      <AuthHeading title={t("title")}>{t("subtitle")}</AuthHeading>
 
       <PasswordField
         isRequired
         autoComplete="new-password"
-        label="New password"
+        label={t("newPassword")}
         value={password}
         onChange={setPassword}
       />
@@ -108,7 +107,7 @@ export function ResetPasswordForm({
       <PasswordField
         isRequired
         autoComplete="new-password"
-        label="Confirm new password"
+        label={t("confirmPassword")}
         value={confirmPassword}
         onChange={setConfirmPassword}
       />
@@ -123,7 +122,7 @@ export function ResetPasswordForm({
       ) : null}
 
       <Button fullWidth className={authButton} type="submit">
-        Reset password
+        {t("submit")}
       </Button>
     </form>
   );

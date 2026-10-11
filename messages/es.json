@@ -76,5 +76,76 @@
   "Loading": {
     "label": "Cargando",
     "timeline": "Cargando historial"
+  },
+  "AuthLayout": {
+    "eyebrow": "Espacio del personal",
+    "headline": "Conoce a tu gente.",
+    "headlineEmphasis": "Cuídala bien.",
+    "body": "Solicitudes de membresía, grupos y las personas detrás de ellos, todo en un solo lugar para el personal de tu iglesia.",
+    "privacy": "Privacidad"
+  },
+  "AuthErrors": {
+    "generic": "Algo salió mal. Inténtalo de nuevo.",
+    "invalidCredentials": "Correo o contraseña incorrectos.",
+    "invalidEmail": "Escribe un correo electrónico válido.",
+    "userAlreadyExists": "Ya existe una cuenta con este correo. Inicia sesión.",
+    "passwordTooShort": "Esa contraseña es demasiado corta.",
+    "passwordTooLong": "Esa contraseña es demasiado larga.",
+    "emailNotVerified": "Verifica tu correo antes de iniciar sesión.",
+    "invalidToken": "Este enlace ya no es válido.",
+    "tooManyRequests": "Demasiados intentos. Espera un momento e inténtalo de nuevo."
+  },
+  "PasswordField": {
+    "show": "Mostrar contraseña",
+    "hide": "Ocultar contraseña"
+  },
+  "SignInPage": {
+    "notices": {
+      "reset": "Se restableció tu contraseña. Inicia sesión con la nueva contraseña.",
+      "verified": "Tu correo está verificado. Inicia sesión para continuar."
+    }
+  },
+  "SignInForm": {
+    "loading": "Cargando",
+    "title": "Iniciar sesión",
+    "subtitle": "Usa el correo con el que tu iglesia te invitó.",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "submit": "Iniciar sesión",
+    "noAccount": "¿No tienes una cuenta?",
+    "signUp": "Regístrate"
+  },
+  "SignUpForm": {
+    "title": "Crea una cuenta",
+    "subtitle": "Configura tu cuenta del personal para empezar.",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "emailFixed": "Lo define tu invitación — este correo debe coincidir para activarla.",
+    "password": "Contraseña",
+    "submit": "Registrarme",
+    "haveAccount": "¿Ya tienes una cuenta?",
+    "signIn": "Inicia sesión"
+  },
+  "ForgotPasswordForm": {
+    "title": "Olvidé mi contraseña",
+    "subtitle": "Te enviaremos por correo un enlace para restablecerla.",
+    "email": "Correo electrónico",
+    "submit": "Enviar enlace",
+    "sentTitle": "Revisa tu correo",
+    "sentBody": "Si <emailTag>{email}</emailTag> tiene una cuenta, enviamos un enlace para restablecer su contraseña.",
+    "backToSignIn": "Volver a iniciar sesión"
+  },
+  "ResetPasswordForm": {
+    "title": "Restablecer contraseña",
+    "subtitle": "Elige una nueva contraseña.",
+    "newPassword": "Nueva contraseña",
+    "confirmPassword": "Confirma la nueva contraseña",
+    "mismatch": "Las contraseñas no coinciden",
+    "submit": "Restablecer contraseña",
+    "invalidTitle": "El enlace ya no es válido",
+    "invalidBody": "Este enlace para restablecer la contraseña expiró o ya se usó. Solicita uno nuevo para continuar.",
+    "requestNew": "Solicitar un enlace nuevo",
+    "backToSignIn": "Volver a iniciar sesión"
   }
 }

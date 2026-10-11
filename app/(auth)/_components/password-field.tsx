@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button, InputGroup, TextField } from "@heroui/react";
 import { Label } from "@heroui/react/label";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
@@ -30,6 +31,7 @@ export function PasswordField({
   isRequired?: boolean;
   autoComplete?: string;
 }) {
+  const t = useTranslations("PasswordField");
   const [isVisible, setIsVisible] = useState(false);
 
   return (
@@ -53,7 +55,7 @@ export function PasswordField({
         <InputGroup.Suffix className="border-0 pr-1.5 pl-0">
           <Button
             isIconOnly
-            aria-label={isVisible ? "Hide password" : "Show password"}
+            aria-label={isVisible ? t("hide") : t("show")}
             className="size-9 text-muted md:size-9"
             size="sm"
             variant="ghost"
