@@ -6,6 +6,7 @@ import type { Settled } from "@/lib/settle";
 
 import { ChevronRightIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
 import { Skeleton } from "@heroui/react/skeleton";
+import { getTranslations } from "next-intl/server";
 import NextLink from "next/link";
 
 import { AssignPendingRole } from "../users/_components/assign-pending-role";
@@ -29,9 +30,10 @@ export async function NeedsAttentionCard({
   pendingUsers: Promise<Settled<AdminUserListItem[]>>;
   openInvites: Promise<Settled<AdminInviteListItem[]>>;
 }) {
-  const [pendingUsers, openInvites] = await Promise.all([
+  const [pendingUsers, openInvites, t] = await Promise.all([
     pendingUsersPromise,
     openInvitesPromise,
+    getTranslations("NeedsAttentionCard"),
   ]);
 
   const showUsers = !pendingUsers.ok || pendingUsers.value.length > 0;
@@ -43,12 +45,12 @@ export async function NeedsAttentionCard({
 
   return (
     <section className={cardClasses}>
-      <h2 className={title({ size: "sm" })}>Needs your attention</h2>
+      <h2 className={title({ size: "sm" })}>{t("title")}</h2>
 
       {showUsers && (
         <div className="flex flex-col gap-2.5">
           <h3 className="text-[13px] font-semibold text-muted">
-            Waiting for a role
+            {t("waitingForRole")}
           </h3>
           {pendingUsers.ok ? (
             <ul className="flex flex-col gap-3">
@@ -70,7 +72,7 @@ export async function NeedsAttentionCard({
               ))}
             </ul>
           ) : (
-            <p className={errorLine}>Couldn&apos;t load users.</p>
+            <p className={errorLine}>{t("usersError")}</p>
           )}
         </div>
       )}
@@ -78,7 +80,7 @@ export async function NeedsAttentionCard({
       {showUsers && showInvites && <hr className="border-separator" />}
 
       {showInvites && !openInvites.ok && (
-        <p className={errorLine}>Couldn&apos;t load invites.</p>
+        <p className={errorLine}>{t("invitesError")}</p>
       )}
 
       {openInvites.ok && openInvites.value.length > 0 && (
@@ -94,12 +96,13 @@ export async function NeedsAttentionCard({
             />
           </span>
           <span className="flex-1">
-            <strong className="font-semibold text-heading">
-              {openInvites.value.length}{" "}
-              {openInvites.value.length === 1 ? "invite" : "invites"}
-            </strong>{" "}
-            {openInvites.value.length === 1 ? "hasn't" : "haven't"} been
-            accepted yet
+            {t.rich("openInvites", {
+              count: openInvites.value.length,
+
+              strong: (chunks) => (
+                <strong className="font-semibold text-heading">{chunks}</strong>
+              ),
+            })}
           </span>
           <ChevronRightIcon
             aria-hidden="true"

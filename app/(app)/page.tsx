@@ -6,6 +6,7 @@ import {
   UserGroupIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -31,7 +32,11 @@ import { AuthRole, STAFF_ADMIN_ROLES } from "@/lib/auth/roles";
 import { mapSettled, settle } from "@/lib/settle";
 
 export default async function DashboardPage() {
-  const session = await getServerSession();
+  const [session, t, tGroups] = await Promise.all([
+    getServerSession(),
+    getTranslations("DashboardPage"),
+    getTranslations("GroupsPage"),
+  ]);
 
   // The (app) layout already redirects without a session; this narrows the type.
   if (!session) {
@@ -77,9 +82,18 @@ export default async function DashboardPage() {
     <>
       <StaffAppPageHeader
         actions={isStaffAdmin && <InviteStaffLink />}
-        description="Here's what needs your attention this week."
+        description={t("description")}
         eyebrow={<TodayDate />}
-        title={<Greeting firstName={firstName} />}
+        title={
+          <Greeting
+            firstName={firstName}
+            salutations={{
+              morning: t("morning"),
+              afternoon: t("afternoon"),
+              evening: t("evening"),
+            }}
+          />
+        }
       />
 
       <div className="flex flex-col gap-7">
@@ -87,16 +101,16 @@ export default async function DashboardPage() {
           <StatTile
             href="/applications"
             icon={DocumentTextIcon}
-            label="New applications"
-            sub="Last 60 days"
+            label={t("newApplications")}
+            sub={t("newApplicationsSub")}
             value={settle(getRecentApplicationsCount())}
           />
           <StatTile
             attention
             href="/applications?status=pending"
             icon={ClockIcon}
-            label="Awaiting fulfilment"
-            sub="Not yet presented"
+            label={t("awaitingFulfilment")}
+            sub={t("awaitingFulfilmentSub")}
             value={awaitingFulfilment}
           />
           {pendingUsers && openInvites && (
@@ -105,15 +119,15 @@ export default async function DashboardPage() {
                 attention
                 href="/users"
                 icon={UserIcon}
-                label="Waiting for a role"
-                sub="New sign-ups"
+                label={t("waitingForRole")}
+                sub={t("waitingForRoleSub")}
                 value={mapSettled(pendingUsers, (users) => users.length)}
               />
               <StatTile
                 href="/users/invites"
                 icon={EnvelopeIcon}
-                label="Open invites"
-                sub="Sent, not accepted"
+                label={t("openInvites")}
+                sub={t("openInvitesSub")}
                 value={mapSettled(openInvites, (invites) => invites.length)}
               />
             </>
@@ -132,9 +146,8 @@ export default async function DashboardPage() {
                 />
               </Suspense>
             )}
-            <EmptyState icon={UserGroupIcon} title="No groups yet">
-              Small groups, their leaders and weekly reports will show up here
-              once they&apos;re set up.
+            <EmptyState icon={UserGroupIcon} title={tGroups("emptyTitle")}>
+              {tGroups("emptyBody")}
             </EmptyState>
           </div>
         </div>

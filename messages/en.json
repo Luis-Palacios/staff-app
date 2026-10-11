@@ -43,6 +43,38 @@
     "emptyTitle": "No reports yet",
     "emptyBody": "Weekly reports from group leaders will show up here once groups start submitting them."
   },
+  "DashboardPage": {
+    "description": "Here's what needs your attention this week.",
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "newApplications": "New applications",
+    "newApplicationsSub": "Last 60 days",
+    "awaitingFulfilment": "Awaiting fulfilment",
+    "awaitingFulfilmentSub": "Not yet presented",
+    "waitingForRole": "Waiting for a role",
+    "waitingForRoleSub": "New sign-ups",
+    "openInvites": "Open invites",
+    "openInvitesSub": "Sent, not accepted"
+  },
+  "StatTile": {
+    "loadError": "Couldn't load"
+  },
+  "NeedsAttentionCard": {
+    "title": "Needs your attention",
+    "waitingForRole": "Waiting for a role",
+    "usersError": "Couldn't load users.",
+    "invitesError": "Couldn't load invites.",
+    "openInvites": "<strong>{count, plural, one {# invite} other {# invites}}</strong> {count, plural, one {hasn't} other {haven't}} been accepted yet"
+  },
+  "RecentApplicationsCard": {
+    "title": "Recent applications",
+    "subtitle": "Membership testimonies from the last 60 days",
+    "viewAll": "View all",
+    "error": "Couldn't load recent applications.",
+    "empty": "No applications in the last 60 days.",
+    "meta": "Application #{id} · Submitted <date></date>"
+  },
   "ThemeSwitch": {
     "label": "Theme",
     "light": "Light",

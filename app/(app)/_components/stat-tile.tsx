@@ -4,6 +4,7 @@ import type { Settled } from "@/lib/settle";
 import { Suspense } from "react";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { Skeleton } from "@heroui/react/skeleton";
+import { getTranslations } from "next-intl/server";
 import NextLink from "next/link";
 import { tv } from "tailwind-variants";
 
@@ -77,8 +78,10 @@ async function LoadedStatTile({
   const result = await value;
 
   if (!result.ok) {
+    const t = await getTranslations("StatTile");
+
     return (
-      <StatTileFrame {...frame} number="—" sub="Couldn't load" tone="accent" />
+      <StatTileFrame {...frame} number="—" sub={t("loadError")} tone="accent" />
     );
   }
 

@@ -370,12 +370,30 @@ dates.
 - **Verified:** the project owner clicked through the three pages in Spanish and found
   nothing to fix. Also checked by `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm build`.
 
-### Stage 7 — Dashboard `[ ]`
+### Stage 7 — Dashboard `[x]`
 
 - `app/(app)/page.tsx`, `DashboardGreeting` (time-of-day greeting; it is a client
   component, so decide props vs a namespace), `StatTile`, `NeedsAttentionCard`,
   `RecentApplicationsCard`.
 - Use plurals for every count ("{count, plural, …}").
+
+**Done (2026-10-11).** Notes:
+
+- **Namespaces added, all server only:** `DashboardPage`, `StatTile`, `NeedsAttentionCard`
+  and `RecentApplicationsCard`. `CLIENT_NAMESPACES` is unchanged.
+- **`Greeting` takes props, not a namespace.** The page passes the three translated
+  salutations (`salutations` prop), so the client leaf stays free of messages.
+  `TodayDate` needed nothing beyond Stage 4's `useLocale()`.
+- **Plurals:** the open-invites line is one ICU message (`<strong>` via `t.rich`), so the
+  count, noun and verb agree in both languages. The "Application #{id} · Submitted <date>"
+  line is also one message, with the date component slotted in by `t.rich`.
+- **Reused:** the empty "No groups yet" card reads `GroupsPage`. `RecentApplicationsCard`
+  became async to call `getTranslations`.
+- **Still English until their stages:** `ApplicationStatusBadge` (Stage 8), `InviteStaffLink`
+  and `AssignPendingRole` (Stage 10).
+- **Not verified in a browser:** checked by `pnpm lint`, `pnpm exec tsc --noEmit` and
+  `pnpm build` only. Click through the dashboard in both languages and at 390px (Spanish
+  stat labels such as "Pendientes de cumplimiento" are long).
 
 ### Stage 8 — Applications list `[ ]`
 
