@@ -4,6 +4,7 @@ import type { SubmitEvent } from "react";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Alert, Button } from "@heroui/react";
 import NextLink from "next/link";
 
@@ -18,8 +19,11 @@ import { PasswordField } from "../../_components/password-field";
 
 import { textLink } from "@/components/primitives";
 import { authClient } from "@/lib/auth/auth-client";
+import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
 
 export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
+  const t = useTranslations("SignUpForm");
+  const authErrorMessage = useAuthErrorMessage();
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState(initialEmail ?? "");
@@ -38,7 +42,7 @@ export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
     });
 
     if (signUpError) {
-      setError(signUpError.message ?? "Sign up failed");
+      setError(authErrorMessage(signUpError));
 
       return;
     }
@@ -54,16 +58,14 @@ export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
 
   return (
     <form className={authStack} onSubmit={handleSubmit}>
-      <AuthHeading title="Create an account">
-        Set up your staff account to get started.
-      </AuthHeading>
+      <AuthHeading title={t("title")}>{t("subtitle")}</AuthHeading>
 
       <AuthTextField
         isRequired
         autoComplete="name"
         // eslint-disable-next-line jsx-a11y/no-autofocus -- first enabled field when email is fixed by an invite link; focusing it on load is the expected pattern for a dedicated auth page
         autoFocus={initialEmail !== null}
-        label="Name"
+        label={t("name")}
         value={name}
         onChange={setName}
       />
@@ -73,13 +75,9 @@ export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
         autoComplete="email"
         // eslint-disable-next-line jsx-a11y/no-autofocus -- first field when email isn't fixed by an invite link; focusing it on load is the expected pattern for a dedicated auth page
         autoFocus={initialEmail === null}
-        description={
-          initialEmail !== null
-            ? "Fixed by your invite — this email must match to activate it."
-            : undefined
-        }
+        description={initialEmail !== null ? t("emailFixed") : undefined}
         isDisabled={initialEmail !== null}
-        label="Email"
+        label={t("email")}
         type="email"
         value={email}
         onChange={setEmail}
@@ -88,7 +86,7 @@ export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
       <PasswordField
         isRequired
         autoComplete="new-password"
-        label="Password"
+        label={t("password")}
         value={password}
         onChange={setPassword}
       />
@@ -103,12 +101,12 @@ export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
       ) : null}
 
       <Button fullWidth className={authButton} type="submit">
-        Sign up
+        {t("submit")}
       </Button>
       <p className={authFooterLine}>
-        Already have an account?{" "}
+        {t("haveAccount")}{" "}
         <NextLink className={textLink()} href="/sign-in">
-          Sign in
+          {t("signIn")}
         </NextLink>
       </p>
     </form>

@@ -1,14 +1,18 @@
+import { getTranslations } from "next-intl/server";
+
 import { EkklesiaioLogo } from "@/components/brand/ekklesiaio-logo";
 import { siteConfig } from "@/config/site";
 
 // Two panels: the navy brand panel (the same in both modes) and the form.
 // Below md the brand panel collapses to a bar with just the logo. Each page
 // renders an AuthHeading plus its form or actions, with no Card around them.
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const t = await getTranslations("AuthLayout");
+
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
       <aside
@@ -22,21 +26,20 @@ export default function AuthLayout({
         <EkklesiaioLogo size={24} tone="on-dark" />
         <div className="hidden max-w-[460px] flex-1 flex-col justify-center gap-[18px] md:flex">
           <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-gold-500">
-            Staff workspace
+            {t("eyebrow")}
           </p>
           <p className="font-display text-[44px] font-medium leading-[1.08] tracking-[-0.015em] text-white">
-            Know your people.{" "}
-            <em className="font-normal text-gold-300">Care for them well.</em>
+            {t("headline")}{" "}
+            <em className="font-normal text-gold-300">
+              {t("headlineEmphasis")}
+            </em>
           </p>
-          <p className="text-[17px] leading-[1.6]">
-            Membership applications, groups and the people behind them, all in
-            one place for your church&apos;s staff.
-          </p>
+          <p className="text-[17px] leading-[1.6]">{t("body")}</p>
         </div>
         <p className="hidden text-[13px] text-muted-on-dark md:block">
           © {new Date().getFullYear()} {siteConfig.name} ·{" "}
           <a className="text-on-dark underline" href={siteConfig.links.privacy}>
-            Privacy
+            {t("privacy")}
           </a>
         </p>
       </aside>
