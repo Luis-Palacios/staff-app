@@ -1,11 +1,14 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
 import { fontDisplay, fontLogo, fontSans } from "@/config/fonts";
+import { pickClientMessages } from "@/i18n/client-namespaces";
 import { getLocale } from "@/lib/locale";
 
 export const metadata: Metadata = {
@@ -30,6 +33,8 @@ export default async function RootLayout({
 }) {
   // Cookie, then the browser's Accept-Language, then "en" (lib/locale.ts).
   const locale = await getLocale();
+  // All of this language's messages, on the server (i18n/request.ts).
+  const messages = await getMessages();
 
   return (
     // Font variables go on <html>, not <body>: brand.css defines `--font-sans:
@@ -45,8 +50,15 @@ export default async function RootLayout({
     >
       <head />
       <body className="min-h-screen text-foreground bg-background font-sans antialiased">
-        <Providers themeProps={{ attribute: "class", defaultTheme: "system" }}>
-          {children}
+        <Providers
+          locale={locale}
+          themeProps={{ attribute: "class", defaultTheme: "system" }}
+        >
+          {/* Without `messages`, next-intl would send every message to the
+              browser. Client components only need CLIENT_NAMESPACES. */}
+          <NextIntlClientProvider messages={pickClientMessages(messages)}>
+            {children}
+          </NextIntlClientProvider>
         </Providers>
       </body>
     </html>

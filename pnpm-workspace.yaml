@@ -1,4 +1,8 @@
 allowBuilds:
+  # Pulled in by next-intl for its message extractor (useExtracted), which we
+  # don't use; both ship prebuilt binaries, so their install scripts can stay off.
+  '@parcel/watcher': false
+  '@swc/core': false
   '@tailwindcss/oxide': true
   sharp: true
   unrs-resolver: true
