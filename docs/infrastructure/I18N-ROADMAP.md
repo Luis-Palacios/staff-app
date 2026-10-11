@@ -367,8 +367,8 @@ dates.
 - **Left as is:** `AcceptInviteClient` keeps the translated message in state, so it
   doesn't change if the language is switched while the error is showing (the page is
   public and has no picker).
-- **Not verified in a browser:** the pages in both languages or at 390px. Checked by
-  `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm build` only.
+- **Verified:** the project owner clicked through the three pages in Spanish and found
+  nothing to fix. Also checked by `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm build`.
 
 ### Stage 7 — Dashboard `[ ]`
 
