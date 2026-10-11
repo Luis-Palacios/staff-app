@@ -8,6 +8,7 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 import { switchChurch } from "@/app/(app)/_actions/switch-church";
 import { pathAfterChurchSwitch } from "@/lib/path-after-church-switch";
@@ -136,6 +137,7 @@ export const ChurchContextCard = ({
 // TODO: past ~8 churches, add a filter field above the list.
 const ChurchMenu = ({ context, className }: ChurchContextCardProps) => {
   const { ministry, church, churches } = context;
+  const t = useTranslations("ChurchContext");
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -187,14 +189,14 @@ const ChurchMenu = ({ context, className }: ChurchContextCardProps) => {
               {ministry.name}
             </span>
             <span className="text-[12.5px] text-muted">
-              {churches.length} churches
+              {t("churchCount", { count: churches.length })}
             </span>
           </span>
         </div>
         <div className="mx-1 mt-0.5 mb-1 h-px bg-separator" />
         <Dropdown.Menu
           disallowEmptySelection
-          aria-label={`Churches in ${ministry.name}`}
+          aria-label={t("menu", { ministry: ministry.name })}
           className="p-0"
           selectedKeys={[church.id]}
           selectionMode="single"

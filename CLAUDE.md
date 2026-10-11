@@ -89,8 +89,9 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   a `@layer base` block mapping the brand onto HeroUI's theme variables (light +
   dark). There is no `tailwind.config.*` file. PostCSS uses `@tailwindcss/postcss`.
 - **Config-driven navigation** — `config/site.ts` (`siteConfig`) is the single
-  source for site name, description (used in `metadata`), and nav items. Add or
-  rename routes there, not inline in the sidebar. `NavItem` is either a leaf
+  source for the site name and nav items (labels are `Nav` message keys; the
+  description is `Metadata.description`). Add or rename routes there, not
+  inline in the sidebar. `NavItem` is either a leaf
   (`icon` + `href`) or a collapsible group (`icon` + `items[]`); icon keys
   resolve through `iconRegistry` in `components/sidebar.tsx`.
 - **`components/primitives.ts`** — `title()` (Newsreader display heading,

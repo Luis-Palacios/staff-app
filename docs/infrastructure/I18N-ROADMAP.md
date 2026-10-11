@@ -209,11 +209,11 @@ fails if `es.json` misses a key, and `pnpm build` passes.
   `t("signOutt")`.
 - Not yet verified: that the browser receives only `CLIENT_NAMESPACES`. Today every
   namespace is a client one. Check it in the first stage that adds a server-only
-  namespace.
+  namespace. (Verified in Stage 2.)
 - Still English in the topbar: search, "Open menu", the home link's label and the role
   badge (Stage 2).
 
-### Stage 2 — App shell and navigation `[ ]`
+### Stage 2 — App shell and navigation `[x]`
 
 - **Sidebar nav:** `config/site.ts`'s `NavItem.label` becomes a translation key
   (`labelKey`, typed as a key of the `Nav` namespace). `components/sidebar.tsx` translates
@@ -230,6 +230,34 @@ fails if `es.json` misses a key, and `pnpm build` passes.
 - **Metadata:** the root `metadata` becomes `generateMetadata()` using
   `getTranslations("Metadata")` (site description, title template).
 - **Stub pages** `groups/page.tsx` and `groups/reports/page.tsx`: page header text only.
+
+**Done (2026-10-10).** Notes:
+
+- **Namespaces added:** `Nav`, `Sidebar`, `Topbar`, `ChurchContext` and `Roles` (client),
+  plus `Metadata`, `GroupsPage` and `ReportsPage` (server only).
+- **Nav keys:** `NavLabelKey = keyof Messages["Nav"]`, so a nav item or breadcrumb that
+  names a missing key fails `tsc`. Page titles reuse the same keys (`tNav("groups")`),
+  so the rail, the crumb and the heading can't drift apart.
+- **Breadcrumbs:** `StaffAppBreadcrumbItem` is either `{ labelKey }` (a page, translated
+  by `StaffAppBreadcrumbs` itself) or `{ label }` (data such as an applicant's name,
+  shown as is). Pages still pass the shared objects from `config/breadcrumbs.ts`.
+- **Roles decision:** callers translate directly: `useTranslations("Roles")` or
+  `getTranslations("Roles")`, then `t(role)`. The keys are the `AuthRole` values, so a
+  role without a label fails `tsc`. Where an unknown role could arrive at runtime
+  (`AuthRole` mirrors auth-server by hand), guard with `t.has(role)` and show the raw
+  value, as the topbar does. `ROLE_LABELS` is `@deprecated` and stays until Stages
+  10–11 move the users and invites pages over, then gets deleted.
+- **Metadata:** `siteConfig.description` moved to `Metadata.description`; the site name
+  stays in config (brand, not translated).
+- **Verified:** server-only namespaces don't reach the browser. `/sign-in`'s payload
+  carries only `CLIENT_NAMESPACES`, and the description appears only as the `<meta>`
+  tag. The church menu (with a temporary second church) shows "2 iglesias", and every
+  shell `aria-label` comes out in Spanish.
+- **Not verified:** the 390px check, because the automated browser window couldn't be
+  resized. Check the sidebar and topbar on a phone width before merging.
+- **Left as is:** the `Ctrl` key hint (Spanish keyboards say `Ctrl` too). "ekklesiaio
+  home" lives in both `Sidebar` and `Topbar` instead of a shared `Common` namespace,
+  which would be a client namespace that grows; revisit in Stage 3 if more repeats appear.
 
 ### Stage 3 — Shared components and error pages `[ ]`
 

@@ -1,10 +1,15 @@
+import type { NavLabelKey } from "@/config/site";
+
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Breadcrumbs } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
-export type StaffAppBreadcrumbItem = {
-  label: string;
-  href: string;
-};
+/** A page crumb names a `Nav` key and is translated here; a data crumb (an
+ *  applicant's name, say) passes its text as is. */
+export type StaffAppBreadcrumbItem = { href: string } & (
+  | { labelKey: NavLabelKey }
+  | { label: string }
+);
 
 // HeroUI renders the link and separator itself, so they're restyled from the
 // root through their data-slot attributes. The last crumb is the current
@@ -22,17 +27,23 @@ export function StaffAppBreadcrumbs({
 }: {
   items: StaffAppBreadcrumbItem[];
 }) {
+  const t = useTranslations("Nav");
+
   return (
     <Breadcrumbs
       className={crumbClasses}
       separator={<ChevronRightIcon strokeWidth={2} />}
     >
       <Breadcrumbs.Item className="gap-2 pr-2" href="/">
-        Dashboard
+        {t("dashboard")}
       </Breadcrumbs.Item>
-      {items.map(({ href, label }) => (
-        <Breadcrumbs.Item key={href} className="gap-2 pr-2" href={href}>
-          {label}
+      {items.map((item) => (
+        <Breadcrumbs.Item
+          key={item.href}
+          className="gap-2 pr-2"
+          href={item.href}
+        >
+          {"labelKey" in item ? t(item.labelKey) : item.label}
         </Breadcrumbs.Item>
       ))}
     </Breadcrumbs>

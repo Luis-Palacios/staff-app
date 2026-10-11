@@ -39,7 +39,6 @@ import { InitialsAvatar, initialsOf } from "@/components/initials-avatar";
 import { StatusBadge } from "@/components/status-badge";
 import { useCurrentUser } from "@/lib/contexts/user-context";
 import { authClient } from "@/lib/auth/auth-client";
-import { ROLE_LABELS } from "@/lib/auth/roles";
 import { isLocale, LOCALE_LABELS, LOCALES } from "@/lib/locale-shared";
 import { setLocale } from "@/app/(app)/_actions/set-locale";
 
@@ -105,6 +104,8 @@ function useIsMac() {
 export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
   const { ministry, church } = context;
   const t = useTranslations("AccountMenu");
+  const tTopbar = useTranslations("Topbar");
+  const tRoles = useTranslations("Roles");
   const tTheme = useTranslations("ThemeSwitch");
   const router = useRouter();
   const currentUser = useCurrentUser();
@@ -123,6 +124,11 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
   // Below `sm` the search field is collapsed behind an icon button.
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  // AuthRole mirrors auth-server by hand, so a role added there first would
+  // have no label yet: show its raw value rather than "Roles.<role>".
+  const roleLabel = tRoles.has(currentUser.role)
+    ? tRoles(currentUser.role)
+    : currentUser.role;
 
   useEffect(() => {
     if (isSearchOpen) searchInputRef.current?.focus();
@@ -147,7 +153,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
     // fits at 390px; the 44px buttons carry their own padding on the left.
     <header className="sticky top-0 z-30 flex min-h-16 flex-wrap items-center gap-2 border-b border-border bg-background/88 py-2.5 pr-4 pl-2 backdrop-blur lg:min-h-[72px] lg:gap-3 lg:px-8 lg:py-3.5">
       <button
-        aria-label="Open menu"
+        aria-label={tTopbar("openMenu")}
         className="flex size-11 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary lg:hidden"
         onClick={onMenuClick}
       >
@@ -155,7 +161,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
       </button>
 
       <NextLink
-        aria-label="ekklesiaio home"
+        aria-label={tTopbar("home")}
         className="flex items-center lg:hidden"
         href="/"
       >
@@ -182,7 +188,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
       </div>
 
       <TextField
-        aria-label="Search"
+        aria-label={tTopbar("search")}
         className={clsx(
           "max-w-[520px] flex-1",
           // Mobile: hidden until the search button opens it on its own row.
@@ -202,7 +208,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
           <InputGroup.Input
             ref={searchInputRef}
             className="text-sm"
-            placeholder="Search people, applications…"
+            placeholder={tTopbar("searchPlaceholder")}
           />
           <InputGroup.Suffix className="border-0 pr-2 pl-2">
             <Kbd className="hidden h-auto rounded-md border border-border px-[7px] py-0.5 text-xs font-semibold [word-spacing:normal] lg:inline-flex">
@@ -220,7 +226,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
       <div className="ml-auto flex items-center gap-2 lg:gap-3">
         <button
           aria-expanded={isSearchOpen}
-          aria-label="Search"
+          aria-label={tTopbar("search")}
           className="flex size-11 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary sm:hidden"
           onClick={() => setIsSearchOpen((open) => !open)}
         >
@@ -251,9 +257,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
               <span className="text-sm font-semibold text-heading">
                 {currentUser.name}
               </span>
-              <span className="text-xs text-muted">
-                {ROLE_LABELS[currentUser.role] ?? currentUser.role}
-              </span>
+              <span className="text-xs text-muted">{roleLabel}</span>
             </span>
             <ChevronDownIcon
               aria-hidden="true"
@@ -288,7 +292,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
                     className="shrink-0 text-[11.5px] dark:text-heading"
                     tone="accent"
                   >
-                    {ROLE_LABELS[currentUser.role] ?? currentUser.role}
+                    {roleLabel}
                   </StatusBadge>
                 </div>
                 <span
