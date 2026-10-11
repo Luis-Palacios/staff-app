@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
 
 import { Providers } from "./providers";
 
@@ -11,13 +11,19 @@ import { fontDisplay, fontLogo, fontSans } from "@/config/fonts";
 import { pickClientMessages } from "@/i18n/client-namespaces";
 import { getLocale } from "@/lib/locale";
 
-export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-};
+// A function rather than a `metadata` object, so the description follows the
+// request's language. The name is a brand and stays as is.
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Metadata");
+
+  return {
+    title: {
+      default: siteConfig.name,
+      template: `%s - ${siteConfig.name}`,
+    },
+    description: t("description"),
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [

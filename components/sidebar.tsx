@@ -11,6 +11,7 @@ import { Disclosure } from "@heroui/react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 import {
   DocumentTextIcon,
   ShieldCheckIcon,
@@ -66,6 +67,7 @@ const LeafLink = ({
   pathname: string;
   onNavigate: () => void;
 }) => {
+  const t = useTranslations("Nav");
   const Icon = resolveIcon(item.icon);
   const active = isActivePath(pathname, item.href!);
 
@@ -80,7 +82,7 @@ const LeafLink = ({
       onClick={onNavigate}
     >
       <Icon className={iconClass(active)} strokeWidth={1.6} />
-      <span className="flex-1">{item.label}</span>
+      <span className="flex-1">{t(item.labelKey)}</span>
     </NextLink>
   );
 };
@@ -94,6 +96,7 @@ const CollapsibleItem = ({
   pathname: string;
   onNavigate: () => void;
 }) => {
+  const t = useTranslations("Nav");
   const Icon = resolveIcon(item.icon);
   const children = item.items ?? [];
   const hasActiveChild = children.some((child) => pathname === child.href);
@@ -106,7 +109,7 @@ const CollapsibleItem = ({
         className={clsx(rowBase, rowRest, "w-full")}
       >
         <Icon className={iconClass(hasActiveChild)} strokeWidth={1.6} />
-        <span className="flex-1 text-left">{item.label}</span>
+        <span className="flex-1 text-left">{t(item.labelKey)}</span>
         <Disclosure.Indicator className="size-3.5 text-muted-on-dark" />
       </Disclosure.Trigger>
       <Disclosure.Content>
@@ -128,7 +131,7 @@ const CollapsibleItem = ({
                     href={child.href}
                     onClick={onNavigate}
                   >
-                    {child.label}
+                    {t(child.labelKey)}
                   </NextLink>
                 </li>
               );
@@ -141,6 +144,7 @@ const CollapsibleItem = ({
 };
 
 export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
+  const t = useTranslations("Sidebar");
   const pathname = usePathname();
 
   return (
@@ -171,7 +175,7 @@ export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
       >
         <div className="flex items-center justify-between gap-2 px-5 pt-5 pb-4">
           <NextLink
-            aria-label="ekklesiaio home"
+            aria-label={t("home")}
             className="flex items-center rounded-lg"
             href="/"
             onClick={onNavigate}
@@ -179,7 +183,7 @@ export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
             <EkklesiaioLogo size={21} tone="on-dark" />
           </NextLink>
           <button
-            aria-label="Close menu"
+            aria-label={t("closeMenu")}
             className="rounded-lg p-1 text-muted-on-dark hover:bg-white/5 hover:text-white lg:hidden"
             onClick={onNavigate}
           >
@@ -193,14 +197,14 @@ export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
           {siteConfig.navItems.map((item) =>
             item.items ? (
               <CollapsibleItem
-                key={item.label}
+                key={item.labelKey}
                 item={item}
                 pathname={pathname}
                 onNavigate={onNavigate}
               />
             ) : (
               <LeafLink
-                key={item.label}
+                key={item.labelKey}
                 item={item}
                 pathname={pathname}
                 onNavigate={onNavigate}
@@ -210,7 +214,7 @@ export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
         </nav>
 
         <p className="px-5 pt-4 pb-5 text-xs text-muted-on-dark">
-          Staff app · v{process.env.NEXT_PUBLIC_APP_VERSION}
+          {t("footer", { version: process.env.NEXT_PUBLIC_APP_VERSION ?? "" })}
         </p>
       </aside>
     </>

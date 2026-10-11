@@ -1,4 +1,48 @@
 {
+  "Metadata": {
+    "description": "Gestiona personal, grupos, solicitudes y reportes de forma eficiente."
+  },
+  "Nav": {
+    "dashboard": "Panel",
+    "groups": "Grupos",
+    "groupsList": "Lista",
+    "groupsReports": "Reportes",
+    "applications": "Solicitudes",
+    "access": "Acceso",
+    "users": "Usuarios",
+    "invites": "Invitaciones"
+  },
+  "Sidebar": {
+    "home": "Inicio de ekklesiaio",
+    "closeMenu": "Cerrar menú",
+    "footer": "App del personal · v{version}"
+  },
+  "ChurchContext": {
+    "churchCount": "{count, plural, one {# iglesia} other {# iglesias}}",
+    "menu": "Iglesias de {ministry}"
+  },
+  "Topbar": {
+    "openMenu": "Abrir menú",
+    "home": "Inicio de ekklesiaio",
+    "search": "Buscar",
+    "searchPlaceholder": "Buscar personas, solicitudes…"
+  },
+  "Roles": {
+    "admin": "Administrador",
+    "user": "Usuario",
+    "smallGroupLeader": "Líder de grupo pequeño",
+    "deacon": "Diácono",
+    "pending": "Pendiente",
+    "elder": "Anciano"
+  },
+  "GroupsPage": {
+    "emptyTitle": "Aún no hay grupos",
+    "emptyBody": "Los grupos pequeños, sus líderes y los reportes semanales aparecerán aquí cuando estén configurados."
+  },
+  "ReportsPage": {
+    "emptyTitle": "Aún no hay reportes",
+    "emptyBody": "Los reportes semanales de los líderes de grupo aparecerán aquí cuando los grupos empiecen a enviarlos."
+  },
   "ThemeSwitch": {
     "label": "Tema",
     "light": "Claro",

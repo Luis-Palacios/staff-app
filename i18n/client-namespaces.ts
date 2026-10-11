@@ -11,7 +11,12 @@ import type { Messages } from "next-intl";
  */
 export const CLIENT_NAMESPACES = [
   "AccountMenu",
+  "ChurchContext",
+  "Nav",
+  "Roles",
+  "Sidebar",
   "ThemeSwitch",
+  "Topbar",
 ] as const satisfies readonly (keyof Messages)[];
 
 export type ClientMessages = Pick<Messages, (typeof CLIENT_NAMESPACES)[number]>;

@@ -1,21 +1,21 @@
 import type { StaffAppBreadcrumbItem } from "@/components/staff-app-breadcrumbs";
 
 export const groupsBreadcrumb: StaffAppBreadcrumbItem = {
-  label: "Groups",
+  labelKey: "groups",
   href: "/groups",
 };
 
 export const groupsReportsBreadcrumb: StaffAppBreadcrumbItem = {
-  label: "Reports",
+  labelKey: "groupsReports",
   href: "/groups/reports",
 };
 
 export const applicationsBreadcrumb: StaffAppBreadcrumbItem = {
-  label: "Applications",
+  labelKey: "applications",
   href: "/applications",
 };
 
 export const usersBreadcrumb: StaffAppBreadcrumbItem = {
-  label: "Users",
+  labelKey: "users",
   href: "/users",
 };

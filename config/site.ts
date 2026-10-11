@@ -1,4 +1,5 @@
 import type { ComponentType, SVGProps } from "react";
+import type { Messages } from "next-intl";
 
 export type SiteConfig = typeof siteConfig;
 
@@ -8,13 +9,17 @@ export type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
 /** Icon keys resolved by the sidebar's icon registry (`components/sidebar.tsx`). */
 export type NavIconName = "dashboard" | "groups" | "applications" | "access";
 
+/** A key of the `Nav` namespace (messages/en.json). The sidebar and the
+ *  breadcrumbs translate it, so config holds no display text. */
+export type NavLabelKey = keyof Messages["Nav"];
+
 export type NavChildItem = {
-  label: string;
+  labelKey: NavLabelKey;
   href: string;
 };
 
 export type NavItem = {
-  label: string;
+  labelKey: NavLabelKey;
   /** Either a registry key (`components/sidebar.tsx`) or an icon component directly. */
   icon: NavIconName | HeroIcon;
   /** Leaf link. Omit when the item only groups `items`. */
@@ -48,7 +53,6 @@ export type ChurchContext = {
 
 export const siteConfig = {
   name: "ekklesiaio",
-  description: "Manage staff, groups, applications, and reports efficiently.",
   // Hard-coded until multi-tenancy exists. Read only through
   // `getChurchContext()` (`lib/workspace.ts`), never directly: later the
   // ministry and churches come from the session / auth-server.
@@ -65,39 +69,39 @@ export const siteConfig = {
   },
   navItems: [
     {
-      label: "Dashboard",
+      labelKey: "dashboard",
       icon: "dashboard",
       href: "/",
     },
     {
-      label: "Groups",
+      labelKey: "groups",
       icon: "groups",
       items: [
         {
-          label: "List",
+          labelKey: "groupsList",
           href: "/groups",
         },
         {
-          label: "Reports",
+          labelKey: "groupsReports",
           href: "/groups/reports",
         },
       ],
     },
     {
-      label: "Applications",
+      labelKey: "applications",
       icon: "applications",
       href: "/applications",
     },
     {
-      label: "Access",
+      labelKey: "access",
       icon: "access",
       items: [
         {
-          label: "Users",
+          labelKey: "users",
           href: "/users",
         },
         {
-          label: "Invites",
+          labelKey: "invites",
           href: "/users/invites",
         },
       ],
