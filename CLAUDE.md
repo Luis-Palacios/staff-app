@@ -12,6 +12,10 @@ See `docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phase
 with the sibling `auth-server` (better-auth) and `membership-applications` (FastAPI) repos —
 pick up at whichever phase is still marked `[ ]`.
 
+See `docs/infrastructure/I18N-ROADMAP.md` for the staged next-intl (English + Spanish)
+plan: no locale in the URL, one PR per stage. Pick up at whichever stage is still
+marked `[ ]`.
+
 Design work (brand restyle, shell, account menu, ministry/church context) is implemented
 and paused; its specs and history live in `docs/design/`. Read them only when resuming
 design work or changing those areas — not needed for routine tasks.
@@ -61,7 +65,8 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
 - **Ministry/church context** — `getChurchContext()` (`lib/workspace.ts`,
   server-only, `cache()`d) is the only way to read the ministry and church;
   never read `siteConfig.ministry` / `siteConfig.churches` directly.
-- **Locale (preference only, no translations yet)** — `getLocale()`
+- **Locale (preference only, no translations yet; see
+  `docs/infrastructure/I18N-ROADMAP.md`)** — `getLocale()`
   (`lib/locale.ts`, server-only, `cache()`d) resolves `en`/`es` per request:
   the `ekk_locale` cookie if valid, else `Accept-Language`, else `en`. It sets
   `<html lang>` in `app/layout.tsx` and reaches the account menu as a `locale`

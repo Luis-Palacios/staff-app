@@ -15,7 +15,8 @@ light and dark, at desktop width and below `sm` (640px), before the next one sta
   new language files listed in Stage 2.
 - **Out of scope:** real translations / i18n. Stage 2 only adds the picker and a
   stored locale preference that the future i18n work will read. No UI strings change
-  language yet.
+  language yet. The translation work is planned in
+  `docs/infrastructure/I18N-ROADMAP.md`.
 
 ## Progress (handoff log)
 
