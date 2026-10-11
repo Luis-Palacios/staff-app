@@ -350,11 +350,25 @@ dates.
 - **Not verified in a browser:** the pages in both languages or at 390px. Checked by
   `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm build` only.
 
-### Stage 6 — Auth pages, part 2: verification, pending role, invites `[ ]`
+### Stage 6 — Auth pages, part 2: verification, pending role, invites `[x]`
 
 - `needs-verification` (and `ResendVerificationButton`), `needs-role`, and
   `accept-invite` (`accept-invite-client.tsx`, including its "invalid or expired" states).
 - Reuses Stage 5's error helper.
+
+**Done (2026-10-11).** Notes:
+
+- **Namespaces added:** `ResendVerificationButton`, `NeedsRolePage` and `AcceptInvite`
+  (client), plus `NeedsVerificationPage` (server only; uses `t.rich` for the bold email).
+- **Errors:** the resend button now uses `useAuthErrorMessage()`. The invite page shows a
+  fixed "invalid or has expired" text for any failure except HTTP 429, which goes through
+  the helper, because the invite plugin's codes aren't mapped. Add codes to `CODE_TO_KEY`
+  if finer messages are wanted.
+- **Left as is:** `AcceptInviteClient` keeps the translated message in state, so it
+  doesn't change if the language is switched while the error is showing (the page is
+  public and has no picker).
+- **Not verified in a browser:** the pages in both languages or at 390px. Checked by
+  `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm build` only.
 
 ### Stage 7 — Dashboard `[ ]`
 

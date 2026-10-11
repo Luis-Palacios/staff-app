@@ -2,17 +2,21 @@
 
 import { useState } from "react";
 import { Alert, Button } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 import { authButton, authStack } from "../../_components/auth-styles";
 import { AuthTextField } from "../../_components/auth-text-field";
 
 import { authClient } from "@/lib/auth/auth-client";
+import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
 
 export function ResendVerificationButton({
   initialEmail,
 }: {
   initialEmail: string | null;
 }) {
+  const t = useTranslations("ResendVerificationButton");
+  const authErrorMessage = useAuthErrorMessage();
   const [email, setEmail] = useState(initialEmail ?? "");
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +31,7 @@ export function ResendVerificationButton({
     });
 
     if (resendError) {
-      setError(resendError.message ?? "Failed to resend email");
+      setError(authErrorMessage(resendError));
       setStatus("idle");
 
       return;
@@ -42,7 +46,7 @@ export function ResendVerificationButton({
         <AuthTextField
           isRequired
           autoComplete="email"
-          label="Email"
+          label={t("email")}
           type="email"
           value={email}
           onChange={setEmail}
@@ -62,9 +66,7 @@ export function ResendVerificationButton({
         <Alert status="success">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Description>
-              Verification email sent — check your inbox.
-            </Alert.Description>
+            <Alert.Description>{t("sent")}</Alert.Description>
           </Alert.Content>
         </Alert>
       ) : (
@@ -76,7 +78,7 @@ export function ResendVerificationButton({
           type="button"
           onPress={handleResend}
         >
-          Resend verification email
+          {t("submit")}
         </Button>
       )}
     </div>

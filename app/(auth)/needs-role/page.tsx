@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 import { AuthHeading } from "../_components/auth-heading";
 import { authButton, authStack } from "../_components/auth-styles";
@@ -9,6 +10,7 @@ import { authButton, authStack } from "../_components/auth-styles";
 import { authClient } from "@/lib/auth/auth-client";
 
 export default function NeedsRolePage() {
+  const t = useTranslations("NeedsRolePage");
   const router = useRouter();
 
   async function handleSignOut() {
@@ -18,17 +20,14 @@ export default function NeedsRolePage() {
 
   return (
     <div className={authStack}>
-      <AuthHeading title="Access denied">
-        You need to be assigned a role to access this application. Please
-        contact your administrator to be assigned the appropriate role.
-      </AuthHeading>
+      <AuthHeading title={t("title")}>{t("body")}</AuthHeading>
       <Button
         fullWidth
         className={authButton}
         variant="danger-soft"
         onPress={handleSignOut}
       >
-        Sign out
+        {t("signOut")}
       </Button>
     </div>
   );

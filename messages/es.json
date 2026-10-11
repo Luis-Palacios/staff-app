@@ -147,5 +147,31 @@
     "invalidBody": "Este enlace para restablecer la contraseña expiró o ya se usó. Solicita uno nuevo para continuar.",
     "requestNew": "Solicitar un enlace nuevo",
     "backToSignIn": "Volver a iniciar sesión"
+  },
+  "NeedsVerificationPage": {
+    "title": "Revisa tu correo",
+    "bodyWithEmail": "Enviamos un enlace de verificación a <emailTag>{email}</emailTag>. Haz clic en él y luego inicia sesión.",
+    "body": "Te enviamos un enlace de verificación por correo. Haz clic en él y luego inicia sesión.",
+    "backToSignIn": "Volver a iniciar sesión"
+  },
+  "ResendVerificationButton": {
+    "email": "Correo electrónico",
+    "submit": "Reenviar correo de verificación",
+    "sent": "Correo de verificación enviado — revisa tu bandeja de entrada."
+  },
+  "NeedsRolePage": {
+    "title": "Acceso denegado",
+    "body": "Necesitas que te asignen un rol para acceder a esta aplicación. Comunícate con tu administrador para que te asigne el rol correspondiente.",
+    "signOut": "Cerrar sesión"
+  },
+  "AcceptInvite": {
+    "checking": "Comprobando invitación",
+    "invalidTitle": "Invitación no válida",
+    "missingToken": "A este enlace de invitación le falta el token.",
+    "invalid": "Este enlace de invitación no es válido o ya expiró.",
+    "title": "Te han invitado",
+    "body": "Crea una cuenta para aceptar esta invitación, o inicia sesión si ya tienes una.",
+    "createAccount": "Crear cuenta",
+    "signIn": "Iniciar sesión"
   }
 }
