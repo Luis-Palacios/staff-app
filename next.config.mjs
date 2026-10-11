@@ -1,3 +1,9 @@
+import createNextIntlPlugin from "next-intl/plugin";
+
+// Finds i18n/request.ts (next-intl's per-request locale + messages) by its
+// default path.
+const withNextIntl = createNextIntlPlugin();
+
 // No rewrites() for /api/auth: they're frozen at build time. proxy.ts forwards it at runtime.
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -12,4 +18,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

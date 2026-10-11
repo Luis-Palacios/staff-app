@@ -65,8 +65,10 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
 - **Ministry/church context** — `getChurchContext()` (`lib/workspace.ts`,
   server-only, `cache()`d) is the only way to read the ministry and church;
   never read `siteConfig.ministry` / `siteConfig.churches` directly.
-- **Locale (preference only, no translations yet; see
-  `docs/infrastructure/I18N-ROADMAP.md`)** — `getLocale()`
+- **Locale and translations (next-intl, in progress; see
+  `docs/infrastructure/I18N-ROADMAP.md` for the conventions)**. `i18n/request.ts`
+  feeds `getLocale()` and `messages/<locale>.json` to next-intl, and only
+  `CLIENT_NAMESPACES` (`i18n/client-namespaces.ts`) reach the browser. — `getLocale()`
   (`lib/locale.ts`, server-only, `cache()`d) resolves `en`/`es` per request:
   the `ekk_locale` cookie if valid, else `Accept-Language`, else `en`. It sets
   `<html lang>` in `app/layout.tsx` and reaches the account menu as a `locale`

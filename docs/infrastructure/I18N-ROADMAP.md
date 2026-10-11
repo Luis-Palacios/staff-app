@@ -92,23 +92,31 @@ Stage 1, since next-intl ships its own copy.
 
 ## Type safety and missing translations (no test runner needed)
 
-- **Typed keys.** Add a `global.d.ts` (or `i18n/types.ts`) that augments next-intl's
-  `AppConfig` with `Locale` (from `lib/locale-shared.ts`) and `Messages: typeof en`.
-  Then `t("typo")`, a wrong namespace, or a missing `en.json` key fails
-  `pnpm exec tsc --noEmit`.
-- **Spanish parity check.** Add `messages/parity.ts`:
+- **Typed keys.** `global.ts` augments next-intl's `AppConfig` with `Locale` (from
+  `lib/locale-shared.ts`) and `Messages: typeof en`. Then `t("typo")`, a wrong
+  namespace, or a missing `en.json` key fails `pnpm exec tsc --noEmit`.
+  - It must be **`global.ts`, not `global.d.ts`**. `skipLibCheck: true` hides errors in
+    `.d.ts` files, and in Stage 1 that hid the augmentation silently not reaching
+    `getTranslations`.
+  - TypeScript only applies the augmentation once some file imports `"next-intl"`. The
+    root layout does, so this is always true now.
+  - Placeholders aren't type-checked: `t("trigger")` without `{ name }` compiles. See
+    Stage 12.
+- **Spanish parity check.** `messages/parity.ts` is types only, so nothing runs at
+  runtime:
   ```ts
   import type en from "./en.json";
-  import es from "./es.json";
+  import type es from "./es.json";
 
-  // `tsc` fails here when es.json is missing a key that en.json has.
-  const _es: typeof en = es;
+  type AssertComplete<Translation extends Source, Source> = Translation;
+
+  export type SpanishIsComplete = AssertComplete<typeof es, typeof en>;
   ```
   Every stage's PR then cannot merge a key in English without its Spanish. This is the
   same `tsc` command we already run, so there is no new tooling.
-- **Runtime safety net.** In `getRequestConfig`, set `onError` and `getMessageFallback`.
-  In development, log a missing message loudly. In production, show the
-  `Namespace.key` path instead of crashing the page.
+- **Runtime safety net.** next-intl's defaults already cover this, so `request.ts` sets
+  no `onError` / `getMessageFallback`. A missing message is logged with `console.error`,
+  and the page shows `Namespace.key` instead of crashing.
 
 ## Shape of the code after Stage 1
 
@@ -120,7 +128,7 @@ messages/
   en.json               # source of truth
   es.json
   parity.ts             # compile-time completeness check
-global.d.ts             # AppConfig augmentation (typed keys, typed locale)
+global.ts               # AppConfig augmentation (typed keys, typed locale)
 next.config.mjs         # wrapped with createNextIntlPlugin()
 app/layout.tsx          # <NextIntlClientProvider messages={pick(...)}> inside <Providers>
 app/providers.tsx       # + HeroUI/react-aria <I18nProvider locale={locale}>
@@ -170,14 +178,14 @@ Notes:
 
 ## Stages
 
-### Stage 1 — Foundation + account menu `[ ]`
+### Stage 1 — Foundation + account menu `[x]`
 
 Install and wire next-intl, and translate the account menu as the smoke test. It is where
 the picker lives, so switching language immediately proves the whole loop end to end.
 
 - `pnpm add next-intl`, `pnpm remove intl-messageformat`.
 - Add `i18n/request.ts`, `i18n/client-namespaces.ts`, `messages/{en,es}.json`,
-  `messages/parity.ts` and `global.d.ts`, all as described above.
+  `messages/parity.ts` and `global.ts`, all as described above.
 - Wrap `next.config.mjs` with `createNextIntlPlugin()`.
 - `app/layout.tsx`: add `NextIntlClientProvider` with the filtered messages.
   `app/providers.tsx`: add `I18nProvider`, which needs a `locale` prop from the root layout.
@@ -190,6 +198,20 @@ the picker lives, so switching language immediately proves the whole loop end to
 
 **Done when:** picking Español in the account menu translates the menu itself, `tsc`
 fails if `es.json` misses a key, and `pnpm build` passes.
+
+**Done (2026-10-10).** Notes:
+
+- next-intl 4.14.9 was installed. Its message extractor brings `@parcel/watcher` and
+  `@swc/core`. Their install scripts are set to `false` in `pnpm-workspace.yaml`'s
+  `allowBuilds`: we don't use extraction, and both ship prebuilt binaries.
+  `intl-messageformat` remains in the lockfile as a dependency of HeroUI and next-intl.
+- Both type checks were proven by breaking them on purpose: a deleted `es.json` key, and
+  `t("signOutt")`.
+- Not yet verified: that the browser receives only `CLIENT_NAMESPACES`. Today every
+  namespace is a client one. Check it in the first stage that adds a server-only
+  namespace.
+- Still English in the topbar: search, "Open menu", the home link's label and the role
+  badge (Stage 2).
 
 ### Stage 2 — App shell and navigation `[ ]`
 
@@ -290,6 +312,8 @@ dates.
   string `aria-label` / `placeholder` / `title` props that aren't `t(...)`. Optionally
   add `react/jsx-no-literals` (already available through `eslint-plugin-react`) as a
   *warning*, scoped to `app/` and `components/`, so new hard-coded strings get flagged.
+- **Consider typed placeholders.** The plugin's `experimental.createMessagesDeclaration`
+  generates types from `en.json`, so `t("trigger")` without its `{ name }` fails `tsc`.
 - **Try precompiling.** Enable `experimental.messages.precompile` and compare the
   `pnpm build` client bundle sizes before and after. Keep it only if it builds cleanly and
   the saving is real. Record the numbers here either way.

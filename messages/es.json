@@ -1,0 +1,18 @@
+{
+  "ThemeSwitch": {
+    "label": "Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema"
+  },
+  "AccountMenu": {
+    "trigger": "Menú de cuenta, {name}",
+    "menu": "Cuenta",
+    "language": "Idioma",
+    "languageDefault": "Por defecto: tu navegador",
+    "profileSection": "Perfil",
+    "myProfile": "Mi perfil",
+    "sessionSection": "Sesión",
+    "signOut": "Cerrar sesión"
+  }
+}

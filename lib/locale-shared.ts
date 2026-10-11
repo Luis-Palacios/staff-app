@@ -1,6 +1,8 @@
 // Locale constants and types, safe to import from client components. The
 // request-time resolution (cookie → Accept-Language → default) lives in
-// lib/locale.ts, which is server-only.
+// lib/locale.ts, which is server-only; i18n/request.ts hands its result to
+// next-intl. Client components read the active locale with next-intl's
+// useLocale(), or get it as a prop.
 
 export const LOCALES = ["en", "es"] as const;
 

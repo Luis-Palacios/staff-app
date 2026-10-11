@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { ToggleButton, ToggleButtonGroup } from "@heroui/react";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 export interface ThemeSwitchProps {
   className?: string;
@@ -44,11 +45,12 @@ const SystemIcon: FC<ComponentProps<"svg">> = (props) => (
   </svg>
 );
 
-/** Shared with the account menu, which offers the same choices below `sm`. */
+/** Shared with the account menu, which offers the same choices below `sm`.
+ *  Each `key` is also its label's key in the `ThemeSwitch` namespace. */
 export const THEME_OPTIONS = [
-  { key: "light", label: "Light", icon: SunIcon },
-  { key: "dark", label: "Dark", icon: MoonIcon },
-  { key: "system", label: "System", icon: SystemIcon },
+  { key: "light", icon: SunIcon },
+  { key: "dark", icon: MoonIcon },
+  { key: "system", icon: SystemIcon },
 ] as const;
 
 // HeroUI's ToggleButton reads its colors from --toggle-button-* variables, so
@@ -65,6 +67,7 @@ const segmentButton = clsx(
 );
 
 export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
+  const t = useTranslations("ThemeSwitch");
   const [isMounted, setIsMounted] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -85,7 +88,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
   return (
     <ToggleButtonGroup
       disallowEmptySelection
-      aria-label="Theme"
+      aria-label={t("label")}
       className={clsx(
         "gap-0.5 rounded-[10px] border border-border bg-segment p-[3px]",
         className,
@@ -93,11 +96,11 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
       selectedKeys={[theme ?? "system"]}
       onSelectionChange={handleSelectionChange}
     >
-      {THEME_OPTIONS.map(({ key, label, icon: Icon }) => (
+      {THEME_OPTIONS.map(({ key, icon: Icon }) => (
         <ToggleButton
           key={key}
           isIconOnly
-          aria-label={label}
+          aria-label={t(key)}
           className={segmentButton}
           id={key}
         >

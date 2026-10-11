@@ -28,6 +28,7 @@ import {
 import clsx from "clsx";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { tv } from "tailwind-variants";
 
@@ -103,6 +104,8 @@ function useIsMac() {
 
 export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
   const { ministry, church } = context;
+  const t = useTranslations("AccountMenu");
+  const tTheme = useTranslations("ThemeSwitch");
   const router = useRouter();
   const currentUser = useCurrentUser();
   const isMac = useIsMac();
@@ -228,7 +231,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
         </div>
         <Dropdown.Root>
           <Dropdown.Trigger
-            aria-label={`Account menu, ${currentUser.name}`}
+            aria-label={t("trigger", { name: currentUser.name })}
             // Open: keeps the hover tint and the chevron flips up. HeroUI
             // scales a pressed trigger to 0.97 and react-aria keeps it
             // "pressed" while the menu is open, so cancel that (as the
@@ -298,7 +301,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
             </div>
             {/* No padding or gap on the menu itself: each group carries
                 its own top border and padding. */}
-            <Dropdown.Menu aria-label="Account" className="gap-0 p-0">
+            <Dropdown.Menu aria-label={t("menu")} className="gap-0 p-0">
               {!isSmUp && (
                 <Dropdown.Section
                   disallowEmptySelection
@@ -312,14 +315,14 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
                   }}
                 >
                   <Header className="px-2.5 pt-1.5 pb-1 text-xs font-semibold text-muted">
-                    Theme
+                    {tTheme("label")}
                   </Header>
-                  {THEME_OPTIONS.map(({ key, label, icon: Icon }) => (
+                  {THEME_OPTIONS.map(({ key, icon: Icon }) => (
                     <Dropdown.Item
                       key={key}
                       className={item()}
                       id={key}
-                      textValue={label}
+                      textValue={tTheme(key)}
                     >
                       {({ isSelected }) => (
                         <>
@@ -328,7 +331,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
                             className={itemIcon()}
                             strokeWidth={1.8}
                           />
-                          <span className="flex-1">{label}</span>
+                          <span className="flex-1">{tTheme(key)}</span>
                           {isSelected && (
                             <CheckIcon
                               aria-hidden="true"
@@ -342,8 +345,6 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
                   ))}
                 </Dropdown.Section>
               )}
-              {/* Preference only for now: until i18n lands, picking one
-                  moves the check and changes <html lang>. */}
               <Dropdown.Section
                 disallowEmptySelection
                 className={menuGroup}
@@ -358,8 +359,8 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
                 {/* self-stretch: .menu-section aligns its children to the
                     start, so the row would otherwise hug its text. */}
                 <Header className="flex items-baseline justify-between gap-2 self-stretch px-2.5 pt-1.5 pb-1 text-xs font-semibold text-muted">
-                  <span>Language</span>
-                  <span className="font-normal">Default: your browser</span>
+                  <span>{t("language")}</span>
+                  <span className="font-normal">{t("languageDefault")}</span>
                 </Header>
                 {LOCALES.map((key) => {
                   const { label, tag } = LOCALE_LABELS[key];
@@ -397,10 +398,13 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
                   );
                 })}
               </Dropdown.Section>
-              <Dropdown.Section aria-label="Profile" className={menuGroup}>
+              <Dropdown.Section
+                aria-label={t("profileSection")}
+                className={menuGroup}
+              >
                 <Dropdown.Item
                   className={item()}
-                  textValue="My profile"
+                  textValue={t("myProfile")}
                   onAction={() => router.push("/users/me")}
                 >
                   <UserCircleIcon
@@ -408,13 +412,16 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
                     className={itemIcon()}
                     strokeWidth={1.8}
                   />
-                  <span className="flex-1">My profile</span>
+                  <span className="flex-1">{t("myProfile")}</span>
                 </Dropdown.Item>
               </Dropdown.Section>
-              <Dropdown.Section aria-label="Session" className={menuGroup}>
+              <Dropdown.Section
+                aria-label={t("sessionSection")}
+                className={menuGroup}
+              >
                 <Dropdown.Item
                   className={item({ danger: true })}
-                  textValue="Sign out"
+                  textValue={t("signOut")}
                   variant="danger"
                   onAction={handleSignOut}
                 >
@@ -423,7 +430,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
                     className={itemIcon({ danger: true })}
                     strokeWidth={1.8}
                   />
-                  <span className="flex-1">Sign out</span>
+                  <span className="flex-1">{t("signOut")}</span>
                 </Dropdown.Item>
               </Dropdown.Section>
             </Dropdown.Menu>
