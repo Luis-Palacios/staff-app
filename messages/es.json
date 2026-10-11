@@ -58,5 +58,23 @@
     "myProfile": "Mi perfil",
     "sessionSection": "Sesión",
     "signOut": "Cerrar sesión"
+  },
+  "ErrorState": {
+    "title": "Algo salió mal",
+    "body": "No se pudo cargar esta página. Vuelve a intentarlo y, si sigue pasando, avísale a tu administrador.",
+    "retry": "Reintentar"
+  },
+  "ConfirmDialog": {
+    "cancel": "Cancelar"
+  },
+  "DataTable": {
+    "open": "Abrir",
+    "showing": "Mostrando {start}–{end} de {total}",
+    "previous": "Anterior",
+    "next": "Siguiente"
+  },
+  "Loading": {
+    "label": "Cargando",
+    "timeline": "Cargando historial"
   }
 }

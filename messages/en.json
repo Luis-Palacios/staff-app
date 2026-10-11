@@ -58,5 +58,23 @@
     "myProfile": "My profile",
     "sessionSection": "Session",
     "signOut": "Sign out"
+  },
+  "ErrorState": {
+    "title": "Something went wrong",
+    "body": "This page couldn't load. Try again, and if it keeps happening, let your administrator know.",
+    "retry": "Try again"
+  },
+  "ConfirmDialog": {
+    "cancel": "Cancel"
+  },
+  "DataTable": {
+    "open": "Open",
+    "showing": "Showing {start}–{end} of {total}",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "Loading": {
+    "label": "Loading",
+    "timeline": "Loading timeline"
   }
 }

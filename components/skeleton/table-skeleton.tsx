@@ -1,4 +1,5 @@
 import { Skeleton, Table } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 import { dataTable } from "@/components/data-table";
 
@@ -8,17 +9,19 @@ type TableSkeletonProps = {
 };
 
 // Same frame and spacing as a real data table, so the page doesn't jump when
-// the data arrives. The first column mimics DataTablePrimaryCell.
+// the data arrives. The first column mimics DataTablePrimaryCell. Server
+// only: "Loading" isn't a client namespace.
 export default function TableSkeleton({
   rows = 5,
   columns = 5,
 }: TableSkeletonProps) {
+  const t = useTranslations("Loading");
   const { root, column, row, cell } = dataTable();
 
   return (
-    <Table aria-label="Loading" className={root()} variant="secondary">
+    <Table aria-label={t("label")} className={root()} variant="secondary">
       <Table.ScrollContainer>
-        <Table.Content aria-label="Loading">
+        <Table.Content aria-label={t("label")}>
           <Table.Header>
             {Array.from({ length: columns }).map((_, colIndex) => (
               <Table.Column

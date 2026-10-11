@@ -259,7 +259,7 @@ fails if `es.json` misses a key, and `pnpm build` passes.
   home" lives in both `Sidebar` and `Topbar` instead of a shared `Common` namespace,
   which would be a client namespace that grows; revisit in Stage 3 if more repeats appear.
 
-### Stage 3 — Shared components and error pages `[ ]`
+### Stage 3 — Shared components and error pages `[x]`
 
 - `EmptyState`, `ErrorState`, `ConfirmDialog` (default Confirm/Cancel labels),
   `components/data-table.tsx` ("Open" action, footer text such as "Showing 1–10 of 42",
@@ -268,6 +268,33 @@ fails if `es.json` misses a key, and `pnpm build` passes.
 - `app/error.tsx`, `app/(app)/error.tsx`, `app/(app)/loading.tsx`.
 - Rule from the performance plan: server parents pass strings into client leaves where
   that is simpler than adding a client namespace.
+
+**Done (2026-10-10).** Notes:
+
+- **Namespaces added:** `ErrorState`, `ConfirmDialog` and `DataTable` (client), plus
+  `Loading` (server only).
+- **Why client:** error boundaries must be `"use client"` and have no server parent to
+  pass props from. `ConfirmDialog`, `DataTableOpenLink` and `DataTableFooter` are only
+  rendered by client components, so a prop would just move the same `useTranslations`
+  into every caller.
+- **`Loading` is server only.** `(app)/loading.tsx`, `TableSkeleton` and
+  `PersonTimelineSkeleton` are only imported by server pages. Importing a skeleton into
+  a client component would show `Loading.label`; add the namespace to
+  `CLIENT_NAMESPACES` or pass the label as a prop then.
+- **Footer:** `DataTable.showing` is `Showing {start}–{end} of {total}`, with no plural:
+  "1–1 of 1" reads fine in both languages.
+- **No change needed:** `EmptyState`, `StatusBadge` and `StaffAppPageHeader` take all
+  their text through props. The breadcrumbs' `aria-label` comes from react-aria
+  ("Migas de pan") through Stage 1's `I18nProvider`; "Home" was done in Stage 2.
+- **Still props, translated by callers later:** `ConfirmDialog`'s `title`, body and
+  `confirmLabel`, and `DataTableOpenLink`'s `label` (Stages 8–11). No default
+  "Confirm" label was added; a specific verb reads better.
+- **Verified:** in Spanish, the users and applications footers, "Abrir", the error
+  page (via `/applications/999999999`), and the "Cargando" / "Cargando historial"
+  fallbacks in the streamed HTML. `Loading` is not in the browser payload. Not clicked
+  through: `ConfirmDialog`'s "Cancelar", since opening it means staging a role change.
+- **Found:** an unknown application id shows the error page rather than a not-found
+  page. That predates i18n; look at it in Stage 9.
 
 ### Stage 4 — Dates follow the selected language `[ ]`
 

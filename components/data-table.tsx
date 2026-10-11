@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Table, buttonVariants } from "@heroui/react";
 import NextLink from "next/link";
+import { useTranslations } from "next-intl";
 import { tv } from "tailwind-variants";
 
 import { InitialsAvatar } from "@/components/initials-avatar";
@@ -74,6 +75,8 @@ export function DataTableOpenLink({
   href: string;
   label: string;
 }) {
+  const t = useTranslations("DataTable");
+
   return (
     <NextLink
       aria-label={label}
@@ -84,7 +87,7 @@ export function DataTableOpenLink({
       })}
       href={href}
     >
-      Open
+      {t("open")}
       <ChevronRightIcon
         aria-hidden="true"
         className="size-3.5"
@@ -100,13 +103,14 @@ export function DataTableOpenLink({
 // TODO: the APIs don't paginate yet, so every list fits on one page and both
 // buttons stay disabled. Wire them up once there's a page/cursor parameter.
 export function DataTableFooter({ total }: { total: number }) {
+  const t = useTranslations("DataTable");
   const { footer } = dataTable();
 
   if (total === 0) return null;
 
   return (
     <Table.Footer className={footer()}>
-      <span>{`Showing 1–${total} of ${total}`}</span>
+      <span>{t("showing", { start: 1, end: total, total })}</span>
       <span className="flex gap-2">
         <button
           disabled
@@ -117,7 +121,7 @@ export function DataTableFooter({ total }: { total: number }) {
           })}
           type="button"
         >
-          Previous
+          {t("previous")}
         </button>
         <button
           disabled
@@ -128,7 +132,7 @@ export function DataTableFooter({ total }: { total: number }) {
           })}
           type="button"
         >
-          Next
+          {t("next")}
         </button>
       </span>
     </Table.Footer>
