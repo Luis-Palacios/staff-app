@@ -296,7 +296,7 @@ fails if `es.json` misses a key, and `pnpm build` passes.
 - **Found:** an unknown application id shows the error page rather than a not-found
   page. That predates i18n; look at it in Stage 9.
 
-### Stage 4 — Dates follow the selected language `[ ]`
+### Stage 4 — Dates follow the selected language `[x]`
 
 Today `lib/format-date.ts` calls `Intl.DateTimeFormat(undefined, …)`, so dates follow
 the *browser* language. A Spanish-browser user who picks English still sees Spanish
@@ -308,6 +308,20 @@ dates.
   doesn't know the user's zone. Changing the language doesn't change that.
 - Check numbers too (stat tiles, counts), and use `Intl.NumberFormat(locale)` or
   `useFormatter()` where numbers are shown.
+
+**Done (2026-10-11).** Notes:
+
+- `formatLocal*` in `lib/format-date.ts` now take a `locale` argument and pass it to
+  `Intl.DateTimeFormat`. `LocalFormattedDate` reads it with `useLocale()` and re-formats
+  when it changes. `TodayDate` (dashboard eyebrow) does the same. The `Local*` wrappers
+  needed no change.
+- Formatting still happens after mount, because the time zone is the browser's.
+- **Numbers:** nothing uses `Intl.NumberFormat` or `toLocaleString` today. The counts
+  shown are small integers rendered as plain digits (`needs-attention-card.tsx`, the
+  `applications-browser.tsx` "N applications" text), and those strings get their ICU
+  plurals in Stages 7–8. Use `useFormatter()` there if a number can reach 1,000.
+- **Not verified in a browser:** dates in both languages. Checked by `pnpm exec tsc --noEmit`,
+  `pnpm lint` and `pnpm build` only.
 
 ### Stage 5 — Auth pages, part 1: sign-in, sign-up, password reset `[ ]`
 

@@ -1,25 +1,29 @@
 "use client";
 
+import type { Locale } from "@/lib/locale-shared";
+
 import { FC, useEffect, useState } from "react";
+import { useLocale } from "next-intl";
 
 export interface LocalFormattedDateProps {
   value: string;
-  format: (iso: string) => string;
+  format: (iso: string, locale: Locale) => string;
   minWidthClass: string;
 }
 
-// Formats after mount so the output uses the browser's locale and time zone,
-// avoiding a server/client hydration mismatch.
+// Formats after mount so the output uses the browser's time zone (the language
+// follows the picker), avoiding a server/client hydration mismatch.
 export const LocalFormattedDate: FC<LocalFormattedDateProps> = ({
   value,
   format,
   minWidthClass,
 }) => {
+  const locale = useLocale();
   const [formatted, setFormatted] = useState<string | null>(null);
 
   useEffect(() => {
-    setFormatted(format(value));
-  }, [value, format]);
+    setFormatted(format(value, locale));
+  }, [value, format, locale]);
 
   if (!value) return <>—</>;
 

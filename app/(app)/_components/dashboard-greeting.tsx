@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { useLocale } from "next-intl";
 
 import { formatLocalLongDate } from "@/lib/format-date";
 
@@ -32,10 +33,11 @@ const fadeIn = (ready: boolean) =>
 // "Thursday, October 9", for the page header's eyebrow.
 export function TodayDate() {
   const now = useNowAfterMount();
+  const locale = useLocale();
 
   return (
     <span className={fadeIn(now !== null)}>
-      {now ? formatLocalLongDate(now.toISOString()) : " "}
+      {now ? formatLocalLongDate(now.toISOString(), locale) : " "}
     </span>
   );
 }
