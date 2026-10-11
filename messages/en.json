@@ -147,5 +147,31 @@
     "invalidBody": "This password reset link has expired or was already used. Request a new one to continue.",
     "requestNew": "Request a new link",
     "backToSignIn": "Back to sign in"
+  },
+  "NeedsVerificationPage": {
+    "title": "Check your email",
+    "bodyWithEmail": "We sent a verification link to <emailTag>{email}</emailTag>. Click it, then sign in.",
+    "body": "We sent you a verification link by email. Click it, then sign in.",
+    "backToSignIn": "Back to sign in"
+  },
+  "ResendVerificationButton": {
+    "email": "Email",
+    "submit": "Resend verification email",
+    "sent": "Verification email sent — check your inbox."
+  },
+  "NeedsRolePage": {
+    "title": "Access denied",
+    "body": "You need to be assigned a role to access this application. Please contact your administrator to be assigned the appropriate role.",
+    "signOut": "Sign out"
+  },
+  "AcceptInvite": {
+    "checking": "Checking invite",
+    "invalidTitle": "Invite not valid",
+    "missingToken": "This invite link is missing its token.",
+    "invalid": "This invite link is invalid or has expired.",
+    "title": "You've been invited",
+    "body": "Create an account to accept this invite, or sign in if you already have one.",
+    "createAccount": "Create account",
+    "signIn": "Sign in"
   }
 }

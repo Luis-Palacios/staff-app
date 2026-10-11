@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ProgressBar, ProgressBarTrack, buttonVariants } from "@heroui/react";
 import NextLink from "next/link";
+import { useTranslations } from "next-intl";
 
 import { AuthHeading } from "../../_components/auth-heading";
 import { authButton, authStack } from "../../_components/auth-styles";
 
 import { authClient } from "@/lib/auth/auth-client";
+import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
 
 type ActivationState =
   | { status: "loading" }
@@ -22,6 +24,8 @@ export function AcceptInviteClient({
   token: string | null;
   email: string | null;
 }) {
+  const t = useTranslations("AcceptInvite");
+  const authErrorMessage = useAuthErrorMessage();
   const router = useRouter();
   const [state, setState] = useState<ActivationState>({ status: "loading" });
 
@@ -29,7 +33,7 @@ export function AcceptInviteClient({
     if (!token) {
       setState({
         status: "error",
-        message: "This invite link is missing its token.",
+        message: t("missingToken"),
       });
 
       return;
@@ -40,7 +44,7 @@ export function AcceptInviteClient({
         setState({
           status: "error",
           message:
-            error.message ?? "This invite link is invalid or has expired.",
+            error.status === 429 ? authErrorMessage(error) : t("invalid"),
         });
 
         return;
@@ -54,13 +58,15 @@ export function AcceptInviteClient({
 
       setState({ status: "choose" });
     });
+    // t and authErrorMessage change identity every render; the locale only
+    // matters for the message text, which is fine to keep from first run.
   }, [token, router]);
 
   if (state.status === "loading") {
     return (
       <ProgressBar
         isIndeterminate
-        aria-label="Checking invite"
+        aria-label={t("checking")}
         className="w-full"
       >
         <ProgressBarTrack>
@@ -73,7 +79,7 @@ export function AcceptInviteClient({
   if (state.status === "error") {
     return (
       <div className={authStack}>
-        <AuthHeading title="Invite not valid">{state.message}</AuthHeading>
+        <AuthHeading title={t("invalidTitle")}>{state.message}</AuthHeading>
       </div>
     );
   }
@@ -82,16 +88,13 @@ export function AcceptInviteClient({
 
   return (
     <div className={authStack}>
-      <AuthHeading title="You've been invited">
-        Create an account to accept this invite, or sign in if you already have
-        one.
-      </AuthHeading>
+      <AuthHeading title={t("title")}>{t("body")}</AuthHeading>
       <div className="flex flex-col gap-3 sm:flex-row">
         <NextLink
           className={buttonVariants({ fullWidth: true, className: authButton })}
           href={`/sign-up${emailQuery}`}
         >
-          Create account
+          {t("createAccount")}
         </NextLink>
         <NextLink
           className={buttonVariants({
@@ -101,7 +104,7 @@ export function AcceptInviteClient({
           })}
           href={`/sign-in${emailQuery}`}
         >
-          Sign in
+          {t("signIn")}
         </NextLink>
       </div>
     </div>

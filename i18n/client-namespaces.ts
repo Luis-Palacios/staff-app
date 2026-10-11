@@ -10,6 +10,7 @@ import type { Messages } from "next-intl";
  * This list is what the client pays for, so keep it reviewable.
  */
 export const CLIENT_NAMESPACES = [
+  "AcceptInvite",
   "AccountMenu",
   "AuthErrors",
   "ChurchContext",
@@ -18,7 +19,9 @@ export const CLIENT_NAMESPACES = [
   "ErrorState",
   "ForgotPasswordForm",
   "Nav",
+  "NeedsRolePage",
   "PasswordField",
+  "ResendVerificationButton",
   "ResetPasswordForm",
   "Roles",
   "Sidebar",
