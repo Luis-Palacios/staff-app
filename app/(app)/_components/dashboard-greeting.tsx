@@ -18,13 +18,19 @@ function useNowAfterMount(): Date | null {
   return now;
 }
 
-function salutationFor(date: Date): string {
+export type Salutations = {
+  morning: string;
+  afternoon: string;
+  evening: string;
+};
+
+function salutationFor(date: Date, salutations: Salutations): string {
   const hour = date.getHours();
 
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
+  if (hour < 12) return salutations.morning;
+  if (hour < 18) return salutations.afternoon;
 
-  return "Good evening";
+  return salutations.evening;
 }
 
 const fadeIn = (ready: boolean) =>
@@ -43,13 +49,21 @@ export function TodayDate() {
 }
 
 // "Good afternoon, María", with the name in italic 400 as the canvas has it.
-export function Greeting({ firstName }: { firstName: string }) {
+// The three salutations arrive translated from the page, so this client leaf
+// needs no message namespace.
+export function Greeting({
+  firstName,
+  salutations,
+}: {
+  firstName: string;
+  salutations: Salutations;
+}) {
   const now = useNowAfterMount();
 
   return (
     <>
       <span className={fadeIn(now !== null)}>
-        {now ? salutationFor(now) : "Good morning"}
+        {now ? salutationFor(now, salutations) : salutations.morning}
         {firstName && ","}
       </span>
       {firstName && (

@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Skeleton } from "@heroui/react/skeleton";
 import clsx from "clsx";
+import { getTranslations } from "next-intl/server";
 import NextLink from "next/link";
 
 import { ApplicationStatusBadge } from "../applications/_components/application-status-badge";
@@ -23,14 +24,13 @@ async function RecentApplicationsList({
 }: {
   applications: Promise<Settled<ApplicationMembershipSummary[]>>;
 }) {
-  const result = await applications;
+  const [result, t] = await Promise.all([
+    applications,
+    getTranslations("RecentApplicationsCard"),
+  ]);
 
   if (!result.ok) {
-    return (
-      <p className={clsx(row, "text-sm text-danger")}>
-        Couldn&apos;t load recent applications.
-      </p>
-    );
+    return <p className={clsx(row, "text-sm text-danger")}>{t("error")}</p>;
   }
 
   // ISO dates sort as strings, newest first.
@@ -39,11 +39,7 @@ async function RecentApplicationsList({
     .slice(0, RECENT_LIMIT);
 
   if (recent.length === 0) {
-    return (
-      <p className={clsx(row, "text-sm text-muted")}>
-        No applications in the last 60 days.
-      </p>
-    );
+    return <p className={clsx(row, "text-sm text-muted")}>{t("empty")}</p>;
   }
 
   return (
@@ -65,8 +61,12 @@ async function RecentApplicationsList({
                 {application.personFullName}
               </span>
               <span className="truncate text-[13px] text-muted">
-                Application #{application.applicationId} · Submitted{" "}
-                <LocalShortDate value={application.generatedDate} />
+                {t.rich("meta", {
+                  id: application.applicationId,
+                  date: () => (
+                    <LocalShortDate value={application.generatedDate} />
+                  ),
+                })}
               </span>
             </span>
             <ApplicationStatusBadge isFulfilled={application.isFulfilled} />
@@ -101,11 +101,13 @@ function RecentApplicationsListSkeleton() {
 
 // The five newest applications. The header renders straight away; only the
 // rows wait on the fetch.
-export function RecentApplicationsCard({
+export async function RecentApplicationsCard({
   applications,
 }: {
   applications: Promise<Settled<ApplicationMembershipSummary[]>>;
 }) {
+  const t = await getTranslations("RecentApplicationsCard");
+
   return (
     <section
       className={card({
@@ -114,16 +116,14 @@ export function RecentApplicationsCard({
     >
       <div className="flex items-center justify-between gap-3 px-[22px] pb-3.5 pt-5">
         <div>
-          <h2 className={title({ size: "sm" })}>Recent applications</h2>
-          <p className="mt-0.5 text-[13.5px] text-muted">
-            Membership testimonies from the last 60 days
-          </p>
+          <h2 className={title({ size: "sm" })}>{t("title")}</h2>
+          <p className="mt-0.5 text-[13.5px] text-muted">{t("subtitle")}</p>
         </div>
         <NextLink
           className={textLink({ className: "whitespace-nowrap text-sm" })}
           href="/applications"
         >
-          View all
+          {t("viewAll")}
         </NextLink>
       </div>
       <Suspense fallback={<RecentApplicationsListSkeleton />}>

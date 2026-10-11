@@ -43,6 +43,38 @@
     "emptyTitle": "Aún no hay reportes",
     "emptyBody": "Los reportes semanales de los líderes de grupo aparecerán aquí cuando los grupos empiecen a enviarlos."
   },
+  "DashboardPage": {
+    "description": "Esto es lo que necesita tu atención esta semana.",
+    "morning": "Buenos días",
+    "afternoon": "Buenas tardes",
+    "evening": "Buenas noches",
+    "newApplications": "Solicitudes nuevas",
+    "newApplicationsSub": "Últimos 60 días",
+    "awaitingFulfilment": "Pendientes de aprobar",
+    "awaitingFulfilmentSub": "Aún no presentadas",
+    "waitingForRole": "Esperando un rol",
+    "waitingForRoleSub": "Registros nuevos",
+    "openInvites": "Invitaciones abiertas",
+    "openInvitesSub": "Enviadas, sin aceptar"
+  },
+  "StatTile": {
+    "loadError": "No se pudo cargar"
+  },
+  "NeedsAttentionCard": {
+    "title": "Necesita tu atención",
+    "waitingForRole": "Esperando un rol",
+    "usersError": "No se pudieron cargar los usuarios.",
+    "invitesError": "No se pudieron cargar las invitaciones.",
+    "openInvites": "<strong>{count, plural, one {# invitación} other {# invitaciones}}</strong> {count, plural, one {todavía no ha sido aceptada} other {todavía no han sido aceptadas}}"
+  },
+  "RecentApplicationsCard": {
+    "title": "Solicitudes recientes",
+    "subtitle": "Testimonios de membresía de los últimos 60 días",
+    "viewAll": "Ver todas",
+    "error": "No se pudieron cargar las solicitudes recientes.",
+    "empty": "No hay solicitudes en los últimos 60 días.",
+    "meta": "Solicitud n.º {id} · Enviada el <date></date>"
+  },
   "ThemeSwitch": {
     "label": "Tema",
     "light": "Claro",
