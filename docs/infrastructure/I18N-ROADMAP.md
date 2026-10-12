@@ -422,8 +422,8 @@ dates.
   segments are *Todas / Pendientes / Aprobadas*. This matches the dashboard's "Pendientes
   de aprobar".
 - `STATUS_FILTERS` now holds `labelKey`s instead of English labels.
-- **Not verified in a browser or at 390px.** Checked by `pnpm lint`,
-  `pnpm exec tsc --noEmit` and `pnpm build` only.
+- **Verified in a browser in both languages and at 390px (Spanish).** Also checked by
+  `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm build`.
 
 ### Stage 9 — Application detail `[x]`
 
@@ -445,8 +445,8 @@ dates.
   not-found page. It needs a new `not-found.tsx` and a `notFound()` call on a 404
   `ApiError`, which is a behaviour change outside i18n. `getApiErrorMessage` is not
   used here yet for the same reason.
-- **Not verified in a browser.** Checked by `pnpm lint`, `pnpm exec tsc --noEmit` and
-  `pnpm build` only.
+- **Verified in a browser in both languages.** Also checked by `pnpm lint`,
+  `pnpm exec tsc --noEmit` and `pnpm build`.
 
 ### Stage 10 — Users and My profile `[ ]`
 
