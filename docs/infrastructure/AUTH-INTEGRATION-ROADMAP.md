@@ -656,6 +656,23 @@ pass an explicit absolute `callbackURL` (`${window.location.origin}/sign-in?veri
 clicking the emailed link lands back on `staff-app`'s own `/sign-in`, where the user signs in
 normally and gets a real same-origin session, rather than relying on the cross-origin cookie.
 
+> **Superseded (2026-10-12): verify by button, not by link.** A GET that verifies on load lets
+> mail-client link scanners (Outlook Safe Links etc.) consume the token and receive the
+> auto-sign-in session, and the user then landed on `/needs-role` with no word that verification
+> worked. `auth-server`'s `sendVerificationEmail` now ignores better-auth's `url` and emails
+> `${STAFF_APP_URL}/verify-email?token=…&email=…` (same pattern as `/accept-invite`). That page
+> (`app/(auth)/verify-email/`, in `proxy.ts`'s `ALWAYS_ALLOWED_PATHS`) does nothing on load; its
+> button calls `authClient.verifyEmail({ query: { token } })` through the same-origin proxy, so
+> `autoSignInAfterVerification`'s cookie now lands on `staff-app` directly. Afterwards it checks
+> `getSession()`: a session means a fresh verification → `/` (the layout routes on to
+> `/needs-role` or the app); none means the email was already verified (better-auth returns the
+> same `{ status: true, user: null }` but creates no session) → `/sign-in?verified=1`. A 401 (any
+> token problem) swaps the button for `ResendVerificationButton`, now shared in
+> `app/(auth)/_components/`. Sign-up and resend no longer pass `callbackURL`. `/needs-role`'s copy
+> now says the email is verified ("You're almost in"). For invitees, `better-invite`'s
+> `/verify-email` hook still upgrades the role server-side and answers with a 302 to
+> `redirectToAfterUpgrade` (`${origin}/`, same origin), which `fetch` follows transparently.
+
 Changes: `api/auth-api/types.ts` gained `emailVerified: boolean` on `AuthSessionUser` (better-auth
 already returned this field on `get-session`/sign-in/sign-up responses — the type just didn't
 expose it; no `client.ts` changes needed, and it's available via `useCurrentUser()` for free since

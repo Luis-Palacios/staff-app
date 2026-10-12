@@ -191,9 +191,20 @@
     "submit": "Reenviar correo de verificación",
     "sent": "Correo de verificación enviado — revisa tu bandeja de entrada."
   },
+  "VerifyEmailPage": {
+    "title": "Confirma tu correo",
+    "bodyWithEmail": "Pulsa el botón de abajo para verificar <emailTag>{email}</emailTag>.",
+    "body": "Pulsa el botón de abajo para verificar tu correo.",
+    "invalidTitle": "Enlace no válido",
+    "missingToken": "A este enlace de verificación le falta información. Pide uno nuevo abajo.",
+    "backToSignIn": "Volver a iniciar sesión"
+  },
+  "VerifyEmailButton": {
+    "submit": "Verificar mi correo"
+  },
   "NeedsRolePage": {
-    "title": "Acceso denegado",
-    "body": "Necesitas que te asignen un rol para acceder a esta aplicación. Comunícate con tu administrador para que te asigne el rol correspondiente.",
+    "title": "Ya casi estás dentro",
+    "body": "Tu correo está verificado. Un administrador tiene que asignarte un rol antes de que puedas usar la aplicación.",
     "signOut": "Cerrar sesión"
   },
   "AcceptInvite": {

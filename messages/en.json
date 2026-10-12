@@ -191,9 +191,20 @@
     "submit": "Resend verification email",
     "sent": "Verification email sent — check your inbox."
   },
+  "VerifyEmailPage": {
+    "title": "Confirm your email",
+    "bodyWithEmail": "Press the button below to verify <emailTag>{email}</emailTag>.",
+    "body": "Press the button below to verify your email.",
+    "invalidTitle": "Link not valid",
+    "missingToken": "This verification link is incomplete. Request a new one below.",
+    "backToSignIn": "Back to sign in"
+  },
+  "VerifyEmailButton": {
+    "submit": "Verify my email"
+  },
   "NeedsRolePage": {
-    "title": "Access denied",
-    "body": "You need to be assigned a role to access this application. Please contact your administrator to be assigned the appropriate role.",
+    "title": "You're almost in",
+    "body": "Your email is verified. An administrator needs to give you a role before you can use the app.",
     "signOut": "Sign out"
   },
   "AcceptInvite": {

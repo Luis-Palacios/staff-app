@@ -23,8 +23,13 @@ const PUBLIC_PATHS = new Set([
 // in that case), not get bounced to "/" before the activation call ever runs. /reset-password
 // carries the same requirement for the same reason: the reset token lives in the query string,
 // and PUBLIC_PATHS's redirect-away-if-authenticated behavior would drop that query string before
-// the token could ever be consumed.
-const ALWAYS_ALLOWED_PATHS = new Set(["/accept-invite", "/reset-password"]);
+// the token could ever be consumed. /verify-email likewise: its token is in the query string, and
+// the page itself handles an already-signed-in or already-verified visitor.
+const ALWAYS_ALLOWED_PATHS = new Set([
+  "/accept-invite",
+  "/reset-password",
+  "/verify-email",
+]);
 
 export function proxy(request: NextRequest) {
   // First, and unconditionally: auth-server authorizes its own endpoints, and several of them

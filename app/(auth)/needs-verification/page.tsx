@@ -3,8 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { AuthHeading } from "../_components/auth-heading";
 import { authFooterLine, authStack } from "../_components/auth-styles";
-
-import { ResendVerificationButton } from "./_components/resend-verification-button";
+import { ResendVerificationButton } from "../_components/resend-verification-button";
 
 import { textLink } from "@/components/primitives";
 

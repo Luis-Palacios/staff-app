@@ -38,6 +38,7 @@ export const CLIENT_NAMESPACES = [
   "Topbar",
   "UserStatus",
   "UsersTable",
+  "VerifyEmailButton",
 ] as const satisfies readonly (keyof Messages)[];
 
 export type ClientMessages = Pick<Messages, (typeof CLIENT_NAMESPACES)[number]>;

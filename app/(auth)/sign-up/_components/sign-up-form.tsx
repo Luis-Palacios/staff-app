@@ -38,7 +38,6 @@ export function SignUpForm({ initialEmail }: { initialEmail: string | null }) {
       name,
       email,
       password,
-      callbackURL: `${window.location.origin}/sign-in?verified=1`,
     });
 
     if (signUpError) {

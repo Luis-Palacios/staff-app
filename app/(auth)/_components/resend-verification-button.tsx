@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Alert, Button } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
-import { authButton, authStack } from "../../_components/auth-styles";
-import { AuthTextField } from "../../_components/auth-text-field";
+import { authButton, authStack } from "./auth-styles";
+import { AuthTextField } from "./auth-text-field";
 
 import { authClient } from "@/lib/auth/auth-client";
 import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
@@ -25,9 +25,10 @@ export function ResendVerificationButton({
     setStatus("sending");
     setError(null);
 
+    // No callbackURL: the email links to this app's /verify-email page, built
+    // by auth-server, not to better-auth's redirecting endpoint.
     const { error: resendError } = await authClient.sendVerificationEmail({
       email,
-      callbackURL: `${window.location.origin}/sign-in?verified=1`,
     });
 
     if (resendError) {
