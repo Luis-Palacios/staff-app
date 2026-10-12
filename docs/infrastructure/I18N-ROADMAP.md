@@ -100,20 +100,25 @@ Stage 1, since next-intl ships its own copy.
     `getTranslations`.
   - TypeScript only applies the augmentation once some file imports `"next-intl"`. The
     root layout does, so this is always true now.
-  - Placeholders aren't type-checked: `t("trigger")` without `{ name }` compiles. See
-    Stage 12.
+  - Placeholders are type-checked since Stage 12: the plugin's `createMessagesDeclaration`
+    generates `messages/en.d.json.ts`, so `t("trigger")` without `{ name }` fails `tsc`.
 - **Spanish parity check.** `messages/parity.ts` is types only, so nothing runs at
   runtime:
   ```ts
-  import type en from "./en.json";
-  import type es from "./es.json";
+  type Shape<Source> = {
+    [Key in keyof Source]: Source[Key] extends string
+      ? string
+      : Shape<Source[Key]>;
+  };
 
   type AssertComplete<Translation extends Source, Source> = Translation;
 
-  export type SpanishIsComplete = AssertComplete<typeof es, typeof en>;
+  export type SpanishIsComplete = AssertComplete<typeof es, Shape<typeof en>>;
   ```
-  Every stage's PR then cannot merge a key in English without its Spanish. This is the
-  same `tsc` command we already run, so there is no new tooling.
+  `Shape` is needed because the generated declaration types English values as literals.
+  Every stage's PR then cannot merge a key in English without its Spanish. The check is
+  one-way: it does not flag a key that exists only in `es.json`. This is the same `tsc`
+  command we already run, so there is no new tooling.
 - **Runtime safety net.** next-intl's defaults already cover this, so `request.ts` sets
   no `onError` / `getMessageFallback`. A missing message is logged with `console.error`,
   and the page shows `Namespace.key` instead of crashing.
@@ -528,7 +533,7 @@ dates.
   argument fails `tsc`. It found real mismatches: numeric `{id}` arguments (now `String(id)`)
   and the table footer, whose counts are now `{start, number}–{end, number} of {total, number}`
   so they format per language.
-- **`messages/parity.ts`** now compares shape (same keys, string values), because the
+- **`messages/parity.ts`** now compares shape (every English key present in Spanish with a string value; one-way), because the
   generated declaration types English values as literals. Proven by deleting an `es.json` key.
 - **Precompile:** `experimental.messages.precompile` is on (needs `format`, `path` and
   `locales` in `next.config.mjs`). Client chunks: **524,173 B → 515,212 B gzipped (−1.7%)**,
