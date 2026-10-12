@@ -51,7 +51,7 @@
     "newApplications": "Solicitudes nuevas",
     "newApplicationsSub": "Últimos 60 días",
     "awaitingFulfilment": "Pendientes de aprobar",
-    "awaitingFulfilmentSub": "Aún no presentadas",
+    "awaitingFulfilmentSub": "Aún no aprobadas",
     "waitingForRole": "Esperando un rol",
     "waitingForRoleSub": "Registros nuevos",
     "openInvites": "Invitaciones abiertas",
@@ -205,5 +205,40 @@
     "body": "Crea una cuenta para aceptar esta invitación, o inicia sesión si ya tienes una.",
     "createAccount": "Crear cuenta",
     "signIn": "Iniciar sesión"
+  },
+  "ApiErrors": {
+    "notFound": "No encontramos lo que buscabas.",
+    "tooManyRequests": "Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.",
+    "serviceUnavailable": "El servicio no está disponible en este momento. Inténtalo de nuevo en unos minutos.",
+    "generic": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "ApplicationStatus": {
+    "pending": "Pendiente",
+    "fulfilled": "Aprobada"
+  },
+  "ApplicationsPage": {
+    "title": "Solicitudes de membresía",
+    "description": "Testimonios de personas que se preparan para ser miembros. Abre uno para leerlo y ver su camino hasta ahora."
+  },
+  "ApplicationsBrowser": {
+    "filterByStatus": "Filtrar por estado",
+    "filterAll": "Todas",
+    "filterPending": "Pendientes",
+    "filterFulfilled": "Aprobadas",
+    "filterLabel": "Filtrar solicitudes",
+    "filterPlaceholder": "Nombre o n.º de solicitud",
+    "count": "{count, plural, one {# solicitud} other {# solicitudes}}",
+    "noMatches": "Ninguna solicitud coincide con estos filtros.",
+    "tableLabel": "Solicitudes de membresía",
+    "columnPerson": "Persona",
+    "columnApplication": "Solicitud",
+    "columnSubmitted": "Enviada",
+    "columnFulfilled": "Aprobada",
+    "columnStatus": "Estado",
+    "columnActions": "Acciones",
+    "personNumber": "Persona n.º {id}",
+    "notYet": "Aún no",
+    "openApplication": "Abrir la solicitud de {name}",
+    "meta": "Solicitud n.º {id} · Enviada el <date></date>"
   }
 }

@@ -4,17 +4,18 @@ import type { Key } from "react";
 
 import { ToggleButton, ToggleButtonGroup } from "@heroui/react";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 export type ApplicationStatusFilter = "all" | "pending" | "fulfilled";
 
-export const STATUS_FILTERS: {
+export const STATUS_FILTERS = [
+  { key: "all", labelKey: "filterAll" },
+  { key: "pending", labelKey: "filterPending" },
+  { key: "fulfilled", labelKey: "filterFulfilled" },
+] as const satisfies readonly {
   key: ApplicationStatusFilter;
-  label: string;
-}[] = [
-  { key: "all", label: "All" },
-  { key: "pending", label: "Pending" },
-  { key: "fulfilled", label: "Fulfilled" },
-];
+  labelKey: "filterAll" | "filterPending" | "filterFulfilled";
+}[];
 
 // Same segmented-control treatment as ThemeSwitch: HeroUI's ToggleButton reads
 // its colors from --toggle-button-* variables, set here to the --segment
@@ -40,6 +41,7 @@ export function StatusFilter({
   counts: Record<ApplicationStatusFilter, number>;
   onChange: (value: ApplicationStatusFilter) => void;
 }) {
+  const t = useTranslations("ApplicationsBrowser");
   const handleSelectionChange = (keys: Set<Key>) => {
     const [next] = keys;
 
@@ -49,14 +51,14 @@ export function StatusFilter({
   return (
     <ToggleButtonGroup
       disallowEmptySelection
-      aria-label="Filter by status"
+      aria-label={t("filterByStatus")}
       className="gap-0.5 rounded-[10px] border border-border bg-segment p-[3px]"
       selectedKeys={[value]}
       onSelectionChange={handleSelectionChange}
     >
-      {STATUS_FILTERS.map(({ key, label }) => (
+      {STATUS_FILTERS.map(({ key, labelKey }) => (
         <ToggleButton key={key} className={segmentButton} id={key}>
-          {label}
+          {t(labelKey)}
           <span
             data-count
             className="rounded-full px-[7px] py-px text-xs font-semibold tabular-nums"
