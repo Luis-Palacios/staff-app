@@ -18,17 +18,3 @@ export const STAFF_ADMIN_ROLES: readonly AuthRole[] = [
   AuthRole.Admin,
   AuthRole.Elder,
 ];
-
-/**
- * @deprecated Display text lives in the `Roles` message namespace: call
- * `t(role)` from `useTranslations("Roles")` / `getTranslations("Roles")`.
- * Kept until the users and invites pages move over (i18n Stages 10–11).
- */
-export const ROLE_LABELS: Record<AuthRole, string> = {
-  [AuthRole.Admin]: "Admin",
-  [AuthRole.User]: "User",
-  [AuthRole.SmallGroupLeader]: "Small Group Leader",
-  [AuthRole.Deacon]: "Deacon",
-  [AuthRole.Pending]: "Pending",
-  [AuthRole.Elder]: "Elder",
-};

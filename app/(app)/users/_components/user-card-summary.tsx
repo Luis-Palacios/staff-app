@@ -1,21 +1,25 @@
 import type { AdminUserListItem } from "@/api/auth-api/types";
 
+import { useTranslations } from "next-intl";
+
 import { AssignPendingRole } from "./assign-pending-role";
-import { roleBadgeProps, roleLabel } from "./role-display";
+import { RoleBadge } from "./role-badge";
 import { UserStatusChips } from "./user-status-chips";
 
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { LocalDate } from "@/components/local-date";
 import { card } from "@/components/primitives";
-import { StatusBadge } from "@/components/status-badge";
 
-// Mobile stand-in for a table row: avatar, name and role, then the email and
-// join date, the status badges, and the role picker for pending users.
+// Mobile stand-in for a table row: avatar, name and email, then the role and
+// status badges with the join date, and the role picker for pending users.
+// The role sits in the wrapping row because Spanish role names are too long
+// to share the header line at phone width.
 export default function UserCardSummary({ user }: { user: AdminUserListItem }) {
+  const t = useTranslations("UserCard");
   const isPending = user.role === "pending";
 
   return (
-    <article className={card({ className: "flex flex-col gap-3 p-4" })}>
+    <article className={card({ className: "flex min-w-0 flex-col gap-3 p-4" })}>
       <div className="flex items-center gap-3">
         <InitialsAvatar name={user.name} />
         <div className="flex min-w-0 flex-1 flex-col">
@@ -24,21 +28,19 @@ export default function UserCardSummary({ user }: { user: AdminUserListItem }) {
           </h2>
           <p className="truncate text-[13px] text-muted">{user.email}</p>
         </div>
-        {!isPending && (
-          <StatusBadge {...roleBadgeProps(user.role)}>
-            {roleLabel(user.role)}
-          </StatusBadge>
-        )}
       </div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pl-12 text-[13px] text-muted">
+        {!isPending && <RoleBadge role={user.role} />}
         <UserStatusChips user={user} />
         <span>
-          Joined <LocalDate value={user.createdAt} />
+          {t.rich("joined", {
+            date: () => <LocalDate value={user.createdAt} />,
+          })}
         </span>
       </div>
       {user.banned && user.banReason && (
         <p className="pl-12 text-[13px] text-muted">
-          Ban reason: {user.banReason}
+          {t("banReason", { reason: user.banReason })}
         </p>
       )}
       {isPending && (

@@ -14,14 +14,19 @@ export const CLIENT_NAMESPACES = [
   "AccountMenu",
   "ApplicationStatus",
   "ApplicationsBrowser",
+  "AssignPendingRole",
   "AuthErrors",
+  "CancelInviteButton",
   "ChurchContext",
   "ConfirmDialog",
   "DataTable",
   "ErrorState",
   "ForgotPasswordForm",
+  "InviteStatus",
+  "InvitesTable",
   "Nav",
   "NeedsRolePage",
+  "NewInviteForm",
   "PasswordField",
   "ResendVerificationButton",
   "ResetPasswordForm",
@@ -31,6 +36,8 @@ export const CLIENT_NAMESPACES = [
   "SignUpForm",
   "ThemeSwitch",
   "Topbar",
+  "UserStatus",
+  "UsersTable",
 ] as const satisfies readonly (keyof Messages)[];
 
 export type ClientMessages = Pick<Messages, (typeof CLIENT_NAMESPACES)[number]>;

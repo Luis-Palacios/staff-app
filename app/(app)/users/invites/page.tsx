@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import InvitesList from "./_components/invites-list";
 import InvitesListSkeleton from "./_components/invites-list-skeleton";
@@ -11,6 +12,8 @@ import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { STAFF_ADMIN_ROLES } from "@/lib/auth/roles";
 
 export default async function InvitesPage() {
+  const t = await getTranslations("InvitesPage");
+  const tNav = await getTranslations("Nav");
   const session = await getServerSession();
 
   // TEMPORARY: hardcoded role check, kept only because auth-server's /api/custom-auth/invites
@@ -27,10 +30,10 @@ export default async function InvitesPage() {
       <StaffAppPageHeader
         breadcrumbs={[
           usersBreadcrumb,
-          { label: "Invites", href: "/users/invites" },
+          { label: tNav("invites"), href: "/users/invites" },
         ]}
-        description="Invite people to the staff workspace and see who has accepted. You can cancel an invite you sent until it's used."
-        title="Invites"
+        description={t("description")}
+        title={tNav("invites")}
       />
       <section className="flex flex-col gap-4">
         <NewInviteForm />

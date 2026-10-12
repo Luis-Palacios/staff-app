@@ -6,19 +6,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, InputGroup, ListBox, Select, TextField } from "@heroui/react";
 import { Label } from "@heroui/react/label";
+import { useTranslations } from "next-intl";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { card, title } from "@/components/primitives";
 import { authClient } from "@/lib/auth/auth-client";
-import { AuthRole, ROLE_LABELS } from "@/lib/auth/roles";
+import { AUTH_ROLES, AuthRole } from "@/lib/auth/roles";
+import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
 
 // Same "don't invite someone directly into pending" reasoning as AssignPendingRole's own
 // ASSIGNABLE_ROLES filter (duplicated here rather than shared - see assign-pending-role.tsx).
-const ASSIGNABLE_ROLES = (Object.keys(ROLE_LABELS) as AuthRole[]).filter(
-  (role) => role !== AuthRole.Pending,
-);
+const ASSIGNABLE_ROLES = AUTH_ROLES.filter((role) => role !== AuthRole.Pending);
 
 export function NewInviteForm() {
+  const t = useTranslations("NewInviteForm");
+  const tRoles = useTranslations("Roles");
+  const authErrorMessage = useAuthErrorMessage();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<AuthRole | null>(null);
@@ -57,7 +60,7 @@ export function NewInviteForm() {
     });
 
     if (createError) {
-      setError(createError.message ?? "Failed to send invite");
+      setError(authErrorMessage(createError));
       setIsSubmitting(false);
 
       return;
@@ -72,10 +75,8 @@ export function NewInviteForm() {
   return (
     <section className={card({ className: "flex flex-col gap-4 p-[22px]" })}>
       <div>
-        <h2 className={title({ size: "sm" })}>Send an invite</h2>
-        <p className="mt-0.5 text-[13.5px] text-muted">
-          They&apos;ll get an email with a link to create their account.
-        </p>
+        <h2 className={title({ size: "sm" })}>{t("title")}</h2>
+        <p className="mt-0.5 text-[13.5px] text-muted">{t("subtitle")}</p>
       </div>
       <form className="flex flex-wrap items-end gap-3" onSubmit={handleSubmit}>
         <TextField
@@ -86,7 +87,7 @@ export function NewInviteForm() {
           value={email}
           onChange={setEmail}
         >
-          <Label className="font-semibold text-heading">Email</Label>
+          <Label className="font-semibold text-heading">{t("email")}</Label>
           <InputGroup className="h-10 w-full">
             <InputGroup.Input
               className="text-sm sm:text-sm"
@@ -99,11 +100,11 @@ export function NewInviteForm() {
           isRequired
           className="w-full gap-1.5 sm:w-[200px]"
           isDisabled={isSubmitting}
-          placeholder="Choose a role"
+          placeholder={t("rolePlaceholder")}
           selectedKey={role}
           onSelectionChange={(key) => setRole(key as AuthRole | null)}
         >
-          <Label className="font-semibold text-heading">Role</Label>
+          <Label className="font-semibold text-heading">{t("role")}</Label>
           <Select.Trigger className="h-10 min-h-10 items-center rounded-control py-0">
             <Select.Value />
             <Select.Indicator />
@@ -112,7 +113,7 @@ export function NewInviteForm() {
             <ListBox>
               {ASSIGNABLE_ROLES.map((r) => (
                 <ListBox.Item key={r} id={r}>
-                  {ROLE_LABELS[r]}
+                  {tRoles(r)}
                 </ListBox.Item>
               ))}
             </ListBox>
@@ -125,21 +126,20 @@ export function NewInviteForm() {
           isPending={isSubmitting}
           type="submit"
         >
-          Send invite
+          {t("send")}
         </Button>
       </form>
 
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <ConfirmDialog
-        confirmLabel="Send admin invite"
+        confirmLabel={t("confirmLabel")}
         isOpen={isConfirmOpen}
-        title="Send an admin invite?"
+        title={t("confirmTitle")}
         onConfirm={() => sendInvite(email, AuthRole.Admin)}
         onOpenChange={setIsConfirmOpen}
       >
-        {email} will be able to manage every user, role and invite once they
-        accept.
+        {t("confirmBody", { email })}
       </ConfirmDialog>
     </section>
   );

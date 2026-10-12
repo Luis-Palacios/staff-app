@@ -1,5 +1,7 @@
 import type { AdminInviteListItem, InviteStatus } from "@/api/auth-api/types";
 
+import { useTranslations } from "next-intl";
+
 import { StatusBadge, type StatusBadgeProps } from "@/components/status-badge";
 
 // "expired" is virtual, never persisted (see AdminInviteListItem's own comment) - a still-
@@ -16,14 +18,6 @@ export function deriveInviteStatus(
 
   return invite.status;
 }
-
-const STATUS_LABELS: Record<DisplayInviteStatus, string> = {
-  pending: "Pending",
-  used: "Accepted",
-  rejected: "Rejected",
-  canceled: "Canceled",
-  expired: "Expired",
-};
 
 // Pending is still waiting on the invitee, so it gets the hollow ring; the
 // rest are final states and get a solid dot.
@@ -43,11 +37,8 @@ export function InviteStatusChip({
 }: {
   invite: Pick<AdminInviteListItem, "status" | "expiresAt">;
 }) {
+  const t = useTranslations("InviteStatus");
   const status = deriveInviteStatus(invite);
 
-  return (
-    <StatusBadge {...STATUS_BADGES[status]}>
-      {STATUS_LABELS[status]}
-    </StatusBadge>
-  );
+  return <StatusBadge {...STATUS_BADGES[status]}>{t(status)}</StatusBadge>;
 }

@@ -263,5 +263,77 @@
   "PersonTimeline": {
     "firstVisit": "Primera visita",
     "noDate": "Sin fecha registrada"
+  },
+  "UsersPage": {
+    "description": "Todas las personas con una cuenta del personal. Quienes acaban de registrarse esperan aquí hasta que les des un rol."
+  },
+  "MyProfilePage": {
+    "title": "Perfil de usuario"
+  },
+  "InviteStaffLink": {
+    "label": "Invitar al personal"
+  },
+  "UserCard": {
+    "joined": "Se unió el <date></date>",
+    "banReason": "Motivo del bloqueo: {reason}"
+  },
+  "UserStatus": {
+    "active": "Activo",
+    "banned": "Bloqueado",
+    "unverified": "Sin verificar"
+  },
+  "UsersTable": {
+    "tableLabel": "Usuarios",
+    "columnPerson": "Persona",
+    "columnRole": "Rol",
+    "columnStatus": "Estado",
+    "columnJoined": "Se unió",
+    "empty": "Aún no hay usuarios."
+  },
+  "AssignPendingRole": {
+    "roleFor": "Rol de {name}",
+    "placeholder": "Elegir",
+    "assign": "Asignar",
+    "confirmTitle": "¿Asignar el rol de administrador?",
+    "confirmLabel": "Hacer administrador",
+    "confirmBody": "{name} podrá gestionar todos los usuarios, roles e invitaciones."
+  },
+  "InvitesPage": {
+    "description": "Invita a personas al espacio de trabajo del personal y mira quién ha aceptado. Puedes cancelar una invitación que enviaste hasta que se use."
+  },
+  "InviteStatus": {
+    "pending": "Pendiente",
+    "used": "Aceptada",
+    "rejected": "Rechazada",
+    "canceled": "Cancelada",
+    "expired": "Vencida"
+  },
+  "InviteCard": {
+    "sent": "Enviada el <date></date> por {inviter}"
+  },
+  "InvitesTable": {
+    "tableLabel": "Invitaciones",
+    "columnInvitee": "Invitado",
+    "columnRole": "Rol",
+    "columnStatus": "Estado",
+    "columnSent": "Enviada",
+    "columnActions": "Acciones",
+    "invitedBy": "Invitado por {name}",
+    "empty": "Aún no se han enviado invitaciones."
+  },
+  "CancelInviteButton": {
+    "label": "Cancelar la invitación de {email}",
+    "cancel": "Cancelar"
+  },
+  "NewInviteForm": {
+    "title": "Enviar una invitación",
+    "subtitle": "Recibirán un correo con un enlace para crear su cuenta.",
+    "email": "Correo electrónico",
+    "role": "Rol",
+    "rolePlaceholder": "Elige un rol",
+    "send": "Enviar invitación",
+    "confirmTitle": "¿Enviar una invitación de administrador?",
+    "confirmLabel": "Enviar invitación de administrador",
+    "confirmBody": "{email} podrá gestionar todos los usuarios, roles e invitaciones una vez que acepte."
   }
 }

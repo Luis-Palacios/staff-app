@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { InviteStaffLink } from "./_components/invite-staff-link";
 import UsersList from "./_components/users-list";
@@ -11,6 +12,8 @@ import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { STAFF_ADMIN_ROLES } from "@/lib/auth/roles";
 
 export default async function UsersPage() {
+  const t = await getTranslations("UsersPage");
+  const tNav = await getTranslations("Nav");
   const session = await getServerSession();
 
   // TEMPORARY: hardcoded role check, kept only because auth-server's listUsers endpoint itself
@@ -27,8 +30,8 @@ export default async function UsersPage() {
       <StaffAppPageHeader
         actions={<InviteStaffLink />}
         breadcrumbs={[usersBreadcrumb]}
-        description="Everyone with a staff account. People who just signed up wait here until you give them a role."
-        title="Users"
+        description={t("description")}
+        title={tNav("users")}
       />
       <section className="flex flex-col gap-4">
         <Suspense fallback={<UsersListSkeleton />}>

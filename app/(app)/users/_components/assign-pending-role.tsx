@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ListBox, Select } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { authClient } from "@/lib/auth/auth-client";
-import { AuthRole, ROLE_LABELS } from "@/lib/auth/roles";
+import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
+import { AUTH_ROLES, AuthRole } from "@/lib/auth/roles";
 
-const ASSIGNABLE_ROLES = (Object.keys(ROLE_LABELS) as AuthRole[]).filter(
-  (role) => role !== AuthRole.Pending,
-);
+const ASSIGNABLE_ROLES = AUTH_ROLES.filter((role) => role !== AuthRole.Pending);
 
 export function AssignPendingRole({
   userId,
@@ -19,6 +19,9 @@ export function AssignPendingRole({
   userId: string;
   userName: string;
 }) {
+  const t = useTranslations("AssignPendingRole");
+  const tRoles = useTranslations("Roles");
+  const authErrorMessage = useAuthErrorMessage();
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<AuthRole | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +51,7 @@ export function AssignPendingRole({
     });
 
     if (setRoleError) {
-      setError(setRoleError.message ?? "Failed to assign role");
+      setError(authErrorMessage(setRoleError));
       setIsSubmitting(false);
 
       return;
@@ -63,9 +66,9 @@ export function AssignPendingRole({
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
         <Select.Root
-          aria-label={`Role for ${userName}`}
+          aria-label={t("roleFor", { name: userName })}
           isDisabled={isSubmitting}
-          placeholder="Choose"
+          placeholder={t("placeholder")}
           selectedKey={selectedRole}
           onSelectionChange={(key) => setSelectedRole(key as AuthRole | null)}
         >
@@ -77,7 +80,7 @@ export function AssignPendingRole({
             <ListBox>
               {ASSIGNABLE_ROLES.map((role) => (
                 <ListBox.Item key={role} id={role}>
-                  {ROLE_LABELS[role]}
+                  {tRoles(role)}
                 </ListBox.Item>
               ))}
             </ListBox>
@@ -91,20 +94,20 @@ export function AssignPendingRole({
           size="sm"
           onPress={handleAssign}
         >
-          Assign
+          {t("assign")}
         </Button>
       </div>
 
       {error && <p className="text-xs text-danger">{error}</p>}
 
       <ConfirmDialog
-        confirmLabel="Make admin"
+        confirmLabel={t("confirmLabel")}
         isOpen={isConfirmOpen}
-        title="Assign the Admin role?"
+        title={t("confirmTitle")}
         onConfirm={() => assign(AuthRole.Admin)}
         onOpenChange={setIsConfirmOpen}
       >
-        {userName} will be able to manage every user, role and invite.
+        {t("confirmBody", { name: userName })}
       </ConfirmDialog>
     </div>
   );

@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 import { smallOutlineButton } from "@/components/data-table";
 import { authClient } from "@/lib/auth/auth-client";
+import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
 
 // Danger outline: the outline button with danger text, border and hover.
 const dangerOutline = [
@@ -20,6 +22,8 @@ export function CancelInviteButton({
   token: string;
   email: string;
 }) {
+  const t = useTranslations("CancelInviteButton");
+  const authErrorMessage = useAuthErrorMessage();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +35,7 @@ export function CancelInviteButton({
     const { error: cancelError } = await authClient.invite.cancel({ token });
 
     if (cancelError) {
-      setError(cancelError.message ?? "Failed to cancel invite");
+      setError(authErrorMessage(cancelError));
       setIsSubmitting(false);
 
       return;
@@ -45,14 +49,14 @@ export function CancelInviteButton({
   return (
     <div className="flex flex-col items-end gap-1">
       <Button
-        aria-label={`Cancel invite for ${email}`}
+        aria-label={t("label", { email })}
         className={dangerOutline}
         isPending={isSubmitting}
         size="sm"
         variant="outline"
         onPress={handleCancel}
       >
-        Cancel
+        {t("cancel")}
       </Button>
 
       {error && <p className="text-xs text-danger">{error}</p>}
