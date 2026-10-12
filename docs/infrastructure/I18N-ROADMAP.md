@@ -391,9 +391,10 @@ dates.
   became async to call `getTranslations`.
 - **Still English until their stages:** `ApplicationStatusBadge` (Stage 8), `InviteStaffLink`
   and `AssignPendingRole` (Stage 10).
-- **Not verified in a browser:** checked by `pnpm lint`, `pnpm exec tsc --noEmit` and
-  `pnpm build` only. Click through the dashboard in both languages and at 390px (Spanish
-  stat labels such as "Pendientes de cumplimiento" are long).
+- **Verified in a browser:** the dashboard was clicked through in both languages, and the
+  project owner reviewed the Spanish wording. Also checked by `pnpm lint`,
+  `pnpm exec tsc --noEmit` and `pnpm build`.
+- **Not verified at 390px:** Spanish stat labels such as "Pendientes de aprobar" are long.
 
 ### Stage 8 — Applications list `[ ]`
 
