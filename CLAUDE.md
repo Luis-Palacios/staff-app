@@ -9,7 +9,7 @@ HeroUI v3 + Next.js 16 App Router template; most section pages (`groups`,
 `applications`, `reports`) are still stubs awaiting real UI and data.
 
 See `docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring this app together
-with the sibling `auth-server` (better-auth) and `membership-applications` (FastAPI) repos —
+with the sibling `auth-server` (better-auth) and `membership-management` (FastAPI) repos —
 pick up at whichever phase is still marked `[ ]`.
 
 The UI is translated (English + Spanish) with next-intl, with no locale in the URL.

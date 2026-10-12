@@ -118,7 +118,7 @@ to guess them.
     `app/(app)/error.tsx`, which keeps the shell; `app/error.tsx` only catches the
     `(app)` layout itself (session lookup) and centers the card on a bare page.
   - "Recent" is the API's **60-day** window, counted back from the newest application
-    (`DEFAULT_RECENT_WINDOW` in membership-applications), not the canvas's 30 days.
+    (`DEFAULT_RECENT_WINDOW` in membership-management), not the canvas's 30 days.
     Labels say "Last 60 days".
   - The subtitle follows the spec ("…this week."), not the canvas's "…at Iglesia Petra
     this week."

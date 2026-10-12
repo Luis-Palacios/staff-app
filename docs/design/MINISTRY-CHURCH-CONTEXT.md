@@ -352,7 +352,7 @@ both modes, and the docs no longer mention `WorkspaceBadge` or "Workspace".
 ## Later (not in these stages)
 
 - **Real tenancy:** ministry and churches come from the auth-server per user; the church
-  id travels in the JWT or a header to `membership-applications`, and FastAPI scopes
+  id travels in the JWT or a header to `membership-management`, and FastAPI scopes
   queries by it. Until then switching changes the label only, which is why the menu only
   appears with more than one configured church.
 - **Client caches:** when data is church-scoped, include the church id in every TanStack

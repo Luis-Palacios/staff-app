@@ -580,7 +580,7 @@ Rules:
 Per API:
 
 - **auth-server (better-auth):** map `error.code` to an `AuthErrors` namespace (Stage 5).
-- **membership-applications (FastAPI):** it returns English `detail` strings and no
+- **membership-management (FastAPI):** it returns English `detail` strings and no
   codes, but the staff app never shows them. `api/api-client.ts` keeps only the HTTP
   status. Map by status for now: 404 → not found, 429 → too many requests,
   503 → service unavailable, anything else → the generic message. If finer distinctions
