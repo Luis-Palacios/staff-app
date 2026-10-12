@@ -8,7 +8,8 @@ import type es from "./es.json";
 // en.json's types come from the generated messages/en.d.json.ts, which keeps
 // each message as a string literal (that is how next-intl types ICU
 // arguments). Comparing against the literals would reject every Spanish
-// string, so the check compares the shape: same keys, string values.
+// string, so the check compares the shape: every English key must exist in Spanish
+// with a string value. It is one-way: a key only in es.json is not flagged.
 type Shape<Source> = {
   [Key in keyof Source]: Source[Key] extends string
     ? string
