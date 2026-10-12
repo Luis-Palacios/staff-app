@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/api/api-client";
 
 /**
- * Turns an error from membership-applications into text in the current
+ * Turns an error from membership-management into text in the current
  * language. That API sends English `detail` strings and no codes, so this maps
  * by HTTP status and falls back to a generic message (I18N-ROADMAP, "Errors
  * from the APIs"). Never shows the backend's text.

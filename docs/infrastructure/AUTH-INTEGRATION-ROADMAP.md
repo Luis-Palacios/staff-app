@@ -1,7 +1,7 @@
 # Auth Integration Roadmap
 
 Working doc for wiring authentication/authorization across the three sibling repos
-(`auth-server`, `membership-applications`, `staff-app`) — kept as three separate repos/services
+(`auth-server`, `membership-management`, `staff-app`) — kept as three separate repos/services
 (eventually three separate Docker containers), not merged. Going through this slowly, one phase
 at a time, as a learning exercise, not a race to "done." Pick up at whichever phase is still
 marked `[ ]`.
@@ -10,7 +10,7 @@ marked `[ ]`.
 
 - **auth-server** stays the single source of identity/roles. Browser sign-in talks to it via
   better-auth sessions; other services never see passwords or manage their own user tables.
-- **staff-app is a BFF (backend-for-frontend).** The browser never calls `membership-applications`
+- **staff-app is a BFF (backend-for-frontend).** The browser never calls `membership-management`
   directly (confirmed: `lib/env.ts`'s `APPLICATIONS_MEMBERSHIP_API_URL` has no `NEXT_PUBLIC_`
   prefix, so it's already server-only). It also won't call `auth-server` cross-origin from the
   browser — instead:
@@ -21,11 +21,11 @@ marked `[ ]`.
     Docker/deployment topology looks like.
   - Because the cookie is now `staff-app`'s own, Next.js middleware/Server Components can read it
     directly for route protection — no manual cookie-forwarding hacks needed for *that* part.
-- **`staff-app` → `membership-applications` uses JWT, not the cookie.** Server-side code in
+- **`staff-app` → `membership-management` uses JWT, not the cookie.** Server-side code in
   `staff-app` forwards the incoming session cookie to `auth-server`'s token endpoint (server-to-
   server, not a browser fetch — this part still works even without the proxy) to mint a
-  short-lived JWT, then calls `membership-applications` with `Authorization: Bearer <jwt>`.
-  `membership-applications` verifies the JWT against `auth-server`'s JWKS
+  short-lived JWT, then calls `membership-management` with `Authorization: Bearer <jwt>`.
+  `membership-management` verifies the JWT against `auth-server`'s JWKS
   (`/.well-known/jwks.json`) — fully stateless, never sees a cookie. This matches its CORS
   middleware already being set to `allow_credentials=False`.
 - **Sign-up stays admin-provisioned for now.** No public sign-up form until Phase 6 (user
@@ -41,15 +41,15 @@ marked `[ ]`.
   per-user data — it's *computed* from `role + the statements.ts definitions`. So:
   - `staff-app`'s own UI gating (nav menu in `config/site.ts`, route access) is driven by the
     **session's role** (Phase 9), independent of the JWT entirely.
-  - `membership-applications` has no session — the JWT is its only signal. The `jwt` plugin's
+  - `membership-management` has no session — the JWT is its only signal. The `jwt` plugin's
     payload is customized to include just the `role` claim (small, stable token — the standard
     "claims-based authorization" pattern, e.g. how Auth0/Okta/Cognito hand off `roles`/`groups`)
     rather than a precomputed permission set, so the token doesn't have to change shape every time
-    `statements.ts` does (Phase 4). `membership-applications` verifies the JWT itself (Phase 5),
+    `statements.ts` does (Phase 4). `membership-management` verifies the JWT itself (Phase 5),
     then computes role→permission from a small Python port of the same mapping (Phase 9) — a
     deliberate, reviewed duplication, not synced automatically, acceptable at the current scale
     (4 roles, 4 custom resources).
-  - Tradeoff accepted: a role change takes effect on `membership-applications` only once a new JWT
+  - Tradeoff accepted: a role change takes effect on `membership-management` only once a new JWT
     is minted (bounded by the token's expiry), not instantly — the alternative (FastAPI calling
     back to `auth-server` per request) would keep it live but defeats stateless JWT verification
     and couples FastAPI's uptime to `auth-server`'s, so it's explicitly not the default here.
@@ -349,7 +349,7 @@ an arbitrary depth of client components without prop drilling or a redundant fet
 
 ---
 
-## Phase 4 — JWT bridge from staff-app to membership-applications
+## Phase 4 — JWT bridge from staff-app to membership-management
 `[x]`
 
 **Repo(s):** `auth-server` (JWT payload customization) + `staff-app` (reads `auth-server`'s token
@@ -415,7 +415,7 @@ directly, and dropped back to non-`async` (just returning the wrapper's promise)
 `await` internally.
 
 No caching: a fresh JWT (15m expiry, `auth-server`'s `jwt` plugin default) is minted on every
-single call to `membership-applications`, even multiple calls in the same request. Deliberate for
+single call to `membership-management`, even multiple calls in the same request. Deliberate for
 now — see the new Phase 10 below, added specifically to revisit this once it's worth the added
 complexity.
 
@@ -423,7 +423,7 @@ Verified live in three steps, each confirming a different link in the chain: (1)
 token from `/api/auth/token` before the `definePayload` change — confirmed the full-user-row leak
 described above; (2) restarted `auth-server`, decoded the token again — confirmed the payload was
 now exactly `{ role, sub, iat, exp, iss, aud }`; (3) to confirm the header actually reaches
-`membership-applications` (not just that the page renders — `membership-applications` doesn't
+`membership-management` (not just that the page renders — `membership-management` doesn't
 verify JWTs yet, so a working page proves nothing about the header being present or correct),
 temporarily overrode `staff-app`'s `APPLICATIONS_MEMBERSHIP_API_URL` (via a shell env var, not the
 `.env.local` file) to point at a throwaway local Node script that only echoes the headers of any
@@ -437,10 +437,10 @@ clean (the one `biome check` failure encountered was 9 pre-existing formatting e
 
 ---
 
-## Phase 5 — membership-applications verifies the JWT
+## Phase 5 — membership-management verifies the JWT
 `[x]`
 
-**Repo(s):** `membership-applications`
+**Repo(s):** `membership-management`
 
 **What:** Add a JWT-verification dependency (new dependency needed — e.g. `python-jose` or
 `PyJWT`, plus a JWKS client with caching so it's not fetching the JWKS on every request) that
@@ -451,7 +451,7 @@ stop there: no role→permission mapping, no per-route gating by role yet. That'
 authentication, and it's deliberately deferred to Phase 9, where it's designed alongside
 `staff-app`'s own role-based gating instead of in isolation.
 
-**Why:** Right now `membership-applications` trusts every request unconditionally — this closes
+**Why:** Right now `membership-management` trusts every request unconditionally — this closes
 that by requiring a genuinely valid JWT before anything else happens. Keeping this phase to
 authentication only (not also authorization) keeps it small and testable in isolation: "does a
 bad/missing/expired token get rejected" is a clean yes/no, whereas "does this role get to do this"
@@ -461,7 +461,7 @@ pulls in a whole mapping design that deserves its own phase (Phase 9).
 endpoint (vs a shared secret), caching a JWKS fetch so verification doesn't hit the network per
 request.
 
-**New env vars:** `membership-applications/.env.example`: `AUTH_SERVER_JWKS_URL` (or equivalent —
+**New env vars:** `membership-management/.env.example`: `AUTH_SERVER_JWKS_URL` (or equivalent —
 however Phase 4's investigation resolves the actual path).
 
 Update: went with `pyjwt[crypto]` over `python-jose` — better-auth's `jwt` plugin defaults to
@@ -1389,7 +1389,7 @@ pass; revisit if it still looks small next to the now-larger surrounding text.
 ## Phase 9 — Role-based nav & route gating
 `[ ]`
 
-**Repo(s):** `staff-app` + `membership-applications`
+**Repo(s):** `staff-app` + `membership-management`
 
 **What:** Two role→permission mappings, designed together since they're the same underlying
 model expressed twice (see the "Role vs permission" architecture note above):
@@ -1398,7 +1398,7 @@ model expressed twice (see the "Role vs permission" architecture note above):
   `useCurrentUser()`, filter `config/site.ts`'s `navItems` (and gate the matching routes) by
   role — decide the role→visible-nav-items mapping together when we plan this phase, and decide
   where that mapping lives (e.g. alongside `siteConfig` vs a dedicated `lib/permissions.ts`).
-- `membership-applications`: now that Phase 5 verifies the JWT and exposes its decoded claims
+- `membership-management`: now that Phase 5 verifies the JWT and exposes its decoded claims
   (including `role`) to route handlers, write a small Python port of the relevant parts of
   `statements.ts` (a role→permission mapping, e.g. a dict/enum — deliberately hand-maintained,
   reviewed together whenever `statements.ts` changes, not auto-synced) and use it to gate the
@@ -1406,7 +1406,7 @@ model expressed twice (see the "Role vs permission" architecture note above):
 
 **Why:** Answers the original question about `site.ts` directly — it only needs the session, not
 the JWT. Also picks up the authorization half of what Phase 5 originally scoped in — deliberately
-split out so `membership-applications`' role→permission mapping gets designed alongside
+split out so `membership-management`' role→permission mapping gets designed alongside
 `staff-app`'s nav mapping instead of being worked out in isolation and revisited later. Kept as
 its own phase, separate from Phase 3's proxy work and Phase 3.2's middleware/route-group plumbing
 and from Phase 5's JWT verification, since "is there a session/valid token" and "what does this
@@ -1419,7 +1419,7 @@ role→visible-nav-items mapping and deciding where that mapping should live, de
 duplicating a small piece of authorization logic across two languages (TypeScript's
 `statements.ts` and a Python port) as a maintained contract rather than a shared library.
 
-**New env vars:** none (membership-applications' `AUTH_SERVER_JWKS_URL` was already added in
+**New env vars:** none (membership-management' `AUTH_SERVER_JWKS_URL` was already added in
 Phase 5).
 
 ---
@@ -1430,7 +1430,7 @@ Phase 5).
 **Repo(s):** `staff-app`
 
 **What:** Phase 4's `lib/authenticated-fetch.ts` mints a brand-new JWT (via `getAuthToken()` →
-`auth-server`'s `GET /api/auth/token`) on *every* call to `membership-applications`, including
+`auth-server`'s `GET /api/auth/token`) on *every* call to `membership-management`, including
 multiple calls within the same incoming request. Add a cache in front of that — scoped per
 request at minimum (e.g. React's `cache()` so concurrent calls in one render dedupe into a single
 mint), and decide whether to go further with a short-lived cross-request cache keyed by session
@@ -1438,9 +1438,9 @@ mint), and decide whether to go further with a short-lived cross-request cache k
 
 **Why:** Deferred deliberately during Phase 4 rather than built speculatively — at the time there
 were only two call sites (`getRecentApplications`, `getApplicationDetail`), each issuing at most
-one `membership-applications` call per request, so there was nothing to dedupe yet and no measured
+one `membership-management` call per request, so there was nothing to dedupe yet and no measured
 cost to justify the complexity. Revisit once either (a) a single request starts making multiple
-`membership-applications` calls, or (b) the per-request round-trip to `auth-server` for a token
+`membership-management` calls, or (b) the per-request round-trip to `auth-server` for a token
 becomes a measured latency cost worth removing.
 
 **New concepts:** request-scoped memoization in React Server Components (`cache()` from `react`),
@@ -1471,7 +1471,7 @@ cheap-but-important permission gap first (1), then build the session round-trip 
 possible slice (2) before adding the proxy on top of it (3), then add route protection and the
 public/authenticated layout split (3.2), then close the logout gap and get real session data into
 the topbar (3.5) — small, self-contained, and it builds the `useCurrentUser()` context Phase 9
-will also want — then bridge to the API with the JWT (4) and have `membership-applications`
+will also want — then bridge to the API with the JWT (4) and have `membership-management`
 verify it (5) — authentication only, since that's the other half of the original question and
 doesn't need the role→permission model settled yet — then user management (6) — which is what
 makes provisioning practical and de-risks sign-up (7) — then close the gap sign-up's own two-step
@@ -1482,7 +1482,7 @@ scope reversed mid-phase from a `better-auth-ui` swap to a hand-rolled build, se
 then a single styling pass over every auth page including the two Phase 8 just added (8.5) — placed
 after 8 rather than interleaved page-by-page so it covers the complete, final set of auth pages in
 one consistent pass — then role-based nav/route gating for both `staff-app` and
-`membership-applications` together (9), pushed out once because the role→permission model needed
+`membership-management` together (9), pushed out once because the role→permission model needed
 more thought than a quick pass between other phases, and finally JWT caching (10), pushed to last
 because it's a pure optimization with no other phase depending on it and nothing to measure until
 real usage exists.
