@@ -1,5 +1,6 @@
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Accordion } from "@heroui/react/accordion";
+import { useTranslations } from "next-intl";
 
 import { DetailCardHeading } from "./detail-card-heading";
 
@@ -20,9 +21,9 @@ const body = [
 ].join(" ");
 
 const sections = [
-  { id: "life-before", label: "Life before" },
-  { id: "conversion", label: "Conversion" },
-  { id: "life-after", label: "Life after" },
+  { id: "life-before", labelKey: "lifeBefore" },
+  { id: "conversion", labelKey: "conversion" },
+  { id: "life-after", labelKey: "lifeAfter" },
 ] as const;
 
 // The three testimony sections, all open to start with. The API doesn't say
@@ -36,6 +37,7 @@ export function TestimonyCard({
   conversion: string;
   lifeAfter: string;
 }) {
+  const t = useTranslations("TestimonyCard");
   const text = {
     "life-before": lifeBefore,
     conversion,
@@ -49,15 +51,15 @@ export function TestimonyCard({
       })}
     >
       <div className="px-[26px] pb-1.5 pt-5">
-        <DetailCardHeading eyebrow="Testimony">
-          In their own words
+        <DetailCardHeading eyebrow={t("eyebrow")}>
+          {t("title")}
         </DetailCardHeading>
       </div>
       <Accordion
         allowsMultipleExpanded
         defaultExpandedKeys={sections.map(({ id }) => id)}
       >
-        {sections.map(({ id, label }, index) => (
+        {sections.map(({ id, labelKey }, index) => (
           <Accordion.Item key={id} id={id}>
             <Accordion.Heading>
               <Accordion.Trigger className={trigger}>
@@ -67,7 +69,7 @@ export function TestimonyCard({
                 >
                   {index + 1}
                 </span>
-                <span className="flex-1">{label}</span>
+                <span className="flex-1">{t(labelKey)}</span>
                 <Accordion.Indicator>
                   <ChevronDownIcon strokeWidth={2} />
                 </Accordion.Indicator>

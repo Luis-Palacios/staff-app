@@ -6,6 +6,7 @@ import {
   MapPinIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
+import { getTranslations } from "next-intl/server";
 
 import { LocalDate } from "../local-date";
 
@@ -29,11 +30,9 @@ const eventTypeNameToIcon: Record<string, Icon> = {
   "Presentacion de Miembros": AcademicCapIcon,
 };
 
-// Display names for event types whose data key reads oddly on screen. The
-// key itself stays as the API sends it.
-const eventTypeNameToLabel: Record<string, string> = {
-  [FIRST_ASSISTANCE]: "First visit",
-};
+// Event type names from the API (Bautismo, Doctrina Basica, ...) are data and
+// shown as sent. Only the synthetic first-assistance event is app text, so it
+// is the one title that is translated.
 
 // The marker is the circle on the rail. The current (most recent) event is
 // gold, the same in both modes; earlier events use the soft accent tone. The
@@ -74,6 +73,7 @@ export default async function PersonTimeline({
 }: {
   personId: number;
 }) {
+  const t = await getTranslations("PersonTimeline");
   const [personEvents, personFirstAssistance] = await Promise.all([
     getPersonEventsSummary(personId),
     getFirstPersonAssistanceSummary(personId),
@@ -126,14 +126,15 @@ export default async function PersonTimeline({
             >
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                 <h3 className="text-[14.5px] font-semibold text-heading">
-                  {eventTypeNameToLabel[event.eventTypeName] ??
-                    event.eventTypeName}
+                  {event.eventTypeName === FIRST_ASSISTANCE
+                    ? t("firstVisit")
+                    : event.eventTypeName}
                 </h3>
                 <span className="text-[13px] text-muted">
                   {event.eventDate ? (
                     <LocalDate value={event.eventDate} />
                   ) : (
-                    "No date recorded"
+                    t("noDate")
                   )}
                 </span>
               </div>

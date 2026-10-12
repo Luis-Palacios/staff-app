@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { buttonVariants } from "@heroui/react";
 import NextLink from "next/link";
+import { useTranslations } from "next-intl";
 
 import { ApplicationStatusBadge } from "../../_components/application-status-badge";
 
@@ -31,6 +32,7 @@ export function ApplicationDetailHeader({
 }: {
   application: ApplicationMembershipDetail;
 }) {
+  const t = useTranslations("ApplicationDetailHeader");
   const {
     applicationId,
     personId,
@@ -60,17 +62,17 @@ export function ApplicationDetailHeader({
             <ApplicationStatusBadge isFulfilled={isFulfilled} />
           </div>
           <p className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-muted">
-            <Meta label="Application">#{applicationId}</Meta>
-            <Meta label="Person">#{personId}</Meta>
-            <Meta label="Submitted">
+            <Meta label={t("application")}>#{applicationId}</Meta>
+            <Meta label={t("person")}>#{personId}</Meta>
+            <Meta label={t("submitted")}>
               <LocalDateTime value={generatedDate} />
             </Meta>
             {isFulfilled ? (
-              <Meta label="Fulfilled">
+              <Meta label={t("fulfilled")}>
                 <LocalDate value={fulfilmentDate} />
               </Meta>
             ) : (
-              <span>Not fulfilled yet</span>
+              <span>{t("notFulfilledYet")}</span>
             )}
           </p>
         </div>
@@ -86,7 +88,7 @@ export function ApplicationDetailHeader({
             className="size-4"
             strokeWidth={2}
           />
-          All applications
+          {t("allApplications")}
         </NextLink>
       </div>
     </header>

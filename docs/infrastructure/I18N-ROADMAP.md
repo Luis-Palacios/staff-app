@@ -425,10 +425,28 @@ dates.
 - **Not verified in a browser or at 390px.** Checked by `pnpm lint`,
   `pnpm exec tsc --noEmit` and `pnpm build` only.
 
-### Stage 9 — Application detail `[ ]`
+### Stage 9 — Application detail `[x]`
 
 - `applications/[id]/page.tsx`, `DetailCardHeading`, `TestimonyCard` (the headings only;
   the testimony text is user data), and `components/person_timeline` (event labels).
+
+**Done (2026-10-11).** Notes:
+
+- **Namespaces added, all server only:** `ApplicationDetailPage`, `ApplicationDetailHeader`,
+  `TestimonyCard` and `PersonTimeline`. `CLIENT_NAMESPACES` is unchanged.
+- **Timeline event names are data, not translated.** The API sends type names such as
+  `Bautismo` and `Doctrina Basica`, and they are shown as sent. Only the synthetic
+  "First Assistance" event (made by the app) and "No date recorded" are translated. If
+  event types should read in English too, the API needs to send a stable key; don't map
+  the Spanish names here.
+- **Spanish wording to review:** *Recorrido* / *Línea de tiempo*, *En sus propias palabras*,
+  *Vida antes / Conversión / Vida después*, *Primera visita*.
+- **Not done:** an unknown application id still shows the error page instead of a
+  not-found page. It needs a new `not-found.tsx` and a `notFound()` call on a 404
+  `ApiError`, which is a behaviour change outside i18n. `getApiErrorMessage` is not
+  used here yet for the same reason.
+- **Not verified in a browser.** Checked by `pnpm lint`, `pnpm exec tsc --noEmit` and
+  `pnpm build` only.
 
 ### Stage 10 — Users and My profile `[ ]`
 
