@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { InputGroup, TextField } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 import ApplicationCardSummary from "./application-card-summary";
 import ApplicationsSummaryTable from "./applications-summary-table";
@@ -63,6 +64,7 @@ export default function ApplicationsBrowser({
 }: {
   applications: ApplicationMembershipSummary[];
 }) {
+  const t = useTranslations("ApplicationsBrowser");
   const searchParams = useSearchParams();
   const status = parseStatus(searchParams.get("status"));
   const [query, setQuery] = useState("");
@@ -111,7 +113,7 @@ export default function ApplicationsBrowser({
       <div className="flex flex-wrap items-center gap-3">
         <StatusFilter counts={counts} value={status} onChange={setStatus} />
         <TextField
-          aria-label="Filter applications"
+          aria-label={t("filterLabel")}
           className="w-full sm:ml-auto sm:w-[300px]"
           type="search"
           value={query}
@@ -126,7 +128,7 @@ export default function ApplicationsBrowser({
             </InputGroup.Prefix>
             <InputGroup.Input
               className="text-sm"
-              placeholder="Name or application #"
+              placeholder={t("filterPlaceholder")}
             />
           </InputGroup>
         </TextField>
@@ -134,9 +136,7 @@ export default function ApplicationsBrowser({
 
       {/* The table footer shows the count visually; this announces it. */}
       <p aria-live="polite" className="sr-only">
-        {visible.length === 1
-          ? "1 application"
-          : `${visible.length} applications`}
+        {t("count", { count: visible.length })}
       </p>
 
       <div className="hidden md:block">
@@ -146,7 +146,7 @@ export default function ApplicationsBrowser({
       <div className="grid gap-3 md:hidden">
         {visible.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted">
-            No applications match these filters.
+            {t("noMatches")}
           </p>
         ) : (
           visible.map((application) => (

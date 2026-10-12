@@ -1,4 +1,5 @@
 import NextLink from "next/link";
+import { useTranslations } from "next-intl";
 
 import { ApplicationStatusBadge } from "./application-status-badge";
 
@@ -14,6 +15,8 @@ export default function ApplicationCardSummary({
 }: {
   application: ApplicationMembershipSummary;
 }) {
+  const t = useTranslations("ApplicationsBrowser");
+
   return (
     <NextLink
       className={card({
@@ -30,8 +33,10 @@ export default function ApplicationCardSummary({
         <ApplicationStatusBadge isFulfilled={application.isFulfilled} />
       </span>
       <span className="pl-12 text-[13px] text-muted">
-        #{application.applicationId} · Submitted{" "}
-        <LocalDate value={application.generatedDate} />
+        {t.rich("meta", {
+          id: application.applicationId,
+          date: () => <LocalDate value={application.generatedDate} />,
+        })}
       </span>
     </NextLink>
   );

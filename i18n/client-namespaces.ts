@@ -12,6 +12,8 @@ import type { Messages } from "next-intl";
 export const CLIENT_NAMESPACES = [
   "AcceptInvite",
   "AccountMenu",
+  "ApplicationStatus",
+  "ApplicationsBrowser",
   "AuthErrors",
   "ChurchContext",
   "ConfirmDialog",

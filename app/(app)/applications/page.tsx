@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 
 import MembershipApplicationsList from "./_components/membership-applications-list";
 import MembershipApplicationsListSkeleton from "./_components/membership-applications-list-skeleton";
@@ -7,12 +8,14 @@ import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { applicationsBreadcrumb } from "@/config/breadcrumbs";
 
 export default async function ApplicationsPage() {
+  const t = await getTranslations("ApplicationsPage");
+
   return (
     <>
       <StaffAppPageHeader
         breadcrumbs={[applicationsBreadcrumb]}
-        description="Testimonies from people preparing to become members. Open one to read it and see their journey so far."
-        title="Membership applications"
+        description={t("description")}
+        title={t("title")}
       />
       <section className="flex flex-col gap-4">
         <Suspense fallback={<MembershipApplicationsListSkeleton />}>

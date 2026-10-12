@@ -396,7 +396,7 @@ dates.
   `pnpm exec tsc --noEmit` and `pnpm build`.
 - **Not verified at 390px:** Spanish stat labels such as "Pendientes de aprobar" are long.
 
-### Stage 8 — Applications list `[ ]`
+### Stage 8 — Applications list `[x]`
 
 - An `ApiErrors` namespace and a small helper that maps an `ApiError`'s HTTP status to a
   message, following "Errors from the APIs". It is reused by Stages 9–11.
@@ -405,6 +405,25 @@ dates.
   its skeleton.
 - **Application status labels** become an `ApplicationStatus` namespace, keyed by the
   API's status value. `ApplicationStatusBadge` and `StatusFilter` both read it.
+
+**Done (2026-10-11).** Notes:
+
+- **Namespaces added:** `ApplicationStatus` and `ApplicationsBrowser` (client; the browser,
+  filter, table and card share the latter), plus `ApplicationsPage` and `ApiErrors`
+  (server only). The status badge calls `useTranslations`, so it works from server
+  and client parents.
+- **`ApiErrors` helper:** `getApiErrorMessage(error)` in `lib/api-error-message.ts`
+  (server only) maps `ApiError.status` (404, 429, 503, else generic). Nothing calls it
+  yet: list pages still throw to the error boundary. Stages 9–11 use it wherever they
+  catch an `ApiError`.
+- **Plural and rich text:** the live-region count is an ICU plural; "Application #{id} ·
+  Submitted <date>" reuses the dashboard's `t.rich` approach.
+- **Spanish wording (decided by the project owner):** "Fulfilled" is *Aprobada*; filter
+  segments are *Todas / Pendientes / Aprobadas*. This matches the dashboard's "Pendientes
+  de aprobar".
+- `STATUS_FILTERS` now holds `labelKey`s instead of English labels.
+- **Not verified in a browser or at 390px.** Checked by `pnpm lint`,
+  `pnpm exec tsc --noEmit` and `pnpm build` only.
 
 ### Stage 9 — Application detail `[ ]`
 

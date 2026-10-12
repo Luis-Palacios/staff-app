@@ -205,5 +205,40 @@
     "body": "Create an account to accept this invite, or sign in if you already have one.",
     "createAccount": "Create account",
     "signIn": "Sign in"
+  },
+  "ApiErrors": {
+    "notFound": "We couldn't find what you were looking for.",
+    "tooManyRequests": "Too many requests. Wait a moment and try again.",
+    "serviceUnavailable": "The service is unavailable right now. Try again in a few minutes.",
+    "generic": "Something went wrong. Try again."
+  },
+  "ApplicationStatus": {
+    "pending": "Pending",
+    "fulfilled": "Fulfilled"
+  },
+  "ApplicationsPage": {
+    "title": "Membership applications",
+    "description": "Testimonies from people preparing to become members. Open one to read it and see their journey so far."
+  },
+  "ApplicationsBrowser": {
+    "filterByStatus": "Filter by status",
+    "filterAll": "All",
+    "filterPending": "Pending",
+    "filterFulfilled": "Fulfilled",
+    "filterLabel": "Filter applications",
+    "filterPlaceholder": "Name or application #",
+    "count": "{count, plural, one {# application} other {# applications}}",
+    "noMatches": "No applications match these filters.",
+    "tableLabel": "Membership applications",
+    "columnPerson": "Person",
+    "columnApplication": "Application",
+    "columnSubmitted": "Submitted",
+    "columnFulfilled": "Fulfilled",
+    "columnStatus": "Status",
+    "columnActions": "Actions",
+    "personNumber": "Person #{id}",
+    "notYet": "Not yet",
+    "openApplication": "Open application from {name}",
+    "meta": "Application #{id} · Submitted <date></date>"
   }
 }
