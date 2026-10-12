@@ -62,7 +62,7 @@ async function RecentApplicationsList({
               </span>
               <span className="truncate text-[13px] text-muted">
                 {t.rich("meta", {
-                  id: application.applicationId,
+                  id: String(application.applicationId),
                   date: () => (
                     <LocalShortDate value={application.generatedDate} />
                   ),

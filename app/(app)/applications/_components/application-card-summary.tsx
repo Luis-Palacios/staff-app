@@ -34,7 +34,7 @@ export default function ApplicationCardSummary({
       </span>
       <span className="pl-12 text-[13px] text-muted">
         {t.rich("meta", {
-          id: application.applicationId,
+          id: String(application.applicationId),
           date: () => <LocalDate value={application.generatedDate} />,
         })}
       </span>

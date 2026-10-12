@@ -16,7 +16,8 @@ light and dark, at desktop width and below `sm` (640px), before the next one sta
 - **Out of scope:** real translations / i18n. Stage 2 only adds the picker and a
   stored locale preference that the future i18n work will read. No UI strings change
   language yet. The translation work is planned in
-  `docs/infrastructure/I18N-ROADMAP.md`.
+  `docs/infrastructure/I18N-ROADMAP.md`. *(Done since: the picker now switches the whole
+  UI; see the closing note at the end of this file.)*
 
 ## Progress (handoff log)
 
@@ -178,3 +179,13 @@ Notes from the build: `Accept-Language` picks the first entry whose primary
 subtag is *any* supported locale (so `en-US,en;q=0.9,es;q=0.8` stays English),
 skipping `q=0`. The root layout now reads cookies/headers, so every route,
 including the auth pages, renders per request.
+
+## Closing note: i18n (2026-10-11)
+
+The language picker described above is now wired to real translations. The cookie and
+`getLocale()` work exactly as specified here; next-intl reads the locale through
+`i18n/request.ts`, so picking a language translates the menu, the shell and every page.
+The "Until i18n lands" paragraph under Stage 2 no longer applies. The `TODO(i18n)` for
+saving the choice to the user's profile is still open. See
+`docs/infrastructure/I18N-ROADMAP.md` for the decisions and `CLAUDE.md` ("Adding UI text")
+for the conventions.

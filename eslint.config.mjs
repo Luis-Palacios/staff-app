@@ -32,6 +32,7 @@ export default defineConfig([globalIgnores([
     "public/*",
     "tests/*",
     "scripts/*",
+    "messages/en.d.json.ts",
     "**/*.config.js",
     "**/.DS_Store",
     "**/node_modules",
@@ -147,6 +148,21 @@ export default defineConfig([globalIgnores([
             blankLine: "any",
             prev: ["const", "let", "var"],
             next: ["const", "let", "var"],
+        }],
+    },
+}, {
+    // Flags hard-coded UI text so new strings go through next-intl (see
+    // docs/infrastructure/I18N-ROADMAP.md). A warning, not an error: some literals
+    // (punctuation, brand names) are legitimately not translated.
+    files: ["app/**/*.tsx", "components/**/*.tsx"],
+    plugins: {
+        react: fixupPluginRules(react),
+    },
+    rules: {
+        "react/jsx-no-literals": ["warn", {
+            noStrings: false,
+            // Punctuation, the © sign, the wordmark and the Ctrl/K shortcut hint stay untranslated.
+            allowedStrings: ["—", "·", "/", "•", "|", "(", ")", "#", "–", "-", ":", "©", "ekklesia", "io", "Ctrl", "K"],
         }],
     },
 }, {

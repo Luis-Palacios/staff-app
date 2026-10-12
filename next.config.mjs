@@ -2,7 +2,19 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 // Finds i18n/request.ts (next-intl's per-request locale + messages) by its
 // default path.
-const withNextIntl = createNextIntlPlugin();
+const withNextIntl = createNextIntlPlugin({
+  experimental: {
+    // Generates messages/en.d.json.ts so t("key") without its ICU arguments fails tsc.
+    createMessagesDeclaration: "./messages/en.json",
+    // Compiles ICU messages at build time, so the message parser stays out of the client bundle.
+    messages: {
+      format: "json",
+      path: "./messages",
+      locales: ["en", "es"],
+      precompile: true,
+    },
+  },
+});
 
 // No rewrites() for /api/auth: they're frozen at build time. proxy.ts forwards it at runtime.
 /** @type {import('next').NextConfig} */
