@@ -1,6 +1,8 @@
 import type { AdminInviteListItem } from "@/api/auth-api/types";
 
-import { roleBadgeProps, roleLabel } from "../../_components/role-display";
+import { useTranslations } from "next-intl";
+
+import { RoleBadge } from "../../_components/role-badge";
 
 import { CancelInviteButton } from "./cancel-invite-button";
 import { cancelToken, inviteEmail, inviterLabel } from "./invite-display";
@@ -9,7 +11,6 @@ import { InviteStatusChip } from "./invite-status-chips";
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { LocalDate } from "@/components/local-date";
 import { card } from "@/components/primitives";
-import { StatusBadge } from "@/components/status-badge";
 
 // Mobile stand-in for a table row: avatar, email and status, then the role,
 // sender and date, and Cancel when the viewer sent a still-pending invite.
@@ -20,6 +21,7 @@ export default function InviteCardSummary({
   invite: AdminInviteListItem;
   currentUserId: string;
 }) {
+  const t = useTranslations("InviteCard");
   const email = inviteEmail(invite);
   const token = cancelToken(invite, currentUserId);
 
@@ -33,12 +35,12 @@ export default function InviteCardSummary({
         <InviteStatusChip invite={invite} />
       </div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pl-12 text-[13px] text-muted">
-        <StatusBadge {...roleBadgeProps(invite.role)}>
-          {roleLabel(invite.role)}
-        </StatusBadge>
+        <RoleBadge role={invite.role} />
         <span>
-          Sent <LocalDate value={invite.createdAt ?? ""} /> by{" "}
-          {inviterLabel(invite)}
+          {t.rich("sent", {
+            inviter: inviterLabel(invite),
+            date: () => <LocalDate value={invite.createdAt ?? ""} />,
+          })}
         </span>
       </div>
       {token && (

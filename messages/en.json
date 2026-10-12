@@ -263,5 +263,77 @@
   "PersonTimeline": {
     "firstVisit": "First visit",
     "noDate": "No date recorded"
+  },
+  "UsersPage": {
+    "description": "Everyone with a staff account. People who just signed up wait here until you give them a role."
+  },
+  "MyProfilePage": {
+    "title": "User Profile"
+  },
+  "InviteStaffLink": {
+    "label": "Invite staff"
+  },
+  "UserCard": {
+    "joined": "Joined <date></date>",
+    "banReason": "Ban reason: {reason}"
+  },
+  "UserStatus": {
+    "active": "Active",
+    "banned": "Banned",
+    "unverified": "Unverified"
+  },
+  "UsersTable": {
+    "tableLabel": "Users",
+    "columnPerson": "Person",
+    "columnRole": "Role",
+    "columnStatus": "Status",
+    "columnJoined": "Joined",
+    "empty": "No users yet."
+  },
+  "AssignPendingRole": {
+    "roleFor": "Role for {name}",
+    "placeholder": "Choose",
+    "assign": "Assign",
+    "confirmTitle": "Assign the Admin role?",
+    "confirmLabel": "Make admin",
+    "confirmBody": "{name} will be able to manage every user, role and invite."
+  },
+  "InvitesPage": {
+    "description": "Invite people to the staff workspace and see who has accepted. You can cancel an invite you sent until it's used."
+  },
+  "InviteStatus": {
+    "pending": "Pending",
+    "used": "Accepted",
+    "rejected": "Rejected",
+    "canceled": "Canceled",
+    "expired": "Expired"
+  },
+  "InviteCard": {
+    "sent": "Sent <date></date> by {inviter}"
+  },
+  "InvitesTable": {
+    "tableLabel": "Invites",
+    "columnInvitee": "Invitee",
+    "columnRole": "Role",
+    "columnStatus": "Status",
+    "columnSent": "Sent",
+    "columnActions": "Actions",
+    "invitedBy": "Invited by {name}",
+    "empty": "No invites sent yet."
+  },
+  "CancelInviteButton": {
+    "label": "Cancel invite for {email}",
+    "cancel": "Cancel"
+  },
+  "NewInviteForm": {
+    "title": "Send an invite",
+    "subtitle": "They'll get an email with a link to create their account.",
+    "email": "Email",
+    "role": "Role",
+    "rolePlaceholder": "Choose a role",
+    "send": "Send invite",
+    "confirmTitle": "Send an admin invite?",
+    "confirmLabel": "Send admin invite",
+    "confirmBody": "{email} will be able to manage every user, role and invite once they accept."
   }
 }

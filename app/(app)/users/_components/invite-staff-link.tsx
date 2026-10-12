@@ -1,9 +1,12 @@
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import { buttonVariants } from "@heroui/react";
 import NextLink from "next/link";
+import { useTranslations } from "next-intl";
 
 // Primary header action on the dashboard and the users page.
 export function InviteStaffLink() {
+  const t = useTranslations("InviteStaffLink");
+
   return (
     <NextLink
       className={buttonVariants({
@@ -17,7 +20,7 @@ export function InviteStaffLink() {
         className="size-[18px]"
         strokeWidth={1.8}
       />
-      Invite staff
+      {t("label")}
     </NextLink>
   );
 }

@@ -448,16 +448,54 @@ dates.
 - **Verified in a browser in both languages.** Also checked by `pnpm lint`,
   `pnpm exec tsc --noEmit` and `pnpm build`.
 
-### Stage 10 — Users and My profile `[ ]`
+### Stage 10 — Users and My profile `[x]`
 
 - `users/page.tsx`, `UsersList`, `UsersSummaryTable`, `UserCardSummary`,
   `UserStatusChips`, `AssignPendingRole` (through Stage 5's error helper),
   `InviteStaffLink`, `users/me/page.tsx`.
 
-### Stage 11 — Invites `[ ]`
+**Done (2026-10-11).** Notes:
+
+- **Namespaces added:** `UserStatus`, `UsersTable` and `AssignPendingRole` (client), plus
+  `UsersPage`, `MyProfilePage`, `InviteStaffLink` and `UserCard` (server only).
+  `UsersTable` is also read by the server `UsersList` for the mobile empty message.
+- **Roles:** `role-display.ts` is gone. A new `RoleBadge` (`users/_components/role-badge.tsx`)
+  calls `useTranslations("Roles")`, so it works from server and client parents, and shows an
+  unknown role as sent. The invites table and cards already use it, so their role badges are
+  translated now.
+- **`AssignPendingRole`:** the role list comes from `AUTH_ROLES` and the labels from `Roles`.
+  Failures go through `useAuthErrorMessage()` instead of better-auth's English message.
+  Reused by the dashboard's `NeedsAttentionCard`.
+- **`ROLE_LABELS` stays** only for `new-invite-form.tsx`; delete it in Stage 11.
+- **Spanish wording to review:** *Bloqueado* (banned), *Se unió el …*, *Hacer administrador*,
+  *Perfil de usuario*.
+- **Not done:** the profile page is still a stub with no content to translate.
+- **Verified in a browser, including 390px (Spanish):** the users table and cards, the role picker
+  and the admin confirm dialog. The 390px check found the long role badge ("Líder de grupo
+  pequeño") pushing the user card past the screen edge, so `UserCardSummary` now puts the role
+  in the wrapping badge row and the card has `min-w-0`.
+
+### Stage 11 — Invites `[x]`
 
 - `users/invites/page.tsx`, `InvitesList`, `InvitesSummaryTable`, `InviteCardSummary`,
   `InviteStatusChips`, `invite-display.ts`, `NewInviteForm`, `CancelInviteButton`.
+
+**Done (2026-10-11).** Notes:
+
+- **Namespaces added:** `InviteStatus`, `InvitesTable`, `CancelInviteButton` and `NewInviteForm`
+  (client), plus `InvitesPage` and `InviteCard` (server only).
+- **`ROLE_LABELS` deleted.** `NewInviteForm` builds its role list from `AUTH_ROLES` and
+  labels from `Roles`.
+- **Errors:** sending and cancelling an invite go through `useAuthErrorMessage()`. The invite
+  plugin's codes aren't in `CODE_TO_KEY`, so they show the generic message (or the
+  rate-limit one); add codes there for finer text.
+- **`invite-display.ts`:** no change needed. It returns names, emails and `—`, which are data.
+- **Left as is:** the `person@example.com` email placeholder.
+- **Spanish wording to review:** *Vencida* (expired), *Aceptada*, *Enviada el … por …*.
+- **Verified in a browser:** the invites page and form in Spanish and English, and the invite
+  row, status chip, Cancel button and mobile card at 390px (Spanish). Cancel was clicked: the chip flipped to "Cancelada" and the button went away.
+- **Known, not changed:** `LocalDate` reserves `min-w-24`, which leaves a wide gap before "por …"
+  in the mobile invite card when the Spanish date is short.
 
 ### Stage 12 — Wrap-up and optimisation `[ ]`
 

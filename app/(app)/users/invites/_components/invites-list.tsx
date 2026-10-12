@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 
 import InviteCardSummary from "./invite-card-summary";
 import InvitesSummaryTable from "./invites-summary-table";
@@ -10,6 +11,7 @@ export default async function InvitesList({
 }: {
   currentUserId: string;
 }) {
+  const t = await getTranslations("InvitesTable");
   const cookie = (await headers()).get("cookie") ?? "";
   const { invites } = await listInvites(cookie);
 
@@ -21,9 +23,7 @@ export default async function InvitesList({
 
       <div className="grid gap-3 md:hidden">
         {invites.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted">
-            No invites sent yet.
-          </p>
+          <p className="py-6 text-center text-sm text-muted">{t("empty")}</p>
         ) : (
           invites.map((invite) => (
             <InviteCardSummary
