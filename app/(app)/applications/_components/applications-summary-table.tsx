@@ -70,7 +70,7 @@ export default function ApplicationsSummaryTable({
                       href={href}
                       name={application.personFullName}
                       secondary={t("personNumber", {
-                        id: application.personId,
+                        id: String(application.personId),
                       })}
                     />
                   </Table.Cell>

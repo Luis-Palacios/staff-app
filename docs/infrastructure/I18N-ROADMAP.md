@@ -497,7 +497,7 @@ dates.
 - **Known, not changed:** `LocalDate` reserves `min-w-24`, which leaves a wide gap before "por …"
   in the mobile invite card when the Spanish date is short.
 
-### Stage 12 — Wrap-up and optimisation `[ ]`
+### Stage 12 — Wrap-up and optimisation `[x]`
 
 - **Audit for leftover English.** Grep `app/` and `components/` for JSX text and
   string `aria-label` / `placeholder` / `title` props that aren't `t(...)`. Optionally
@@ -514,6 +514,34 @@ dates.
   short "Adding UI text" section covering namespaces, server versus client,
   `CLIENT_NAMESPACES`, and the parity check. Add a closing note in
   `docs/design/ACCOUNT-MENU-AND-LANGUAGE.md`.
+
+**Done (2026-10-11).** Notes:
+
+- **Audit:** `react/jsx-no-literals` is on as a warning for `app/` and `components/`. It found
+  no leftover English. The only literals are allow-listed on purpose: punctuation, `©`, the
+  wordmark and the `Ctrl`/`K` hint. The unused template file `components/counter.tsx` was
+  deleted. The two attribute literals left (`person@example.com`, the logo's `aria-label`)
+  are not translated on purpose.
+- **Typed placeholders:** enabled with `experimental.createMessagesDeclaration`. It generates
+  `messages/en.d.json.ts` (commit it; `eslint.config.mjs` ignores it) and needs
+  `allowArbitraryExtensions` in `tsconfig.json`. Proven by breaking it: a missing `total`
+  argument fails `tsc`. It found real mismatches: numeric `{id}` arguments (now `String(id)`)
+  and the table footer, whose counts are now `{start, number}–{end, number} of {total, number}`
+  so they format per language.
+- **`messages/parity.ts`** now compares shape (same keys, string values), because the
+  generated declaration types English values as literals. Proven by deleting an `es.json` key.
+- **Precompile:** `experimental.messages.precompile` is on (needs `format`, `path` and
+  `locales` in `next.config.mjs`). Client chunks: **524,173 B → 515,212 B gzipped (−1.7%)**,
+  2,156 KB → 2,124 KB on disk. Small, but it builds cleanly, the server chunks hold the
+  compiled plural and rich-text messages, and `/sign-in` renders in both languages, so it
+  stays. **Not verified in a browser:** signed-in pages (plural and `t.rich` messages).
+- **`CLIENT_NAMESPACES` review:** nothing to remove. Every namespace is called by a
+  `"use client"` component, or by one imported from a client component (`ApplicationStatus`,
+  `DataTable`, `InviteStatus`, `UserStatus`). The one-key `ConfirmDialog` was left as is
+  (Stage 3's reasoning still holds).
+- **Docs:** CLAUDE.md has an "Adding UI text" section; the account-menu doc has a closing note.
+- **Still open:** saving the language to the user's profile (`TODO(i18n)`), translating emails
+  (out of scope), and the not-found page for unknown application ids (Stage 9).
 
 ---
 

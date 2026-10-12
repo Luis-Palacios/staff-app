@@ -101,7 +101,7 @@
   },
   "DataTable": {
     "open": "Open",
-    "showing": "Showing {start}–{end} of {total}",
+    "showing": "Showing {start, number}–{end, number} of {total, number}",
     "previous": "Previous",
     "next": "Next"
   },
