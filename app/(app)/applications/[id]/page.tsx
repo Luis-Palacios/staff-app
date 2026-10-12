@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 
 import { ApplicationDetailHeader } from "./_components/application-detail-header";
 import { DetailCardHeading } from "./_components/detail-card-heading";
@@ -15,6 +16,7 @@ export default async function ApplicationDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const t = await getTranslations("ApplicationDetailPage");
 
   const application = await getApplicationDetail(id);
 
@@ -33,7 +35,9 @@ export default async function ApplicationDetail({
               "flex min-w-0 flex-[2_1_340px] flex-col gap-[18px] px-6 pb-6 pt-5",
           })}
         >
-          <DetailCardHeading eyebrow="Journey">Timeline</DetailCardHeading>
+          <DetailCardHeading eyebrow={t("timelineEyebrow")}>
+            {t("timelineTitle")}
+          </DetailCardHeading>
           <Suspense fallback={<PersonTimelineSkeleton />}>
             <PersonTimeline personId={application.personId} />
           </Suspense>

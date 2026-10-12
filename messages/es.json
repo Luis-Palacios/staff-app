@@ -240,5 +240,28 @@
     "notYet": "Aún no",
     "openApplication": "Abrir la solicitud de {name}",
     "meta": "Solicitud n.º {id} · Enviada el <date></date>"
+  },
+  "ApplicationDetailPage": {
+    "timelineEyebrow": "Recorrido",
+    "timelineTitle": "Línea de tiempo"
+  },
+  "ApplicationDetailHeader": {
+    "application": "Solicitud",
+    "person": "Persona",
+    "submitted": "Enviada",
+    "fulfilled": "Aprobada",
+    "notFulfilledYet": "Aún no aprobada",
+    "allApplications": "Todas las solicitudes"
+  },
+  "TestimonyCard": {
+    "eyebrow": "Testimonio",
+    "title": "En sus propias palabras",
+    "lifeBefore": "Vida antes",
+    "conversion": "Conversión",
+    "lifeAfter": "Vida después"
+  },
+  "PersonTimeline": {
+    "firstVisit": "Primera visita",
+    "noDate": "Sin fecha registrada"
   }
 }

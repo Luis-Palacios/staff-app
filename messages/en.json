@@ -240,5 +240,28 @@
     "notYet": "Not yet",
     "openApplication": "Open application from {name}",
     "meta": "Application #{id} · Submitted <date></date>"
+  },
+  "ApplicationDetailPage": {
+    "timelineEyebrow": "Journey",
+    "timelineTitle": "Timeline"
+  },
+  "ApplicationDetailHeader": {
+    "application": "Application",
+    "person": "Person",
+    "submitted": "Submitted",
+    "fulfilled": "Fulfilled",
+    "notFulfilledYet": "Not fulfilled yet",
+    "allApplications": "All applications"
+  },
+  "TestimonyCard": {
+    "eyebrow": "Testimony",
+    "title": "In their own words",
+    "lifeBefore": "Life before",
+    "conversion": "Conversion",
+    "lifeAfter": "Life after"
+  },
+  "PersonTimeline": {
+    "firstVisit": "First visit",
+    "noDate": "No date recorded"
   }
 }
