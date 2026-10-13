@@ -7,7 +7,12 @@ export type SiteConfig = typeof siteConfig;
 export type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 /** Icon keys resolved by the sidebar's icon registry (`components/sidebar.tsx`). */
-export type NavIconName = "dashboard" | "groups" | "applications" | "access";
+export type NavIconName =
+  | "dashboard"
+  | "members"
+  | "groups"
+  | "applications"
+  | "access";
 
 /** A key of the `Nav` namespace (messages/en.json). The sidebar and the
  *  breadcrumbs translate it, so config holds no display text. */
@@ -72,6 +77,11 @@ export const siteConfig = {
       labelKey: "dashboard",
       icon: "dashboard",
       href: "/",
+    },
+    {
+      labelKey: "members",
+      icon: "members",
+      href: "/members",
     },
     {
       labelKey: "groups",

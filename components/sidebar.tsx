@@ -17,6 +17,7 @@ import {
   ShieldCheckIcon,
   Squares2X2Icon,
   UserGroupIcon,
+  UsersIcon,
 } from "@heroicons/react/24/outline";
 
 import { CloseIcon } from "@/components/icons";
@@ -27,6 +28,7 @@ import { siteConfig } from "@/config/site";
 // Heroicons outline (24px grid), drawn at stroke 1.6 by `NavIcon` below.
 const iconRegistry: Record<NavIconName, HeroIcon> = {
   dashboard: Squares2X2Icon,
+  members: UsersIcon,
   groups: UserGroupIcon,
   applications: DocumentTextIcon,
   access: ShieldCheckIcon,

@@ -7,6 +7,7 @@ declare const messages: {
   },
   "Nav": {
     "dashboard": "Dashboard",
+    "members": "Members",
     "groups": "Groups",
     "groupsList": "List",
     "groupsReports": "Reports",
@@ -229,6 +230,10 @@ declare const messages: {
   "ApplicationStatus": {
     "pending": "Pending",
     "fulfilled": "Fulfilled"
+  },
+  "MembersPage": {
+    "title": "Members",
+    "description": "Everyone who is a member of this church. Open one to see their details and small groups."
   },
   "ApplicationsPage": {
     "title": "Membership applications",
