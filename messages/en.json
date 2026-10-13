@@ -246,6 +246,10 @@
     "notProvided": "Not provided",
     "openMember": "Open {name}"
   },
+  "AddMemberLink": {
+    "label": "Add member",
+    "first": "Add the first member"
+  },
   "MembersEmpty": {
     "title": "No members yet",
     "description": "Members will show up here once they're added to this church."
