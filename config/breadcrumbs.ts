@@ -1,5 +1,10 @@
 import type { StaffAppBreadcrumbItem } from "@/components/staff-app-breadcrumbs";
 
+export const membersBreadcrumb: StaffAppBreadcrumbItem = {
+  labelKey: "members",
+  href: "/members",
+};
+
 export const groupsBreadcrumb: StaffAppBreadcrumbItem = {
   labelKey: "groups",
   href: "/groups",

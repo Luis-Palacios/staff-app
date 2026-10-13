@@ -4,6 +4,7 @@
   },
   "Nav": {
     "dashboard": "Panel",
+    "members": "Miembros",
     "groups": "Grupos",
     "groupsList": "Lista",
     "groupsReports": "Reportes",
@@ -226,6 +227,10 @@
   "ApplicationStatus": {
     "pending": "Pendiente",
     "fulfilled": "Aprobada"
+  },
+  "MembersPage": {
+    "title": "Miembros",
+    "description": "Todas las personas que son miembros de esta iglesia. Abre uno para ver sus datos y sus grupos pequeños."
   },
   "ApplicationsPage": {
     "title": "Solicitudes de membresía",
