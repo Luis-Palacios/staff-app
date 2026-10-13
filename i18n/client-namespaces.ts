@@ -24,6 +24,7 @@ export const CLIENT_NAMESPACES = [
   "ForgotPasswordForm",
   "InviteStatus",
   "InvitesTable",
+  "MembersBrowser",
   "Nav",
   "NeedsRolePage",
   "NewInviteForm",
