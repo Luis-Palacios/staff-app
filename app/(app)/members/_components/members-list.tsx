@@ -1,6 +1,7 @@
 import { UsersIcon } from "@heroicons/react/24/outline";
 import { getTranslations } from "next-intl/server";
 
+import { AddMemberLink } from "./add-member-link";
 import MembersBrowser from "./members-browser";
 
 import { listMembers } from "@/api/members-api/client";
@@ -13,7 +14,11 @@ export default async function MembersList() {
     const t = await getTranslations("MembersEmpty");
 
     return (
-      <EmptyState icon={UsersIcon} title={t("title")}>
+      <EmptyState
+        action={<AddMemberLink variant="empty" />}
+        icon={UsersIcon}
+        title={t("title")}
+      >
         {t("description")}
       </EmptyState>
     );

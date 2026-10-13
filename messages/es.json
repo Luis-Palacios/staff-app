@@ -246,6 +246,10 @@
     "notProvided": "No registrado",
     "openMember": "Abrir {name}"
   },
+  "AddMemberLink": {
+    "label": "Agregar miembro",
+    "first": "Agrega el primer miembro"
+  },
   "MembersEmpty": {
     "title": "Aún no hay miembros",
     "description": "Los miembros aparecerán aquí cuando se agreguen a esta iglesia."

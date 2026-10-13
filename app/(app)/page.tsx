@@ -10,6 +10,7 @@ import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { AddMemberLink } from "./members/_components/add-member-link";
 import { InviteStaffLink } from "./users/_components/invite-staff-link";
 import { deriveInviteStatus } from "./users/invites/_components/invite-status-chips";
 import { Greeting, TodayDate } from "./_components/dashboard-greeting";
@@ -81,7 +82,12 @@ export default async function DashboardPage() {
   return (
     <>
       <StaffAppPageHeader
-        actions={isStaffAdmin && <InviteStaffLink />}
+        actions={
+          <>
+            <AddMemberLink variant="outline" />
+            {isStaffAdmin && <InviteStaffLink />}
+          </>
+        }
         description={t("description")}
         eyebrow={<TodayDate />}
         title={
