@@ -172,6 +172,8 @@ empty and no-matches states render in both languages; `messages/parity.ts` passe
 
 ## Stage 3: Docs
 
+> Closed. The list's "Open" links now reach the member detail page (`/members/{id}`).
+
 - `CLAUDE.md` → *Overview*: mention `members` among the sections that have real UI.
 - Mark the stages done in the table above with their commits, and finish *Decisions and
   deviations*.
