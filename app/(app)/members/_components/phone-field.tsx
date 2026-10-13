@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import {
   Description,
@@ -95,12 +95,7 @@ export function PhoneField({
                     <span className="text-sm tabular-nums text-muted">
                       {c.dialCode}
                     </span>
-                    <ListBox.ItemIndicator>
-                      <CheckIcon
-                        aria-hidden="true"
-                        className="size-4 text-accent"
-                      />
-                    </ListBox.ItemIndicator>
+                    <ListBox.ItemIndicator />
                   </ListBox.Item>
                 )),
                 ...(hasOther
@@ -112,12 +107,7 @@ export function PhoneField({
                       >
                         <IsoTag code="—" />
                         <span className="flex-1">{t("phoneOther")}</span>
-                        <ListBox.ItemIndicator>
-                          <CheckIcon
-                            aria-hidden="true"
-                            className="size-4 text-accent"
-                          />
-                        </ListBox.ItemIndicator>
+                        <ListBox.ItemIndicator />
                       </ListBox.Item>,
                     ]
                   : []),
