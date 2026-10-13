@@ -232,6 +232,24 @@
     "title": "Miembros",
     "description": "Todas las personas que son miembros de esta iglesia. Abre uno para ver sus datos y sus grupos pequeños."
   },
+  "MembersBrowser": {
+    "filterLabel": "Filtrar miembros",
+    "filterPlaceholder": "Nombre, correo o teléfono",
+    "count": "<num>{count, number}</num> {count, plural, one {miembro} other {miembros}}",
+    "noMatches": "Ningún miembro coincide con tu búsqueda.",
+    "tableLabel": "Miembros",
+    "columnMember": "Miembro",
+    "columnEmail": "Correo",
+    "columnPhone": "Teléfono",
+    "columnActions": "Acciones",
+    "memberNumber": "Miembro #{id}",
+    "notProvided": "No registrado",
+    "openMember": "Abrir {name}"
+  },
+  "MembersEmpty": {
+    "title": "Aún no hay miembros",
+    "description": "Los miembros aparecerán aquí cuando se agreguen a esta iglesia."
+  },
   "ApplicationsPage": {
     "title": "Solicitudes de membresía",
     "description": "Testimonios de personas que se preparan para ser miembros. Abre uno para leerlo y ver su camino hasta ahora."

@@ -232,6 +232,24 @@
     "title": "Members",
     "description": "Everyone who is a member of this church. Open one to see their details and small groups."
   },
+  "MembersBrowser": {
+    "filterLabel": "Filter members",
+    "filterPlaceholder": "Name, email or phone",
+    "count": "<num>{count, number}</num> {count, plural, one {member} other {members}}",
+    "noMatches": "No members match your search.",
+    "tableLabel": "Members",
+    "columnMember": "Member",
+    "columnEmail": "Email",
+    "columnPhone": "Phone",
+    "columnActions": "Actions",
+    "memberNumber": "Member #{id}",
+    "notProvided": "Not provided",
+    "openMember": "Open {name}"
+  },
+  "MembersEmpty": {
+    "title": "No members yet",
+    "description": "Members will show up here once they're added to this church."
+  },
   "ApplicationsPage": {
     "title": "Membership applications",
     "description": "Testimonies from people preparing to become members. Open one to read it and see their journey so far."

@@ -16,19 +16,12 @@ import {
   type ApplicationStatusFilter,
 } from "./status-filter";
 
+import { normalizeText } from "@/lib/normalize-text";
+
 function parseStatus(value: string | null): ApplicationStatusFilter {
   return STATUS_FILTERS.some(({ key }) => key === value)
     ? (value as ApplicationStatusFilter)
     : "all";
-}
-
-// Case- and accent-insensitive, so "maria" finds "María".
-function normalize(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .trim();
 }
 
 function matchesQuery(
@@ -40,7 +33,7 @@ function matchesQuery(
   const id = query.replace(/^#/, "");
 
   return (
-    normalize(application.personFullName).includes(query) ||
+    normalizeText(application.personFullName).includes(query) ||
     (id !== "" && String(application.applicationId).includes(id))
   );
 }
@@ -88,7 +81,7 @@ export default function ApplicationsBrowser({
   };
 
   const matchingQuery = useMemo(() => {
-    const normalized = normalize(query);
+    const normalized = normalizeText(query);
 
     return applications.filter((application) =>
       matchesQuery(application, normalized),
