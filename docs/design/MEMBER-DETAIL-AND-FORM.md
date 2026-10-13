@@ -54,12 +54,12 @@ the canvas in *Decisions and deviations* below, so it can be reviewed.
 | 3. Member detail page | [x] | `16ead5f` |
 | 4. Add/edit form | [x] | `71e5325` |
 | 5. Docs | [x] | this commit |
+| 6. Review fixes (non-numeric id, 404 page) | [x] | this commit |
 
 ### Decisions and deviations
 
-- **Not checked visually.** No session or running API was available, so none of the stages
-  was compared with the canvas or tried in light/dark at 1440 / 1024 / 390. `pnpm lint` and
-  `tsc --noEmit` pass. Do that review before merging.
+- Reviewed in Chrome against the local API (see *Review follow-ups*); `pnpm lint` and
+  `tsc --noEmit` pass. The 390px layout still needs one manual look.
 - **Stage 1:** the schema (`_lib/member-schema.ts`) is validated on `memberSchema` for create and
   `memberChangesSchema` (partial) for update. `updateMemberAction` takes only the changed fields;
   an empty optional becomes `null`. 409 → `fieldErrors.email = "emailDuplicate"`; other errors use
@@ -80,6 +80,44 @@ the canvas in *Decisions and deviations* below, so it can be reviewed.
   - No unsaved-changes confirmation; I think it's fine for a five-field form.
   - Spanish: "Cómo contactarle", "Dirección y cumpleaños" as given; "Correo", "Teléfono",
     "Fecha de nacimiento" for the labels.
+
+## Review follow-ups (browser review, 2026-10-13)
+
+Reviewed in Chrome against the local API, light and dark, English and Spanish. The add, edit,
+phone round-trip, validation, duplicate-email, clear-to-null, no-change and toast flows all work
+as specified. Two fixes go in **Stage 6** below. Not checked: the 390px layout (the browser
+couldn't be resized); give it one manual look before merging.
+
+## Stage 6: Review fixes
+
+**Files:** `app/(app)/members/_lib/load-member.ts`, `app/(app)/not-found.tsx` (new), messages.
+
+1. **A non-numeric id shows the error page instead of a 404.** `/members/abc` and
+   `/members/abc/edit` render "Something went wrong": the API answers 422 (FastAPI can't parse
+   `member_id: int`), and `loadMember()` only maps 404 to `notFound()`.
+   - In `loadMember()`, call `notFound()` before fetching when the id isn't a positive integer
+     (`/^[1-9]\d*$/`), so no request goes out.
+   - Also treat a 422 from `GET /members/{id}` as not found, in case other shapes slip through.
+   - **Done when:** `/members/abc`, `/members/0`, `/members/-1`, `/members/1.5` and their
+     `/edit` pages all show the 404 page; `/members/99999` still does.
+2. **The 404 page is Next's default black screen inside the shell.** There is no
+   `not-found.tsx`, so every 404 in the app (not just members) shows the unstyled default.
+   - Add `app/(app)/not-found.tsx` built on `EmptyState` (`as="h1"`, like the error page):
+     a muted icon tile (`MagnifyingGlassIcon` or `QuestionMarkCircleIcon`), title "Page not
+     found" / "No encontramos esta página", body "It may have been moved or removed, or the
+     link is wrong." / "Puede que se haya movido o eliminado, o que el enlace esté mal.", and an
+     outline action "Go to the dashboard" / "Ir al panel" → `/`. Match `app/(app)/error.tsx`
+     for placement and spacing.
+   - New `NotFound` namespace (server-only); English and Spanish in the same change.
+   - **Done when:** an unknown member and an unknown route (e.g. `/nope`) both show it inside
+     the shell, in light and dark, in both languages.
+
+**Stage 6 notes:** `loadMember()` returns 404 for ids that aren't `/^[1-9]\d*$/` without calling
+the API, and also maps a 422 to 404. Unmatched URLs (`/nope`) fall outside the `(app)` layout, so
+`not-found.tsx` alone didn't reach them: added a catch-all `app/(app)/[...slug]/page.tsx` that
+calls `notFound()`, which puts every unknown URL inside the shell. Checked in light, English:
+`/members/abc` and `/nope` show the new page; `/members/10` still loads. Not re-checked: dark,
+Spanish, and each `/edit` id by eye (same code path as the detail page).
 
 ## The API (membership-management, already built)
 
