@@ -125,14 +125,7 @@ function Field({
       value={value}
       onChange={onChange}
     >
-      <Label className="text-[13px] font-semibold text-heading">
-        {label}
-        {required && (
-          <span aria-hidden="true" className="ml-0.5 text-danger">
-            {"*"}
-          </span>
-        )}
-      </Label>
+      <Label className="text-[13px] font-semibold text-heading">{label}</Label>
       <InputGroup className="h-10 w-full rounded-control">
         <InputGroup.Input
           autoComplete={autoComplete}
@@ -312,8 +305,8 @@ export function MemberForm({
         </div>
       )}
 
-      <fieldset className="m-0 flex min-w-0 flex-col gap-5 border-0 p-6">
-        <legend className="mb-1 w-full p-0">
+      <fieldset className="m-0 flex min-w-0 flex-col gap-5 border-0 px-6 pb-6 pt-0">
+        <legend className="mb-1 w-full px-0 pb-0 pt-6">
           <span className="block text-xs font-semibold uppercase tracking-[0.08em] text-eyebrow">
             {t("contactEyebrow")}
           </span>
@@ -357,8 +350,10 @@ export function MemberForm({
         </div>
       </fieldset>
 
-      <fieldset className="m-0 flex min-w-0 flex-col gap-5 border-0 border-t border-separator p-6">
-        <legend className="mb-1 w-full p-0">
+      <div className="border-t border-separator" />
+
+      <fieldset className="m-0 flex min-w-0 flex-col gap-5 border-0 px-6 pb-6 pt-0">
+        <legend className="mb-1 w-full px-0 pb-0 pt-6">
           <span className="block text-xs font-semibold uppercase tracking-[0.08em] text-eyebrow">
             {t("personalEyebrow")}
           </span>
