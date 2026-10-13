@@ -373,5 +373,39 @@
     "confirmTitle": "¿Enviar una invitación de administrador?",
     "confirmLabel": "Enviar invitación de administrador",
     "confirmBody": "{email} podrá gestionar todos los usuarios, roles e invitaciones una vez que acepte."
+  },
+  "MemberDetailHeader": {
+    "member": "Miembro",
+    "groupCount": "<strong>{count, number}</strong> {count, plural, one {grupo pequeño} other {grupos pequeños}}",
+    "allMembers": "Todos los miembros",
+    "edit": "Editar datos"
+  },
+  "MemberContactCard": {
+    "eyebrow": "Perfil",
+    "title": "Contacto y datos personales",
+    "edit": "Editar",
+    "editLabel": "Editar datos de contacto y personales",
+    "email": "Correo",
+    "phone": "Teléfono",
+    "address": "Dirección",
+    "birthDate": "Fecha de nacimiento",
+    "notProvided": "No registrado",
+    "age": "{age, plural, one {# año} other {# años}}"
+  },
+  "MemberGroupsCard": {
+    "eyebrow": "Grupos pequeños",
+    "title": "Grupos y roles actuales",
+    "joined": "Se unió el {date}",
+    "emptyTitle": "Aún no está en un grupo pequeño",
+    "emptyBody": "Los grupos y roles aparecerán aquí cuando se una a uno."
+  },
+  "SmallGroupRole": {
+    "leader": "Líder",
+    "co_leader": "Colíder",
+    "member": "Miembro"
+  },
+  "SavedToast": {
+    "created": "Miembro agregado",
+    "updated": "Cambios guardados"
   }
 }
