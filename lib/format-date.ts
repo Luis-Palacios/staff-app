@@ -41,3 +41,45 @@ export function formatLocalLongDate(iso: string, locale: Locale): string {
     day: "numeric",
   });
 }
+
+// Date-only values ("YYYY-MM-DD": birth dates, join dates) have no time or
+// zone, so they must not go through `new Date(iso)` and the local-time
+// formatters above: midnight UTC reads as the previous day west of Greenwich.
+// Build the date at UTC midnight and format it in UTC so the calendar day
+// never shifts.
+export function formatCalendarDate(iso: string, locale: Locale): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+
+  if (!match) return "";
+
+  const date = new Date(
+    Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
+  );
+
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "long",
+    timeZone: "UTC",
+  }).format(date);
+}
+
+// Whole years between a date-only birth date and today (in the server's
+// calendar). `null` when the value isn't a date.
+export function ageFromCalendarDate(
+  iso: string,
+  today: Date = new Date(),
+): number | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+
+  if (!match) return null;
+
+  const [year, month, day] = [
+    Number(match[1]),
+    Number(match[2]),
+    Number(match[3]),
+  ];
+  const hadBirthday =
+    today.getMonth() + 1 > month ||
+    (today.getMonth() + 1 === month && today.getDate() >= day);
+
+  return today.getFullYear() - year - (hadBirthday ? 0 : 1);
+}

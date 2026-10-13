@@ -376,6 +376,40 @@ declare const messages: {
     "confirmTitle": "Send an admin invite?",
     "confirmLabel": "Send admin invite",
     "confirmBody": "{email} will be able to manage every user, role and invite once they accept."
+  },
+  "MemberDetailHeader": {
+    "member": "Member",
+    "groupCount": "<strong>{count, number}</strong> {count, plural, one {small group} other {small groups}}",
+    "allMembers": "All members",
+    "edit": "Edit details"
+  },
+  "MemberContactCard": {
+    "eyebrow": "Profile",
+    "title": "Contact & personal",
+    "edit": "Edit",
+    "editLabel": "Edit contact and personal details",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "birthDate": "Birth date",
+    "notProvided": "Not provided",
+    "age": "{age, plural, one {# year old} other {# years old}}"
+  },
+  "MemberGroupsCard": {
+    "eyebrow": "Small groups",
+    "title": "Current groups & roles",
+    "joined": "Joined {date}",
+    "emptyTitle": "Not in a small group yet",
+    "emptyBody": "Groups and roles show up here when they join one."
+  },
+  "SmallGroupRole": {
+    "leader": "Leader",
+    "co_leader": "Co-leader",
+    "member": "Member"
+  },
+  "SavedToast": {
+    "created": "Member added",
+    "updated": "Changes saved"
   }
 };
 export default messages;
