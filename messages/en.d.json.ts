@@ -449,6 +449,11 @@ declare const messages: {
       "addressTooLong": "Keep the address under 255 characters.",
       "birthDateInvalid": "Enter a valid date."
     }
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "body": "It may have been moved or removed, or the link is wrong.",
+    "action": "Go to the dashboard"
   }
 };
 export default messages;

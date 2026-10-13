@@ -446,5 +446,10 @@
       "addressTooLong": "La dirección debe tener menos de 255 caracteres.",
       "birthDateInvalid": "Escribe una fecha válida."
     }
+  },
+  "NotFound": {
+    "title": "No encontramos esta página",
+    "body": "Puede que se haya movido o eliminado, o que el enlace esté mal.",
+    "action": "Ir al panel"
   }
 }
