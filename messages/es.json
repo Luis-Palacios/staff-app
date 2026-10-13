@@ -407,5 +407,44 @@
   "SavedToast": {
     "created": "Miembro agregado",
     "updated": "Cambios guardados"
+  },
+  "MemberFormPage": {
+    "newTitle": "Agrega un miembro",
+    "newDescription": "Agrega a alguien que ya es miembro de esta iglesia. Solo el nombre es obligatorio.",
+    "editTitle": "Editar miembro",
+    "editCrumb": "Editar",
+    "editDescription": "Actualiza los datos de contacto y personales de {firstName}. Los grupos pequeños y los roles se administran desde cada grupo."
+  },
+  "MemberForm": {
+    "contactEyebrow": "Contacto",
+    "contactTitle": "Cómo contactarle",
+    "personalEyebrow": "Personal",
+    "personalTitle": "Dirección y cumpleaños",
+    "name": "Nombre completo",
+    "email": "Correo",
+    "emailHelp": "Opcional. Cada miembro necesita el suyo.",
+    "phone": "Teléfono",
+    "phoneHelp": "Opcional. Elige el país y escribe el número.",
+    "phoneCountry": "Código de país",
+    "phoneOther": "Otro",
+    "address": "Dirección",
+    "addressPlaceholder": "Barrio, indicaciones, ciudad",
+    "birthDate": "Fecha de nacimiento",
+    "birthDateHelp": "Opcional.",
+    "required": "Obligatorio",
+    "cancel": "Cancelar",
+    "add": "Agregar miembro",
+    "save": "Guardar cambios",
+    "alertTitle": "No se guardó el miembro",
+    "alertBody": "Corrige {count, plural, one {el campo marcado} other {los # campos marcados}} abajo y vuelve a intentarlo.",
+    "errors": {
+      "nameRequired": "Escribe el nombre del miembro.",
+      "emailInvalid": "Escribe un correo válido.",
+      "emailDuplicate": "Otro miembro ya usa este correo.",
+      "phoneTooLong": "Escribe un número más corto.",
+      "phoneDigitsOnly": "Usa solo números.",
+      "addressTooLong": "La dirección debe tener menos de 255 caracteres.",
+      "birthDateInvalid": "Escribe una fecha válida."
+    }
   }
 }

@@ -410,6 +410,45 @@ declare const messages: {
   "SavedToast": {
     "created": "Member added",
     "updated": "Changes saved"
+  },
+  "MemberFormPage": {
+    "newTitle": "Add a member",
+    "newDescription": "Add someone who is already a member of this church. Only the name is required.",
+    "editTitle": "Edit member",
+    "editCrumb": "Edit",
+    "editDescription": "Update {firstName}'s contact and personal details. Small groups and roles are managed from each group."
+  },
+  "MemberForm": {
+    "contactEyebrow": "Contact",
+    "contactTitle": "How to reach them",
+    "personalEyebrow": "Personal",
+    "personalTitle": "Address and birthday",
+    "name": "Full name",
+    "email": "Email",
+    "emailHelp": "Optional. Each member needs their own.",
+    "phone": "Phone",
+    "phoneHelp": "Optional. Pick the country, then type the number.",
+    "phoneCountry": "Country code",
+    "phoneOther": "Other",
+    "address": "Address",
+    "addressPlaceholder": "Neighborhood, directions, city",
+    "birthDate": "Birth date",
+    "birthDateHelp": "Optional.",
+    "required": "Required",
+    "cancel": "Cancel",
+    "add": "Add member",
+    "save": "Save changes",
+    "alertTitle": "This member wasn't saved",
+    "alertBody": "Fix the {count, plural, one {field} other {# fields}} marked below and try again.",
+    "errors": {
+      "nameRequired": "Enter the member's name.",
+      "emailInvalid": "Enter a valid email address.",
+      "emailDuplicate": "Another member already uses this email.",
+      "phoneTooLong": "Enter a shorter phone number.",
+      "phoneDigitsOnly": "Use only numbers.",
+      "addressTooLong": "Keep the address under 255 characters.",
+      "birthDateInvalid": "Enter a valid date."
+    }
   }
 };
 export default messages;
