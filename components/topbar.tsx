@@ -134,6 +134,22 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
     if (isSearchOpen) searchInputRef.current?.focus();
   }, [isSearchOpen]);
 
+  // Ctrl/⌘ K focuses the search field (opening it first below `sm`).
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key.toLowerCase() !== "k" || !(event.metaKey || event.ctrlKey))
+        return;
+
+      event.preventDefault();
+      setIsSearchOpen(true);
+      searchInputRef.current?.focus();
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   function selectLocale(next: Locale) {
     if (next === locale) return;
 
