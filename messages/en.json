@@ -206,6 +206,8 @@
   "NeedsRolePage": {
     "title": "You're almost in",
     "body": "Your email is verified. An administrator needs to give you a role before you can use the app.",
+    "checkAccess": "Check access",
+    "stillWaiting": "You don't have a role yet. Ask an administrator, then check again.",
     "signOut": "Sign out"
   },
   "AcceptInvite": {
