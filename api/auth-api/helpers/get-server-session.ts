@@ -1,10 +1,13 @@
 import type { AuthSession } from "@/api/auth-api/types";
 
 import { headers } from "next/headers";
+import { cache } from "react";
 
 import { getSession } from "@/api/auth-api/client";
 
-export async function getServerSession(): Promise<AuthSession | null> {
+// cache()d per request: the (app) layout, its pages and every authenticatedFetch call read the
+// session, and should share one auth-server round trip.
+export const getServerSession = cache(async (): Promise<AuthSession | null> => {
   const incomingHeaders = await headers();
   const cookie = incomingHeaders.get("cookie");
 
@@ -13,4 +16,4 @@ export async function getServerSession(): Promise<AuthSession | null> {
   }
 
   return getSession(cookie);
-}
+});
