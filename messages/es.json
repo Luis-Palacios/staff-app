@@ -206,6 +206,8 @@
   "NeedsRolePage": {
     "title": "Ya casi estás dentro",
     "body": "Tu correo está verificado. Un administrador tiene que asignarte un rol antes de que puedas usar la aplicación.",
+    "checkAccess": "Comprobar acceso",
+    "stillWaiting": "Todavía no tienes un rol. Pídeselo a un administrador y vuelve a comprobarlo.",
     "signOut": "Cerrar sesión"
   },
   "AcceptInvite": {
