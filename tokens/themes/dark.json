@@ -1,0 +1,191 @@
+{
+  "$description": "Semantic tokens, dark theme. Names are the CSS variables HeroUI v3 reads (plus our custom ones). Built into styles/theme.css.",
+  "background": {
+    "$type": "color",
+    "$value": "{color.navy-950}",
+    "$description": "navy-950"
+  },
+  "foreground": {
+    "$type": "color",
+    "$value": "{color.on-dark}",
+    "$description": "on-dark"
+  },
+  "surface": {
+    "$type": "color",
+    "$value": "{color.navy-900}",
+    "$description": "navy-900"
+  },
+  "surface-secondary": {
+    "$type": "color",
+    "$value": "{color.navy-800}",
+    "$description": "navy-800"
+  },
+  "surface-tertiary": {
+    "$type": "color",
+    "$value": "{color.navy-700}"
+  },
+  "overlay": {
+    "$type": "color",
+    "$value": "{color.navy-800}"
+  },
+  "muted": {
+    "$type": "color",
+    "$value": "{color.muted-on-dark}"
+  },
+  "default": {
+    "$type": "color",
+    "$value": "{color.navy-800}"
+  },
+  "default-foreground": {
+    "$type": "color",
+    "$value": "{color.heading-on-dark}"
+  },
+  "accent": {
+    "$type": "color",
+    "$value": "{color.gold-500}",
+    "$description": "gold: primary buttons, selection"
+  },
+  "accent-foreground": {
+    "$type": "color",
+    "$value": "{color.navy-900}"
+  },
+  "focus": {
+    "$type": "color",
+    "$value": "{color.gold-500}"
+  },
+  "link": {
+    "$type": "color",
+    "$value": "{color.gold-300}"
+  },
+  "border": {
+    "$type": "color",
+    "$value": "{color.line-on-dark}"
+  },
+  "separator": {
+    "$type": "color",
+    "$value": "#173052"
+  },
+  "field-background": {
+    "$type": "color",
+    "$value": "{color.navy-900}"
+  },
+  "field-foreground": {
+    "$type": "color",
+    "$value": "{color.heading-on-dark}"
+  },
+  "field-border": {
+    "$type": "color",
+    "$value": "#2E4A70"
+  },
+  "field-placeholder": {
+    "$type": "color",
+    "$value": "{color.muted-on-dark}"
+  },
+  "success": {
+    "$type": "color",
+    "$value": "#8EDDB4"
+  },
+  "success-foreground": {
+    "$type": "color",
+    "$value": "{color.navy-900}"
+  },
+  "warning": {
+    "$type": "color",
+    "$value": "{color.gold-500}"
+  },
+  "warning-foreground": {
+    "$type": "color",
+    "$value": "{color.navy-900}"
+  },
+  "danger": {
+    "$type": "color",
+    "$value": "{color.danger-on-dark}"
+  },
+  "danger-foreground": {
+    "$type": "color",
+    "$value": "{color.navy-900}"
+  },
+  "success-soft": {
+    "$type": "color",
+    "$value": "rgb(142 221 180 / 0.12)"
+  },
+  "success-soft-foreground": {
+    "$type": "color",
+    "$value": "#8EDDB4"
+  },
+  "warning-soft": {
+    "$type": "color",
+    "$value": "rgb(242 181 68 / 0.14)"
+  },
+  "warning-soft-foreground": {
+    "$type": "color",
+    "$value": "{color.gold-300}"
+  },
+  "danger-soft": {
+    "$type": "color",
+    "$value": "rgb(253 162 155 / 0.12)"
+  },
+  "danger-soft-foreground": {
+    "$type": "color",
+    "$value": "{color.danger-on-dark}"
+  },
+  "accent-soft": {
+    "$type": "color",
+    "$value": "{color.navy-800}"
+  },
+  "accent-soft-foreground": {
+    "$type": "color",
+    "$value": "{color.gold-300}"
+  },
+  "heading": {
+    "$type": "color",
+    "$value": "{color.heading-on-dark}"
+  },
+  "eyebrow": {
+    "$type": "color",
+    "$value": "{color.gold-500}"
+  },
+  "subtle": {
+    "$type": "color",
+    "$value": "#5E7391"
+  },
+  "rail": {
+    "$type": "color",
+    "$value": "{color.navy-900}"
+  },
+  "rail-edge": {
+    "$type": "color",
+    "$value": "{color.line-on-dark}"
+  },
+  "segment": {
+    "$type": "color",
+    "$value": "{color.navy-900}"
+  },
+  "segment-selected": {
+    "$type": "color",
+    "$value": "{color.navy-800}"
+  },
+  "segment-shadow": {
+    "$type": "shadow",
+    "$value": "none"
+  },
+  "segment-icon-selected": {
+    "$type": "color",
+    "$value": "{color.gold-500}",
+    "$description": "gold-500"
+  },
+  "marker-ring": {
+    "$type": "color",
+    "$value": "rgb(242 181 68 / 0.22)",
+    "$description": "gold-500 at 22%"
+  },
+  "overlay-border": {
+    "$type": "color",
+    "$value": "#2E4A70",
+    "$description": "= --field-border: --border vanishes on navy-800"
+  },
+  "overlay-menu-shadow": {
+    "$type": "shadow",
+    "$value": "0 12px 32px rgb(0 0 0 / 0.45)"
+  }
+}

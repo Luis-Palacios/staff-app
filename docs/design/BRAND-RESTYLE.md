@@ -1,5 +1,11 @@
 # Brand restyle: ekklesiaio look for the staff app
 
+> **Update 2026-10-15:** brand tokens now live in `tokens/` (DTCG JSON) and `styles/brand.css` /
+> `styles/theme.css` are generated from them with `pnpm tokens`; this repo is the source of truth,
+> not `../landing-page/brand/theme.css`. Where this spec says to edit `brand.css` or the HeroUI
+> mapping in `globals.css`, edit `tokens/` instead. See `docs/design/README.md`. The rest of this
+> spec is kept as the record of how the restyle was built.
+
 Implementation spec for applying the approved ekklesiaio brand to the staff app.
 Work through it **stage by stage**. Each stage should be one reviewable change that
 lints, type-checks and works in light and dark before the next one starts.

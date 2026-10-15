@@ -10,6 +10,7 @@ pnpm dev                 # Next.js development server at http://localhost:3001
 pnpm build               # production build
 pnpm start               # production server at http://localhost:3001
 pnpm lint                # ESLint with --fix; applies Prettier fixes too
+pnpm tokens              # regenerate styles/brand.css + styles/theme.css from tokens/ (--check to verify)
 pnpm exec tsc --noEmit   # type-check
 pnpm exec eslint --fix app/(app)/users/page.tsx  # lint/fix one TS/TSX file
 ```
@@ -30,8 +31,16 @@ There is no configured test runner or single-test command. Confirm the framework
 - `config/site.ts` is the source of truth for application metadata and sidebar navigation. Add or rename navigation there, not inline in the sidebar. For string icons, update `NavIconName`, add the SVG in `components/icons.tsx`, and register it in `components/sidebar.tsx`; compatible Heroicon components can be passed directly.
 - Use `StaffAppPageHeader` and breadcrumb definitions from `config/breadcrumbs.ts` for application pages. Reuse `title()` and `subtitle()` from `components/primitives.ts` where those heading primitives fit.
 - HeroUI is v3 rather than the v2/NextUI API. Use its compound components, such as `Disclosure.Trigger`, `Disclosure.Content`, `TextField` with `InputGroup`, and `Avatar.Fallback`.
-- Tailwind v4 is configured in `styles/globals.css`, not in a Tailwind config file. It imports HeroUI styles and defines the class-based dark variant. `--container-lg` is intentionally set to `80rem`, so avoid `max-w-lg` where Tailwind's normal 32rem width is intended; use an unaffected width such as `max-w-md` or `max-w-xl`.
+- Tailwind v4 is configured in `styles/globals.css`, not in a Tailwind config file. It imports HeroUI styles, the generated `styles/brand.css` and `styles/theme.css`, and defines the class-based dark variant. `--container-lg` is intentionally set to `80rem`, so avoid `max-w-lg` where Tailwind's normal 32rem width is intended; use an unaffected width such as `max-w-md` or `max-w-xl`.
 - Add `"use client"` only when browser APIs, React client hooks, event handlers, or client-only libraries require it. Keep backend calls and cookie forwarding in server components.
+
+## Design tokens
+
+- `tokens/` (W3C DTCG JSON) is the source of truth for the ekklesiaio brand. `tokens/brand.json` builds `styles/brand.css` (Tailwind `@theme`: `--color-navy-900` → `bg-navy-900`); `tokens/themes/light.json` and `dark.json` build `styles/theme.css` (HeroUI variables such as `--background`, `--accent`). Full guide: `docs/design/README.md`.
+- Never edit `styles/brand.css` or `styles/theme.css` by hand. Change the JSON, run `pnpm tokens`, and commit the JSON and generated CSS together; `pnpm tokens --check` must pass.
+- New semantic tokens go in both theme files with a `$description`; add a utility in `@theme inline` (`globals.css`) only if components need one.
+- No color, font-stack, radius or shadow literals in components or `globals.css`, and no component-level `dark:` overrides a token could express. Gold never carries text on a light background; status is never color alone.
+- Feature specs live in `docs/design/` and start from `docs/design/HANDOFF-TEMPLATE.md`. After a token change merges, the ekklesiaio Design System and design canvases must be re-synced (see `docs/design/README.md`).
 
 ## Authorization and roadmap
 
