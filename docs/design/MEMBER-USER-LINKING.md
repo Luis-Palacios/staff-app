@@ -56,7 +56,7 @@ that differs from the canvas in the progress log below.
 | 5. Members list: Account column and filter | ✅ | (this commit) |
 | 6. Users list: Member column and filter | ✅ | (this commit) |
 | 7. User detail page | ✅ | (this commit) |
-| 8. Design review fixes | 🟨 in progress | |
+| 8. Design review fixes | ✅ | (this commit) |
 
 ### Decisions and deviations
 
@@ -232,7 +232,17 @@ that differs from the canvas in the progress log below.
   (one extra users and members read on the server for No account members with an email). No token
   changes. `lint` and `tsc` pass. Tried in the browser (light, en, 1440): `/members/new` accessibility
   name and opacities, `/members/67` banner and the Link dialog (cancelled, nothing linked), and dark
-  on `/members/67`. **Not checked:** Spanish and 1024 for these five.
+  on `/members/67`. **Not checked at that point:** Spanish and 1024 for these five.
+
+- Stage 8 closing pass (2026-10-15, admin, light, Spanish, 1024 in an iframe and 1344 in the window).
+  `/members/67`: banner wraps in two lines and "Vincular usuario existente…" is first and primary,
+  "Invitar como usuario…" second, no sideways scroll. Link dialog: "Coincidencia sugerida" in the
+  eyebrow style, the match preselected with the check mark, "Vincular usuario" enabled (cancelled).
+  `/members/new`: label and helper at full opacity, only the box at 0.5, the checkbox has a label.
+  `/members`: the Todos / Vinculados / Invitados / Sin cuenta strip is left-aligned and fits at 1024.
+  The dark pass was only on `/members/67` at 1344, and the 390 pass used a 342px container (the
+  window can't be made that narrow here). The design review checklist is fully ticked, except the
+  board comparison, which the desktop session did, and whose findings are fixed above.
 
 ## Token changes
 
@@ -473,7 +483,7 @@ already exists in `messages/en.json` instead of duplicating it.
 
 Run after implementation, against the boards listed above. Record findings in the progress log.
 
-- [ ] Every board matches in light and dark: layout, spacing, type, states (none, invited, linked,
+- [x] Every board matches in light and dark: layout, spacing, type, states (none, invited, linked,
       account not found; each dialog; toasts).
 - [x] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways; list pages switch table → cards
       below `md`; Account card sits below Small groups at every width.
