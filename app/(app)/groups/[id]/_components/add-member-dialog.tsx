@@ -19,16 +19,18 @@ import { InitialsAvatar } from "@/components/initials-avatar";
 import { normalizeText } from "@/lib/normalize-text";
 
 const MAX_RESULTS = 6;
-const ROLES: SmallGroupRole[] = ["member", "co_leader", "leader"];
+const ALL_ROLES: SmallGroupRole[] = ["member", "co_leader", "leader"];
 
 function AddMemberForm({
   group,
+  roles,
   members,
   loadError,
   onAdded,
   onClose,
 }: {
   group: SmallGroupDetail;
+  roles: SmallGroupRole[];
   /** Null while the members are still loading. */
   members: MemberSummary[] | null;
   loadError: string | null;
@@ -189,7 +191,7 @@ function AddMemberForm({
             {t("roleLabel")}
           </legend>
           <div className="inline-flex gap-0.5 self-start rounded-[10px] border border-border bg-segment p-[3px]">
-            {ROLES.map((option) => (
+            {roles.map((option) => (
               <label key={option} className="relative">
                 <input
                   checked={role === option}
@@ -262,6 +264,7 @@ export function AddMemberDialog({
   isOpen,
   onOpenChange,
   group,
+  roles = ALL_ROLES,
   members,
   loadError,
   onAdded,
@@ -269,6 +272,8 @@ export function AddMemberDialog({
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   group: SmallGroupDetail;
+  /** The roles that can be picked; scoped users can't pick `leader`. Defaults to all three. */
+  roles?: SmallGroupRole[];
   members: MemberSummary[] | null;
   loadError: string | null;
   onAdded: (name: string) => void;
@@ -281,6 +286,7 @@ export function AddMemberDialog({
             group={group}
             loadError={loadError}
             members={members}
+            roles={roles}
             onAdded={onAdded}
             onClose={() => onOpenChange(false)}
           />

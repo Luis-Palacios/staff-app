@@ -6,6 +6,7 @@ import type {
   SmallGroupMember,
 } from "@/api/small-groups-api/types";
 import type { GroupActionResult } from "@/app/(app)/groups/_actions/group-actions";
+import type { SmallGroupAccess } from "@/lib/auth/roles";
 import type { Locale } from "@/lib/locale-shared";
 
 import { useState, useTransition } from "react";
@@ -16,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 import { AddMemberDialog } from "./add-member-dialog";
-import { MemberRowMenu } from "./member-row-menu";
+import { MemberRowMenu, ROLES, SCOPED_ROLES } from "./member-row-menu";
 
 import {
   changeGroupMemberRoleAction,
@@ -65,8 +66,18 @@ interface ToastState {
 // The members card: the list, and (for active groups) everything that changes
 // it. Each action saves on its own through a server action, confirms first
 // when it swaps the leader or removes someone, and ends in a toast. The page
-// re-renders from the revalidated data.
-export function GroupMembersCard({ group }: { group: SmallGroupDetail }) {
+// re-renders from the revalidated data. Scoped users (rule 9) get no menu on the leader's row or
+// their own, and can only pick Member / Co-leader.
+export function GroupMembersCard({
+  group,
+  access,
+  currentMemberId,
+}: {
+  group: SmallGroupDetail;
+  access: SmallGroupAccess;
+  /** The caller's own member id; only needed for `scoped`. */
+  currentMemberId: number | null;
+}) {
   const t = useTranslations("GroupMembersCard");
   const tm = useTranslations("GroupMembers");
   const tRole = useTranslations("SmallGroupRole");
@@ -87,6 +98,7 @@ export function GroupMembersCard({ group }: { group: SmallGroupDetail }) {
   const leader = group.members.find((member) => member.role === "leader");
   const groupId = String(group.id);
   const isClosed = group.closedAt !== null;
+  const scoped = access === "scoped";
 
   function showToast(message: string, tone: ToastState["tone"] = "success") {
     setToast((current) => ({ id: (current?.id ?? 0) + 1, message, tone }));
@@ -212,12 +224,20 @@ export function GroupMembersCard({ group }: { group: SmallGroupDetail }) {
               <StatusBadge {...ROLE_BADGE[member.role]}>
                 {tRole(member.role)}
               </StatusBadge>
-              <MemberRowMenu
-                isDisabled={isPending}
-                member={member}
-                onChangeRole={(role) => changeRole(member, role)}
-                onRemove={() => setRemoveTarget(member)}
-              />
+              {scoped &&
+              (member.role === "leader" ||
+                member.memberId === currentMemberId) ? (
+                // Same size as the ⋯ button, so rows line up.
+                <span aria-hidden="true" className="size-9 shrink-0" />
+              ) : (
+                <MemberRowMenu
+                  isDisabled={isPending}
+                  member={member}
+                  roles={scoped ? SCOPED_ROLES : ROLES}
+                  onChangeRole={(role) => changeRole(member, role)}
+                  onRemove={() => setRemoveTarget(member)}
+                />
+              )}
             </li>
           ))}
         </ul>
@@ -229,6 +249,7 @@ export function GroupMembersCard({ group }: { group: SmallGroupDetail }) {
           isOpen={adding}
           loadError={pickerError}
           members={pickerMembers}
+          roles={scoped ? SCOPED_ROLES : undefined}
           onAdded={(name) => {
             setAdding(false);
             showToast(tm("toasts.added", { name }));
