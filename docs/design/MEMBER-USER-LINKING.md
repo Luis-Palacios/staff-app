@@ -53,7 +53,7 @@ that differs from the canvas in the progress log below.
 | 2. Member detail: Account card and pill | ✅ | (this commit) |
 | 3. Dialogs: link, invite, cancel invite, unlink | ✅ | (this commit) |
 | 4. Add member: invite as a user | ✅ | (this commit) |
-| 5. Members list: Account column and filter | ⬜ | |
+| 5. Members list: Account column and filter | ✅ | (this commit) |
 | 6. Users list: Member column and filter | ⬜ | |
 | 7. User detail page | ⬜ | |
 | 8. Design review fixes | ⬜ | |
@@ -122,6 +122,17 @@ that differs from the canvas in the progress log below.
   sibling; nesting them the other way broke the click and the layout. **Not checked:** light mode,
   1024/390, the toasts (they time out during the browser wait), and the `inviteFailed` path.
   Test member #66 and its pending invite are left on the dev DB.
+- Stage 5: `MembersList` (server) reads the session role; for admin/elder it makes one
+  `listInvites()` call and builds `accounts` (member id → status via `getAccountStatus`), passed to
+  `MembersBrowser`. Other roles get no `accounts`, so no column, no filter and the original table.
+  The filter reuses `StatusTabs` (as Applications does) and keeps its state in `?account=`
+  (`replaceState`, no refetch); counts follow the search. `AccountStatusCell` (Linked and Invited
+  pills, muted "No account" text) is shared by the table and the cards, where it sits at the right of
+  the name row. **Deviations:** keys went in the existing `MembersBrowser` namespace (not
+  `Members.*`), and `AccountStatus` joined `CLIENT_NAMESPACES`. The table's min width grows from 760
+  to 880 with the column. `lint` and `tsc` pass. Tried in the browser (dark, es, 1440): column,
+  counts (0 / 1 / 55) and the Invited filter. **Not checked:** light, 1024/390 cards, Linked
+  filter with data (no linked member on the dev DB), a non-admin role.
 
 ## Token changes
 

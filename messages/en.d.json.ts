@@ -429,7 +429,13 @@ declare const messages: {
     "columnActions": "Actions",
     "memberNumber": "Member #{id}",
     "notProvided": "Not provided",
-    "openMember": "Open {name}"
+    "openMember": "Open {name}",
+    "columnAccount": "Account",
+    "filterByAccount": "Filter by account",
+    "filterAll": "All",
+    "filterLinked": "Linked",
+    "filterInvited": "Invited",
+    "filterNone": "No account"
   },
   "AddMemberLink": {
     "label": "Add member",

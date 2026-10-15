@@ -426,7 +426,13 @@
     "columnActions": "Acciones",
     "memberNumber": "Miembro #{id}",
     "notProvided": "No registrado",
-    "openMember": "Abrir {name}"
+    "openMember": "Abrir {name}",
+    "columnAccount": "Cuenta",
+    "filterByAccount": "Filtrar por cuenta",
+    "filterAll": "Todos",
+    "filterLinked": "Vinculados",
+    "filterInvited": "Invitados",
+    "filterNone": "Sin cuenta"
   },
   "AddMemberLink": {
     "label": "Agregar miembro",
