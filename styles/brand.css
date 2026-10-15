@@ -35,9 +35,21 @@
   --color-line-subtle: #EEF0F3; /* dividers and tracks inside cards */
   --color-field-muted: #F4F5F7; /* input fill while submitting */
   --color-paper: #FBFAF7; /* page background (warm off-white) */
+  --color-white: #FFFFFF; /* Surfaces, fields and overlays in light; text on navy (same value as Tailwind's default white). */
+  --color-ink-muted: #56667A; /* Secondary text, captions and icons on light (--muted, --field-placeholder). */
+  --color-ink-faint: #8D9AAB; /* Decorative only (chevrons, hollow dots, list dashes); fails as text. Light --subtle. */
+  --color-field-line: #C9D0DA; /* Input borders on light (--field-border). */
   --color-danger-on-dark: #FDA29B; /* error text/border on navy */
+  --color-success-50: #E3F2EA; /* Success badge fill on light (--success-soft). */
+  --color-success-700: #1F8A55; /* Success icons and fills on light (--success). */
+  --color-success-800: #1E6B45; /* Success text on success-50 (--success-soft-foreground). */
+  --color-success-on-dark: #8EDDB4; /* Success text, icons and fills on navy (dark --success). */
+  --color-danger-50: #FDECEA; /* Danger badge and hover fill on light (--danger-soft). */
+  --color-danger-700: #B42318; /* Danger text, borders and field errors on light (--danger). */
   --color-navy-700: #1A3D69; /* surface-tertiary on dark */
   --color-line-on-dark: #1F3B60;
+  --color-line-subtle-on-dark: #173052; /* Row and group separators on navy (dark --separator). */
+  --color-field-line-on-dark: #2E4A70; /* Input borders on navy (dark --field-border, --overlay-border). */
   --color-muted-on-dark: #93A3B8;
   --color-heading-on-dark: #F4F6F9;
 

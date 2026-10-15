@@ -95,10 +95,60 @@
       "$value": "#FBFAF7",
       "$description": "page background (warm off-white)"
     },
+    "white": {
+      "$type": "color",
+      "$value": "#FFFFFF",
+      "$description": "Surfaces, fields and overlays in light; text on navy (same value as Tailwind's default white)."
+    },
+    "ink-muted": {
+      "$type": "color",
+      "$value": "#56667A",
+      "$description": "Secondary text, captions and icons on light (--muted, --field-placeholder)."
+    },
+    "ink-faint": {
+      "$type": "color",
+      "$value": "#8D9AAB",
+      "$description": "Decorative only (chevrons, hollow dots, list dashes); fails as text. Light --subtle."
+    },
+    "field-line": {
+      "$type": "color",
+      "$value": "#C9D0DA",
+      "$description": "Input borders on light (--field-border)."
+    },
     "danger-on-dark": {
       "$type": "color",
       "$value": "#FDA29B",
       "$description": "error text/border on navy"
+    },
+    "success-50": {
+      "$type": "color",
+      "$value": "#E3F2EA",
+      "$description": "Success badge fill on light (--success-soft)."
+    },
+    "success-700": {
+      "$type": "color",
+      "$value": "#1F8A55",
+      "$description": "Success icons and fills on light (--success)."
+    },
+    "success-800": {
+      "$type": "color",
+      "$value": "#1E6B45",
+      "$description": "Success text on success-50 (--success-soft-foreground)."
+    },
+    "success-on-dark": {
+      "$type": "color",
+      "$value": "#8EDDB4",
+      "$description": "Success text, icons and fills on navy (dark --success)."
+    },
+    "danger-50": {
+      "$type": "color",
+      "$value": "#FDECEA",
+      "$description": "Danger badge and hover fill on light (--danger-soft)."
+    },
+    "danger-700": {
+      "$type": "color",
+      "$value": "#B42318",
+      "$description": "Danger text, borders and field errors on light (--danger)."
     },
     "navy-700": {
       "$type": "color",
@@ -108,6 +158,16 @@
     "line-on-dark": {
       "$type": "color",
       "$value": "#1F3B60"
+    },
+    "line-subtle-on-dark": {
+      "$type": "color",
+      "$value": "#173052",
+      "$description": "Row and group separators on navy (dark --separator)."
+    },
+    "field-line-on-dark": {
+      "$type": "color",
+      "$value": "#2E4A70",
+      "$description": "Input borders on navy (dark --field-border, --overlay-border)."
     },
     "muted-on-dark": {
       "$type": "color",
