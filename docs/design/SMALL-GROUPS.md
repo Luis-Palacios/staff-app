@@ -58,7 +58,7 @@ each stage, write a short summary of what changed and anything that differs from
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. API client, types and server actions | [x] | (this commit) |
-| 2. Groups list | [ ] | |
+| 2. Groups list | [x] | (this commit) |
 | 3. Group detail (read-only parts, closed state) | [ ] | |
 | 4. Group form (new / edit) | [ ] | |
 | 5. Member management (add, role, leader swap, remove) | [ ] | |
@@ -75,6 +75,14 @@ redirects); member actions return `{ ok: true } | { ok: false, error?, message? 
 revalidates `/members` as a layout, since closing changes every member's group list. Checked with lint and
 `tsc --noEmit` only: the actions need a signed-in session, so they haven't been run against the local API yet;
 they get exercised for real in Stages 4-6.
+
+**Stage 2.** The Applications status tabs became a shared `components/status-tabs.tsx` (generic, labels passed in);
+`ApplicationsBrowser`'s `StatusFilter` now wraps it, same look and behavior. Weekday names live in a `Weekdays`
+namespace (client-shipped) keyed through `lib/weekdays.ts`; Spanish values are capitalized ("Jueves") as on the
+canvas, so Stage 3's "Se reúne los jueves" sentence needs its own lowercase handling. `GroupsPage` empty messages
+were rewritten (new title/description, "Create a group..." body). Counts on the tabs follow the search, like
+Applications; an active search shows "No groups match your search." on any tab. Not yet checked in a browser
+(light/dark, 1440/1024/390, es): lint and `tsc --noEmit` only.
 
 ## The API (membership-management)
 
