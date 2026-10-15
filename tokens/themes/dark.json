@@ -63,7 +63,7 @@
   },
   "separator": {
     "$type": "color",
-    "$value": "#173052"
+    "$value": "{color.line-subtle-on-dark}"
   },
   "field-background": {
     "$type": "color",
@@ -75,7 +75,7 @@
   },
   "field-border": {
     "$type": "color",
-    "$value": "#2E4A70"
+    "$value": "{color.field-line-on-dark}"
   },
   "field-placeholder": {
     "$type": "color",
@@ -83,7 +83,7 @@
   },
   "success": {
     "$type": "color",
-    "$value": "#8EDDB4"
+    "$value": "{color.success-on-dark}"
   },
   "success-foreground": {
     "$type": "color",
@@ -111,7 +111,7 @@
   },
   "success-soft-foreground": {
     "$type": "color",
-    "$value": "#8EDDB4"
+    "$value": "{color.success-on-dark}"
   },
   "warning-soft": {
     "$type": "color",
@@ -181,7 +181,7 @@
   },
   "overlay-border": {
     "$type": "color",
-    "$value": "#2E4A70",
+    "$value": "{color.field-line-on-dark}",
     "$description": "= --field-border: --border vanishes on navy-800"
   },
   "overlay-menu-shadow": {

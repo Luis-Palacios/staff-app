@@ -35,7 +35,10 @@ tokens/
   `field-border`, …) plus ours (`heading`, `eyebrow`, `subtle`, `rail`, `segment*`, …).
 - **Aliases:** a theme value can point at a brand color, `"{color.navy-900}"`. The build writes
   the literal value into the CSS, with the token name in a comment.
-- Some semantic values stay literal on purpose (white, the status greens and reds, alpha tints).
+- Semantic values point at brand colors wherever one exists. The few that stay literal are
+  alpha tints (`rgb(… / 0.12)`) and one-offs used only once (e.g. dark `--subtle`).
+- Status colors are named by role (`success-700`, `danger-50`, `success-on-dark`), not by hue,
+  so they don't override Tailwind's built-in `green-*` / `red-*` shades.
   The brand file deliberately has no `color.muted`, `color.surface`, `color.danger`, `color.field`
   or `color.subtle`, because HeroUI already owns those utility names (see the header of
   `styles/brand.css`).

@@ -14,37 +14,37 @@
     --container-lg: 80rem;
     --background: #FBFAF7; /* paper */
     --foreground: #33445A; /* ink: body text */
-    --surface: #FFFFFF;
+    --surface: #FFFFFF; /* = color.white */
     --surface-secondary: #F1F4F8; /* navy-50 */
     --surface-tertiary: #EAF0F7; /* navy-100 */
-    --overlay: #FFFFFF;
-    --muted: #56667A;
+    --overlay: #FFFFFF; /* = color.white */
+    --muted: #56667A; /* = color.ink-muted */
     --default: #F1F4F8; /* = color.navy-50 */
     --default-foreground: #0B2341; /* = color.navy-900 */
     --accent: #0B2341; /* navy: primary buttons, selection */
-    --accent-foreground: #FFFFFF;
+    --accent-foreground: #FFFFFF; /* = color.white */
     --focus: #8A5B00; /* gold-800: plain gold-500 is ~1.7:1 on paper, fails WCAG 1.4.11 */
     --shadow-focus: 0 0 0 2px var(--background), 0 0 0 4px var(--focus);
     --link: #0B2341; /* = color.navy-900 */
     --border: #E2E5EA; /* = color.line */
     --separator: #EEF0F3; /* = color.line-subtle */
-    --field-background: #FFFFFF;
+    --field-background: #FFFFFF; /* = color.white */
     --field-foreground: #0B2341; /* = color.navy-900 */
-    --field-border: #C9D0DA;
+    --field-border: #C9D0DA; /* = color.field-line */
     --field-border-width: 1px;
-    --field-placeholder: #56667A;
-    --success: #1F8A55;
-    --success-foreground: #FFFFFF;
+    --field-placeholder: #56667A; /* = color.ink-muted */
+    --success: #1F8A55; /* = color.success-700 */
+    --success-foreground: #FFFFFF; /* = color.white */
     --warning: #F2B544; /* = color.gold-500 */
     --warning-foreground: #0B2341; /* = color.navy-900 */
-    --danger: #B42318;
-    --danger-foreground: #FFFFFF;
+    --danger: #B42318; /* = color.danger-700 */
+    --danger-foreground: #FFFFFF; /* = color.white */
     --success-soft: #E3F2EA; /* soft (badge) pairs: set explicitly, HeroUI's color-mix derivations fail contrast */
-    --success-soft-foreground: #1E6B45;
+    --success-soft-foreground: #1E6B45; /* = color.success-800 */
     --warning-soft: #FDF1D8; /* gold-100 */
     --warning-soft-foreground: #7A5100; /* gold-900 */
-    --danger-soft: #FDECEA;
-    --danger-soft-foreground: #B42318;
+    --danger-soft: #FDECEA; /* = color.danger-50 */
+    --danger-soft-foreground: #B42318; /* = color.danger-700 */
     --accent-soft: #EAF0F7; /* = color.navy-100 */
     --accent-soft-foreground: #0B2341; /* = color.navy-900 */
     --heading: #0B2341; /* custom: page/card titles */
@@ -53,7 +53,7 @@
     --rail: #0B2341; /* custom: sidebar, same in both modes */
     --rail-edge: #0B2341; /* = color.navy-900 */
     --segment: #F1F4F8; /* custom: segmented controls (theme switch). Track and selected pill swap surfaces between modes, so they need their own tokens. */
-    --segment-selected: #FFFFFF;
+    --segment-selected: #FFFFFF; /* = color.white */
     --segment-shadow: 0 1px 2px rgb(11 35 65 / 0.12);
     --segment-icon-selected: #8A5B00; /* gold-800 outline around the gold fill: gold-500 alone is ~1.7:1 on white */
     --marker-ring: #FDF1D8; /* custom: halo around the gold "current" timeline marker gold-100 */
@@ -79,19 +79,19 @@
     --focus: #F2B544; /* = color.gold-500 */
     --link: #F7D48F; /* = color.gold-300 */
     --border: #1F3B60; /* = color.line-on-dark */
-    --separator: #173052;
+    --separator: #173052; /* = color.line-subtle-on-dark */
     --field-background: #0B2341; /* = color.navy-900 */
     --field-foreground: #F4F6F9; /* = color.heading-on-dark */
-    --field-border: #2E4A70;
+    --field-border: #2E4A70; /* = color.field-line-on-dark */
     --field-placeholder: #93A3B8; /* = color.muted-on-dark */
-    --success: #8EDDB4;
+    --success: #8EDDB4; /* = color.success-on-dark */
     --success-foreground: #0B2341; /* = color.navy-900 */
     --warning: #F2B544; /* = color.gold-500 */
     --warning-foreground: #0B2341; /* = color.navy-900 */
     --danger: #FDA29B; /* = color.danger-on-dark */
     --danger-foreground: #0B2341; /* = color.navy-900 */
     --success-soft: rgb(142 221 180 / 0.12);
-    --success-soft-foreground: #8EDDB4;
+    --success-soft-foreground: #8EDDB4; /* = color.success-on-dark */
     --warning-soft: rgb(242 181 68 / 0.14);
     --warning-soft-foreground: #F7D48F; /* = color.gold-300 */
     --danger-soft: rgb(253 162 155 / 0.12);

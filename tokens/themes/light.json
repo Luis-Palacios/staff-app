@@ -16,7 +16,7 @@
   },
   "surface": {
     "$type": "color",
-    "$value": "#FFFFFF"
+    "$value": "{color.white}"
   },
   "surface-secondary": {
     "$type": "color",
@@ -30,11 +30,11 @@
   },
   "overlay": {
     "$type": "color",
-    "$value": "#FFFFFF"
+    "$value": "{color.white}"
   },
   "muted": {
     "$type": "color",
-    "$value": "#56667A"
+    "$value": "{color.ink-muted}"
   },
   "default": {
     "$type": "color",
@@ -51,7 +51,7 @@
   },
   "accent-foreground": {
     "$type": "color",
-    "$value": "#FFFFFF"
+    "$value": "{color.white}"
   },
   "focus": {
     "$type": "color",
@@ -76,7 +76,7 @@
   },
   "field-background": {
     "$type": "color",
-    "$value": "#FFFFFF"
+    "$value": "{color.white}"
   },
   "field-foreground": {
     "$type": "color",
@@ -84,7 +84,7 @@
   },
   "field-border": {
     "$type": "color",
-    "$value": "#C9D0DA"
+    "$value": "{color.field-line}"
   },
   "field-border-width": {
     "$type": "dimension",
@@ -92,15 +92,15 @@
   },
   "field-placeholder": {
     "$type": "color",
-    "$value": "#56667A"
+    "$value": "{color.ink-muted}"
   },
   "success": {
     "$type": "color",
-    "$value": "#1F8A55"
+    "$value": "{color.success-700}"
   },
   "success-foreground": {
     "$type": "color",
-    "$value": "#FFFFFF"
+    "$value": "{color.white}"
   },
   "warning": {
     "$type": "color",
@@ -112,20 +112,20 @@
   },
   "danger": {
     "$type": "color",
-    "$value": "#B42318"
+    "$value": "{color.danger-700}"
   },
   "danger-foreground": {
     "$type": "color",
-    "$value": "#FFFFFF"
+    "$value": "{color.white}"
   },
   "success-soft": {
     "$type": "color",
-    "$value": "#E3F2EA",
+    "$value": "{color.success-50}",
     "$description": "soft (badge) pairs: set explicitly, HeroUI's color-mix derivations fail contrast"
   },
   "success-soft-foreground": {
     "$type": "color",
-    "$value": "#1E6B45"
+    "$value": "{color.success-800}"
   },
   "warning-soft": {
     "$type": "color",
@@ -139,11 +139,11 @@
   },
   "danger-soft": {
     "$type": "color",
-    "$value": "#FDECEA"
+    "$value": "{color.danger-50}"
   },
   "danger-soft-foreground": {
     "$type": "color",
-    "$value": "#B42318"
+    "$value": "{color.danger-700}"
   },
   "accent-soft": {
     "$type": "color",
@@ -165,7 +165,7 @@
   },
   "subtle": {
     "$type": "color",
-    "$value": "#8D9AAB",
+    "$value": "{color.ink-faint}",
     "$description": "custom: decorative only (chevrons, hollow dots), not text"
   },
   "rail": {
@@ -184,7 +184,7 @@
   },
   "segment-selected": {
     "$type": "color",
-    "$value": "#FFFFFF"
+    "$value": "{color.white}"
   },
   "segment-shadow": {
     "$type": "shadow",
