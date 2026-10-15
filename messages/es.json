@@ -728,7 +728,7 @@
     "name": "Nombre",
     "email": "Correo",
     "role": "Rol",
-    "verified": "Correo",
+    "verified": "Verificación",
     "verifiedYes": "Verificado",
     "verifiedNo": "Sin verificar",
     "status": "Estado",

@@ -731,7 +731,7 @@ declare const messages: {
     "name": "Name",
     "email": "Email",
     "role": "Role",
-    "verified": "Email",
+    "verified": "Verification",
     "verifiedYes": "Verified",
     "verifiedNo": "Not verified",
     "status": "Status",

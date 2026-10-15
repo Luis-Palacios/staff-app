@@ -157,9 +157,13 @@ that differs from the canvas in the progress log below.
   (server), `UserMember` (server) and `UserMemberActions` (client, added to `CLIENT_NAMESPACES`);
   the unlink body uses the member id only (no name), as in the table. The "Open" action from stage
   6 is added: `DataTableOpenLink` in a new last column (table min width 880) and a "View account"
-  link on the card. `lint` and `tsc` pass. **Not checked in a browser yet** (auth-server wasn't
-  running): light/dark, 1440/1024/390, en/es, the link and unlink round trip, a non-linked user,
-  and the 404.
+  link on the card. `lint` and `tsc` pass. Tried in the browser (dark, es, 1440): Users list with
+  the Open column, User detail for an unlinked user, the Link dialog (lists members with no user,
+  search), **link** (card shows name, member number and group count, toast) and **unlink**
+  (confirmation text, back to the not-linked card, toast), and the 404 for an unknown id. Fix found
+  there: the "Email verified" row label read "Correo" twice in Spanish, so it is now
+  "Verification" / "Verificación". **Not checked:** light, 1024/390, English, the suggested match
+  (no member shares a user's email on the dev DB), a linked user whose member has several groups.
 - Pending checks for stages 4 to 6 (done afterwards): the 390 width can't be reached by shrinking
   the window, so pages were loaded in a same-origin iframe of 390 / 1024 px. Light mode, the
   Members list, Users list and Add member at 390, the Members list at 1024, the Linked filter and
