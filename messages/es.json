@@ -399,6 +399,8 @@
   },
   "ApiErrors": {
     "forbidden": "Solo los administradores y los ancianos pueden hacer esto.",
+    "leadershipAdminsOnly": "Solo administradores y ancianos pueden cambiar quién lidera un grupo.",
+    "ownGroupRole": "Pide a un administrador o anciano que cambie tu propio rol en este grupo.",
     "memberAlreadyLinked": "Este miembro ya está vinculado a otro usuario.",
     "userAlreadyLinked": "Este usuario ya está vinculado a otro miembro.",
     "notFound": "No encontramos lo que buscabas.",

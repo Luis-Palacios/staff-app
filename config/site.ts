@@ -1,5 +1,6 @@
 import type { ComponentType, SVGProps } from "react";
 import type { Messages } from "next-intl";
+import type { SmallGroupAccess } from "@/lib/auth/roles";
 
 export type SiteConfig = typeof siteConfig;
 
@@ -29,6 +30,8 @@ export type NavItem = {
   icon: NavIconName | HeroIcon;
   /** Leaf link. Omit when the item only groups `items`. */
   href?: string;
+  /** Small group access levels that see this item; omit to show it to everyone. */
+  access?: SmallGroupAccess[];
   /** Nested links — renders the item as a collapsible group. */
   items?: NavChildItem[];
 };
@@ -86,6 +89,7 @@ export const siteConfig = {
     {
       labelKey: "groups",
       icon: "groups",
+      access: ["full", "scoped"],
       items: [
         {
           labelKey: "groupsList",

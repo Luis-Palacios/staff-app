@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { CloseGroupCard } from "./_components/close-group-card";
@@ -7,6 +8,7 @@ import { GroupMembersCard } from "./_components/group-members-card";
 
 import { loadGroup } from "@/app/(app)/groups/_lib/load-group";
 import { SavedToast } from "@/components/saved-toast";
+import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
 
 export default async function GroupDetailPage({
   params,
@@ -15,6 +17,8 @@ export default async function GroupDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ saved?: string }>;
 }) {
+  if ((await getCurrentSmallGroupAccess()) === "none") notFound();
+
   const [{ id }, { saved }, t] = await Promise.all([
     params,
     searchParams,
