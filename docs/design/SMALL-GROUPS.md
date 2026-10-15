@@ -59,7 +59,7 @@ each stage, write a short summary of what changed and anything that differs from
 | --- | --- | --- |
 | 1. API client, types and server actions | [x] | (this commit) |
 | 2. Groups list | [x] | (this commit) |
-| 3. Group detail (read-only parts, closed state) | [ ] | |
+| 3. Group detail (read-only parts, closed state) | [x] | (this commit) |
 | 4. Group form (new / edit) | [ ] | |
 | 5. Member management (add, role, leader swap, remove) | [ ] | |
 | 6. Close group | [ ] | |
@@ -83,6 +83,14 @@ canvas, so Stage 3's "Se reúne los jueves" sentence needs its own lowercase han
 were rewritten (new title/description, "Create a group..." body). Counts on the tabs follow the search, like
 Applications; an active search shows "No groups match your search." on any tab. Not yet checked in a browser
 (light/dark, 1440/1024/390, es): lint and `tsc --noEmit` only.
+
+**Stage 3.** `SavedToast` moved to `components/saved-toast.tsx` (member detail now imports it from there);
+group pages use a new `GroupSavedToast` message set ("Group created" / "Changes saved"). The members card has no
+"Add member" button and no ⋯ menu yet: both arrive together in Stage 5 so nothing in the UI is a dead control.
+"Meets {day}" uses `Weekdays.sentence.*` (es: "los jueves", lowercase, with the article), while cards and the
+details card use the capitalized standalone names. The details card's leader and co-leaders come from the
+members list (the detail has no separate leader field). `loading.tsx` is shared by detail and, later, edit.
+Not yet checked in a browser (light/dark, widths, es, closed group, 404): lint and `tsc --noEmit` only.
 
 ## The API (membership-management)
 

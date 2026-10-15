@@ -53,7 +53,51 @@
     "thursday": "Jueves",
     "friday": "Viernes",
     "saturday": "Sábados",
-    "sunday": "Domingos"
+    "sunday": "Domingos",
+    "sentence": {
+      "monday": "los lunes",
+      "tuesday": "los martes",
+      "wednesday": "los miércoles",
+      "thursday": "los jueves",
+      "friday": "los viernes",
+      "saturday": "los sábados",
+      "sunday": "los domingos"
+    }
+  },
+  "GroupSavedToast": {
+    "created": "Grupo creado",
+    "updated": "Cambios guardados"
+  },
+  "GroupDetailHeader": {
+    "closedOn": "Cerrado el {date}",
+    "meets": "Se reúne <strong>{day}</strong>",
+    "members": "{count, plural, one {<strong>#</strong> miembro} other {<strong>#</strong> miembros}}",
+    "membersClosed": "<strong>0</strong> miembros ahora",
+    "allGroups": "Todos los grupos",
+    "edit": "Editar datos"
+  },
+  "GroupMembersCard": {
+    "eyebrow": "Personas",
+    "title": "Miembros",
+    "joined": "Se unió el {date}",
+    "emptyTitle": "Aún no hay miembros",
+    "emptyBody": "Agrega al líder y a los miembros con Agregar miembro.",
+    "closedTitle": "Este grupo se cerró el {date}",
+    "closedBody": "Sus membresías terminaron ese día. El tiempo de cada persona en el grupo queda en su historial."
+  },
+  "GroupDetailsCard": {
+    "eyebrow": "Detalles",
+    "title": "Cuándo y dónde",
+    "edit": "Editar",
+    "editLabel": "Editar los detalles del grupo",
+    "meetingDay": "Día de reunión",
+    "meetingAddress": "Dirección de reunión",
+    "leader": "Líder",
+    "coLeaders": "Colíderes",
+    "notSet": "Sin definir",
+    "noLeader": "Aún sin líder",
+    "noActiveLeader": "Sin líder activo",
+    "none": "Ninguno"
   },
   "GroupsBrowser": {
     "filterByStatus": "Filtrar por estado",

@@ -56,7 +56,51 @@ declare const messages: {
     "thursday": "Thursdays",
     "friday": "Fridays",
     "saturday": "Saturdays",
-    "sunday": "Sundays"
+    "sunday": "Sundays",
+    "sentence": {
+      "monday": "Mondays",
+      "tuesday": "Tuesdays",
+      "wednesday": "Wednesdays",
+      "thursday": "Thursdays",
+      "friday": "Fridays",
+      "saturday": "Saturdays",
+      "sunday": "Sundays"
+    }
+  },
+  "GroupSavedToast": {
+    "created": "Group created",
+    "updated": "Changes saved"
+  },
+  "GroupDetailHeader": {
+    "closedOn": "Closed {date}",
+    "meets": "Meets <strong>{day}</strong>",
+    "members": "{count, plural, one {<strong>#</strong> member} other {<strong>#</strong> members}}",
+    "membersClosed": "<strong>0</strong> members now",
+    "allGroups": "All groups",
+    "edit": "Edit details"
+  },
+  "GroupMembersCard": {
+    "eyebrow": "People",
+    "title": "Members",
+    "joined": "Joined {date}",
+    "emptyTitle": "No members yet",
+    "emptyBody": "Add the leader and members with Add member.",
+    "closedTitle": "This group closed on {date}",
+    "closedBody": "Its memberships ended that day. Each person's time in the group stays in their history."
+  },
+  "GroupDetailsCard": {
+    "eyebrow": "Details",
+    "title": "When & where",
+    "edit": "Edit",
+    "editLabel": "Edit the group's details",
+    "meetingDay": "Meeting day",
+    "meetingAddress": "Meeting address",
+    "leader": "Leader",
+    "coLeaders": "Co-leaders",
+    "notSet": "Not set",
+    "noLeader": "No leader yet",
+    "noActiveLeader": "No active leader",
+    "none": "None"
   },
   "GroupsBrowser": {
     "filterByStatus": "Filter by status",

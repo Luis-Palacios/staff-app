@@ -3,9 +3,9 @@ import { getTranslations } from "next-intl/server";
 import { MemberContactCard } from "./_components/member-contact-card";
 import { MemberDetailHeader } from "./_components/member-detail-header";
 import { MemberGroupsCard } from "./_components/member-groups-card";
-import { SavedToast } from "./_components/saved-toast";
 
 import { loadMember } from "@/app/(app)/members/_lib/load-member";
+import { SavedToast } from "@/components/saved-toast";
 
 export default async function MemberDetailPage({
   params,
