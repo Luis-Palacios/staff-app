@@ -505,7 +505,15 @@ declare const messages: {
     "description": "Everyone with a staff account. People who just signed up wait here until you give them a role."
   },
   "MyProfilePage": {
-    "title": "User Profile"
+    "title": "My profile",
+    "eyebrow": "My profile",
+    "contactFooter": "These come from your church’s member record. If something is wrong, ask an admin or elder to update it.",
+    "groupsTitle": "My groups & roles",
+    "groupsEmptyBody": "Your groups and roles show up here when you join one.",
+    "accountEyebrow": "Account",
+    "accountTitle": "Sign-in details",
+    "accountCreated": "Account created",
+    "accountFooter": "Your role and access are managed by your church’s admins."
   },
   "InviteStaffLink": {
     "label": "Invite staff"

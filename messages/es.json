@@ -502,7 +502,15 @@
     "description": "Todas las personas con una cuenta del personal. Quienes acaban de registrarse esperan aquí hasta que les des un rol."
   },
   "MyProfilePage": {
-    "title": "Perfil de usuario"
+    "title": "Mi perfil",
+    "eyebrow": "Mi perfil",
+    "contactFooter": "Estos datos vienen del registro de miembros de tu iglesia. Si algo está mal, pide a un administrador o anciano que lo actualice.",
+    "groupsTitle": "Mis grupos y roles",
+    "groupsEmptyBody": "Tus grupos y roles aparecerán aquí cuando te unas a uno.",
+    "accountEyebrow": "Cuenta",
+    "accountTitle": "Datos de acceso",
+    "accountCreated": "Cuenta creada",
+    "accountFooter": "Tu rol y acceso los administran los administradores de tu iglesia."
   },
   "InviteStaffLink": {
     "label": "Invitar al personal"

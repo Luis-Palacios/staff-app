@@ -19,13 +19,19 @@ const ROLE_BADGE: Record<
   member: { tone: "neutral", variant: "ring-dot" },
 };
 
-// Group names are user data (never translated); each links to its group.
+// Group names are user data (never translated). `self` is My profile (own title and empty
+// state); `canOpen` decides which groups link, the rest show their name as plain text.
 export function MemberGroupsCard({
   smallGroups,
+  variant = "default",
+  canOpen = () => true,
 }: {
   smallGroups: MemberSmallGroup[];
+  variant?: "default" | "self";
+  canOpen?: (group: MemberSmallGroup) => boolean;
 }) {
   const t = useTranslations("MemberGroupsCard");
+  const tSelf = useTranslations("MyProfilePage");
   const tRole = useTranslations("SmallGroupRole");
   const locale = useLocale() as Locale;
 
@@ -35,13 +41,17 @@ export function MemberGroupsCard({
         className: "flex min-w-0 flex-col gap-2 px-6 pb-4 pt-5",
       })}
     >
-      <DetailCardHeading eyebrow={t("eyebrow")}>{t("title")}</DetailCardHeading>
+      <DetailCardHeading eyebrow={t("eyebrow")}>
+        {variant === "self" ? tSelf("groupsTitle") : t("title")}
+      </DetailCardHeading>
       {smallGroups.length === 0 ? (
         <div className="flex flex-col gap-1 py-3">
           <p className="text-[15px] font-semibold text-heading">
             {t("emptyTitle")}
           </p>
-          <p className="text-sm text-muted">{t("emptyBody")}</p>
+          <p className="text-sm text-muted">
+            {variant === "self" ? tSelf("groupsEmptyBody") : t("emptyBody")}
+          </p>
         </div>
       ) : (
         <ul className="flex flex-col divide-y divide-separator">
@@ -58,12 +68,20 @@ export function MemberGroupsCard({
                 />
               </span>
               <div className="flex min-w-0 flex-[1_1_160px] flex-col">
-                <NextLink
-                  className={textLink({ className: "break-words text-[15px]" })}
-                  href={`/groups/${group.smallGroupId}`}
-                >
-                  {group.smallGroupName}
-                </NextLink>
+                {canOpen(group) ? (
+                  <NextLink
+                    className={textLink({
+                      className: "break-words text-[15px]",
+                    })}
+                    href={`/groups/${group.smallGroupId}`}
+                  >
+                    {group.smallGroupName}
+                  </NextLink>
+                ) : (
+                  <span className="break-words text-[15px] font-semibold text-heading">
+                    {group.smallGroupName}
+                  </span>
+                )}
                 <span className="text-[13px] text-muted">
                   {t("joined", {
                     date: formatCalendarDate(group.joinedAt, locale),

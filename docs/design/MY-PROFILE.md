@@ -50,7 +50,7 @@ progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Loader and session type | ✅ | see `git log` |
-| 2. Linked page | ⬜ | |
+| 2. Linked page | ✅ (linked layout not yet seen in browser) | see git log |
 | 3. Not-linked page, copy, sidebar | ⬜ | |
 | 4. Design review fixes | ⬜ | |
 
@@ -61,6 +61,14 @@ progress log below.
   "Account created" row stays.
 - **Stage 1, `loadMyProfile`:** `leadIds` is typed `ReadonlySet<number>`; a 404 from `getMember`
   means not linked (`member: null`).
+- **Stage 2, shared cards:** approved. `MemberContactCard` and `MemberGroupsCard` got an optional
+  `variant: "default" | "self"`; `MemberGroupsCard` also got `canOpen(group)` (default: always true).
+  Member detail is unchanged.
+- **Stage 2, deviations from the canvas:** contact card eyebrow stays "Profile" (board says "Member");
+  group names keep the text-link pattern, no whole-row link or chevron; the contact footer has no
+  tinted background (border-top only); the header avatar has no gap ring.
+- **Stage 2, not-linked accounts:** the page renders the header and sign-in card only; the Member
+  profile card and single-column layout come in Stage 3.
 
 ## Token changes
 

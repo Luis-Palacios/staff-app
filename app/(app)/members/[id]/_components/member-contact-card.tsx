@@ -5,6 +5,7 @@ import type { ComponentType, ReactNode, SVGProps } from "react";
 import {
   CakeIcon,
   EnvelopeIcon,
+  InformationCircleIcon,
   MapPinIcon,
   PhoneIcon,
 } from "@heroicons/react/24/outline";
@@ -37,8 +38,16 @@ function Field({
   );
 }
 
-export function MemberContactCard({ member }: { member: MemberDetail }) {
+// `self` is My profile: read-only, with a note on who to ask to fix the record.
+export function MemberContactCard({
+  member,
+  variant = "default",
+}: {
+  member: MemberDetail;
+  variant?: "default" | "self";
+}) {
   const t = useTranslations("MemberContactCard");
+  const tSelf = useTranslations("MyProfilePage");
   const locale = useLocale() as Locale;
   const { id, email, phone, address, birthDate } = member;
   const notProvided = <span className="text-subtle">{t("notProvided")}</span>;
@@ -54,13 +63,15 @@ export function MemberContactCard({ member }: { member: MemberDetail }) {
         <DetailCardHeading eyebrow={t("eyebrow")}>
           {t("title")}
         </DetailCardHeading>
-        <NextLink
-          aria-label={t("editLabel")}
-          className={textLink({ className: "text-sm font-semibold" })}
-          href={`/members/${id}/edit`}
-        >
-          {t("edit")}
-        </NextLink>
+        {variant === "default" && (
+          <NextLink
+            aria-label={t("editLabel")}
+            className={textLink({ className: "text-sm font-semibold" })}
+            href={`/members/${id}/edit`}
+          >
+            {t("edit")}
+          </NextLink>
+        )}
       </div>
       <dl className="flex flex-col divide-y divide-separator">
         <Field icon={EnvelopeIcon} label={t("email")}>
@@ -87,6 +98,16 @@ export function MemberContactCard({ member }: { member: MemberDetail }) {
           )}
         </Field>
       </dl>
+      {variant === "self" && (
+        <p className="mt-2 flex items-start gap-2.5 border-t border-separator pt-4 text-[13.5px] text-muted">
+          <InformationCircleIcon
+            aria-hidden="true"
+            className="mt-0.5 size-[18px] shrink-0"
+            strokeWidth={1.7}
+          />
+          {tSelf("contactFooter")}
+        </p>
+      )}
     </section>
   );
 }
