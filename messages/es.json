@@ -40,7 +40,13 @@
     "title": "Grupos pequeños",
     "description": "Donde los miembros se reúnen durante la semana. Abre un grupo para ver a su gente y gestionar quién lo lidera.",
     "emptyTitle": "Aún no hay grupos",
-    "emptyBody": "Crea un grupo y luego agrega a su líder y a sus miembros desde la página del grupo."
+    "emptyBody": "Crea un grupo y luego agrega a su líder y a sus miembros desde la página del grupo.",
+    "myTitle": "Mis grupos",
+    "myDescription": "Los grupos pequeños que lideras o colideras. Abre uno para ver a sus personas y actualizar sus datos.",
+    "notLinkedTitle": "Tu cuenta no está vinculada a un miembro",
+    "notLinkedBody": "Tus grupos aparecerán aquí cuando un administrador o anciano vincule tu cuenta a tu perfil de miembro.",
+    "noLedGroupsTitle": "Aún no lideras un grupo",
+    "noLedGroupsBody": "Aquí aparecen los grupos que lideras o colideras. Pide a un administrador o anciano que te agregue como líder."
   },
   "NewGroupLink": {
     "label": "Nuevo grupo",
