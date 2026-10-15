@@ -560,7 +560,8 @@
     "member": "Miembro",
     "groupCount": "<strong>{count, number}</strong> {count, plural, one {grupo pequeño} other {grupos pequeños}}",
     "allMembers": "Todos los miembros",
-    "edit": "Editar datos"
+    "edit": "Editar datos",
+    "accountLabel": "Estado de la cuenta: {status}. Ir a la tarjeta de cuenta."
   },
   "MemberContactCard": {
     "eyebrow": "Perfil",
@@ -633,5 +634,26 @@
     "title": "No encontramos esta página",
     "body": "Puede que se haya movido o eliminado, o que el enlace esté mal.",
     "action": "Ir al panel"
+  },
+  "MemberAccountCard": {
+    "eyebrow": "Cuenta",
+    "title": "Acceso para iniciar sesión",
+    "noneTitle": "Sin cuenta",
+    "noneBody": "Todavía no puede iniciar sesión en la aplicación del personal.",
+    "invitedTitle": "Invitación enviada",
+    "invitedBody": "Esperando que {email} la acepte. Se vinculará automáticamente al hacerlo.",
+    "invitedBy": "Enviada por {name} el {date}",
+    "invitedOn": "Enviada el {date}",
+    "missingTitle": "Cuenta no encontrada",
+    "missingBody": "Este miembro está vinculado a un usuario que ya no existe. Desvincula para limpiarlo.",
+    "verified": "Correo verificado",
+    "notVerified": "Correo sin verificar",
+    "signedUp": "Cuenta creada el {date}",
+    "goToAccess": "Ir al acceso de inicio de sesión"
+  },
+  "AccountStatus": {
+    "linked": "Vinculado",
+    "invited": "Invitado",
+    "none": "Sin cuenta"
   }
 }
