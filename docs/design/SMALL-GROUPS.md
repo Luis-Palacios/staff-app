@@ -57,7 +57,7 @@ each stage, write a short summary of what changed and anything that differs from
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API client, types and server actions | [ ] | |
+| 1. API client, types and server actions | [x] | (this commit) |
 | 2. Groups list | [ ] | |
 | 3. Group detail (read-only parts, closed state) | [ ] | |
 | 4. Group form (new / edit) | [ ] | |
@@ -67,7 +67,14 @@ each stage, write a short summary of what changed and anything that differs from
 
 ### Decisions and deviations
 
-_(fill in per stage)_
+**Stage 1.** Types, client and actions as specified; `group-schema.ts` also lands here because the form
+actions validate with it. `ApiError.method` isn't used to tell 409s apart; instead each action re-reads the
+group on a 409 (closed -> `closed`; add and already a member -> `alreadyInGroup`; role asked for was leader ->
+`hasLeader`). Form actions return `{ ok: false, fieldErrors?, formError? }` like the members form (success
+redirects); member actions return `{ ok: true } | { ok: false, error?, message? }`. `closeGroupAction`
+revalidates `/members` as a layout, since closing changes every member's group list. Checked with lint and
+`tsc --noEmit` only: the actions need a signed-in session, so they haven't been run against the local API yet;
+they get exercised for real in Stages 4-6.
 
 ## The API (membership-management)
 
