@@ -97,9 +97,14 @@ that differs from the canvas in the progress log below.
   instead (with a button) rather than hiding the invite up front. Only the user's name goes to the
   client, not the whole auth user. Tried in the browser (dark, es, member #1 without an email):
   Invite is disabled with its hint, the Link dialog opens, lists the one unlinked user and keeps
-  **Link user** disabled until a pick; Cancel closes it. **Not exercised:** actually linking,
-  unlinking, sending or canceling an invite (they change real data and send email), so the
-  server-side `Origin`/cookie call to `invite/create` is still unconfirmed. `lint` and `tsc` pass.
+  **Link user** disabled until a pick; Cancel closes it. Then, on the test DB with member #1
+  (email set to a test address, `MEMBERSHIP_API_URL`/token unset on auth-server): **invite sent**
+  (the server-side cookie + `Origin` call to `invite/create` works, no fallback to `authClient`
+  needed; pill and card go to Invited, toast shown), **cancel invite** (back to No account),
+  **link** to the unlinked user (pill and card go to Linked with name, role, verified) and
+  **unlink** (back to No account), all with the toast. **Still untried:** the automatic link on
+  invite acceptance, which needs the shared token and URLs set on both services, and the 409
+  messages and the "user already exists" invite path. `lint` and `tsc` pass.
 
 ## Token changes
 
