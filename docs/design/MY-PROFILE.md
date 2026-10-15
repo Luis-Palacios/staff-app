@@ -52,7 +52,7 @@ progress log below.
 | 1. Loader and session type | ✅ | see `git log` |
 | 2. Linked page | ✅ (linked layout not yet seen in browser) | see git log |
 | 3. Not-linked page, copy, sidebar | ✅ | see git log |
-| 4. Design review fixes | 🟨 partial, see log | see git log |
+| 4. Design review fixes | ✅ | see git log |
 
 ### Decisions and deviations
 
@@ -90,9 +90,21 @@ progress log below.
   deleted from the local members DB. `GET /me` then returned `member: null` and the page showed the
   not-linked view, no error. The link is stored on the member row (`members.user_id`), so a dangling link
   can't exist; the 404 branch in `loadMyProfile` only covers a delete between the two requests.
-- **Stage 4, still open:** canvas comparison for the three boards; the elder role (same code path as admin:
-  `canManageLinks` and `access === "full"`; no verified elder test account, since sign-up needs email
-  verification); the four canvas deviations above.
+- **Stage 4, canvas review and fixes:** compared against the three boards. Fixed (My profile variants only,
+  Member detail and Users unchanged): contact eyebrow "Member"; full-width rows with a divider above each,
+  including the first, in the contact, groups and sign-in cards; footer band on `bg-surface-secondary`;
+  group rows are whole-row links with a chevron (plain heading-colored name; non-openable rows are plain
+  with an empty slot so badges line up); groups empty state with its top divider and board padding; avatar
+  72px with a 4px gap and a 1px `border` outline ring; sign-in labels 12.5px semibold; "Account created" with
+  date and time; not-linked card: badge bottom-aligned, divider under the header, 16px between paragraphs,
+  callout 13.5px / 12px radius / 18px icon. The deviations logged under Stage 2 are closed.
+- **Stage 4, left as is on purpose:** canvas hex values that map to tokens (Verified green, role badge text,
+  dark group name), `StatusBadge` padding and dot size and the contact icon tile radius (shared components),
+  sample dates, main padding and max-width, and the header meta line gap (8/14 vs 6/20).
+- **Stage 4, not checked live:** the elder role (same code path as admin; no verified elder account) and the
+  admin button compared to the board (40px, 10px radius): seen working on the real admin account earlier.
+- **Dev note:** after the avatar classes were added Tailwind did not generate them until the file was edited
+  again; restarting `pnpm dev` is the fix if a new class seems to have no effect.
 
 ## Token changes
 

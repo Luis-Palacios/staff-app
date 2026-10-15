@@ -19,14 +19,23 @@ import { ageFromCalendarDate, formatCalendarDate } from "@/lib/format-date";
 function Field({
   icon: Icon,
   label,
+  bleed = false,
   children,
 }: {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   label: string;
+  /** Full-width row with a divider above it, for the card without side padding. */
+  bleed?: boolean;
   children: ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3.5 py-3">
+    <div
+      className={
+        bleed
+          ? "flex items-start gap-3.5 border-t border-separator px-6 py-3.5"
+          : "flex items-start gap-3.5 py-3"
+      }
+    >
       <span className="flex size-[34px] shrink-0 items-center justify-center rounded-tile bg-accent-soft text-accent-soft-foreground">
         <Icon aria-hidden="true" className="size-[18px]" strokeWidth={1.7} />
       </span>
@@ -52,18 +61,29 @@ export function MemberContactCard({
   const { id, email, phone, address, birthDate } = member;
   const notProvided = <span className="text-subtle">{t("notProvided")}</span>;
   const age = birthDate ? ageFromCalendarDate(birthDate) : null;
+  const self = variant === "self";
 
   return (
     <section
       className={card({
-        className: "flex min-w-0 flex-col gap-2 px-6 pb-4 pt-5",
+        className: self
+          ? "flex min-w-0 flex-col overflow-hidden pt-5"
+          : "flex min-w-0 flex-col gap-2 px-6 pb-4 pt-5",
       })}
     >
-      <div className="flex items-start justify-between gap-4">
-        <DetailCardHeading eyebrow={t("eyebrow")}>
+      <div
+        className={
+          self
+            ? "flex items-start justify-between gap-4 px-6 pb-4"
+            : "flex items-start justify-between gap-4"
+        }
+      >
+        <DetailCardHeading
+          eyebrow={self ? tSelf("memberEyebrow") : t("eyebrow")}
+        >
           {t("title")}
         </DetailCardHeading>
-        {variant === "default" && (
+        {!self && (
           <NextLink
             aria-label={t("editLabel")}
             className={textLink({ className: "text-sm font-semibold" })}
@@ -73,17 +93,21 @@ export function MemberContactCard({
           </NextLink>
         )}
       </div>
-      <dl className="flex flex-col divide-y divide-separator">
-        <Field icon={EnvelopeIcon} label={t("email")}>
+      <dl
+        className={
+          self ? "flex flex-col" : "flex flex-col divide-y divide-separator"
+        }
+      >
+        <Field bleed={self} icon={EnvelopeIcon} label={t("email")}>
           {email ?? notProvided}
         </Field>
-        <Field icon={PhoneIcon} label={t("phone")}>
+        <Field bleed={self} icon={PhoneIcon} label={t("phone")}>
           {phone ?? notProvided}
         </Field>
-        <Field icon={MapPinIcon} label={t("address")}>
+        <Field bleed={self} icon={MapPinIcon} label={t("address")}>
           {address ?? notProvided}
         </Field>
-        <Field icon={CakeIcon} label={t("birthDate")}>
+        <Field bleed={self} icon={CakeIcon} label={t("birthDate")}>
           {birthDate ? (
             <>
               {formatCalendarDate(birthDate, locale)}
@@ -98,8 +122,8 @@ export function MemberContactCard({
           )}
         </Field>
       </dl>
-      {variant === "self" && (
-        <p className="mt-2 flex items-start gap-2.5 border-t border-separator pt-4 text-[13.5px] text-muted">
+      {self && (
+        <p className="flex items-start gap-2.5 border-t border-separator bg-surface-secondary px-6 pb-[18px] pt-3.5 text-[13.5px] text-muted">
           <InformationCircleIcon
             aria-hidden="true"
             className="mt-0.5 size-[18px] shrink-0"
