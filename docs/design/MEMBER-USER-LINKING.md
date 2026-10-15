@@ -20,7 +20,7 @@ the fixed role Small Group Leader; "Invited" is a pending invite for the member'
 `STAFF_ADMIN_ROLES` (admin, elder) see the controls. No gendered pronouns in copy.
 
 **Depends on the API:** `membership-management/docs/MEMBER-USER-LINK-API-HANDOFF.md` (stages 1 to 3
-at least: `userId` on members, `PUT`/`DELETE /members/{id}/user`). If a stage starts before the API
+at least: `userId` on members, `PUT`/`DELETE /members/{id}/user`; stage 5 for `GET /me`). If a stage starts before the API
 is ready, note it and stub nothing in committed code.
 
 Work through it **stage by stage**, one reviewable commit per stage, on the
@@ -86,6 +86,7 @@ members actions. The browser never calls an API.
 | `listMembers()` / `getMember(id)` | existing | `MemberSummary` / `MemberDetail` gain `userId: string \| null` |
 | `linkMemberUser(id, userId)` | `PUT /members/{id}/user` | 409 "member already linked" / "user already linked" |
 | `unlinkMemberUser(id)` | `DELETE /members/{id}/user` | 204, idempotent |
+| `getMe()` | `GET /me` | wrap in React `cache()`; the signed-in user's member and the groups they lead. No screen here uses it yet; `docs/specs/small-group-leader-access.md` does |
 
 **auth-server** (via `api/auth-api/client.ts`, session cookie, existing pattern):
 
@@ -157,7 +158,8 @@ and the pill still shows (it is information, not an action).
   invite: it points to Link instead (the suggested match). On success: toast "Invite sent to …",
   card moves to *Invited*. Note: when they accept, the account links to the member automatically.
 - **Unlink.** Confirmation naming the member and the user; says plainly that the user keeps their
-  role and access and the member keeps their profile and groups; **Unlink** is the destructive
+  account and role and the member keeps their profile and groups, and that a Small Group Leader or
+  Deacon stops seeing this member's groups (cross-repo spec, rule 4); **Unlink** is the destructive
   button, **Cancel** the default focus. On success toast "Unlinked from …".
 - Toasts use the existing toast pattern; announce them politely for screen readers.
 - Dark mode: all three dialogs have to hold up in dark (`MemberDetail-LinkUser-Dark`).
@@ -208,7 +210,8 @@ and the pill still shows (it is information, not an action).
     staff who aren’t members of this church." and **Link a member**.
 - **Link a member** dialog mirrors the member-side one: *Suggested match* (member with the same
   email and no `userId`), search over other members without a user, **Link member**.
-  **Unlink** confirmation says the account keeps its role and access.
+  **Unlink** confirmation says the account keeps its role, and that a Small Group Leader or Deacon
+  stops seeing the member's groups.
 - Controls only for `canManageLinks`; others see the cards without actions.
 - 404 for an unknown user id uses the shared not-found.
 
@@ -255,7 +258,7 @@ differ and keep the two files in step.
 | `MemberAccount.autoLinkNote` | When they accept, the new account links to this member automatically. | Cuando acepte, la nueva cuenta se vincula a este miembro automáticamente. |
 | `MemberAccount.sendInvite` | Send invite | Enviar invitación |
 | `MemberAccount.unlinkTitle` | Unlink {name} from this user? | ¿Desvincular a {name} de este usuario? |
-| `MemberAccount.unlinkBody` | {email} keeps their account, role and access. Only the connection to this member is removed. You can link them again later. | {email} conserva su cuenta, rol y acceso. Solo se elimina la conexión con este miembro. Puedes vincularle de nuevo más adelante. |
+| `MemberAccount.unlinkBody` | {email} keeps their account and role. Only the connection to this member is removed. If their role is Small Group Leader or Deacon, they’ll stop seeing this member’s small groups. You can link them again later. | {email} conserva su cuenta y su rol. Solo se elimina la conexión con este miembro. Si su rol es Líder de grupo pequeño o Diácono, dejará de ver los grupos pequeños de este miembro. Puedes vincularle de nuevo más adelante. |
 | `MemberAccount.toastLinked` | Linked to {email} | Vinculada a {email} |
 | `MemberAccount.toastInvited` | Invite sent to {email} | Invitación enviada a {email} |
 | `MemberAccount.toastUnlinked` | Unlinked from {email} | Desvinculada de {email} |
@@ -280,7 +283,7 @@ differ and keep the two files in step.
 | `UserMember.searchOthers` | Or search other members | O busca otros miembros |
 | `UserMember.onlyWithoutUser` | Only members who don’t have a user are listed. | Solo se muestran los miembros que no tienen un usuario. |
 | `UserMember.unlinkTitle` | Unlink this user from {name}? | ¿Desvincular a este usuario de {name}? |
-| `UserMember.unlinkBody` | This account keeps its role and access. Member #{id} keeps their profile and small groups. Only the connection is removed. You can link them again later. | Esta cuenta conserva su rol y acceso. El miembro n.º {id} conserva su perfil y sus grupos pequeños. Solo se elimina la conexión. Puedes vincularles de nuevo más adelante. |
+| `UserMember.unlinkBody` | This account keeps its role. Member #{id} keeps their profile and small groups. Only the connection is removed. If the role is Small Group Leader or Deacon, the account stops seeing that member’s small groups. You can link them again later. | Esta cuenta conserva su rol. El miembro n.º {id} conserva su perfil y sus grupos pequeños. Solo se elimina la conexión. Si el rol es Líder de grupo pequeño o Diácono, la cuenta deja de ver los grupos pequeños de ese miembro. Puedes vincularles de nuevo más adelante. |
 | `UserMember.adminsOnly` | Only admins and elders can link or unlink members. | Solo administradores y ancianos pueden vincular o desvincular miembros. |
 
 Spanish uses *tú* and avoids gendered forms where it can; where it can't ("Vinculada" for the
