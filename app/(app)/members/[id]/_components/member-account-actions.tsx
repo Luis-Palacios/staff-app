@@ -5,6 +5,7 @@ import type { LinkableUser } from "@/app/(app)/members/_actions/account-actions"
 
 import { useState, useTransition } from "react";
 import { Button } from "@heroui/react";
+import clsx from "clsx";
 import { useTranslations } from "next-intl";
 
 import { InviteUserDialog } from "./invite-user-dialog";
@@ -41,6 +42,8 @@ export function MemberAccountActions({
   member: { id: number; name: string; email: string | null };
   account: Pick<MemberAccount, "status" | "inviteToken" | "invitedEmail"> & {
     userName: string | null;
+    /** A user already signs in with the member's email: Link is then the primary action. */
+    hasSuggestedUser: boolean;
   };
 }) {
   const t = useTranslations("MemberAccountActions");
@@ -88,30 +91,29 @@ export function MemberAccountActions({
   }
 
   const canInvite = !!member.email;
+  const linkFirst = account.hasSuggestedUser;
 
   return (
     <div className="flex flex-wrap items-center gap-3">
       {status === "none" && (
         <>
-          <span className="flex flex-col gap-1">
-            <Button
-              className="font-semibold"
-              isDisabled={!canInvite}
-              variant="primary"
-              onPress={() => setOverlay("invite")}
-            >
-              {t("invite")}
-            </Button>
-          </span>
           <Button
-            className="font-semibold"
-            variant="outline"
+            className={clsx("font-semibold", linkFirst && "order-2")}
+            isDisabled={!canInvite}
+            variant={linkFirst ? "outline" : "primary"}
+            onPress={() => setOverlay("invite")}
+          >
+            {t("invite")}
+          </Button>
+          <Button
+            className={clsx("font-semibold", linkFirst && "order-1")}
+            variant={linkFirst ? "primary" : "outline"}
             onPress={openLink}
           >
             {t("link")}
           </Button>
           {!canInvite && (
-            <p className="basis-full text-[13px] text-muted">
+            <p className="order-3 basis-full text-[13px] text-muted">
               {t("noEmailHint")}
             </p>
           )}

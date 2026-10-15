@@ -199,7 +199,40 @@ that differs from the canvas in the progress log below.
   fold, as on the Members list). Link then Unlink of #67 left it as "No account". **Noticed, not
   changed:** the toast sits at the bottom centre and covers the Unlink button of the Account card for
   its 4 s when the viewport is short. **Not covered yet:** comparing each screen with the canvas
-  boards (light and dark), gold-on-light text, the end-to-end accept-invite flow.
+  boards (light and dark), gold-on-light text.
+
+- End-to-end accept-invite flow (2026-10-15, all three services local, `INTERNAL_API_TOKEN` and
+  `MEMBERSHIP_API_URL` newly set in auth-server and membership-management `.env`). Internal endpoint:
+  401 without or with a wrong `X-Internal-Token`, 200 `{linked:false}` with the right one. Added
+  throwaway member #68 with "Invite as a user" (shown Invited), signed up from the email: the user
+  stays `pending` and the invite `pending` until the email is **verified**; after verifying, the
+  invite is `used`, the user is `smallGroupLeader` and `members.user_id` is set; the member page
+  shows Linked with the Account card. Member #68 and its user are left on the dev DB.
+
+- Gold on light (2026-10-15, admin, light, English, computed styles in the browser on Member detail #66,
+  Members list, Users list and the Link dialog). **Pass:** gold text uses the dark variants (Invited
+  pill 6.24:1, eyebrows 5.87:1); no `text-gold-*` in the changed files; the accent tokens are only used
+  as `bg-accent` with `text-accent-foreground` and `bg-accent-soft` with `text-accent-soft-foreground`.
+  **Accepted, not changed:** the muted "No account" (Members list) and "Not linked" (Users list) labels
+  are `text-subtle`, 2.86:1 on white, below 4.5:1. The design makes them muted text on purpose, and they
+  match the existing "Not provided" placeholders (same 2.86:1, from before this branch), so they stay
+  as they are. Revisit with the token itself (`text-subtle`) if the app-wide contrast is raised, not
+  per label.
+
+- Stage 8 design review fixes (2026-10-15, after the canvas comparison by a desktop session):
+  (1) `StatusTabs` strip: `justify-start` and `shrink-0` buttons, so at 390 the first tab sits at the
+  left edge and the strip scrolls with every tab reachable (checked by constraining the container to
+  342px; the window can't be made 390 wide here). (2) "Invite as a user" disabled: only the box is
+  dimmed, label and helper keep full opacity and their tokens. (3) The checkbox has an `id` and the
+  label a `htmlFor`, so its accessible name is "Invite as a user" (it was "on"); the helper is linked
+  through the `aria-describedby` React Aria adds. (4) Link dialog: the suggested match is preselected
+  (border, check mark, "Link user" enabled), "Suggested match" uses the eyebrow style. (5) Member
+  detail, No account, with a user on the same email (`/members/67`): info banner above the buttons and
+  "Link existing user…" primary; `loadMemberAccount` looks up the match with `getSuggestedUsers`
+  (one extra users and members read on the server for No account members with an email). No token
+  changes. `lint` and `tsc` pass. Tried in the browser (light, en, 1440): `/members/new` accessibility
+  name and opacities, `/members/67` banner and the Link dialog (cancelled, nothing linked), and dark
+  on `/members/67`. **Not checked:** Spanish and 1024 for these five.
 
 ## Token changes
 
@@ -447,7 +480,7 @@ Run after implementation, against the boards listed above. Record findings in th
 - [x] No color, font, radius or shadow literals in the changed files
       (`git diff main --name-only | xargs grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\('`), and no new
       `dark:` overrides a token could replace.
-- [ ] Gold never carries text on a light ground; status shows a dot and a word, never color alone.
+- [x] Gold never carries text on a light ground; status shows a dot and a word, never color alone.
 - [x] Focus ring visible on every control; focus returns to the opener when a dialog closes;
       Escape closes; toasts are announced.
 - [x] Roles other than admin/elder: no Account card, no link controls on any screen, pill still

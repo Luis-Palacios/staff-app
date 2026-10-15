@@ -1,6 +1,7 @@
 import type { MemberAccount } from "@/app/(app)/members/_lib/load-member-account";
 import type { Locale } from "@/lib/locale-shared";
 
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useLocale, useTranslations } from "next-intl";
 import NextLink from "next/link";
 
@@ -42,6 +43,18 @@ export function MemberAccountCard({
             {t("noneTitle")}
           </p>
           <p className="text-sm text-muted">{t("noneBody")}</p>
+        </div>
+      )}
+
+      {status === "none" && account.suggestedUser && (
+        <div className="flex items-start gap-2.5 rounded-xl bg-accent-soft px-4 py-3 text-sm text-accent-soft-foreground">
+          <InformationCircleIcon
+            aria-hidden="true"
+            className="mt-0.5 size-5 shrink-0"
+          />
+          <span className="min-w-0 break-words">
+            {t("matchBanner", { email: account.suggestedUser.email })}
+          </span>
         </div>
       )}
 
@@ -118,6 +131,7 @@ export function MemberAccountCard({
           inviteToken: account.inviteToken,
           invitedEmail: account.invitedEmail,
           userName: user?.name ?? null,
+          hasSuggestedUser: !!account.suggestedUser,
         }}
         member={member}
       />

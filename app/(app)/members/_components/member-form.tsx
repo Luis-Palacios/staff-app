@@ -22,6 +22,7 @@ import {
   TextField,
 } from "@heroui/react";
 import { Label } from "@heroui/react/label";
+import clsx from "clsx";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -359,6 +360,13 @@ export function MemberForm({
         </div>
         {showInvite && (
           <Checkbox
+            className={clsx(
+              // Disabled dims only the box; the label and helper text stay readable.
+              "data-[disabled=true]:opacity-100",
+              "[&_[data-slot=label]]:opacity-100 [&_[data-slot=description]]:opacity-100",
+              "[&[data-disabled=true]_[data-slot=checkbox-control]]:opacity-(--disabled-opacity)",
+            )}
+            id="invite-checkbox"
             isDisabled={isPending || !emailValid}
             isSelected={willInvite}
             name="invite"
@@ -368,7 +376,10 @@ export function MemberForm({
               <Checkbox.Control>
                 <Checkbox.Indicator />
               </Checkbox.Control>
-              <Label className="text-[13px] font-semibold text-heading">
+              <Label
+                className="text-[13px] font-semibold text-heading"
+                htmlFor="invite-checkbox"
+              >
                 {t("inviteLabel")}
               </Label>
             </Checkbox.Content>

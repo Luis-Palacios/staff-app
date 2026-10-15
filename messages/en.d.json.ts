@@ -667,6 +667,7 @@ declare const messages: {
     "title": "Sign-in access",
     "noneTitle": "No account",
     "noneBody": "They can't sign in to the staff app yet.",
+    "matchBanner": "A user already signs in with {email}.",
     "invitedTitle": "Invite sent",
     "invitedBody": "Waiting for {email} to accept. They'll be linked automatically when they do.",
     "invitedBy": "Sent by {name} on {date}",
