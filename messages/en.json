@@ -107,6 +107,49 @@
     "created": "Group created",
     "updated": "Changes saved"
   },
+  "GroupMembers": {
+    "addMember": "Add member",
+    "actionsFor": "Actions for {name}",
+    "roleSection": "Role in this group",
+    "viewSection": "Member",
+    "removeSection": "Remove",
+    "viewMember": "View member",
+    "remove": "Remove from group",
+    "dialogTitle": "Add a member",
+    "dialogSubtitle": "To {group}. They join today.",
+    "memberLabel": "Member",
+    "memberPlaceholder": "Search by name or email",
+    "noEmail": "No email",
+    "alreadyIn": "Already in this group",
+    "noResults": "No members match.",
+    "loading": "Loading members…",
+    "roleLabel": "Role",
+    "leaderHint": "{leader} leads this group. Choosing Leader makes them a co-leader.",
+    "cancel": "Cancel",
+    "submit": "Add to group",
+    "swap": {
+      "title": "Make {name} the leader?",
+      "body": "{current} leads this group now. They'll become a co-leader and {name} will lead from today. Both changes stay in their history.",
+      "confirm": "Make leader"
+    },
+    "removeDialog": {
+      "title": "Remove {name} from the group?",
+      "body": "Their membership ends today and stays in their history. You can add them back later.",
+      "confirm": "Remove"
+    },
+    "toasts": {
+      "added": "{name} added",
+      "roleChanged": "Role changed",
+      "leaderSet": "{name} is now the leader",
+      "removed": "{name} removed from the group"
+    },
+    "errors": {
+      "closed": "This group is closed, so it can't be changed.",
+      "hasLeader": "This group already has a leader. Refresh the page and try again.",
+      "alreadyInGroup": "{name} is already in this group.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
   "GroupDetailHeader": {
     "closedOn": "Closed {date}",
     "meets": "Meets <strong>{day}</strong>",

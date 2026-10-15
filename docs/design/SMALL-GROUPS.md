@@ -61,7 +61,7 @@ each stage, write a short summary of what changed and anything that differs from
 | 2. Groups list | [x] | (this commit) |
 | 3. Group detail (read-only parts, closed state) | [x] | (this commit) |
 | 4. Group form (new / edit) | [x] | (this commit) |
-| 5. Member management (add, role, leader swap, remove) | [ ] | |
+| 5. Member management (add, role, leader swap, remove) | [x] | (this commit) |
 | 6. Close group | [ ] | |
 | 7. Links from elsewhere + docs | [ ] | |
 
@@ -98,6 +98,18 @@ render the same text; each radio's accessible name is the full plural day ("Thur
 closed group redirects to the detail page; if the group closes while the form is open, the update action's 409
 also lands on the detail page. Not yet run end to end (create, edit, only-changed-fields, errors, dark, es):
 lint and `tsc --noEmit` only; this is the first stage where the Stage 1 form actions can be exercised.
+
+**Stage 5.** `GroupMembersCard` became a client component (namespaces `GroupMembers`, `GroupMembersCard`,
+`SmallGroupRole` now ship to the browser) and owns the dialogs, the toast and the pending state. `ConfirmDialog`
+gained `tone` (`danger` = red tile and `Button variant="danger"`; the tokens already give white text in light and
+navy in dark) and `icon`; `SavedToast` gained `tone` (`danger` = red icon, `role="alert"`) and is re-keyed per
+message to show from client state. The add-member dialog loads `GET /members` through a new
+`listMembersForPickerAction` the first time it opens (once per page visit) and filters in the browser (max 6
+results, members already in the group disabled with "Already in this group"); HeroUI `ComboBox` with controlled
+`items`/`inputValue`. The role control and the dialog form remount on every open so they start empty. Errors: the
+add dialog shows them inline; role, swap and remove errors show a danger toast; a `closed` error also refreshes
+the page. Not yet run end to end: lint and `tsc --noEmit` only, so the "Done when" checklist (including focus
+return and keyboard-only use) still needs a pass in the browser.
 
 ## The API (membership-management)
 

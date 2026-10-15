@@ -15,6 +15,8 @@ export function ConfirmDialog({
   children,
   confirmLabel,
   onConfirm,
+  tone = "default",
+  icon,
 }: {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
@@ -22,6 +24,10 @@ export function ConfirmDialog({
   children: ReactNode;
   confirmLabel: string;
   onConfirm: () => void;
+  /** `danger` is for actions that end something: red icon tile and button. */
+  tone?: "default" | "danger";
+  /** Replaces the status icon's glyph (the tile keeps the tone's color). */
+  icon?: ReactNode;
 }) {
   const t = useTranslations("ConfirmDialog");
 
@@ -34,7 +40,9 @@ export function ConfirmDialog({
       <AlertDialog.Container size="sm">
         <AlertDialog.Dialog>
           <AlertDialog.Header>
-            <AlertDialog.Icon status="warning" />
+            <AlertDialog.Icon status={tone === "danger" ? "danger" : "warning"}>
+              {icon}
+            </AlertDialog.Icon>
             <AlertDialog.Heading>{title}</AlertDialog.Heading>
           </AlertDialog.Header>
           <AlertDialog.Body>
@@ -46,6 +54,7 @@ export function ConfirmDialog({
             </Button>
             <Button
               className="font-semibold"
+              variant={tone === "danger" ? "danger" : "primary"}
               onPress={() => {
                 onOpenChange(false);
                 onConfirm();
