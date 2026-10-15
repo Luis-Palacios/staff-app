@@ -1,9 +1,11 @@
 import type { AdminUserListItem } from "@/api/auth-api/types";
+import type { LinkedMembers } from "./users-browser";
 
 import { useTranslations } from "next-intl";
 
 import { AssignPendingRole } from "./assign-pending-role";
 import { RoleBadge } from "./role-badge";
+import { UserMemberLink } from "./user-member-link";
 import { UserStatusChips } from "./user-status-chips";
 
 import { InitialsAvatar } from "@/components/initials-avatar";
@@ -14,7 +16,13 @@ import { card } from "@/components/primitives";
 // status badges with the join date, and the role picker for pending users.
 // The role sits in the wrapping row because Spanish role names are too long
 // to share the header line at phone width.
-export default function UserCardSummary({ user }: { user: AdminUserListItem }) {
+export default function UserCardSummary({
+  user,
+  member,
+}: {
+  user: AdminUserListItem;
+  member?: LinkedMembers[string];
+}) {
   const t = useTranslations("UserCard");
   const isPending = user.role === "pending";
 
@@ -38,6 +46,9 @@ export default function UserCardSummary({ user }: { user: AdminUserListItem }) {
           })}
         </span>
       </div>
+      <p className="pl-12 text-[13px] text-muted">
+        {t("member")} <UserMemberLink member={member} />
+      </p>
       {user.banned && user.banReason && (
         <p className="pl-12 text-[13px] text-muted">
           {t("banReason", { reason: user.banReason })}

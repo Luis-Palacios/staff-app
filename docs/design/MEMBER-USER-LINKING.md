@@ -54,7 +54,7 @@ that differs from the canvas in the progress log below.
 | 3. Dialogs: link, invite, cancel invite, unlink | ✅ | (this commit) |
 | 4. Add member: invite as a user | ✅ | (this commit) |
 | 5. Members list: Account column and filter | ✅ | (this commit) |
-| 6. Users list: Member column and filter | ⬜ | |
+| 6. Users list: Member column and filter | ✅ | (this commit) |
 | 7. User detail page | ⬜ | |
 | 8. Design review fixes | ⬜ | |
 
@@ -133,6 +133,17 @@ that differs from the canvas in the progress log below.
   to 880 with the column. `lint` and `tsc` pass. Tried in the browser (dark, es, 1440): column,
   counts (0 / 1 / 55) and the Invited filter. **Not checked:** light, 1024/390 cards, Linked
   filter with data (no linked member on the dev DB), a non-admin role.
+- Stage 6: `UsersList` now also calls `listMembers()` once and builds `userId → { id, name }`;
+  the new client `UsersBrowser` owns the All / Linked / Not linked `StatusTabs` (state in
+  `?member=`, `replaceState`) and renders the table and the cards. `UserMemberLink` (member name
+  linking to `/members/[id]`, or muted "Not linked") is used by both; the card shows it as a
+  "Member:" line. **Deviations:** the row "Open" action is **not** added: `/users/[id]` doesn't
+  exist until stage 7, which must add it (table and card). Keys went in `UsersTable` (and
+  `UserCard.member`), not `Users.*`; `UserCard` joined `CLIENT_NAMESPACES` because the card is now
+  rendered from a client component. Added `UsersTable.noMatches` so a filter with no rows doesn't
+  say "No users yet". Table min width 760 → 880. `lint` and `tsc` pass. Tried in the browser (dark,
+  es, 1440): column, counts and the Linked filter's empty state. **Not checked:** light, 1024/390
+  cards, and a linked row (the dev DB has one user and no link).
 
 ## Token changes
 

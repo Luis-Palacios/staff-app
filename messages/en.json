@@ -501,7 +501,8 @@
   },
   "UserCard": {
     "joined": "Joined <date></date>",
-    "banReason": "Ban reason: {reason}"
+    "banReason": "Ban reason: {reason}",
+    "member": "Member:"
   },
   "UserStatus": {
     "active": "Active",
@@ -514,7 +515,15 @@
     "columnRole": "Role",
     "columnStatus": "Status",
     "columnJoined": "Joined",
-    "empty": "No users yet."
+    "empty": "No users yet.",
+    "columnMember": "Member",
+    "notLinked": "Not linked",
+    "filterByMember": "Filter by member",
+    "filterAll": "All",
+    "filterLinked": "Linked",
+    "filterNotLinked": "Not linked",
+    "count": "{count, plural, one {# user} other {# users}}",
+    "noMatches": "No users match this filter."
   },
   "AssignPendingRole": {
     "roleFor": "Role for {name}",
