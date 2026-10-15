@@ -81,9 +81,11 @@ progress log below.
   Spanish with no sideways scroll at 1024 and 390 (columns stack below `lg`); both of the leader's groups
   link to `/groups/{id}` (the leader leads both). Fixed: the email in the sign-in card broke mid-word at
   1024 (`break-all` → `break-words`).
-- **Stage 4, still open:** canvas comparison for the three boards; deacon, elder and `user` roles; a group
-  where the viewer is only a member (should be plain text); a link to a deleted member; focus ring and
-  keyboard order; the four canvas deviations above.
+- **Stage 4, roles checked:** deacon and plain `user` (both not linked) load `/users/me` with no redirect
+  and see the "Ask an admin or elder" callout, no button; the sidebar hides Access › Users for `user`.
+- **Stage 4, still open:** canvas comparison for the three boards; the elder role; a group where the viewer
+  is only a member (should be plain text); a link to a deleted member; focus ring and keyboard order;
+  the four canvas deviations above.
 
 ## Token changes
 
