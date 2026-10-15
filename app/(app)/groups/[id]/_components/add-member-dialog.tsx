@@ -138,7 +138,7 @@ function AddMemberForm({
             {t("memberLabel")}
           </Label>
           <ComboBox.InputGroup>
-            <Input placeholder={t("memberPlaceholder")} />
+            <Input autoComplete="off" placeholder={t("memberPlaceholder")} />
             <ComboBox.Trigger />
           </ComboBox.InputGroup>
           <ComboBox.Popover>

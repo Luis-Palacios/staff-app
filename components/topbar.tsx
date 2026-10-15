@@ -137,7 +137,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
   // Ctrl/⌘ K focuses the search field (opening it first below `sm`).
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key.toLowerCase() !== "k" || !(event.metaKey || event.ctrlKey))
+      if (event.key?.toLowerCase() !== "k" || !(event.metaKey || event.ctrlKey))
         return;
 
       event.preventDefault();
