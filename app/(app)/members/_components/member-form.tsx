@@ -15,6 +15,7 @@ import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import {
   Button,
   buttonVariants,
+  Checkbox,
   Description,
   FieldError,
   InputGroup,
@@ -24,6 +25,7 @@ import { Label } from "@heroui/react/label";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { z } from "zod";
 
 import { PhoneField } from "./phone-field";
 
@@ -158,10 +160,13 @@ export function MemberForm({
   memberId,
   initial,
   cancelHref,
+  canInvite = false,
 }: {
   memberId?: string;
   initial?: MemberFormValues;
   cancelHref: string;
+  /** Show "Invite as a user" (add form only, for roles that can manage links). */
+  canInvite?: boolean;
 }) {
   const t = useTranslations("MemberForm");
   const router = useRouter();
@@ -178,8 +183,12 @@ export function MemberForm({
   const [errors, setErrors] = useState<MemberFieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [failures, setFailures] = useState(0);
+  const [invite, setInvite] = useState(false);
   const alertRef = useRef<HTMLDivElement>(null);
   const hasOther = initialPhone.country === OTHER_COUNTRY;
+  const showInvite = canInvite && !isEdit;
+  const emailValid = z.email().safeParse(text.email.trim()).success;
+  const willInvite = showInvite && invite && emailValid;
   const max = todayIso();
 
   useEffect(() => {
@@ -241,7 +250,7 @@ export function MemberForm({
 
     if (!isEdit) {
       startTransition(async () => {
-        const failure = await createMemberAction(values);
+        const failure = await createMemberAction(values, willInvite);
 
         if (failure) fail(failure);
       });
@@ -348,6 +357,26 @@ export function MemberForm({
             onChange={changePhone}
           />
         </div>
+        {showInvite && (
+          <Checkbox
+            isDisabled={isPending || !emailValid}
+            isSelected={willInvite}
+            name="invite"
+            onChange={setInvite}
+          >
+            <Checkbox.Control>
+              <Checkbox.Indicator />
+            </Checkbox.Control>
+            <Checkbox.Content>
+              <Label className="text-[13px] font-semibold text-heading">
+                {t("inviteLabel")}
+              </Label>
+              <Description className="text-[13px] text-muted">
+                {emailValid ? t("inviteHelp") : t("inviteNeedsEmail")}
+              </Description>
+            </Checkbox.Content>
+          </Checkbox>
+        )}
       </fieldset>
 
       <div className="border-t border-separator" />
@@ -410,7 +439,7 @@ export function MemberForm({
             {t("cancel")}
           </NextLink>
           <Button className="font-semibold" isPending={isPending} type="submit">
-            {isEdit ? t("save") : t("add")}
+            {isEdit ? t("save") : willInvite ? t("submitAndInvite") : t("add")}
           </Button>
         </div>
       </div>

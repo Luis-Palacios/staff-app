@@ -52,7 +52,7 @@ that differs from the canvas in the progress log below.
 | 1. API client, types, role helper, server actions | ✅ | (this commit) |
 | 2. Member detail: Account card and pill | ✅ | (this commit) |
 | 3. Dialogs: link, invite, cancel invite, unlink | ✅ | (this commit) |
-| 4. Add member: invite as a user | ⬜ | |
+| 4. Add member: invite as a user | ✅ | (this commit) |
 | 5. Members list: Account column and filter | ⬜ | |
 | 6. Users list: Member column and filter | ⬜ | |
 | 7. User detail page | ⬜ | |
@@ -105,6 +105,18 @@ that differs from the canvas in the progress log below.
   **unlink** (back to No account), all with the toast. **Still untried:** the automatic link on
   invite acceptance, which needs the shared token and URLs set on both services, and the 409
   messages and the "user already exists" invite path. `lint` and `tsc` pass.
+- Stage 4: `MemberForm` takes `canInvite` (from `canManageLinks` on the `/members/new` page; never
+  on edit). The HeroUI `Checkbox` is disabled with a hint ("Enter a valid email above…") until the
+  email field is a valid email, and un-checks itself if the email becomes invalid; the submit label
+  follows (`willInvite`). `createMemberAction(values, invite)` creates the member, then calls
+  `inviteMemberAction` (so the role check, the existing-account check and the cookie/`Origin`
+  forwarding are the same as the Account card) and redirects with `?saved=createdInvited`, or
+  `?saved=inviteFailed` (danger toast, `MemberForm.inviteFailed`). The member is never rolled back.
+  An invite refused because the email already has an account lands in `inviteFailed` too; the
+  Account card then offers the suggested match. New keys: `MemberForm.inviteLabel`, `inviteHelp`,
+  `inviteNeedsEmail` (not in the copy table), `submitAndInvite`, `inviteFailed`, and
+  `SavedToast.createdInvited`. `lint` and `tsc` pass. **Not tried in the browser yet** (light/dark,
+  widths, es, and the real invite send from the form).
 
 ## Token changes
 

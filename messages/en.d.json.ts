@@ -592,7 +592,8 @@ declare const messages: {
   },
   "SavedToast": {
     "created": "Member added",
-    "updated": "Changes saved"
+    "updated": "Changes saved",
+    "createdInvited": "Member added and invite sent"
   },
   "MemberFormPage": {
     "newTitle": "Add a member",
@@ -631,7 +632,12 @@ declare const messages: {
       "phoneDigitsOnly": "Use only numbers.",
       "addressTooLong": "Keep the address under 255 characters.",
       "birthDateInvalid": "Enter a valid date."
-    }
+    },
+    "inviteLabel": "Invite as a user",
+    "inviteHelp": "Invites start with the Small Group Leader role. Change it later from Users.",
+    "inviteNeedsEmail": "Enter a valid email above to invite this member.",
+    "submitAndInvite": "Add member and send invite",
+    "inviteFailed": "Member added. The invite couldn’t be sent. Try again from the Account card."
   },
   "NotFound": {
     "title": "Page not found",

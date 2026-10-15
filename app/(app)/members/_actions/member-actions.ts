@@ -16,7 +16,10 @@ import {
   memberSchema,
   toFieldErrors,
 } from "@/app/(app)/members/_lib/member-schema";
+import { inviteMemberAction } from "@/app/(app)/members/_actions/account-actions";
 import { getApiErrorMessage } from "@/lib/api-error-message";
+import { canManageLinks } from "@/lib/auth/roles";
+import { requireStaffSession } from "@/api/auth-api/helpers/require-staff-session";
 
 /** A failed save. Success never returns: it redirects to the detail page. */
 export interface MemberActionFailure {
@@ -33,9 +36,14 @@ async function toFailure(error: unknown): Promise<MemberActionFailure> {
   return { ok: false, formError: await getApiErrorMessage(error) };
 }
 
-/** POST: empty optional fields are omitted. */
+/**
+ * POST: empty optional fields are omitted. With `invite`, the member's email is then invited
+ * (role Small Group Leader). The member is never rolled back if the invite fails: the redirect
+ * says so and the Account card can retry.
+ */
 export async function createMemberAction(
   values: MemberFormValues,
+  invite = false,
 ): Promise<MemberActionFailure> {
   const parsed = memberSchema.safeParse(values);
 
@@ -60,6 +68,19 @@ export async function createMemberAction(
   }
 
   revalidatePath("/members");
+
+  if (
+    invite &&
+    email &&
+    canManageLinks((await requireStaffSession()).user.role)
+  ) {
+    const result = await inviteMemberAction(email);
+
+    redirect(
+      `/members/${id}?saved=${result.ok ? "createdInvited" : "inviteFailed"}`,
+    );
+  }
+
   redirect(`/members/${id}?saved=created`);
 }
 

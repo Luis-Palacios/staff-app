@@ -589,7 +589,8 @@
   },
   "SavedToast": {
     "created": "Miembro agregado",
-    "updated": "Cambios guardados"
+    "updated": "Cambios guardados",
+    "createdInvited": "Miembro agregado e invitación enviada"
   },
   "MemberFormPage": {
     "newTitle": "Agrega un miembro",
@@ -628,7 +629,12 @@
       "phoneDigitsOnly": "Usa solo números.",
       "addressTooLong": "La dirección debe tener menos de 255 caracteres.",
       "birthDateInvalid": "Escribe una fecha válida."
-    }
+    },
+    "inviteLabel": "Invitar como usuario",
+    "inviteHelp": "Las invitaciones empiezan con el rol Líder de grupo pequeño. Cámbialo después desde Usuarios.",
+    "inviteNeedsEmail": "Escribe un correo válido arriba para invitar a este miembro.",
+    "submitAndInvite": "Agregar miembro y enviar invitación",
+    "inviteFailed": "Miembro agregado. No se pudo enviar la invitación. Inténtalo de nuevo desde la tarjeta Cuenta."
   },
   "NotFound": {
     "title": "No encontramos esta página",

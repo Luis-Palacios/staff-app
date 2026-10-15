@@ -16,10 +16,11 @@ export default async function MemberDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ saved?: string }>;
 }) {
-  const [{ id }, { saved }, t] = await Promise.all([
+  const [{ id }, { saved }, t, tForm] = await Promise.all([
     params,
     searchParams,
     getTranslations("SavedToast"),
+    getTranslations("MemberForm"),
   ]);
   const member = await loadMember(id);
   const account = await loadMemberAccount(member);
@@ -36,8 +37,11 @@ export default async function MemberDetailPage({
           )}
         </div>
       </div>
-      {(saved === "created" || saved === "updated") && (
-        <SavedToast message={t(saved)} />
+      {(saved === "created" ||
+        saved === "updated" ||
+        saved === "createdInvited") && <SavedToast message={t(saved)} />}
+      {saved === "inviteFailed" && (
+        <SavedToast message={tForm("inviteFailed")} tone="danger" />
       )}
     </>
   );
