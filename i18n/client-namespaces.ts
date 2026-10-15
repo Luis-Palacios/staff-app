@@ -47,6 +47,7 @@ export const CLIENT_NAMESPACES = [
   "ThemeSwitch",
   "Topbar",
   "UserCard",
+  "UserMemberActions",
   "UserStatus",
   "UsersTable",
   "VerifyEmailButton",

@@ -502,7 +502,8 @@
   "UserCard": {
     "joined": "Joined <date></date>",
     "banReason": "Ban reason: {reason}",
-    "member": "Member:"
+    "member": "Member:",
+    "open": "View account"
   },
   "UserStatus": {
     "active": "Active",
@@ -523,7 +524,9 @@
     "filterLinked": "Linked",
     "filterNotLinked": "Not linked",
     "count": "{count, plural, one {# user} other {# users}}",
-    "noMatches": "No users match this filter."
+    "noMatches": "No users match this filter.",
+    "columnActions": "Actions",
+    "openUser": "Open {name}"
   },
   "AssignPendingRole": {
     "roleFor": "Role for {name}",
@@ -717,5 +720,49 @@
     "unlinkConfirm": "Unlink",
     "unlinkToast": "Unlinked from {name}",
     "unknownUser": "This account"
+  },
+  "UserDetail": {
+    "eyebrow": "User",
+    "accountEyebrow": "Account",
+    "accountTitle": "Account details",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "verified": "Email",
+    "verifiedYes": "Verified",
+    "verifiedNo": "Not verified",
+    "status": "Status",
+    "joined": "Joined"
+  },
+  "UserMember": {
+    "eyebrow": "Member",
+    "title": "Linked member",
+    "memberNumber": "Member #{id}",
+    "groupCount": "{count, plural, one {# small group} other {# small groups}}",
+    "notLinkedBody": "This account isn’t connected to a member. That’s normal for staff who aren’t members of this church."
+  },
+  "UserMemberActions": {
+    "link": "Link a member…",
+    "unlink": "Unlink",
+    "cancel": "Cancel",
+    "loading": "Loading members…",
+    "linkTitle": "Link a member",
+    "linkSubtitle": "Choose the member who uses the account of {name}.",
+    "suggestedMatch": "Suggested match",
+    "sameEmail": "Same email",
+    "otherMembers": "Other members",
+    "members": "Members",
+    "searchLabel": "Search members",
+    "searchPlaceholder": "Search by name or email",
+    "onlyWithoutUser": "Only members who don’t have a user are listed.",
+    "noMatches": "No members match “{query}”",
+    "noMembers": "There are no members without a user.",
+    "memberNumber": "Member #{id}",
+    "linkSubmit": "Link member",
+    "linkedToast": "Linked to {name}",
+    "unlinkTitle": "Unlink this user from {name}?",
+    "unlinkBody": "This account keeps its role. Member #{id} keeps their profile and small groups. Only the connection is removed. If the role is Small Group Leader or Deacon, the account stops seeing that member’s small groups. You can link them again later.",
+    "unlinkConfirm": "Unlink",
+    "unlinkToast": "Unlinked from {name}"
   }
 }

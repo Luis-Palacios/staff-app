@@ -502,7 +502,8 @@
   "UserCard": {
     "joined": "Se unió el <date></date>",
     "banReason": "Motivo del bloqueo: {reason}",
-    "member": "Miembro:"
+    "member": "Miembro:",
+    "open": "Ver cuenta"
   },
   "UserStatus": {
     "active": "Activo",
@@ -523,7 +524,9 @@
     "filterLinked": "Vinculados",
     "filterNotLinked": "Sin vincular",
     "count": "{count, plural, one {# usuario} other {# usuarios}}",
-    "noMatches": "Ningún usuario coincide con este filtro."
+    "noMatches": "Ningún usuario coincide con este filtro.",
+    "columnActions": "Acciones",
+    "openUser": "Abrir {name}"
   },
   "AssignPendingRole": {
     "roleFor": "Rol de {name}",
@@ -717,5 +720,49 @@
     "unlinkConfirm": "Desvincular",
     "unlinkToast": "Desvinculado de {name}",
     "unknownUser": "Esta cuenta"
+  },
+  "UserDetail": {
+    "eyebrow": "Usuario",
+    "accountEyebrow": "Cuenta",
+    "accountTitle": "Datos de la cuenta",
+    "name": "Nombre",
+    "email": "Correo",
+    "role": "Rol",
+    "verified": "Correo",
+    "verifiedYes": "Verificado",
+    "verifiedNo": "Sin verificar",
+    "status": "Estado",
+    "joined": "Se unió"
+  },
+  "UserMember": {
+    "eyebrow": "Miembro",
+    "title": "Miembro vinculado",
+    "memberNumber": "Miembro n.º {id}",
+    "groupCount": "{count, plural, one {# grupo pequeño} other {# grupos pequeños}}",
+    "notLinkedBody": "Esta cuenta no está conectada a un miembro. Es normal para el personal que no es miembro de esta iglesia."
+  },
+  "UserMemberActions": {
+    "link": "Vincular un miembro…",
+    "unlink": "Desvincular",
+    "cancel": "Cancelar",
+    "loading": "Cargando miembros…",
+    "linkTitle": "Vincular un miembro",
+    "linkSubtitle": "Elige el miembro que usa la cuenta de {name}.",
+    "suggestedMatch": "Coincidencia sugerida",
+    "sameEmail": "Mismo correo",
+    "otherMembers": "Otros miembros",
+    "members": "Miembros",
+    "searchLabel": "Buscar miembros",
+    "searchPlaceholder": "Buscar por nombre o correo",
+    "onlyWithoutUser": "Solo se muestran los miembros que no tienen un usuario.",
+    "noMatches": "Ningún miembro coincide con “{query}”",
+    "noMembers": "No hay miembros sin usuario.",
+    "memberNumber": "Miembro n.º {id}",
+    "linkSubmit": "Vincular miembro",
+    "linkedToast": "Vinculada a {name}",
+    "unlinkTitle": "¿Desvincular este usuario de {name}?",
+    "unlinkBody": "Esta cuenta conserva su rol. El miembro n.º {id} conserva su perfil y sus grupos pequeños. Solo se elimina la conexión. Si el rol es Líder de grupo pequeño o Diácono, la cuenta deja de ver los grupos pequeños de ese miembro. Puedes vincularles de nuevo más adelante.",
+    "unlinkConfirm": "Desvincular",
+    "unlinkToast": "Desvinculada de {name}"
   }
 }

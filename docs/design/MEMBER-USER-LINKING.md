@@ -55,7 +55,7 @@ that differs from the canvas in the progress log below.
 | 4. Add member: invite as a user | ✅ | (this commit) |
 | 5. Members list: Account column and filter | ✅ | (this commit) |
 | 6. Users list: Member column and filter | ✅ | (this commit) |
-| 7. User detail page | ⬜ | |
+| 7. User detail page | ✅ | (this commit) |
 | 8. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
@@ -144,6 +144,22 @@ that differs from the canvas in the progress log below.
   say "No users yet". Table min width 760 → 880. `lint` and `tsc` pass. Tried in the browser (dark,
   es, 1440): column, counts and the Linked filter's empty state. **Not checked:** light, 1024/390
   cards, and a linked row (the dev DB has one user and no link).
+- Stage 7: `/users/[id]` (`loadUser` in `users/_lib`, cached) reads `admin/get-user` (404/400 →
+  shared not-found) and finds the linked member from `listMembers()`, then `getMember` for the
+  group count. Like `/users`, the page redirects anyone but admin/elder to `/`, so there is no
+  read-only variant to render: every viewer can link and unlink (the "adminsOnly" copy from the
+  table isn't needed and wasn't added). Cards: `UserAccountCard` (name, email, role, email
+  verified, status, joined; read-only) and `UserMemberCard` (+ client `UserMemberActions`, and
+  `LinkMemberDialog`, the member-side radio list mirrored: suggested match = same email and no
+  user, search, "Link member"). The link and unlink actions are the existing
+  `linkMemberUserAction` / `unlinkMemberUserAction`; the new `listLinkableMembersAction` loads the
+  members without a user each time the dialog opens. **Deviations:** namespaces are `UserDetail`
+  (server), `UserMember` (server) and `UserMemberActions` (client, added to `CLIENT_NAMESPACES`);
+  the unlink body uses the member id only (no name), as in the table. The "Open" action from stage
+  6 is added: `DataTableOpenLink` in a new last column (table min width 880) and a "View account"
+  link on the card. `lint` and `tsc` pass. **Not checked in a browser yet** (auth-server wasn't
+  running): light/dark, 1440/1024/390, en/es, the link and unlink round trip, a non-linked user,
+  and the 404.
 - Pending checks for stages 4 to 6 (done afterwards): the 390 width can't be reached by shrinking
   the window, so pages were loaded in a same-origin iframe of 390 / 1024 px. Light mode, the
   Members list, Users list and Add member at 390, the Members list at 1024, the Linked filter and

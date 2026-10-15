@@ -13,7 +13,11 @@ import {
 } from "@/api/members-api/client";
 import { getApiErrorMessage } from "@/lib/api-error-message";
 import { AuthRole, canManageLinks } from "@/lib/auth/roles";
-import { getLinkedUserIds, getSuggestedUsers } from "@/lib/members/account";
+import {
+  getLinkedUserIds,
+  getSuggestedMembers,
+  getSuggestedUsers,
+} from "@/lib/members/account";
 
 /** What the dialogs show on failure, already in the user's language. */
 export interface AccountActionFailure {
@@ -92,6 +96,45 @@ export async function listLinkableUsersAction(
       users: free.map(({ id, name, email }) => ({ id, name, email })),
       suggestedIds: member
         ? getSuggestedUsers(member, users, linked).map((user) => user.id)
+        : [],
+    };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export interface LinkableMember {
+  id: number;
+  name: string;
+  email: string | null;
+}
+
+export type LinkableMembersResult =
+  | { ok: true; members: LinkableMember[]; suggestedIds: number[] }
+  | AccountActionFailure;
+
+/** Members with no user, for the User detail link dialog, plus the ones with the user's email. */
+export async function listLinkableMembersAction(
+  userId: string,
+): Promise<LinkableMembersResult> {
+  const denied = await requireLinkManager();
+
+  if (denied) return denied;
+
+  try {
+    const cookie = (await headers()).get("cookie") ?? "";
+    const [{ users }, members] = await Promise.all([
+      listUsers(cookie),
+      listMembers(),
+    ]);
+    const user = users.find((candidate) => candidate.id === userId);
+    const free = members.filter((member) => !member.userId);
+
+    return {
+      ok: true,
+      members: free.map(({ id, name, email }) => ({ id, name, email })),
+      suggestedIds: user
+        ? getSuggestedMembers(user, free).map((member) => member.id)
         : [],
     };
   } catch (error) {

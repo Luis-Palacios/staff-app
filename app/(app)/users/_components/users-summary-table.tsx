@@ -13,6 +13,7 @@ import { UserStatusChips } from "./user-status-chips";
 
 import {
   DataTableFooter,
+  DataTableOpenLink,
   DataTablePrimaryCell,
   dataTable,
 } from "@/components/data-table";
@@ -39,7 +40,7 @@ export default function UsersSummaryTable({
       variant="secondary"
     >
       <Table.ScrollContainer>
-        <Table.Content aria-label={t("tableLabel")} className="min-w-[720px]">
+        <Table.Content aria-label={t("tableLabel")} className="min-w-[880px]">
           <Table.Header>
             <Table.Column isRowHeader className={column()}>
               {t("columnPerson")}
@@ -53,6 +54,9 @@ export default function UsersSummaryTable({
             </Table.Column>
             <Table.Column className={column()}>
               {t("columnJoined")}
+            </Table.Column>
+            <Table.Column className={column({ className: "text-right" })}>
+              <span className="sr-only">{t("columnActions")}</span>
             </Table.Column>
           </Table.Header>
           <Table.Body
@@ -92,6 +96,12 @@ export default function UsersSummaryTable({
                       <LocalTime value={user.createdAt} />
                     </span>
                   </span>
+                </Table.Cell>
+                <Table.Cell className={cell({ className: "text-right" })}>
+                  <DataTableOpenLink
+                    href={`/users/${user.id}`}
+                    label={t("openUser", { name: user.name })}
+                  />
                 </Table.Cell>
               </Table.Row>
             ))}
