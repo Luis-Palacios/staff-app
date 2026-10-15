@@ -64,6 +64,45 @@
       "sunday": "Sundays"
     }
   },
+  "GroupFormPage": {
+    "newTitle": "New small group",
+    "newDescription": "Give the group a name and, if you know them, its day and place.",
+    "editTitle": "Edit group",
+    "editCrumb": "Edit",
+    "editDescription": "Update when and where the group meets. Members and roles are managed on the group's page."
+  },
+  "GroupForm": {
+    "eyebrow": "Group",
+    "heading": "Name, day and place",
+    "name": "Group name",
+    "nameHelp": "Usually the people it's for and the neighborhood.",
+    "meetingDay": "Meeting day",
+    "meetingDayHelp": "Optional. Pick \"Not set\" if it changes week to week.",
+    "dayNotSet": "Not set",
+    "days": {
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat",
+      "sunday": "Sun"
+    },
+    "address": "Meeting address",
+    "addressPlaceholder": "Neighborhood, directions, city",
+    "addressHelp": "Optional. Where the group usually meets.",
+    "newNote": "After you create the group, add its leader and members from the group's page.",
+    "required": "Required",
+    "cancel": "Cancel",
+    "create": "Create group",
+    "save": "Save changes",
+    "alertTitle": "This group wasn't saved",
+    "alertBody": "Fix the {count, plural, one {field} other {# fields}} marked below and try again.",
+    "errors": {
+      "nameRequired": "Enter a name for the group.",
+      "addressTooLong": "Keep the address under 255 characters."
+    }
+  },
   "GroupSavedToast": {
     "created": "Group created",
     "updated": "Changes saved"

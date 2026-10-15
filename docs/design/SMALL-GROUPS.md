@@ -60,7 +60,7 @@ each stage, write a short summary of what changed and anything that differs from
 | 1. API client, types and server actions | [x] | (this commit) |
 | 2. Groups list | [x] | (this commit) |
 | 3. Group detail (read-only parts, closed state) | [x] | (this commit) |
-| 4. Group form (new / edit) | [ ] | |
+| 4. Group form (new / edit) | [x] | (this commit) |
 | 5. Member management (add, role, leader swap, remove) | [ ] | |
 | 6. Close group | [ ] | |
 | 7. Links from elsewhere + docs | [ ] | |
@@ -91,6 +91,13 @@ group pages use a new `GroupSavedToast` message set ("Group created" / "Changes 
 details card use the capitalized standalone names. The details card's leader and co-leaders come from the
 members list (the detail has no separate leader field). `loading.tsx` is shared by detail and, later, edit.
 Not yet checked in a browser (light/dark, widths, es, closed group, 404): lint and `tsc --noEmit` only.
+
+**Stage 4.** The day chips are native radio inputs (arrow keys, one tab stop) restyled through `peer-*`
+classes. Short day labels come from messages (`GroupForm.days.*`: Mon / Lun…), not `Intl`, so server and client
+render the same text; each radio's accessible name is the full plural day ("Thursdays"). The edit page for a
+closed group redirects to the detail page; if the group closes while the form is open, the update action's 409
+also lands on the detail page. Not yet run end to end (create, edit, only-changed-fields, errors, dark, es):
+lint and `tsc --noEmit` only; this is the first stage where the Stage 1 form actions can be exercised.
 
 ## The API (membership-management)
 
