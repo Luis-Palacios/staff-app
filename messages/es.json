@@ -37,8 +37,46 @@
     "elder": "Anciano"
   },
   "GroupsPage": {
+    "title": "Grupos pequeños",
+    "description": "Donde los miembros se reúnen durante la semana. Abre un grupo para ver a su gente y gestionar quién lo lidera.",
     "emptyTitle": "Aún no hay grupos",
-    "emptyBody": "Los grupos pequeños, sus líderes y los reportes semanales aparecerán aquí cuando estén configurados."
+    "emptyBody": "Crea un grupo y luego agrega a su líder y a sus miembros desde la página del grupo."
+  },
+  "NewGroupLink": {
+    "label": "Nuevo grupo",
+    "first": "Crear el primer grupo"
+  },
+  "Weekdays": {
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sábados",
+    "sunday": "Domingos"
+  },
+  "GroupsBrowser": {
+    "filterByStatus": "Filtrar por estado",
+    "filterActive": "Activos",
+    "filterClosed": "Cerrados",
+    "filterAll": "Todos",
+    "filterLabel": "Filtrar grupos",
+    "filterPlaceholder": "Grupo, líder o dirección",
+    "count": "{count, plural, one {# grupo} other {# grupos}}",
+    "noMatches": "Ningún grupo coincide con tu búsqueda.",
+    "noClosed": "No hay grupos cerrados.",
+    "noActive": "No hay grupos activos.",
+    "closedOn": "Cerrado el {date}",
+    "leader": "Líder",
+    "noLeader": "Aún sin líder",
+    "noActiveLeader": "Sin líder activo",
+    "meets": "Se reúne",
+    "dayNotSet": "Día sin definir",
+    "address": "Dirección de reunión",
+    "noAddress": "Sin dirección de reunión",
+    "members": "{count, plural, one {<strong>#</strong> miembro} other {<strong>#</strong> miembros}}",
+    "membersClosed": "— miembros ahora",
+    "open": "Abrir"
   },
   "ReportsPage": {
     "emptyTitle": "Aún no hay reportes",

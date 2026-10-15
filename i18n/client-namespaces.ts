@@ -22,6 +22,7 @@ export const CLIENT_NAMESPACES = [
   "DataTable",
   "ErrorState",
   "ForgotPasswordForm",
+  "GroupsBrowser",
   "InviteStatus",
   "InvitesTable",
   "MemberForm",
@@ -41,6 +42,7 @@ export const CLIENT_NAMESPACES = [
   "UserStatus",
   "UsersTable",
   "VerifyEmailButton",
+  "Weekdays",
 ] as const satisfies readonly (keyof Messages)[];
 
 export type ClientMessages = Pick<Messages, (typeof CLIENT_NAMESPACES)[number]>;
