@@ -8,7 +8,8 @@ import { InitialsAvatar } from "@/components/initials-avatar";
 import { title } from "@/components/primitives";
 
 // The person is the page, as on Member detail, but with no breadcrumbs (most roles can't open
-// Users) and no actions. The avatar circle is where the photo goes later.
+// Users) and no actions. The avatar circle (72px, with the board's page-colored gap and hairline
+// ring) is where the photo goes later.
 export function MyProfileHeader({
   user,
   member,
@@ -22,7 +23,7 @@ export function MyProfileHeader({
   return (
     <header className="mb-6 flex flex-wrap items-center gap-5">
       <InitialsAvatar
-        className="bg-accent text-[22px] text-accent-foreground"
+        className="size-[72px] bg-accent text-2xl text-accent-foreground outline outline-1 outline-offset-4 outline-border"
         name={user.name}
         size="xl"
       />
