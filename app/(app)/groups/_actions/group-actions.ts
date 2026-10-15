@@ -1,6 +1,6 @@
 "use server";
 
-import type { SmallGroupRole } from "@/api/members-api/types";
+import type { MemberSummary, SmallGroupRole } from "@/api/members-api/types";
 import type { SmallGroupInput } from "@/api/small-groups-api/types";
 import type {
   GroupFieldErrors,
@@ -11,6 +11,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { ApiError } from "@/api/api-client";
+import { listMembers } from "@/api/members-api/client";
 import {
   addSmallGroupMember,
   changeSmallGroupMemberRole,
@@ -261,4 +262,15 @@ export async function closeGroupAction(
   revalidatePath("/members", "layout");
 
   return { ok: true };
+}
+
+/** Every member, for the add-member dialog's search (filtered in the browser). */
+export async function listMembersForPickerAction(): Promise<
+  { ok: true; members: MemberSummary[] } | { ok: false; message: string }
+> {
+  try {
+    return { ok: true, members: await listMembers() };
+  } catch (error) {
+    return { ok: false, message: await getApiErrorMessage(error) };
+  }
 }

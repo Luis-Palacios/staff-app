@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircleIcon } from "@heroicons/react/24/solid";
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/react/24/solid";
 
 const VISIBLE_MS = 4000;
 
@@ -9,7 +12,16 @@ const VISIBLE_MS = 4000;
 // `?saved=…`. The param is dropped right away so a reload doesn't show the
 // toast again; the toast itself disappears after a few seconds. The text
 // arrives as a prop, so no client namespace is needed.
-export function SavedToast({ message }: { message: string }) {
+export function SavedToast({
+  message,
+  tone = "success",
+}: {
+  message: string;
+  /** `danger` is for an action that failed (same bar, red icon). */
+  tone?: "success" | "danger";
+}) {
+  const Icon = tone === "danger" ? ExclamationCircleIcon : CheckCircleIcon;
+
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -30,11 +42,11 @@ export function SavedToast({ message }: { message: string }) {
   return (
     <div
       className="fixed bottom-6 right-6 z-50 flex max-w-[calc(100vw-3rem)] items-center gap-2.5 rounded-xl bg-[#13325A] px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow-float)]"
-      role="status"
+      role={tone === "danger" ? "alert" : "status"}
     >
-      <CheckCircleIcon
+      <Icon
         aria-hidden="true"
-        className="size-5 shrink-0 text-[#8EDDB4]"
+        className={`size-5 shrink-0 ${tone === "danger" ? "text-[#FDA29B]" : "text-[#8EDDB4]"}`}
       />
       {message}
     </div>

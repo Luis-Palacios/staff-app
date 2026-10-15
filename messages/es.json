@@ -107,6 +107,49 @@
     "created": "Grupo creado",
     "updated": "Cambios guardados"
   },
+  "GroupMembers": {
+    "addMember": "Agregar miembro",
+    "actionsFor": "Acciones para {name}",
+    "roleSection": "Rol en este grupo",
+    "viewSection": "Miembro",
+    "removeSection": "Quitar",
+    "viewMember": "Ver miembro",
+    "remove": "Quitar del grupo",
+    "dialogTitle": "Agregar un miembro",
+    "dialogSubtitle": "A {group}. Se une hoy.",
+    "memberLabel": "Miembro",
+    "memberPlaceholder": "Busca por nombre o correo",
+    "noEmail": "Sin correo",
+    "alreadyIn": "Ya está en este grupo",
+    "noResults": "Ningún miembro coincide.",
+    "loading": "Cargando miembros…",
+    "roleLabel": "Rol",
+    "leaderHint": "{leader} lidera este grupo. Si eliges Líder, pasará a ser colíder.",
+    "cancel": "Cancelar",
+    "submit": "Agregar al grupo",
+    "swap": {
+      "title": "¿Hacer líder a {name}?",
+      "body": "{current} lidera este grupo ahora. Pasará a ser colíder y {name} liderará desde hoy. Ambos cambios quedan en su historial.",
+      "confirm": "Hacer líder"
+    },
+    "removeDialog": {
+      "title": "¿Quitar a {name} del grupo?",
+      "body": "Su membresía termina hoy y queda en su historial. Puedes volver a agregarlo más adelante.",
+      "confirm": "Quitar"
+    },
+    "toasts": {
+      "added": "{name} agregado",
+      "roleChanged": "Rol cambiado",
+      "leaderSet": "{name} ahora es líder",
+      "removed": "{name} quitado del grupo"
+    },
+    "errors": {
+      "closed": "Este grupo está cerrado, así que no se puede cambiar.",
+      "hasLeader": "Este grupo ya tiene un líder. Actualiza la página e inténtalo de nuevo.",
+      "alreadyInGroup": "{name} ya está en este grupo.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
+  },
   "GroupDetailHeader": {
     "closedOn": "Cerrado el {date}",
     "meets": "Se reúne <strong>{day}</strong>",
