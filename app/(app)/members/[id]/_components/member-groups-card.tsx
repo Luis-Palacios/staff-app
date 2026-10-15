@@ -3,6 +3,7 @@ import type { Locale } from "@/lib/locale-shared";
 
 import { UserGroupIcon } from "@heroicons/react/24/outline";
 import { useLocale, useTranslations } from "next-intl";
+import NextLink from "next/link";
 
 import { DetailCardHeading } from "@/app/(app)/applications/[id]/_components/detail-card-heading";
 import { card } from "@/components/primitives";
@@ -18,7 +19,7 @@ const ROLE_BADGE: Record<
   member: { tone: "neutral", variant: "ring-dot" },
 };
 
-// Group names are user data and are not links yet: the groups pages are stubs.
+// Group names are user data (never translated); each links to its group.
 export function MemberGroupsCard({
   smallGroups,
 }: {
@@ -58,9 +59,12 @@ export function MemberGroupsCard({
                 />
               </span>
               <div className="flex min-w-0 flex-[1_1_160px] flex-col">
-                <span className="break-words text-[15px] font-semibold text-heading">
+                <NextLink
+                  className="break-words text-[15px] font-semibold text-heading hover:underline"
+                  href={`/groups/${group.smallGroupId}`}
+                >
                   {group.smallGroupName}
-                </span>
+                </NextLink>
                 <span className="text-[13px] text-muted">
                   {t("joined", {
                     date: formatCalendarDate(group.joinedAt, locale),

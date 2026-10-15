@@ -5,10 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Overview
 
 Staff app for managing staff, groups, applications, and reports. Built from the
-HeroUI v3 + Next.js 16 App Router template; most section pages (`groups`,
-`applications`, `reports`) are still stubs awaiting real UI and data. `members` has
-the real list, detail and add/edit UI (see `docs/design/MEMBERS-LIST.md` and
-`docs/design/MEMBER-DETAIL-AND-FORM.md`).
+HeroUI v3 + Next.js 16 App Router template; most section pages (`applications`,
+`reports`) are still stubs awaiting real UI and data. `members` has the real list,
+detail and add/edit UI (see `docs/design/MEMBERS-LIST.md` and
+`docs/design/MEMBER-DETAIL-AND-FORM.md`). `groups` has the list, a detail page with
+member management (add, role, leader swap, remove, close) and add/edit (see
+`docs/design/SMALL-GROUPS.md`); only group reports are still a stub.
 
 See `docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring this app together
 with the sibling `auth-server` (better-auth) and `membership-management` (FastAPI) repos —

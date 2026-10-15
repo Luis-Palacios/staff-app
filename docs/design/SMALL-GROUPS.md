@@ -63,7 +63,7 @@ each stage, write a short summary of what changed and anything that differs from
 | 4. Group form (new / edit) | [x] | (this commit) |
 | 5. Member management (add, role, leader swap, remove) | [x] | (this commit) |
 | 6. Close group | [x] | (this commit) |
-| 7. Links from elsewhere + docs | [ ] | |
+| 7. Links from elsewhere + docs | [x] | (this commit) |
 
 ### Decisions and deviations
 
@@ -118,6 +118,14 @@ page does stay, but the toast comes from `router.replace("/groups/{id}?saved=clo
 Failures (including "already closed", which also refreshes the page) show a danger toast from the card. The
 confirm text is an ICU plural on the member count (0 / 1 / many). Not yet run in a browser: lint and `tsc --noEmit`
 only.
+
+**Stage 7.** Member detail's group names link to `/groups/{id}`. Dashboard: the placeholder card became
+`NoGroupsCard`, which shows only when the groups loaded and none is active (and then carries a "Create the first
+group" action); with active groups, or if the fetch fails, it renders nothing. I chose to leave it out rather than
+add an "{n} active groups" link, as the spec allowed. The Close wording was changed after Stage 6 review from "Ends
+every membership today" to "Removes every member from the group today" (and the confirm text to match), since
+"membership" read like church membership; the API only ends each person's time in that group. Verification: stages were tried by hand by Luis against the local API; no automated or scripted checks of
+light/dark, the three widths or Spanish were run. The weekday short labels are messages, not `Intl`.
 
 ## The API (membership-management)
 
