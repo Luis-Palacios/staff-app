@@ -62,7 +62,7 @@ each stage, write a short summary of what changed and anything that differs from
 | 3. Group detail (read-only parts, closed state) | [x] | (this commit) |
 | 4. Group form (new / edit) | [x] | (this commit) |
 | 5. Member management (add, role, leader swap, remove) | [x] | (this commit) |
-| 6. Close group | [ ] | |
+| 6. Close group | [x] | (this commit) |
 | 7. Links from elsewhere + docs | [ ] | |
 
 ### Decisions and deviations
@@ -110,6 +110,14 @@ results, members already in the group disabled with "Already in this group"); He
 add dialog shows them inline; role, swap and remove errors show a danger toast; a `closed` error also refreshes
 the page. Not yet run end to end: lint and `tsc --noEmit` only, so the "Done when" checklist (including focus
 return and keyboard-only use) still needs a pass in the browser.
+
+**Stage 6.** `CloseGroupCard` sits under When & where (the right column is now a wrapper with both cards, so
+the details card lost its own flex basis). Deviation from the spec's "stay on the page, toast 'Group closed'": the
+page does stay, but the toast comes from `router.replace("/groups/{id}?saved=closed")` and the existing
+`SavedToast`/`?saved=` path, because the closed group no longer renders the card that would own a client toast.
+Failures (including "already closed", which also refreshes the page) show a danger toast from the card. The
+confirm text is an ICU plural on the member count (0 / 1 / many). Not yet run in a browser: lint and `tsc --noEmit`
+only.
 
 ## The API (membership-management)
 

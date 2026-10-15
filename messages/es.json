@@ -105,7 +105,20 @@
   },
   "GroupSavedToast": {
     "created": "Grupo creado",
-    "updated": "Cambios guardados"
+    "updated": "Cambios guardados",
+    "closed": "Grupo cerrado"
+  },
+  "GroupClose": {
+    "title": "Cerrar este grupo",
+    "body": "Termina todas las membresías hoy. El grupo queda en la lista bajo Cerrados, con su historial. No se puede deshacer.",
+    "button": "Cerrar grupo…",
+    "dialogTitle": "¿Cerrar {name}?",
+    "dialogBody": "{count, plural, =0 {No se puede deshacer. El grupo pasa a Cerrados en la lista, con su historial.} one {Esto termina hoy la membresía de su miembro y no se puede deshacer. El grupo pasa a Cerrados en la lista, con su historial.} other {Esto termina hoy la membresía de los # miembros y no se puede deshacer. El grupo pasa a Cerrados en la lista, con su historial.}}",
+    "confirm": "Cerrar grupo",
+    "errors": {
+      "closed": "Este grupo ya estaba cerrado.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
   },
   "GroupMembers": {
     "addMember": "Agregar miembro",

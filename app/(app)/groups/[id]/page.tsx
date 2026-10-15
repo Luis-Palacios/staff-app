@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import { CloseGroupCard } from "./_components/close-group-card";
 import { GroupDetailHeader } from "./_components/group-detail-header";
 import { GroupDetailsCard } from "./_components/group-details-card";
 import { GroupMembersCard } from "./_components/group-members-card";
@@ -26,9 +27,12 @@ export default async function GroupDetailPage({
       <GroupDetailHeader group={group} />
       <div className="flex flex-wrap items-start gap-5">
         <GroupMembersCard group={group} />
-        <GroupDetailsCard group={group} />
+        <div className="flex min-w-0 flex-[2_1_340px] flex-col gap-5">
+          <GroupDetailsCard group={group} />
+          {!group.closedAt && <CloseGroupCard group={group} />}
+        </div>
       </div>
-      {(saved === "created" || saved === "updated") && (
+      {(saved === "created" || saved === "updated" || saved === "closed") && (
         <SavedToast message={t(saved)} />
       )}
     </>
