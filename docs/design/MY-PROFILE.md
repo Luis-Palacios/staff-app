@@ -86,9 +86,13 @@ progress log below.
 - **Stage 4, group links:** with the leader set to plain member in SGLA Beta (restored afterwards),
   Alpha (led) kept its link and Beta rendered as plain text; `/groups/30` is a 404 for that leader, so
   plain text is right. Keyboard focus shows the gold halo on the group link.
+- **Stage 4, deleted member:** tried with a throwaway member linked to the plain `user` account and then
+  deleted from the local members DB. `GET /me` then returned `member: null` and the page showed the
+  not-linked view, no error. The link is stored on the member row (`members.user_id`), so a dangling link
+  can't exist; the 404 branch in `loadMyProfile` only covers a delete between the two requests.
 - **Stage 4, still open:** canvas comparison for the three boards; the elder role (same code path as admin:
   `canManageLinks` and `access === "full"`; no verified elder test account, since sign-up needs email
-  verification); a link to a deleted member; the four canvas deviations above.
+  verification); the four canvas deviations above.
 
 ## Token changes
 
