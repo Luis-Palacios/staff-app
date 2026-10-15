@@ -40,8 +40,46 @@ declare const messages: {
     "elder": "Elder"
   },
   "GroupsPage": {
+    "title": "Small groups",
+    "description": "Where members meet during the week. Open a group to see its people and manage who leads it.",
     "emptyTitle": "No groups yet",
-    "emptyBody": "Small groups, their leaders and weekly reports will show up here once they're set up."
+    "emptyBody": "Create a group, then add its leader and members from the group's page."
+  },
+  "NewGroupLink": {
+    "label": "New group",
+    "first": "Create the first group"
+  },
+  "Weekdays": {
+    "monday": "Mondays",
+    "tuesday": "Tuesdays",
+    "wednesday": "Wednesdays",
+    "thursday": "Thursdays",
+    "friday": "Fridays",
+    "saturday": "Saturdays",
+    "sunday": "Sundays"
+  },
+  "GroupsBrowser": {
+    "filterByStatus": "Filter by status",
+    "filterActive": "Active",
+    "filterClosed": "Closed",
+    "filterAll": "All",
+    "filterLabel": "Filter groups",
+    "filterPlaceholder": "Group, leader or address",
+    "count": "{count, plural, one {# group} other {# groups}}",
+    "noMatches": "No groups match your search.",
+    "noClosed": "No closed groups.",
+    "noActive": "No active groups.",
+    "closedOn": "Closed {date}",
+    "leader": "Leader",
+    "noLeader": "No leader yet",
+    "noActiveLeader": "No active leader",
+    "meets": "Meets",
+    "dayNotSet": "Day not set",
+    "address": "Meeting address",
+    "noAddress": "No meeting address",
+    "members": "{count, plural, one {<strong>#</strong> member} other {<strong>#</strong> members}}",
+    "membersClosed": "— members now",
+    "open": "Open"
   },
   "ReportsPage": {
     "emptyTitle": "No reports yet",

@@ -1,23 +1,29 @@
-import { UserGroupIcon } from "@heroicons/react/24/outline";
-import { useTranslations } from "next-intl";
+import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 
-import { EmptyState } from "@/components/empty-state";
+import GroupsList from "./_components/groups-list";
+import GroupsListSkeleton from "./_components/groups-list-skeleton";
+import { NewGroupLink } from "./_components/new-group-link";
+
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { groupsBreadcrumb } from "@/config/breadcrumbs";
 
-export default function GroupsPage() {
-  const t = useTranslations("GroupsPage");
-  const tNav = useTranslations("Nav");
+export default async function GroupsPage() {
+  const t = await getTranslations("GroupsPage");
 
   return (
     <>
       <StaffAppPageHeader
+        actions={<NewGroupLink variant="primary" />}
         breadcrumbs={[groupsBreadcrumb]}
-        title={tNav("groups")}
+        description={t("description")}
+        title={t("title")}
       />
-      <EmptyState icon={UserGroupIcon} title={t("emptyTitle")}>
-        {t("emptyBody")}
-      </EmptyState>
+      <section className="flex flex-col gap-4">
+        <Suspense fallback={<GroupsListSkeleton />}>
+          <GroupsList />
+        </Suspense>
+      </section>
     </>
   );
 }
