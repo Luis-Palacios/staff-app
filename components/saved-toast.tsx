@@ -52,12 +52,12 @@ export function SavedToast({
 
   return (
     <div
-      className="fixed bottom-6 left-1/2 z-50 flex w-max max-w-[calc(100vw-3rem)] -translate-x-1/2 items-center gap-2.5 rounded-xl bg-[#13325A] px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow-float)]"
+      className="fixed bottom-6 left-1/2 z-50 flex w-max max-w-[calc(100vw-3rem)] -translate-x-1/2 items-center gap-2.5 rounded-xl bg-navy-800 px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow-float)]"
       role={tone === "danger" ? "alert" : "status"}
     >
       <Icon
         aria-hidden="true"
-        className={`size-5 shrink-0 ${tone === "danger" ? "text-[#FDA29B]" : "text-[#8EDDB4]"}`}
+        className={`size-5 shrink-0 ${tone === "danger" ? "text-danger-on-dark" : "text-success-on-dark"}`}
       />
       {message}
     </div>

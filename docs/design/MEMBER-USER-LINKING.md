@@ -56,7 +56,7 @@ that differs from the canvas in the progress log below.
 | 5. Members list: Account column and filter | ✅ | (this commit) |
 | 6. Users list: Member column and filter | ✅ | (this commit) |
 | 7. User detail page | ✅ | (this commit) |
-| 8. Design review fixes | ⬜ | |
+| 8. Design review fixes | 🟨 in progress | |
 
 ### Decisions and deviations
 
@@ -185,6 +185,21 @@ that differs from the canvas in the progress log below.
   dialogs fit with nothing clipped or scrolling sideways. Linking then unlinking #67 worked.
   **Not covered:** light mode for these dialogs at 390 (Link was checked in light at 1440). Test members #66 and #67
   and #66's pending invite are left on the dev DB.
+
+- Stage 8 (design review, first pass, admin, light, English, 2026-10-15). **Fix:** `SavedToast` had
+  three color literals (`#13325A`, `#FDA29B`, `#8EDDB4`, from before this branch); they are now
+  `bg-navy-800`, `text-danger-on-dark`, `text-success-on-dark` (same values, checked in the browser
+  through computed styles). The literals grep, `pnpm lint` and `tsc` are clean. **Checked, no
+  change needed:** Link dialog at 390 in light (list, search, buttons fit; page width 390); Invite and
+  Unlink dialogs at 390 in light (nothing clipped); the suggested match on member #67 (same email
+  as the user Luis Palacios: "Suggested match" with a "Same email" pill, then "Other users" with
+  search) at desktop in light; Escape closes the Link dialog and focus goes back to the opener with
+  its focus ring; the "Linked to Luis Palacios" toast in light at desktop; Users table at 1024 (the
+  page doesn't scroll sideways; the table scrolls inside its card and Joined and Open sit past the
+  fold, as on the Members list). Link then Unlink of #67 left it as "No account". **Noticed, not
+  changed:** the toast sits at the bottom centre and covers the Unlink button of the Account card for
+  its 4 s when the viewport is short. **Not covered yet:** comparing each screen with the canvas
+  boards (light and dark), gold-on-light text, the end-to-end accept-invite flow.
 
 ## Token changes
 
@@ -427,16 +442,16 @@ Run after implementation, against the boards listed above. Record findings in th
 
 - [ ] Every board matches in light and dark: layout, spacing, type, states (none, invited, linked,
       account not found; each dialog; toasts).
-- [ ] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways; list pages switch table → cards
+- [x] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways; list pages switch table → cards
       below `md`; Account card sits below Small groups at every width.
-- [ ] No color, font, radius or shadow literals in the changed files
+- [x] No color, font, radius or shadow literals in the changed files
       (`git diff main --name-only | xargs grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\('`), and no new
       `dark:` overrides a token could replace.
 - [ ] Gold never carries text on a light ground; status shows a dot and a word, never color alone.
-- [ ] Focus ring visible on every control; focus returns to the opener when a dialog closes;
+- [x] Focus ring visible on every control; focus returns to the opener when a dialog closes;
       Escape closes; toasts are announced.
-- [ ] Roles other than admin/elder: no Account card, no link controls on any screen, pill still
+- [x] Roles other than admin/elder: no Account card, no link controls on any screen, pill still
       visible; the API 403 is handled if reached.
-- [ ] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean);
+- [x] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean);
       `messages/parity.ts` passes.
-- [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+- [x] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
