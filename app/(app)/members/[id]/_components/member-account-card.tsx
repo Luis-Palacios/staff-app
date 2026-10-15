@@ -4,6 +4,8 @@ import type { Locale } from "@/lib/locale-shared";
 import { useLocale, useTranslations } from "next-intl";
 import NextLink from "next/link";
 
+import { MemberAccountActions } from "./member-account-actions";
+
 import { DetailCardHeading } from "@/app/(app)/applications/[id]/_components/detail-card-heading";
 import { RoleBadge } from "@/app/(app)/users/_components/role-badge";
 import { InitialsAvatar } from "@/components/initials-avatar";
@@ -11,9 +13,14 @@ import { card, textLink } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
 import { formatLocalDate } from "@/lib/format-date";
 
-// Only rendered for roles that can manage links. Its actions (invite, link, cancel invite,
-// unlink) arrive with the dialogs.
-export function MemberAccountCard({ account }: { account: MemberAccount }) {
+// Only rendered for roles that can manage links.
+export function MemberAccountCard({
+  account,
+  member,
+}: {
+  account: MemberAccount;
+  member: { id: number; name: string; email: string | null };
+}) {
   const t = useTranslations("MemberAccountCard");
   const locale = useLocale() as Locale;
   const { status, user } = account;
@@ -105,6 +112,15 @@ export function MemberAccountCard({ account }: { account: MemberAccount }) {
           </NextLink>
         </div>
       )}
+      <MemberAccountActions
+        account={{
+          status,
+          inviteToken: account.inviteToken,
+          invitedEmail: account.invitedEmail,
+          userName: user?.name ?? null,
+        }}
+        member={member}
+      />
     </section>
   );
 }

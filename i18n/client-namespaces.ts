@@ -29,6 +29,7 @@ export const CLIENT_NAMESPACES = [
   "GroupsBrowser",
   "InviteStatus",
   "InvitesTable",
+  "MemberAccountActions",
   "MemberForm",
   "MembersBrowser",
   "Nav",
