@@ -162,8 +162,10 @@ that differs from the canvas in the progress log below.
   search), **link** (card shows name, member number and group count, toast) and **unlink**
   (confirmation text, back to the not-linked card, toast), and the 404 for an unknown id. Fix found
   there: the "Email verified" row label read "Correo" twice in Spanish, so it is now
-  "Verification" / "Verificación". **Not checked:** light, 1024/390, English, the suggested match
-  (no member shares a user's email on the dev DB), a linked user whose member has several groups.
+  "Verification" / "Verificación". Then checked: light mode at 390 (User detail, Users cards, Link
+  dialog all fit, nothing scrolls sideways), light at 1024 (User detail), and English (User detail
+  and Link dialog). **Not checked:** the suggested match (no member shares a user's email on the
+  dev DB), a linked user whose member has several groups, the Users table at 1024.
 - Pending checks for stages 4 to 6 (done afterwards): the 390 width can't be reached by shrinking
   the window, so pages were loaded in a same-origin iframe of 390 / 1024 px. Light mode, the
   Members list, Users list and Add member at 390, the Members list at 1024, the Linked filter and
