@@ -155,8 +155,10 @@ that differs from the canvas in the progress log below.
   affected the existing "Member added" toast); it now uses `history.replaceState`, as the
   applications filter does, and the toast stays its 4 s. The failure path was exercised: a new
   member with the email of an existing user and "Invite as a user" ticked is created without an
-  account, and the `inviteFailed` toast renders. **Account column at 1024:** it now sits right after Member, so it is visible without scrolling; the table still scrolls sideways at that width (natural width about 905) and it is Phone and Open that sit past the fold. **Still open:** a non-admin role
-  (only one admin account on the dev DB); 390 for the Member detail page. Test members #66 and #67
+  account, and the `inviteFailed` toast renders. **Account column at 1024:** it now sits right after Member, so it is visible without scrolling; the table still scrolls sideways at that width (natural width about 905) and it is Phone and Open that sit past the fold. **Non-admin role checked** (signed in as a Small Group Leader, dark, es, 1440): the Members list is
+  the original table (no Account column, no filter), Member detail has the pill but no Account card,
+  Add member has no "Invite as a user" checkbox, and `/users` redirects to the dashboard.
+  **Still open:** 390 for the Member detail page (admin view, with the Account card and dialogs). Test members #66 and #67
   and #66's pending invite are left on the dev DB.
 
 ## Token changes
