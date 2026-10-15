@@ -18,3 +18,8 @@ export const STAFF_ADMIN_ROLES: readonly AuthRole[] = [
   AuthRole.Admin,
   AuthRole.Elder,
 ];
+
+/** Only admins and elders link, unlink and invite from a member. */
+export function canManageLinks(role: string | null | undefined): boolean {
+  return STAFF_ADMIN_ROLES.some((allowed) => allowed === role);
+}
