@@ -105,7 +105,20 @@
   },
   "GroupSavedToast": {
     "created": "Group created",
-    "updated": "Changes saved"
+    "updated": "Changes saved",
+    "closed": "Group closed"
+  },
+  "GroupClose": {
+    "title": "Close this group",
+    "body": "Ends every membership today. The group stays in the list under Closed, with its history. This can't be undone.",
+    "button": "Close group…",
+    "dialogTitle": "Close {name}?",
+    "dialogBody": "{count, plural, =0 {This can't be undone. The group moves to Closed in the list, with its history.} one {This ends the membership of its member today and can't be undone. The group moves to Closed in the list, with its history.} other {This ends the membership of all # members today and can't be undone. The group moves to Closed in the list, with its history.}}",
+    "confirm": "Close group",
+    "errors": {
+      "closed": "This group was already closed.",
+      "generic": "Something went wrong. Try again."
+    }
   },
   "GroupMembers": {
     "addMember": "Add member",

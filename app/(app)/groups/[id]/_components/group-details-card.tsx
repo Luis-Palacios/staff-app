@@ -58,8 +58,7 @@ export function GroupDetailsCard({ group }: { group: SmallGroupDetail }) {
   return (
     <section
       className={card({
-        className:
-          "flex min-w-0 flex-[2_1_340px] flex-col gap-2 px-6 pb-4 pt-5",
+        className: "flex min-w-0 flex-col gap-2 px-6 pb-4 pt-5",
       })}
     >
       <div className="flex items-start justify-between gap-4">
