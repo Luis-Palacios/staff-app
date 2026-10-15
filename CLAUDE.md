@@ -22,7 +22,9 @@ it when changing how translations work. For everyday UI text, see "Adding UI tex
 
 Design work (brand restyle, shell, account menu, ministry/church context) is implemented
 and paused; its specs and history live in `docs/design/`. Read them only when resuming
-design work or changing those areas — not needed for routine tasks.
+design work or changing those areas — not needed for routine tasks. Exception: before any
+change to colors, fonts, radii, shadows or the theme, read "Design tokens" below and
+`docs/design/README.md`. New feature specs start from `docs/design/HANDOFF-TEMPLATE.md`.
 
 ## Commands
 
@@ -33,6 +35,8 @@ Use `pnpm exec`/`pnpm dlx`, not `npx`: npm refuses to run here because of `devEn
 - `pnpm dev` — dev server at http://localhost:3001
 - `pnpm build` — production build
 - `pnpm start` — serve the production build
+- `pnpm tokens` — regenerate `styles/brand.css` and `styles/theme.css` from `tokens/`
+  (`pnpm tokens --check` exits 1 if they're out of date; run it before committing token changes)
 - `pnpm lint` — ESLint with `--fix` (auto-formats; there is no separate Prettier script — Prettier runs through `eslint-plugin-prettier`)
 - `pnpm exec tsc --noEmit` — type-check (tsconfig is `noEmit`, so this is the only way to check types without a build)
 
@@ -88,9 +92,12 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   `components/sidebar.tsx`). Check current v3 docs rather than assuming v2 props.
 - **Tailwind CSS v4** — configured entirely in `styles/globals.css` via
   `@import "tailwindcss"`, `@import "@heroui/styles"`, `@import "./brand.css"`
-  (filtered copy of the ekklesiaio brand palette), a `dark` custom variant, and
-  a `@layer base` block mapping the brand onto HeroUI's theme variables (light +
-  dark). There is no `tailwind.config.*` file. PostCSS uses `@tailwindcss/postcss`.
+  (brand palette, fonts, display sizes, radii, shadows as `@theme` variables),
+  `@import "./theme.css"` (the brand mapped onto HeroUI's theme variables, light +
+  dark), a `dark` custom variant, the focus-halo rule and an `@theme inline` block
+  exposing custom semantic tokens as utilities. **`brand.css` and `theme.css` are
+  generated from `tokens/`** (see "Design tokens"). There is no `tailwind.config.*`
+  file. PostCSS uses `@tailwindcss/postcss`.
 - **Config-driven navigation** — `config/site.ts` (`siteConfig`) is the single
   source for the site name and nav items (labels are `Nav` message keys; the
   description is `Metadata.description`). Add or rename routes there, not
@@ -113,6 +120,28 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   `font-display`), Inter (wordmark only, `--font-inter` → `font-logo`); all three
   `.variable`s go on `<html>` (`brand.css` reads them on `:root`).
 - **Path alias** — `@/*` maps to the repo root (`@/config/site`, `@/components/sidebar`).
+
+## Design tokens
+
+`tokens/` (W3C DTCG JSON) is the **source of truth for the ekklesiaio brand**, for this app and
+for the design system and landing page that are synced from it. Full guide:
+`docs/design/README.md`.
+
+- `tokens/brand.json` → `styles/brand.css` (`@theme`: `--color-navy-900` → `bg-navy-900`, …).
+  `tokens/themes/{light,dark}.json` → `styles/theme.css` (`--background`, `--accent`, …).
+- **Never edit `styles/brand.css` or `styles/theme.css`.** Change the JSON, run `pnpm tokens`,
+  commit the JSON and the generated CSS together (`pnpm tokens --check` must pass).
+- A new semantic token goes in both `themes/light.json` and `themes/dark.json`, with a
+  `$description` saying where it's used. If components need a utility for it, add it to
+  `@theme inline` in `styles/globals.css`.
+- No color, font-stack, radius or shadow literals in components or `globals.css`, and no
+  component-level `dark:` overrides a token could express. Page content uses semantic tokens;
+  raw brand colors only where the look is the same in both themes (the rail).
+- Gold never carries text on a light ground (`--eyebrow` / gold-800 instead); status is never
+  color alone.
+- After a token change merges, the ekklesiaio Design System and the canvases need a re-sync
+  (see "Keeping the design system and the landing page in sync" in `docs/design/README.md`).
+  Mention it when you finish a token change.
 
 ## Adding UI text
 

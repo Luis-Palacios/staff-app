@@ -1,0 +1,215 @@
+{
+  "$description": "ekklesiaio brand primitives. Built into styles/brand.css (Tailwind v4 @theme): each token becomes --<group>-<name>, so color.navy-900 is --color-navy-900 and the bg-navy-900 utility.",
+  "color": {
+    "navy-950": {
+      "$type": "color",
+      "$value": "#081A31",
+      "$description": "footer"
+    },
+    "navy-900": {
+      "$type": "color",
+      "$value": "#0B2341",
+      "$description": "brand navy: headings, primary buttons, dark sections"
+    },
+    "navy-800": {
+      "$type": "color",
+      "$value": "#13325A",
+      "$description": "raised surface on navy (success box on dark)"
+    },
+    "navy-100": {
+      "$type": "color",
+      "$value": "#EAF0F7",
+      "$description": "chips, icon tiles"
+    },
+    "navy-50": {
+      "$type": "color",
+      "$value": "#F1F4F8",
+      "$description": "tinted sections"
+    },
+    "gold-500": {
+      "$type": "color",
+      "$value": "#F2B544",
+      "$description": "brand gold: accents, CTA buttons (navy text on top)"
+    },
+    "gold-300": {
+      "$type": "color",
+      "$value": "#F7D48F",
+      "$description": "disabled CTA"
+    },
+    "gold-200": {
+      "$type": "color",
+      "$value": "#F3E2B8",
+      "$description": "border on gold tint"
+    },
+    "gold-100": {
+      "$type": "color",
+      "$value": "#FDF1D8",
+      "$description": "badge / chip fill"
+    },
+    "gold-50": {
+      "$type": "color",
+      "$value": "#FBF6EA",
+      "$description": "callout fill"
+    },
+    "gold-800": {
+      "$type": "color",
+      "$value": "#8A5B00",
+      "$description": "gold-ish TEXT on light backgrounds (eyebrows) — 5.6:1"
+    },
+    "gold-900": {
+      "$type": "color",
+      "$value": "#7A5100",
+      "$description": "text on gold-100 / gold-50"
+    },
+    "ink": {
+      "$type": "color",
+      "$value": "#33445A",
+      "$description": "body text on light — ~9:1"
+    },
+    "on-dark": {
+      "$type": "color",
+      "$value": "#C3CDDA",
+      "$description": "body text on navy-900"
+    },
+    "line": {
+      "$type": "color",
+      "$value": "#E2E5EA",
+      "$description": "borders, dividers"
+    },
+    "line-strong": {
+      "$type": "color",
+      "$value": "#D5DBE3"
+    },
+    "line-subtle": {
+      "$type": "color",
+      "$value": "#EEF0F3",
+      "$description": "dividers and tracks inside cards"
+    },
+    "field-muted": {
+      "$type": "color",
+      "$value": "#F4F5F7",
+      "$description": "input fill while submitting"
+    },
+    "paper": {
+      "$type": "color",
+      "$value": "#FBFAF7",
+      "$description": "page background (warm off-white)"
+    },
+    "danger-on-dark": {
+      "$type": "color",
+      "$value": "#FDA29B",
+      "$description": "error text/border on navy"
+    },
+    "navy-700": {
+      "$type": "color",
+      "$value": "#1A3D69",
+      "$description": "surface-tertiary on dark"
+    },
+    "line-on-dark": {
+      "$type": "color",
+      "$value": "#1F3B60"
+    },
+    "muted-on-dark": {
+      "$type": "color",
+      "$value": "#93A3B8"
+    },
+    "heading-on-dark": {
+      "$type": "color",
+      "$value": "#F4F6F9"
+    }
+  },
+  "font": {
+    "display": {
+      "$type": "fontFamily",
+      "$value": "var(--font-newsreader), Georgia, \"Times New Roman\", serif"
+    },
+    "sans": {
+      "$type": "fontFamily",
+      "$value": "var(--font-figtree), ui-sans-serif, system-ui, sans-serif"
+    },
+    "logo": {
+      "$type": "fontFamily",
+      "$value": "var(--font-inter), Arial, Helvetica, sans-serif",
+      "$description": "wordmark only"
+    }
+  },
+  "text": {
+    "$description": "Fluid display sizes (match the design's clamp() values). Each becomes --text-<name> plus --line-height and --letter-spacing modifiers.",
+    "display-xl": {
+      "$type": "typography",
+      "$value": {
+        "fontSize": "clamp(2.75rem, 6.2vw, 5rem)",
+        "lineHeight": "1.02",
+        "letterSpacing": "-0.02em"
+      },
+      "$description": "hero h1: 44 → 80px"
+    },
+    "display-lg": {
+      "$type": "typography",
+      "$value": {
+        "fontSize": "clamp(2.25rem, 4.6vw, 3.75rem)",
+        "lineHeight": "1.06",
+        "letterSpacing": "-0.015em"
+      },
+      "$description": "closing CTA h2: 36 → 60px"
+    },
+    "display-md": {
+      "$type": "typography",
+      "$value": {
+        "fontSize": "clamp(2.125rem, 4.2vw, 3.375rem)",
+        "lineHeight": "1.08",
+        "letterSpacing": "-0.015em"
+      },
+      "$description": "section h2: 34 → 54px"
+    },
+    "display-sm": {
+      "$type": "typography",
+      "$value": {
+        "fontSize": "clamp(1.5rem, 2.4vw, 1.875rem)",
+        "lineHeight": "1.3"
+      },
+      "$description": "mission/vision quotes: 24 → 30px"
+    },
+    "lead": {
+      "$type": "typography",
+      "$value": {
+        "fontSize": "clamp(1.0625rem, 1.5vw, 1.25rem)",
+        "lineHeight": "1.6"
+      },
+      "$description": "hero paragraphs: 17 → 20px"
+    }
+  },
+  "radius": {
+    "control": {
+      "$type": "dimension",
+      "$value": "10px",
+      "$description": "inputs, buttons"
+    },
+    "tile": {
+      "$type": "dimension",
+      "$value": "12px",
+      "$description": "icon tiles, callouts"
+    },
+    "card": {
+      "$type": "dimension",
+      "$value": "16px",
+      "$description": "feature cards"
+    },
+    "panel": {
+      "$type": "dimension",
+      "$value": "18px",
+      "$description": "large panels, product illustrations"
+    }
+  },
+  "shadow": {
+    "float": {
+      "$type": "shadow",
+      "$value": "0 1px 2px rgb(11 35 65 / 0.06), 0 24px 48px -16px rgb(11 35 65 / 0.22)"
+    },
+    "focus": {
+      "$type": "shadow",
+      "$value": "0 0 0 4px rgb(242 181 68 / 0.45)",
+      "$description": "focus ring (gold halo)"
+    }
+  }
+}
