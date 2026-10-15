@@ -3,7 +3,6 @@ import {
   ClockIcon,
   DocumentTextIcon,
   EnvelopeIcon,
-  UserGroupIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
 import { getTranslations } from "next-intl/server";
@@ -18,6 +17,7 @@ import {
   NeedsAttentionCard,
   NeedsAttentionCardSkeleton,
 } from "./_components/needs-attention-card";
+import { NoGroupsCard } from "./_components/no-groups-card";
 import { RecentApplicationsCard } from "./_components/recent-applications-card";
 import { StatTile } from "./_components/stat-tile";
 
@@ -26,17 +26,16 @@ import {
   getRecentApplicationsCount,
 } from "@/api/applications-membership-api/client";
 import { listInvites, listUsers } from "@/api/auth-api/client";
+import { listSmallGroups } from "@/api/small-groups-api/client";
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
-import { EmptyState } from "@/components/empty-state";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { AuthRole, STAFF_ADMIN_ROLES } from "@/lib/auth/roles";
 import { mapSettled, settle } from "@/lib/settle";
 
 export default async function DashboardPage() {
-  const [session, t, tGroups] = await Promise.all([
+  const [session, t] = await Promise.all([
     getServerSession(),
     getTranslations("DashboardPage"),
-    getTranslations("GroupsPage"),
   ]);
 
   // The (app) layout already redirects without a session; this narrows the type.
@@ -61,6 +60,7 @@ export default async function DashboardPage() {
     (list) => list.filter((application) => !application.isFulfilled).length,
   );
 
+  const groups = settle(listSmallGroups());
   let pendingUsers = null;
   let openInvites = null;
 
@@ -152,9 +152,9 @@ export default async function DashboardPage() {
                 />
               </Suspense>
             )}
-            <EmptyState icon={UserGroupIcon} title={tGroups("emptyTitle")}>
-              {tGroups("emptyBody")}
-            </EmptyState>
+            <Suspense fallback={null}>
+              <NoGroupsCard groups={groups} />
+            </Suspense>
           </div>
         </div>
       </div>
