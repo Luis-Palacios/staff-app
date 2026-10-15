@@ -21,6 +21,9 @@ import { normalizeText } from "@/lib/normalize-text";
 const MAX_RESULTS = 6;
 const ALL_ROLES: SmallGroupRole[] = ["member", "co_leader", "leader"];
 
+// Scoped users can't assign the leader (rule 9); same order as above.
+export const SCOPED_ADD_ROLES: SmallGroupRole[] = ["member", "co_leader"];
+
 function AddMemberForm({
   group,
   roles,

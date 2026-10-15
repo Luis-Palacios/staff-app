@@ -38,18 +38,48 @@ that differs from the boards in the progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Access helper, errors and nav | 🟨 code done; browser check per role pending | (this commit) |
-| 2. Groups list: *My groups* and empty states | ⬜ | |
-| 3. Group detail and edit: leader controls | ⬜ | |
-| 4. Dashboard by role | ⬜ | |
-| 5. Review pass | ⬜ | |
+| 1. Access helper, errors and nav | ✅ | 38b0870 |
+| 2. Groups list: *My groups* and empty states | ✅ | a0d6c58 |
+| 3. Group detail and edit: leader controls | ✅ | 9007046 (+ fixes in stage 5) |
+| 4. Dashboard by role | ✅ | 9e0db41 |
+| 5. Review pass | ✅ | (this commit) |
 
 ### Decisions and deviations
 
 - Stage 1: added `lib/auth/small-group-access.ts` (`getCurrentSmallGroupAccess()`, server-only, reads
   the session role) so the four group pages share one guard instead of repeating the session read.
+- Stages 1-4 were written first and the per-role browser pass was done once at the end (Stage 5),
+  not after each stage.
 - Stage 1: the sidebar filters with `item.access` typed through `NavItem` (the `satisfies` literal
   otherwise narrows `access` to `"full" | "scoped"`).
+- Stage 5 fix: in the member rows the role badge and the menu slot now sit in one wrapper, so they
+  wrap together. Without it the empty slot on a row with no menu wrapped onto its own line at 390
+  and 1024 and left a blank band. Side effect for full roles: at 390 the ⋯ no longer sits alone on a
+  second line away from the badge. Same look at 1440.
+- Stage 5 fix: the add dialog offers Member then Co-leader for scoped users (it had reused the menu's
+  Co-leader, Member order).
+- Test data (dev DBs): auth users `sgla-admin|leader|deacon|user@example.test` (verified, roles
+  set), members 105-108 (`Test Leader` linked to `sgla-leader`), groups `SGLA Alpha` (leader leads),
+  `SGLA Beta` (leader co-leads), `SGLA Gamma` (out of scope), `SGLA Delta` (leader's, closed).
+  Delete them when done.
+
+### Review pass (stage 5)
+
+Checked in the browser, signed in as each role. English and Spanish and light and dark were both
+covered, but not every combination; 390 and 1024 were checked on the group detail page only (a
+same-origin iframe at those widths, Spanish + dark); 1440 on the rest.
+
+- admin: list, detail (menus on every row, Close card), unchanged.
+- leader: *My groups* (Active 2 / Closed 1), no New group; detail of Alpha and Beta with no menu on
+  the leader's or own row; menu offers Co-leader / Member; add dialog Member / Co-leader; edit page
+  loads; Gamma is the 404 page; Delta (closed) is read-only; `/groups/new` is the 404 page.
+- deacon, no member: *not linked* empty state, dashboard without a groups nudge.
+- user: no Groups in the nav; `/groups`, `/groups/29` are the 404 page; the dashboard no longer
+  raises the 403 it did before Stage 4.
+- Not exercised in the browser: the *You don't lead a group yet* empty state (same code path as
+  *not linked*, other copy); the member-route 403 messages (the UI hides what triggers them);
+  actually saving an edit or adding a member as a leader; the Spanish copy of the groups list and
+  empty state at 390 and 1024.
 
 ## Token changes
 
@@ -190,14 +220,14 @@ Reconcile with existing keys instead of duplicating them (e.g. role names come f
 
 Run after implementation. Record findings in the progress log.
 
-- [ ] `admin`/`elder`: groups list, detail, edit, new, dashboard look and behave exactly as before.
-- [ ] Leader: list titled *My groups*, only their groups, no **New group**; detail has no Close
+- [x] `admin`/`elder`: groups list, detail, edit, new, dashboard look and behave exactly as before.
+- [x] Leader: list titled *My groups*, only their groups, no **New group**; detail has no Close
       card; no menu on the leader's or their own row; role choices Member / Co-leader in the menu
       and the add dialog; edit works; an out-of-scope `/groups/{id}` is the 404 page.
-- [ ] Deacon with no member: *not linked* empty state; dashboard shows no groups nudge.
-- [ ] `user`: no Groups in the nav; `/groups` and `/groups/1` are the 404 page; dashboard renders
+- [x] Deacon with no member: *not linked* empty state; dashboard shows no groups nudge.
+- [x] `user`: no Groups in the nav; `/groups` and `/groups/1` are the 404 page; dashboard renders
       with no error section.
-- [ ] Rows without a menu stay aligned with rows that have one, at 1440 / 1024 / 390.
-- [ ] Light and dark; English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals`
+- [x] Rows without a menu stay aligned with rows that have one, at 1440 / 1024 / 390.
+- [x] Light and dark; English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals`
       is clean); `messages/parity.ts` passes.
-- [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+- [x] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
