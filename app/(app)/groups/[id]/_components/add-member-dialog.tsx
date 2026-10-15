@@ -5,7 +5,7 @@ import type { MemberSummary } from "@/api/members-api/types";
 import type { SmallGroupDetail } from "@/api/small-groups-api/types";
 import type { Key, SubmitEvent } from "react";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { Button, ComboBox, Input, Label, ListBox, Modal } from "@heroui/react";
 import clsx from "clsx";
@@ -38,6 +38,7 @@ function AddMemberForm({
   const t = useTranslations("GroupMembers");
   const tRole = useTranslations("SmallGroupRole");
   const [isPending, startTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState("");
   const [selected, setSelected] = useState<MemberSummary | null>(null);
   const [role, setRole] = useState<SmallGroupRole>("member");
@@ -108,6 +109,14 @@ function AddMemberForm({
     });
   }
 
+  // The form remounts on every open. The modal puts focus on the dialog itself,
+  // so move it to the search once that has happened.
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => inputRef.current?.focus());
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
   let emptyText = t("noResults");
 
   if (members === null) emptyText = t("loading");
@@ -116,7 +125,9 @@ function AddMemberForm({
   return (
     <form onSubmit={handleSubmit}>
       <Modal.Header className="flex-col items-start gap-1">
-        <Modal.Heading>{t("dialogTitle")}</Modal.Heading>
+        <Modal.Heading className="font-display text-2xl font-medium text-heading">
+          {t("dialogTitle")}
+        </Modal.Heading>
         <p className="text-sm font-normal text-muted">
           {t("dialogSubtitle", { group: group.name })}
         </p>
@@ -138,7 +149,11 @@ function AddMemberForm({
             {t("memberLabel")}
           </Label>
           <ComboBox.InputGroup>
-            <Input autoComplete="off" placeholder={t("memberPlaceholder")} />
+            <Input
+              ref={inputRef}
+              autoComplete="off"
+              placeholder={t("memberPlaceholder")}
+            />
             <ComboBox.Trigger />
           </ComboBox.InputGroup>
           <ComboBox.Popover>

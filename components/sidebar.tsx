@@ -10,6 +10,7 @@ import type {
 import { Disclosure } from "@heroui/react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
 import {
@@ -101,10 +102,22 @@ const CollapsibleItem = ({
   const t = useTranslations("Nav");
   const Icon = resolveIcon(item.icon);
   const children = item.items ?? [];
-  const hasActiveChild = children.some((child) => pathname === child.href);
+  // The child with the longest matching href wins, so `/groups/6` marks List
+  // while `/groups/reports` still marks Reports (not both).
+  const activeHref = children
+    .filter((child) => isActivePath(pathname, child.href))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+  const hasActiveChild = activeHref !== undefined;
+  const [expanded, setExpanded] = useState(hasActiveChild);
+
+  // Opens when navigation lands inside the group; never force-closes it, so a
+  // group the user opened by hand stays open.
+  useEffect(() => {
+    if (hasActiveChild) setExpanded(true);
+  }, [hasActiveChild]);
 
   return (
-    <Disclosure defaultExpanded={hasActiveChild}>
+    <Disclosure isExpanded={expanded} onExpandedChange={setExpanded}>
       <Disclosure.Trigger
         // A group never gets the filled active state: only its icon turns
         // gold, and the active child carries the highlight.
@@ -118,7 +131,7 @@ const CollapsibleItem = ({
         <Disclosure.Body className="!p-0 !pt-0.5 !pb-1.5">
           <ul className="ml-[22px] flex flex-col gap-0.5 border-l border-white/12 pl-3.5">
             {children.map((child) => {
-              const active = pathname === child.href;
+              const active = child.href === activeHref;
 
               return (
                 <li key={child.href}>

@@ -64,6 +64,7 @@ each stage, write a short summary of what changed and anything that differs from
 | 5. Member management (add, role, leader swap, remove) | [x] | (this commit) |
 | 6. Close group | [x] | (this commit) |
 | 7. Links from elsewhere + docs | [x] | (this commit) |
+| 8. Review fixes | [x] | (this commit) |
 
 ### Decisions and deviations
 
@@ -126,6 +127,20 @@ add an "{n} active groups" link, as the spec allowed. The Close wording was chan
 every membership today" to "Removes every member from the group today" (and the confirm text to match), since
 "membership" read like church membership; the API only ends each person's time in that group. Verification: Luis tried every stage by hand against the local API, in light and dark, at 1440 / 1024 / 390
 and in English and Spanish; nothing was scripted. The weekday short labels are messages, not `Intl`.
+
+**Stage 8.** (1) `SavedToast` now drops `?saved=` with `router.replace(pathname + remaining query, { scroll: false })`
+(client `usePathname`/`useRouter`; the query is read from `window.location.search` to avoid a Suspense boundary);
+member create/edit use the same component, so they get the fix too. (2) The sidebar picks the child with the longest
+`isActivePath` match and the group is controlled (`isExpanded`): it opens whenever a child matches, and never closes
+itself. (3) The add-member search is focused from a ref on mount (one `requestAnimationFrame`, after the modal takes
+focus) because `autoFocus` is banned by lint; the heading is `font-display text-2xl font-medium`. (4) Reworded the remove
+confirm and closed note in en/es; the es remove text also avoids the gendered "agregarlo". (5) Group names on the member
+detail use `textLink()`. (6) Toasts moved to bottom-center (all screen sizes), which clears the Close button in the right
+column. (7) 390px checked by loading the app in a 390px-wide iframe (Chrome won't shrink below ~500px): the list is one column, the detail
+cards stack, the add-member dialog and the ⋯ menu fit inside the viewport. The ⋯ button wraps below the name on a member row at that width
+(not changed). Checked in the browser (Spanish, light, local API): sidebar highlights List and expands on `/groups/1` and `/groups/new`;
+add-member search takes focus on open; create group -> `/groups/7` with no `?saved=`, and adding a member keeps the URL clean. Not
+re-checked: edit -> remove, member create/edit, dark mode, the toast position.
 
 ## The API (membership-management)
 
@@ -426,6 +441,58 @@ can't be undone. The group moves to Closed in the list, with its history." ICU p
   Don't build anything bigger there in this spec.
 - `CLAUDE.md` → *Overview*: groups has list, detail with member management, and add/edit.
 - Mark the stages above done and finish *Decisions and deviations*.
+
+## Review follow-ups (browser review, 2026-10-14)
+
+Reviewed in Chrome against the local API at 1434px, light and dark, English and Spanish, on a new
+test group (#6). Working as specified: list tabs (URL survives reload), accent-insensitive search
+on leader and address, empty-search message, closed cards; create (name error, "Group created"),
+edit (day chips with arrow keys and the gold focus ring, "Changes saved"); add member (search,
+"Already in this group", Leader hint, add as leader with and without a current leader), ⋯ menu
+role change with the leader-swap confirm (focus returns to the row's ⋯), remove, close (confirm,
+closed state, read-only, `/edit` redirects to the detail); member detail links to its groups;
+dark mode; Spanish copy. Not checked: 390px (the window couldn't be resized).
+
+The wrong **join/close dates** ("Joined October 15" on Oct 14 evening) are an API bug, fixed in
+`membership-management/docs/SMALL-GROUPS-API-HANDOFF.md` Stage 5; nothing to change here for it.
+
+## Stage 8: Review fixes
+
+1. **Stale `?saved=` comes back after member actions (bug).** After creating a group, any member
+   action (add, swap, remove) puts `?saved=created` back in the address bar, so a reload shows
+   "Group created" again. `SavedToast` drops the param with `history.replaceState`, but Next's
+   router still holds the old URL and restores it when the action revalidates/refreshes.
+   Remove it through the router instead (`router.replace(pathname, { scroll: false })` with
+   `usePathname`/`useSearchParams`), and check the members pages that use the same component.
+   **Done when:** create a group → add a member → the URL has no `?saved=` and a reload shows no
+   toast; the same for edit → remove, and for member create/edit.
+2. **Sidebar doesn't mark Groups on sub-pages.** On `/groups/{id}`, `/groups/new` and
+   `/groups/{id}/edit` the Groups disclosure is collapsed and nothing is highlighted
+   (`components/sidebar.tsx` matches children with `pathname === child.href`). Pick the child
+   whose `href` is the **longest** prefix match (`pathname === href || pathname.startsWith(href + "/")`),
+   so `/groups/6` marks List and `/groups/reports` still marks Reports (a plain `startsWith` would
+   mark both), and expand the group when any child matches.
+   **Done when:** List is active and Groups expanded on every `/groups/...` page except
+   `/groups/reports`, where Reports is active; other sections unchanged.
+3. **Add-member dialog: focus and title.** Opening the dialog leaves focus on the dialog, not the
+   Member search, so typing right away goes nowhere: autofocus the combobox input on open. The title
+   is plain sans; the canvas (`GroupDetail-AddMember`) uses the Newsreader heading (24px, weight 500)
+   like the confirm dialogs' titles — match it.
+4. **"Membership" wording.** Stage 7 reworded the close copy to avoid "membership" (reads like church
+   membership). Two strings still use it: the remove confirm ("Their membership ends today and stays
+   in their history…") and the closed-group note ("Its memberships ended that day…" /
+   "Sus membresías terminaron ese día…"). Reword both in the same spirit, e.g. "They leave the group
+   today; their time in it stays in their history. You can add them back later." and "Everyone left
+   the group that day. Each person's time in it stays in their history." (es: "Salen del grupo hoy…",
+   "Ese día todos salieron del grupo…").
+5. **Group links on the member detail don't look like links.** In "Current groups & roles" the
+   names link to `/groups/{id}` but have no affordance; use `textLink()` (or at least an underline on
+   hover/focus-visible plus the focus halo).
+6. **Toast covers the Close button.** The bottom-right action toast sits over "Close group…" for
+   its 4 s. Either move toasts to bottom-center on wide screens or offset them from the right column;
+   note which.
+7. After these, check **390px** by hand (list one column, detail cards stacked, dialogs fit, ⋯ menu
+   inside the viewport).
 
 ## Not in this spec
 

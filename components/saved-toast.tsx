@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   CheckCircleIcon,
@@ -9,8 +10,10 @@ import {
 const VISIBLE_MS = 4000;
 
 // "Member added" / "Changes saved" after a save redirects here with
-// `?saved=…`. The param is dropped right away so a reload doesn't show the
-// toast again; the toast itself disappears after a few seconds. The text
+// `?saved=…`. The param is dropped right away, through the router (not
+// `history.replaceState`, which Next's router would undo on the next refresh),
+// so a reload doesn't show the toast again; the toast itself disappears after
+// a few seconds. The text
 // arrives as a prop, so no client namespace is needed.
 export function SavedToast({
   message,
@@ -23,25 +26,32 @@ export function SavedToast({
   const Icon = tone === "danger" ? ExclamationCircleIcon : CheckCircleIcon;
 
   const [visible, setVisible] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const url = new URL(window.location.href);
+    const params = new URLSearchParams(window.location.search);
 
-    if (url.searchParams.has("saved")) {
-      url.searchParams.delete("saved");
-      window.history.replaceState(window.history.state, "", url);
+    if (params.has("saved")) {
+      params.delete("saved");
+
+      const query = params.toString();
+
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
     }
 
     const timer = window.setTimeout(() => setVisible(false), VISIBLE_MS);
 
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [pathname, router]);
 
   if (!visible) return null;
 
   return (
     <div
-      className="fixed bottom-6 right-6 z-50 flex max-w-[calc(100vw-3rem)] items-center gap-2.5 rounded-xl bg-[#13325A] px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow-float)]"
+      className="fixed bottom-6 left-1/2 z-50 flex w-max max-w-[calc(100vw-3rem)] -translate-x-1/2 items-center gap-2.5 rounded-xl bg-[#13325A] px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow-float)]"
       role={tone === "danger" ? "alert" : "status"}
     >
       <Icon

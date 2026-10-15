@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import NextLink from "next/link";
 
 import { DetailCardHeading } from "@/app/(app)/applications/[id]/_components/detail-card-heading";
-import { card } from "@/components/primitives";
+import { card, textLink } from "@/components/primitives";
 import { StatusBadge, type StatusBadgeProps } from "@/components/status-badge";
 import { formatCalendarDate } from "@/lib/format-date";
 
@@ -60,7 +60,7 @@ export function MemberGroupsCard({
               </span>
               <div className="flex min-w-0 flex-[1_1_160px] flex-col">
                 <NextLink
-                  className="break-words text-[15px] font-semibold text-heading hover:underline"
+                  className={textLink({ className: "break-words text-[15px]" })}
                   href={`/groups/${group.smallGroupId}`}
                 >
                   {group.smallGroupName}
