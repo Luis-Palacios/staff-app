@@ -151,10 +151,10 @@
       "confirm": "Quitar"
     },
     "toasts": {
-      "added": "{name} agregado",
+      "added": "Se agregó a {name} al grupo",
       "roleChanged": "Rol cambiado",
       "leaderSet": "{name} ahora es líder",
-      "removed": "{name} quitado del grupo"
+      "removed": "Se quitó a {name} del grupo"
     },
     "errors": {
       "closed": "Este grupo está cerrado, así que no se puede cambiar.",
@@ -535,7 +535,7 @@
     "columnStatus": "Estado",
     "columnSent": "Enviada",
     "columnActions": "Acciones",
-    "invitedBy": "Invitado por {name}",
+    "invitedBy": "Invitación de {name}",
     "empty": "Aún no se han enviado invitaciones."
   },
   "CancelInviteButton": {

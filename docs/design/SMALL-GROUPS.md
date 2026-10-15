@@ -141,6 +141,7 @@ cards stack, the add-member dialog and the ⋯ menu fit inside the viewport. The
 (not changed). Checked in the browser (Spanish, light, local API): sidebar highlights List and expands on `/groups/1` and `/groups/new`;
 add-member search takes focus on open; create group -> `/groups/7` with no `?saved=`, and adding a member keeps the URL clean. Not
 re-checked: edit -> remove, member create/edit, dark mode, the toast position.
+Spanish toasts use impersonal "Se agregó a / Se quitó a {name}" so they don't assume gender; apply the same rule to future person-name strings.
 
 ## The API (membership-management)
 
