@@ -64,6 +64,45 @@
       "sunday": "los domingos"
     }
   },
+  "GroupFormPage": {
+    "newTitle": "Nuevo grupo pequeño",
+    "newDescription": "Ponle un nombre al grupo y, si los sabes, su día y lugar de reunión.",
+    "editTitle": "Editar grupo",
+    "editCrumb": "Editar",
+    "editDescription": "Actualiza cuándo y dónde se reúne el grupo. Los miembros y sus roles se gestionan en la página del grupo."
+  },
+  "GroupForm": {
+    "eyebrow": "Grupo",
+    "heading": "Nombre, día y lugar",
+    "name": "Nombre del grupo",
+    "nameHelp": "Normalmente, las personas a quienes va dirigido y el barrio.",
+    "meetingDay": "Día de reunión",
+    "meetingDayHelp": "Opcional. Elige \"Sin definir\" si cambia de una semana a otra.",
+    "dayNotSet": "Sin definir",
+    "days": {
+      "monday": "Lun",
+      "tuesday": "Mar",
+      "wednesday": "Mié",
+      "thursday": "Jue",
+      "friday": "Vie",
+      "saturday": "Sáb",
+      "sunday": "Dom"
+    },
+    "address": "Dirección de reunión",
+    "addressPlaceholder": "Barrio, indicaciones, ciudad",
+    "addressHelp": "Opcional. Donde el grupo se reúne normalmente.",
+    "newNote": "Después de crear el grupo, agrega a su líder y a sus miembros desde la página del grupo.",
+    "required": "Obligatorio",
+    "cancel": "Cancelar",
+    "create": "Crear grupo",
+    "save": "Guardar cambios",
+    "alertTitle": "No se guardó este grupo",
+    "alertBody": "Corrige {count, plural, one {el campo marcado} other {los # campos marcados}} abajo y vuelve a intentarlo.",
+    "errors": {
+      "nameRequired": "Escribe un nombre para el grupo.",
+      "addressTooLong": "Usa menos de 255 caracteres en la dirección."
+    }
+  },
   "GroupSavedToast": {
     "created": "Grupo creado",
     "updated": "Cambios guardados"

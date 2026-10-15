@@ -22,6 +22,7 @@ export const CLIENT_NAMESPACES = [
   "DataTable",
   "ErrorState",
   "ForgotPasswordForm",
+  "GroupForm",
   "GroupsBrowser",
   "InviteStatus",
   "InvitesTable",
