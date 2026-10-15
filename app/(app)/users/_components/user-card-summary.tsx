@@ -1,6 +1,7 @@
 import type { AdminUserListItem } from "@/api/auth-api/types";
 import type { LinkedMembers } from "./users-browser";
 
+import NextLink from "next/link";
 import { useTranslations } from "next-intl";
 
 import { AssignPendingRole } from "./assign-pending-role";
@@ -10,7 +11,7 @@ import { UserStatusChips } from "./user-status-chips";
 
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { LocalDate } from "@/components/local-date";
-import { card } from "@/components/primitives";
+import { card, textLink } from "@/components/primitives";
 
 // Mobile stand-in for a table row: avatar, name and email, then the role and
 // status badges with the join date, and the role picker for pending users.
@@ -54,6 +55,14 @@ export default function UserCardSummary({
           {t("banReason", { reason: user.banReason })}
         </p>
       )}
+      <div className="pl-12">
+        <NextLink
+          className={textLink({ className: "text-sm" })}
+          href={`/users/${user.id}`}
+        >
+          {t("open")}
+        </NextLink>
+      </div>
       {isPending && (
         <div className="pl-12">
           <AssignPendingRole userId={user.id} userName={user.name} />
