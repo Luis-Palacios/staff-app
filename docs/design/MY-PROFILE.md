@@ -51,7 +51,7 @@ progress log below.
 | --- | --- | --- |
 | 1. Loader and session type | ✅ | see `git log` |
 | 2. Linked page | ✅ (linked layout not yet seen in browser) | see git log |
-| 3. Not-linked page, copy, sidebar | ⬜ | |
+| 3. Not-linked page, copy, sidebar | ✅ | see git log |
 | 4. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
@@ -69,6 +69,13 @@ progress log below.
   tinted background (border-top only); the header avatar has no gap ring.
 - **Stage 2, not-linked accounts:** the page renders the header and sign-in card only; the Member
   profile card and single-column layout come in Stage 3.
+- **Stage 3, not-linked page:** `MyAccountCard` got an optional `stacked` prop (single column, rows
+  divided, no footer); new `MyMemberCard` holds the heading, `Not linked` badge, copy and the link button
+  (admin/elder) or the ask-an-admin callout (others). `{church}` comes from `getChurchContext()`.
+- **Stage 3, sidebar:** `isActivePath` in `components/sidebar.tsx` returns false for `/users/me`, so
+  Access › Users no longer lights up there.
+- **Stage 3, metadata and loading:** `generateMetadata` gives the tab title "My profile"; `users/me/loading.tsx`
+  is a header skeleton plus two card skeletons.
 
 ## Token changes
 
