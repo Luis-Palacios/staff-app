@@ -40,7 +40,13 @@
     "title": "Small groups",
     "description": "Where members meet during the week. Open a group to see its people and manage who leads it.",
     "emptyTitle": "No groups yet",
-    "emptyBody": "Create a group, then add its leader and members from the group's page."
+    "emptyBody": "Create a group, then add its leader and members from the group's page.",
+    "myTitle": "My groups",
+    "myDescription": "The small groups you lead or co-lead. Open one to see its people and update its details.",
+    "notLinkedTitle": "Your account isn’t linked to a member",
+    "notLinkedBody": "Your groups show up here once an admin or elder links your account to your member profile.",
+    "noLedGroupsTitle": "You don’t lead a group yet",
+    "noLedGroupsBody": "Groups you lead or co-lead show up here. Ask an admin or elder to add you as a leader."
   },
   "NewGroupLink": {
     "label": "New group",

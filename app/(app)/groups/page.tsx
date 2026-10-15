@@ -17,18 +17,19 @@ export default async function GroupsPage() {
   if (access === "none") notFound();
 
   const t = await getTranslations("GroupsPage");
+  const scoped = access === "scoped";
 
   return (
     <>
       <StaffAppPageHeader
-        actions={<NewGroupLink variant="primary" />}
+        actions={scoped ? undefined : <NewGroupLink variant="primary" />}
         breadcrumbs={[groupsBreadcrumb]}
-        description={t("description")}
-        title={t("title")}
+        description={scoped ? t("myDescription") : t("description")}
+        title={scoped ? t("myTitle") : t("title")}
       />
       <section className="flex flex-col gap-4">
         <Suspense fallback={<GroupsListSkeleton />}>
-          <GroupsList />
+          <GroupsList scoped={scoped} />
         </Suspense>
       </section>
     </>
