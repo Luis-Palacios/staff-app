@@ -29,7 +29,11 @@ import { listInvites, listUsers } from "@/api/auth-api/client";
 import { listSmallGroups } from "@/api/small-groups-api/client";
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
-import { AuthRole, STAFF_ADMIN_ROLES } from "@/lib/auth/roles";
+import {
+  AuthRole,
+  getSmallGroupAccess,
+  STAFF_ADMIN_ROLES,
+} from "@/lib/auth/roles";
 import { mapSettled, settle } from "@/lib/settle";
 
 export default async function DashboardPage() {
@@ -47,6 +51,9 @@ export default async function DashboardPage() {
   // because listUsers and listInvites 403 for every other role. Replace it with
   // the Phase 9 role→permission model.
   const isStaffAdmin = STAFF_ADMIN_ROLES.includes(session.user.role);
+  // Only full roles get the "create the first group" nudge, and `none` would get a 403 from the
+  // groups call, so it isn't made. Scoped users see their groups on the Groups page.
+  const showGroupsNudge = getSmallGroupAccess(session.user.role) === "full";
   const firstName = session.user.name.trim().split(/\s+/)[0] ?? "";
 
   // Start every fetch now and await none of them here, so they run in
@@ -60,7 +67,7 @@ export default async function DashboardPage() {
     (list) => list.filter((application) => !application.isFulfilled).length,
   );
 
-  const groups = settle(listSmallGroups());
+  const groups = showGroupsNudge ? settle(listSmallGroups()) : null;
   let pendingUsers = null;
   let openInvites = null;
 
@@ -152,9 +159,11 @@ export default async function DashboardPage() {
                 />
               </Suspense>
             )}
-            <Suspense fallback={null}>
-              <NoGroupsCard groups={groups} />
-            </Suspense>
+            {groups && (
+              <Suspense fallback={null}>
+                <NoGroupsCard groups={groups} />
+              </Suspense>
+            )}
           </div>
         </div>
       </div>
