@@ -16,7 +16,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
-import { AddMemberDialog } from "./add-member-dialog";
+import { AddMemberDialog, SCOPED_ADD_ROLES } from "./add-member-dialog";
 import { MemberRowMenu, ROLES, SCOPED_ROLES } from "./member-row-menu";
 
 import {
@@ -221,23 +221,26 @@ export function GroupMembersCard({
                   })}
                 </span>
               </div>
-              <StatusBadge {...ROLE_BADGE[member.role]}>
-                {tRole(member.role)}
-              </StatusBadge>
-              {scoped &&
-              (member.role === "leader" ||
-                member.memberId === currentMemberId) ? (
-                // Same size as the ⋯ button, so rows line up.
-                <span aria-hidden="true" className="size-9 shrink-0" />
-              ) : (
-                <MemberRowMenu
-                  isDisabled={isPending}
-                  member={member}
-                  roles={scoped ? SCOPED_ROLES : ROLES}
-                  onChangeRole={(role) => changeRole(member, role)}
-                  onRemove={() => setRemoveTarget(member)}
-                />
-              )}
+              {/* Badge and menu slot wrap as one unit, so a row without a menu doesn't leave a blank line. */}
+              <div className="flex shrink-0 items-center gap-3.5">
+                <StatusBadge {...ROLE_BADGE[member.role]}>
+                  {tRole(member.role)}
+                </StatusBadge>
+                {scoped &&
+                (member.role === "leader" ||
+                  member.memberId === currentMemberId) ? (
+                  // Same size as the ⋯ button, so rows line up.
+                  <span aria-hidden="true" className="size-9 shrink-0" />
+                ) : (
+                  <MemberRowMenu
+                    isDisabled={isPending}
+                    member={member}
+                    roles={scoped ? SCOPED_ROLES : ROLES}
+                    onChangeRole={(role) => changeRole(member, role)}
+                    onRemove={() => setRemoveTarget(member)}
+                  />
+                )}
+              </div>
             </li>
           ))}
         </ul>
@@ -249,7 +252,7 @@ export function GroupMembersCard({
           isOpen={adding}
           loadError={pickerError}
           members={pickerMembers}
-          roles={scoped ? SCOPED_ROLES : undefined}
+          roles={scoped ? SCOPED_ADD_ROLES : undefined}
           onAdded={(name) => {
             setAdding(false);
             showToast(tm("toasts.added", { name }));
