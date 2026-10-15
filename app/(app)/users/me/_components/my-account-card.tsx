@@ -57,7 +57,7 @@ export function MyAccountCard({
         }
       >
         <Field label={tUser("email")}>
-          <span className="break-all">{user.email}</span>
+          <span className="break-words">{user.email}</span>
           <StatusBadge
             tone={user.emailVerified ? "success" : "warning"}
             variant={user.emailVerified ? "solid-dot" : "ring-dot"}

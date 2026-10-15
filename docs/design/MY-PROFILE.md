@@ -52,7 +52,7 @@ progress log below.
 | 1. Loader and session type | ✅ | see `git log` |
 | 2. Linked page | ✅ (linked layout not yet seen in browser) | see git log |
 | 3. Not-linked page, copy, sidebar | ✅ | see git log |
-| 4. Design review fixes | ⬜ | |
+| 4. Design review fixes | 🟨 partial, see log | see git log |
 
 ### Decisions and deviations
 
@@ -76,6 +76,14 @@ progress log below.
   Access › Users no longer lights up there.
 - **Stage 3, metadata and loading:** `generateMetadata` gives the tab title "My profile"; `users/me/loading.tsx`
   is a header skeleton plus two card skeletons.
+- **Stage 4, review so far** (signed in as a linked small group leader and as an unlinked admin):
+  no color literals or new `dark:` overrides in the changed files; linked page renders in light, dark and
+  Spanish with no sideways scroll at 1024 and 390 (columns stack below `lg`); both of the leader's groups
+  link to `/groups/{id}` (the leader leads both). Fixed: the email in the sign-in card broke mid-word at
+  1024 (`break-all` → `break-words`).
+- **Stage 4, still open:** canvas comparison for the three boards; deacon, elder and `user` roles; a group
+  where the viewer is only a member (should be plain text); a link to a deleted member; focus ring and
+  keyboard order; the four canvas deviations above.
 
 ## Token changes
 
