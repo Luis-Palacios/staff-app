@@ -19,6 +19,7 @@ export interface MemberAccount {
   /** The linked user; `null` for D2 (linked, but auth-server has no such user). */
   user: AdminUserListItem | null;
   invitedEmail: string | null;
+  inviteToken: string | null;
   inviterName: string | null;
   invitedAt: string | null;
 }
@@ -36,6 +37,7 @@ export async function loadMemberAccount(
   const none = {
     user: null,
     invitedEmail: null,
+    inviteToken: null,
     inviterName: null,
     invitedAt: null,
   };
@@ -72,6 +74,7 @@ export async function loadMemberAccount(
     status: getAccountStatus(member, invites),
     canManage,
     invitedEmail: invite ? (invite.email ?? member.email) : null,
+    inviteToken: invite?.token ?? null,
     inviterName: invite?.inviterName ?? null,
     invitedAt: invite?.createdAt ?? null,
   };

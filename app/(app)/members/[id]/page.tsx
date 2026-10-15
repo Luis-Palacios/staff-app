@@ -31,7 +31,9 @@ export default async function MemberDetailPage({
         <MemberContactCard member={member} />
         <div className="flex min-w-0 flex-col gap-5">
           <MemberGroupsCard smallGroups={member.smallGroups} />
-          {account.canManage && <MemberAccountCard account={account} />}
+          {account.canManage && (
+            <MemberAccountCard account={account} member={member} />
+          )}
         </div>
       </div>
       {(saved === "created" || saved === "updated") && (

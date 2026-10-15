@@ -51,7 +51,7 @@ that differs from the canvas in the progress log below.
 | --- | --- | --- |
 | 1. API client, types, role helper, server actions | ✅ | (this commit) |
 | 2. Member detail: Account card and pill | ✅ | (this commit) |
-| 3. Dialogs: link, invite, cancel invite, unlink | ⬜ | |
+| 3. Dialogs: link, invite, cancel invite, unlink | ✅ | (this commit) |
 | 4. Add member: invite as a user | ⬜ | |
 | 5. Members list: Account column and filter | ⬜ | |
 | 6. Users list: Member column and filter | ⬜ | |
@@ -84,6 +84,22 @@ that differs from the canvas in the progress log below.
   column; the two cards lost their `flex-[n_1_340px]` sizing for it. `DetailCardHeading` gained an
   optional `id`. `lint` and `tsc` pass. **Not checked visually yet** (needs a signed-in browser:
   light/dark, 1440/1024/390, en/es).
+- Stage 2 check, done in the signed-in browser: Spanish, light and dark at desktop width are fine.
+  390 wasn't checked: the browser tool couldn't shrink the window. The Next dev overlay shows a
+  `spellCheck` hydration warning that comes from a browser extension, not from this code.
+- Stage 3: `MemberAccountActions` (client) owns the buttons, which dialog is open and the toast
+  (`SavedToast`, re-keyed per message). Link and Invite are HeroUI `Modal`s like `AddMemberDialog`;
+  Unlink and Cancel invite reuse `ConfirmDialog` (danger). The unlinked-user list is loaded by a
+  server action each time the Link dialog opens (users minus any a member points to; suggested =
+  same email). **Deviation:** the Link list is radio rows with a search box, not a combobox, so the
+  suggested match and the helper text can sit in the dialog. Invite checks `listUsers` for the typed
+  email first; if an account exists the action returns `userExists` and the dialog says to link
+  instead (with a button) rather than hiding the invite up front. Only the user's name goes to the
+  client, not the whole auth user. Tried in the browser (dark, es, member #1 without an email):
+  Invite is disabled with its hint, the Link dialog opens, lists the one unlinked user and keeps
+  **Link user** disabled until a pick; Cancel closes it. **Not exercised:** actually linking,
+  unlinking, sending or canceling an invite (they change real data and send email), so the
+  server-side `Origin`/cookie call to `invite/create` is still unconfirmed. `lint` and `tsc` pass.
 
 ## Token changes
 
