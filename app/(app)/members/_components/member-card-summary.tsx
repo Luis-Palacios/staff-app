@@ -1,7 +1,10 @@
 import type { MemberSummary } from "@/api/members-api/types";
+import type { AccountStatus } from "@/lib/members/account";
 
 import NextLink from "next/link";
 import { useTranslations } from "next-intl";
+
+import { AccountStatusCell } from "./account-status-cell";
 
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { card } from "@/components/primitives";
@@ -10,8 +13,11 @@ import { card } from "@/components/primitives";
 // lines that exist. The whole card is the link.
 export default function MemberCardSummary({
   member,
+  status,
 }: {
   member: MemberSummary;
+  /** Absent for roles that can't see links. */
+  status?: AccountStatus;
 }) {
   const t = useTranslations("MembersBrowser");
 
@@ -33,6 +39,7 @@ export default function MemberCardSummary({
             {t("memberNumber", { id: String(member.id) })}
           </span>
         </span>
+        {status && <AccountStatusCell status={status} />}
       </span>
       {(member.email || member.phone) && (
         <span className="flex flex-col gap-0.5 pl-12 text-[13px] text-muted">

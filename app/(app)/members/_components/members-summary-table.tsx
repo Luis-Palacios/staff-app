@@ -1,9 +1,12 @@
 "use client";
 
 import type { MemberSummary } from "@/api/members-api/types";
+import type { AccountStatus } from "@/lib/members/account";
 
 import { Table } from "@heroui/react";
 import { useTranslations } from "next-intl";
+
+import { AccountStatusCell } from "./account-status-cell";
 
 import {
   DataTableFooter,
@@ -14,8 +17,10 @@ import {
 
 export default function MembersSummaryTable({
   data,
+  accounts,
 }: {
   data: MemberSummary[];
+  accounts?: Record<number, AccountStatus>;
 }) {
   const t = useTranslations("MembersBrowser");
   const { root, column, row, cell } = dataTable();
@@ -30,13 +35,21 @@ export default function MembersSummaryTable({
       variant="secondary"
     >
       <Table.ScrollContainer>
-        <Table.Content aria-label={t("tableLabel")} className="min-w-[760px]">
+        <Table.Content
+          aria-label={t("tableLabel")}
+          className={accounts ? "min-w-[880px]" : "min-w-[760px]"}
+        >
           <Table.Header>
             <Table.Column isRowHeader className={column()}>
               {t("columnMember")}
             </Table.Column>
             <Table.Column className={column()}>{t("columnEmail")}</Table.Column>
             <Table.Column className={column()}>{t("columnPhone")}</Table.Column>
+            {accounts && (
+              <Table.Column className={column()}>
+                {t("columnAccount")}
+              </Table.Column>
+            )}
             <Table.Column className={column()}>
               <span className="sr-only">{t("columnActions")}</span>
             </Table.Column>
@@ -68,6 +81,13 @@ export default function MembersSummaryTable({
                   >
                     {member.phone ?? notProvided}
                   </Table.Cell>
+                  {accounts && (
+                    <Table.Cell className={cell()}>
+                      <AccountStatusCell
+                        status={accounts[member.id] ?? "none"}
+                      />
+                    </Table.Cell>
+                  )}
                   <Table.Cell className={cell({ className: "text-right" })}>
                     <DataTableOpenLink
                       href={href}
