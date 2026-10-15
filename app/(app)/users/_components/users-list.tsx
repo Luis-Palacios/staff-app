@@ -1,29 +1,22 @@
 import { headers } from "next/headers";
-import { getTranslations } from "next-intl/server";
 
-import UserCardSummary from "./user-card-summary";
-import UsersSummaryTable from "./users-summary-table";
+import UsersBrowser, { type LinkedMembers } from "./users-browser";
 
 import { listUsers } from "@/api/auth-api/client";
+import { listMembers } from "@/api/members-api/client";
 
 export default async function UsersList() {
   const cookie = (await headers()).get("cookie") ?? "";
-  const t = await getTranslations("UsersTable");
-  const { users } = await listUsers(cookie);
-
-  return (
-    <>
-      <div className="hidden md:block">
-        <UsersSummaryTable data={users} />
-      </div>
-
-      <div className="grid gap-3 md:hidden">
-        {users.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted">{t("empty")}</p>
-        ) : (
-          users.map((user) => <UserCardSummary key={user.id} user={user} />)
-        )}
-      </div>
-    </>
+  const [{ users }, memberList] = await Promise.all([
+    listUsers(cookie),
+    listMembers(),
+  ]);
+  // One call for the whole list, matched on `userId`.
+  const members: LinkedMembers = Object.fromEntries(
+    memberList.flatMap(({ id, name, userId }) =>
+      userId ? [[userId, { id, name }]] : [],
+    ),
   );
+
+  return <UsersBrowser members={members} users={users} />;
 }

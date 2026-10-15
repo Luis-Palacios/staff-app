@@ -1,12 +1,14 @@
 "use client";
 
 import type { AdminUserListItem } from "@/api/auth-api/types";
+import type { LinkedMembers } from "./users-browser";
 
 import { Table } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
 import { AssignPendingRole } from "./assign-pending-role";
 import { RoleBadge } from "./role-badge";
+import { UserMemberLink } from "./user-member-link";
 import { UserStatusChips } from "./user-status-chips";
 
 import {
@@ -19,8 +21,12 @@ import { LocalTime } from "@/components/local-time";
 
 export default function UsersSummaryTable({
   data,
+  members,
+  emptyLabel,
 }: {
   data: AdminUserListItem[];
+  emptyLabel: string;
+  members: LinkedMembers;
 }) {
   const t = useTranslations("UsersTable");
   const { root, column, row, cell } = dataTable();
@@ -33,12 +39,15 @@ export default function UsersSummaryTable({
       variant="secondary"
     >
       <Table.ScrollContainer>
-        <Table.Content aria-label={t("tableLabel")} className="min-w-[760px]">
+        <Table.Content aria-label={t("tableLabel")} className="min-w-[880px]">
           <Table.Header>
             <Table.Column isRowHeader className={column()}>
               {t("columnPerson")}
             </Table.Column>
             <Table.Column className={column()}>{t("columnRole")}</Table.Column>
+            <Table.Column className={column()}>
+              {t("columnMember")}
+            </Table.Column>
             <Table.Column className={column()}>
               {t("columnStatus")}
             </Table.Column>
@@ -48,7 +57,7 @@ export default function UsersSummaryTable({
           </Table.Header>
           <Table.Body
             renderEmptyState={() => (
-              <p className="px-[22px] py-6 text-sm text-muted">{t("empty")}</p>
+              <p className="px-[22px] py-6 text-sm text-muted">{emptyLabel}</p>
             )}
           >
             {data.map((user) => (
@@ -65,6 +74,9 @@ export default function UsersSummaryTable({
                   ) : (
                     <RoleBadge role={user.role} />
                   )}
+                </Table.Cell>
+                <Table.Cell className={cell()}>
+                  <UserMemberLink member={members[user.id]} />
                 </Table.Cell>
                 <Table.Cell className={cell()}>
                   <span className="flex flex-wrap gap-1.5">

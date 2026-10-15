@@ -501,7 +501,8 @@
   },
   "UserCard": {
     "joined": "Se unió el <date></date>",
-    "banReason": "Motivo del bloqueo: {reason}"
+    "banReason": "Motivo del bloqueo: {reason}",
+    "member": "Miembro:"
   },
   "UserStatus": {
     "active": "Activo",
@@ -514,7 +515,15 @@
     "columnRole": "Rol",
     "columnStatus": "Estado",
     "columnJoined": "Se unió",
-    "empty": "Aún no hay usuarios."
+    "empty": "Aún no hay usuarios.",
+    "columnMember": "Miembro",
+    "notLinked": "Sin vincular",
+    "filterByMember": "Filtrar por miembro",
+    "filterAll": "Todos",
+    "filterLinked": "Vinculados",
+    "filterNotLinked": "Sin vincular",
+    "count": "{count, plural, one {# usuario} other {# usuarios}}",
+    "noMatches": "Ningún usuario coincide con este filtro."
   },
   "AssignPendingRole": {
     "roleFor": "Rol de {name}",
