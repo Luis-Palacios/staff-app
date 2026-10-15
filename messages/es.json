@@ -147,7 +147,7 @@
     },
     "removeDialog": {
       "title": "¿Quitar a {name} del grupo?",
-      "body": "Su membresía termina hoy y queda en su historial. Puedes volver a agregarlo más adelante.",
+      "body": "Sale del grupo hoy; su tiempo en él queda en su historial. Puedes volver a agregar a esta persona más adelante.",
       "confirm": "Quitar"
     },
     "toasts": {
@@ -178,7 +178,7 @@
     "emptyTitle": "Aún no hay miembros",
     "emptyBody": "Agrega al líder y a los miembros con Agregar miembro.",
     "closedTitle": "Este grupo se cerró el {date}",
-    "closedBody": "Sus membresías terminaron ese día. El tiempo de cada persona en el grupo queda en su historial."
+    "closedBody": "Ese día todos salieron del grupo. El tiempo de cada persona en él queda en su historial."
   },
   "GroupDetailsCard": {
     "eyebrow": "Detalles",

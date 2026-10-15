@@ -150,7 +150,7 @@ declare const messages: {
     },
     "removeDialog": {
       "title": "Remove {name} from the group?",
-      "body": "Their membership ends today and stays in their history. You can add them back later.",
+      "body": "They leave the group today; their time in it stays in their history. You can add them back later.",
       "confirm": "Remove"
     },
     "toasts": {
@@ -181,7 +181,7 @@ declare const messages: {
     "emptyTitle": "No members yet",
     "emptyBody": "Add the leader and members with Add member.",
     "closedTitle": "This group closed on {date}",
-    "closedBody": "Its memberships ended that day. Each person's time in the group stays in their history."
+    "closedBody": "Everyone left the group that day. Each person's time in it stays in their history."
   },
   "GroupDetailsCard": {
     "eyebrow": "Details",
