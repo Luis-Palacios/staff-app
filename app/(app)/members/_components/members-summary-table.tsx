@@ -43,13 +43,13 @@ export default function MembersSummaryTable({
             <Table.Column isRowHeader className={column()}>
               {t("columnMember")}
             </Table.Column>
-            <Table.Column className={column()}>{t("columnEmail")}</Table.Column>
-            <Table.Column className={column()}>{t("columnPhone")}</Table.Column>
             {accounts && (
               <Table.Column className={column()}>
                 {t("columnAccount")}
               </Table.Column>
             )}
+            <Table.Column className={column()}>{t("columnEmail")}</Table.Column>
+            <Table.Column className={column()}>{t("columnPhone")}</Table.Column>
             <Table.Column className={column()}>
               <span className="sr-only">{t("columnActions")}</span>
             </Table.Column>
@@ -73,6 +73,13 @@ export default function MembersSummaryTable({
                       secondary={t("memberNumber", { id: String(member.id) })}
                     />
                   </Table.Cell>
+                  {accounts && (
+                    <Table.Cell className={cell()}>
+                      <AccountStatusCell
+                        status={accounts[member.id] ?? "none"}
+                      />
+                    </Table.Cell>
+                  )}
                   <Table.Cell className={cell()}>
                     {member.email ?? notProvided}
                   </Table.Cell>
@@ -81,13 +88,6 @@ export default function MembersSummaryTable({
                   >
                     {member.phone ?? notProvided}
                   </Table.Cell>
-                  {accounts && (
-                    <Table.Cell className={cell()}>
-                      <AccountStatusCell
-                        status={accounts[member.id] ?? "none"}
-                      />
-                    </Table.Cell>
-                  )}
                   <Table.Cell className={cell({ className: "text-right" })}>
                     <DataTableOpenLink
                       href={href}
