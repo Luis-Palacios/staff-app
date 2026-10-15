@@ -115,8 +115,13 @@ that differs from the canvas in the progress log below.
   An invite refused because the email already has an account lands in `inviteFailed` too; the
   Account card then offers the suggested match. New keys: `MemberForm.inviteLabel`, `inviteHelp`,
   `inviteNeedsEmail` (not in the copy table), `submitAndInvite`, `inviteFailed`, and
-  `SavedToast.createdInvited`. `lint` and `tsc` pass. **Not tried in the browser yet** (light/dark,
-  widths, es, and the real invite send from the form).
+  `SavedToast.createdInvited`. `lint` and `tsc` pass. Tried in the browser (dark, es, desktop): the checkbox
+  is disabled with its hint until the email is valid, ticking it changes the submit label, and
+  submitting created member #66 and sent the invite (pill and Account card show Invited). Fix found
+  there: HeroUI's `Checkbox.Content` must wrap the control and the label, with `Description` as its
+  sibling; nesting them the other way broke the click and the layout. **Not checked:** light mode,
+  1024/390, the toasts (they time out during the browser wait), and the `inviteFailed` path.
+  Test member #66 and its pending invite are left on the dev DB.
 
 ## Token changes
 

@@ -364,17 +364,17 @@ export function MemberForm({
             name="invite"
             onChange={setInvite}
           >
-            <Checkbox.Control>
-              <Checkbox.Indicator />
-            </Checkbox.Control>
             <Checkbox.Content>
+              <Checkbox.Control>
+                <Checkbox.Indicator />
+              </Checkbox.Control>
               <Label className="text-[13px] font-semibold text-heading">
                 {t("inviteLabel")}
               </Label>
-              <Description className="text-[13px] text-muted">
-                {emailValid ? t("inviteHelp") : t("inviteNeedsEmail")}
-              </Description>
             </Checkbox.Content>
+            <Description className="text-[13px] text-muted">
+              {emailValid ? t("inviteHelp") : t("inviteNeedsEmail")}
+            </Description>
           </Checkbox>
         )}
       </fieldset>
