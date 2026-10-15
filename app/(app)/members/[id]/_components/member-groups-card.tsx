@@ -32,8 +32,7 @@ export function MemberGroupsCard({
   return (
     <section
       className={card({
-        className:
-          "flex min-w-0 flex-[3_1_340px] flex-col gap-2 px-6 pb-4 pt-5",
+        className: "flex min-w-0 flex-col gap-2 px-6 pb-4 pt-5",
       })}
     >
       <DetailCardHeading eyebrow={t("eyebrow")}>{t("title")}</DetailCardHeading>

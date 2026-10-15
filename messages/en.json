@@ -560,7 +560,8 @@
     "member": "Member",
     "groupCount": "<strong>{count, number}</strong> {count, plural, one {small group} other {small groups}}",
     "allMembers": "All members",
-    "edit": "Edit details"
+    "edit": "Edit details",
+    "accountLabel": "Account status: {status}. Go to the account card."
   },
   "MemberContactCard": {
     "eyebrow": "Profile",
@@ -633,5 +634,26 @@
     "title": "Page not found",
     "body": "It may have been moved or removed, or the link is wrong.",
     "action": "Go to the dashboard"
+  },
+  "MemberAccountCard": {
+    "eyebrow": "Account",
+    "title": "Sign-in access",
+    "noneTitle": "No account",
+    "noneBody": "They can't sign in to the staff app yet.",
+    "invitedTitle": "Invite sent",
+    "invitedBody": "Waiting for {email} to accept. They'll be linked automatically when they do.",
+    "invitedBy": "Sent by {name} on {date}",
+    "invitedOn": "Sent on {date}",
+    "missingTitle": "Account not found",
+    "missingBody": "This member is linked to a user that no longer exists. Unlink to clear it.",
+    "verified": "Email verified",
+    "notVerified": "Email not verified",
+    "signedUp": "Account created {date}",
+    "goToAccess": "Go to sign-in access"
+  },
+  "AccountStatus": {
+    "linked": "Linked",
+    "invited": "Invited",
+    "none": "No account"
   }
 }

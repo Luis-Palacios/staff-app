@@ -1,4 +1,5 @@
 import type { MemberDetail } from "@/api/members-api/types";
+import type { AccountStatus } from "@/lib/members/account";
 
 import { ArrowLeftIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { buttonVariants } from "@heroui/react";
@@ -7,13 +8,27 @@ import { useTranslations } from "next-intl";
 
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { title } from "@/components/primitives";
+import { StatusBadge } from "@/components/status-badge";
 import { StaffAppBreadcrumbs } from "@/components/staff-app-breadcrumbs";
 import { membersBreadcrumb } from "@/config/breadcrumbs";
 
 // The person is the page, as on the application detail: avatar, name as the
 // <h1>, a meta line and the actions on the right.
-export function MemberDetailHeader({ member }: { member: MemberDetail }) {
+const ACCOUNT_BADGE = {
+  linked: { tone: "success", variant: "solid-dot" },
+  invited: { tone: "warning", variant: "ring-dot" },
+  none: { tone: "neutral", variant: "ring-dot" },
+} as const;
+
+export function MemberDetailHeader({
+  member,
+  status,
+}: {
+  member: MemberDetail;
+  status: AccountStatus;
+}) {
   const t = useTranslations("MemberDetailHeader");
+  const tStatus = useTranslations("AccountStatus");
   const { id, name, smallGroups } = member;
 
   return (
@@ -28,7 +43,17 @@ export function MemberDetailHeader({ member }: { member: MemberDetail }) {
           size="xl"
         />
         <div className="flex flex-[1_1_280px] flex-col gap-2">
-          <h1 className={title({ size: "md" })}>{name}</h1>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <h1 className={title({ size: "md" })}>{name}</h1>
+            <NextLink
+              aria-label={t("accountLabel", { status: tStatus(status) })}
+              href="#acct-title"
+            >
+              <StatusBadge {...ACCOUNT_BADGE[status]}>
+                {tStatus(status)}
+              </StatusBadge>
+            </NextLink>
+          </div>
           <p className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-muted">
             <span>
               {t("member")}{" "}

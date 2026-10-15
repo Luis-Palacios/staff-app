@@ -50,7 +50,7 @@ that differs from the canvas in the progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. API client, types, role helper, server actions | ✅ | (this commit) |
-| 2. Member detail: Account card and pill | ⬜ | |
+| 2. Member detail: Account card and pill | ✅ | (this commit) |
 | 3. Dialogs: link, invite, cancel invite, unlink | ⬜ | |
 | 4. Add member: invite as a user | ⬜ | |
 | 5. Members list: Account column and filter | ⬜ | |
@@ -73,6 +73,17 @@ that differs from the canvas in the progress log below.
   (`getAccountStatus`, `getPendingInvite`, `getSuggestedUsers`, `getSuggestedMembers`) are in
   `lib/members/account.ts`; a pending invite past `expiresAt` doesn't count as Invited. `lint`
   and `tsc` pass.
+- Stage 2: `loadMemberAccount` (`members/_lib`) reads the session role, then `getUser` for a linked
+  member (a 404/400 becomes the D2 "Account not found" state) or `listInvites` for an unlinked one.
+  **Deviation:** only admin/elder can read the invite list, so for other roles the pill can't
+  tell Invited from No account and shows Linked or No account only. The card is hidden for them,
+  as specced. The card has no action buttons yet (invite, link, cancel invite, unlink); stage 3
+  adds them with their dialogs, since a button with no handler can't be committed. The
+  "sign-in details line" is "Account created {date}" (no last-sign-in data from `get-user`).
+  The page grid is now `lg:grid-cols-[2fr_3fr]` with groups and account stacked in the right
+  column; the two cards lost their `flex-[n_1_340px]` sizing for it. `DetailCardHeading` gained an
+  optional `id`. `lint` and `tsc` pass. **Not checked visually yet** (needs a signed-in browser:
+  light/dark, 1440/1024/390, en/es).
 
 ## Token changes
 
