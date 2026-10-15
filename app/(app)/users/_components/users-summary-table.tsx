@@ -39,7 +39,7 @@ export default function UsersSummaryTable({
       variant="secondary"
     >
       <Table.ScrollContainer>
-        <Table.Content aria-label={t("tableLabel")} className="min-w-[880px]">
+        <Table.Content aria-label={t("tableLabel")} className="min-w-[720px]">
           <Table.Header>
             <Table.Column isRowHeader className={column()}>
               {t("columnPerson")}

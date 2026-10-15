@@ -45,7 +45,7 @@ export function StatusTabs<TKey extends string>({
     <ToggleButtonGroup
       disallowEmptySelection
       aria-label={ariaLabel}
-      className="gap-0.5 rounded-[10px] border border-border bg-segment p-[3px]"
+      className="max-w-full gap-0.5 overflow-x-auto rounded-[10px] border border-border bg-segment p-[3px]"
       selectedKeys={[value]}
       onSelectionChange={handleSelectionChange}
     >

@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   CheckCircleIcon,
@@ -10,11 +9,11 @@ import {
 const VISIBLE_MS = 4000;
 
 // "Member added" / "Changes saved" after a save redirects here with
-// `?saved=…`. The param is dropped right away, through the router (not
-// `history.replaceState`, which Next's router would undo on the next refresh),
-// so a reload doesn't show the toast again; the toast itself disappears after
-// a few seconds. The text
-// arrives as a prop, so no client namespace is needed.
+// `?saved=…`. The param is dropped right away with `history.replaceState`
+// (Next keeps its router in sync with it), so a reload doesn't show the toast
+// again; the toast itself disappears after a few seconds. `router.replace`
+// would refetch the page without the param and unmount the toast at once.
+// The text arrives as a prop, so no client namespace is needed.
 export function SavedToast({
   message,
   tone = "success",
@@ -26,8 +25,6 @@ export function SavedToast({
   const Icon = tone === "danger" ? ExclamationCircleIcon : CheckCircleIcon;
 
   const [visible, setVisible] = useState(true);
-  const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -37,15 +34,19 @@ export function SavedToast({
 
       const query = params.toString();
 
-      router.replace(query ? `${pathname}?${query}` : pathname, {
-        scroll: false,
-      });
+      window.history.replaceState(
+        null,
+        "",
+        query
+          ? `${window.location.pathname}?${query}`
+          : window.location.pathname,
+      );
     }
 
     const timer = window.setTimeout(() => setVisible(false), VISIBLE_MS);
 
     return () => window.clearTimeout(timer);
-  }, [pathname, router]);
+  }, []);
 
   if (!visible) return null;
 
