@@ -26,8 +26,15 @@ function Field({
   );
 }
 
-// Read-only sign-in details of the signed-in user, straight from the session.
-export function MyAccountCard({ user }: { user: AuthSessionUser }) {
+// Read-only sign-in details of the signed-in user, straight from the session. `stacked` is the
+// not-linked page: one column, rows divided, no footer line.
+export function MyAccountCard({
+  user,
+  stacked = false,
+}: {
+  user: AuthSessionUser;
+  stacked?: boolean;
+}) {
   const t = useTranslations("MyProfilePage");
   const tUser = useTranslations("UserDetail");
   const locale = useLocale() as Locale;
@@ -42,7 +49,13 @@ export function MyAccountCard({ user }: { user: AuthSessionUser }) {
       <DetailCardHeading eyebrow={t("accountEyebrow")} id="my-account-title">
         {t("accountTitle")}
       </DetailCardHeading>
-      <dl className="m-0 grid gap-4 sm:grid-cols-2">
+      <dl
+        className={
+          stacked
+            ? "m-0 flex flex-col gap-4 divide-y divide-separator [&>div:not(:first-child)]:pt-4"
+            : "m-0 grid gap-4 sm:grid-cols-2"
+        }
+      >
         <Field label={tUser("email")}>
           <span className="break-all">{user.email}</span>
           <StatusBadge
@@ -59,9 +72,11 @@ export function MyAccountCard({ user }: { user: AuthSessionUser }) {
           {formatLocalDate(user.createdAt, locale)}
         </Field>
       </dl>
-      <p className="border-t border-separator pt-4 text-[13.5px] text-muted">
-        {t("accountFooter")}
-      </p>
+      {!stacked && (
+        <p className="border-t border-separator pt-4 text-[13.5px] text-muted">
+          {t("accountFooter")}
+        </p>
+      )}
     </section>
   );
 }

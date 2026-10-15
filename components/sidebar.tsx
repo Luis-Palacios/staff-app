@@ -40,10 +40,20 @@ const iconRegistry: Record<NavIconName, HeroIcon> = {
 const resolveIcon = (icon: NavItem["icon"]) =>
   typeof icon === "string" ? iconRegistry[icon] : icon;
 
-const isActivePath = (pathname: string, href: string) =>
-  href === "/"
+// My profile lives under /users but isn't the Users list: it highlights nothing.
+const MY_PROFILE_PATH = "/users/me";
+
+const isActivePath = (pathname: string, href: string) => {
+  if (
+    pathname === MY_PROFILE_PATH ||
+    pathname.startsWith(`${MY_PROFILE_PATH}/`)
+  )
+    return false;
+
+  return href === "/"
     ? pathname === "/"
     : pathname === href || pathname.startsWith(`${href}/`);
+};
 
 // Top-level rows (leaf links and group triggers); colors are set per state.
 const rowBase =

@@ -510,7 +510,15 @@
     "accountEyebrow": "Cuenta",
     "accountTitle": "Datos de acceso",
     "accountCreated": "Cuenta creada",
-    "accountFooter": "Tu rol y acceso los administran los administradores de tu iglesia."
+    "accountFooter": "Tu rol y acceso los administran los administradores de tu iglesia.",
+    "memberEyebrow": "Miembro",
+    "memberTitle": "Perfil de miembro",
+    "notLinked": "Sin vincular",
+    "notLinkedBody": "Tu cuenta no está vinculada a un miembro de {church}. Es normal para el personal que no es miembro de esta iglesia.",
+    "notLinkedWhy": "Si eres miembro, vincular tu cuenta muestra aquí tus datos de contacto y grupos pequeños, y te permite enviar reportes de grupo.",
+    "linkSelf": "Vincular desde mi usuario",
+    "linkSelfHint": "Abre tu cuenta en Usuarios, donde puedes elegir tu miembro.",
+    "askToLink": "Pide a un administrador o anciano que vincule tu cuenta con tu registro de miembro."
   },
   "InviteStaffLink": {
     "label": "Invitar al personal"

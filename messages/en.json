@@ -510,7 +510,15 @@
     "accountEyebrow": "Account",
     "accountTitle": "Sign-in details",
     "accountCreated": "Account created",
-    "accountFooter": "Your role and access are managed by your church’s admins."
+    "accountFooter": "Your role and access are managed by your church’s admins.",
+    "memberEyebrow": "Member",
+    "memberTitle": "Member profile",
+    "notLinked": "Not linked",
+    "notLinkedBody": "Your account isn’t connected to a member of {church}. That’s normal for staff who aren’t members of this church.",
+    "notLinkedWhy": "If you are a member, linking your account shows your contact details and small groups here, and lets you submit small group reports.",
+    "linkSelf": "Link from my user record",
+    "linkSelfHint": "Opens your account in Users, where you can pick your member.",
+    "askToLink": "Ask an admin or elder to link your account to your member record."
   },
   "InviteStaffLink": {
     "label": "Invite staff"
