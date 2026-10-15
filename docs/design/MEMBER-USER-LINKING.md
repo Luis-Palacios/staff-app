@@ -144,6 +144,22 @@ that differs from the canvas in the progress log below.
   say "No users yet". Table min width 760 → 880. `lint` and `tsc` pass. Tried in the browser (dark,
   es, 1440): column, counts and the Linked filter's empty state. **Not checked:** light, 1024/390
   cards, and a linked row (the dev DB has one user and no link).
+- Pending checks for stages 4 to 6 (done afterwards): the 390 width can't be reached by shrinking
+  the window, so pages were loaded in a same-origin iframe of 390 / 1024 px. Light mode, the
+  Members list, Users list and Add member at 390, the Members list at 1024, the Linked filter and
+  a linked row (member #67 linked through the dialog, then unlinked) all look right. **Fixes found:**
+  (1) the four-segment Account filter was wider than 390 and "No account" was cut off: `StatusTabs`
+  now has `max-w-full overflow-x-auto`, so it scrolls inside its own width (also used by
+  Applications and Groups); (2) `SavedToast` dropped `?saved=` with `router.replace`, which
+  refetched the page without the param and unmounted the toast after about 0.4 s (this also
+  affected the existing "Member added" toast); it now uses `history.replaceState`, as the
+  applications filter does, and the toast stays its 4 s. The failure path was exercised: a new
+  member with the email of an existing user and "Invite as a user" ticked is created without an
+  account, and the `inviteFailed` toast renders. **Still open:** at 1024 the Members table
+  (natural width about 905) scrolls horizontally inside its container, so the Account column is
+  past the fold; moving it next to Member would avoid that (a design call); a non-admin role
+  (only one admin account on the dev DB); 390 for the Member detail page. Test members #66 and #67
+  and #66's pending invite are left on the dev DB.
 
 ## Token changes
 

@@ -37,7 +37,7 @@ export default function MembersSummaryTable({
       <Table.ScrollContainer>
         <Table.Content
           aria-label={t("tableLabel")}
-          className={accounts ? "min-w-[880px]" : "min-w-[760px]"}
+          className={accounts ? "min-w-[720px]" : "min-w-[760px]"}
         >
           <Table.Header>
             <Table.Column isRowHeader className={column()}>
