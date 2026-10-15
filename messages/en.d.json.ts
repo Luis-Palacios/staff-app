@@ -401,6 +401,9 @@ declare const messages: {
     "signIn": "Sign in"
   },
   "ApiErrors": {
+    "forbidden": "Only admins and elders can do this.",
+    "memberAlreadyLinked": "This member is already linked to another user.",
+    "userAlreadyLinked": "This user is already linked to another member.",
     "notFound": "We couldn't find what you were looking for.",
     "tooManyRequests": "Too many requests. Wait a moment and try again.",
     "serviceUnavailable": "The service is unavailable right now. Try again in a few minutes.",

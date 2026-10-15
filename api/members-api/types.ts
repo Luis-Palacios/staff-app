@@ -3,6 +3,8 @@ export interface MemberSummary {
   name: string;
   email: string | null;
   phone: string | null;
+  /** Id of the linked auth-server user, or null. */
+  userId: string | null;
 }
 
 export type SmallGroupRole = "member" | "leader" | "co_leader";
@@ -29,4 +31,18 @@ export interface MemberInput {
   phone?: string | null;
   address?: string | null;
   birthDate?: string | null;
+}
+
+export interface MeLead {
+  smallGroupId: number;
+  name: string;
+  role: "leader" | "co_leader";
+}
+
+/** The signed-in user's member (if linked) and the groups they actively lead. */
+export interface Me {
+  userId: string;
+  role: string;
+  member: { id: number; name: string } | null;
+  leads: MeLead[];
 }

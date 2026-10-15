@@ -49,7 +49,7 @@ that differs from the canvas in the progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API client, types, role helper, server actions | ⬜ | |
+| 1. API client, types, role helper, server actions | ✅ | (this commit) |
 | 2. Member detail: Account card and pill | ⬜ | |
 | 3. Dialogs: link, invite, cancel invite, unlink | ⬜ | |
 | 4. Add member: invite as a user | ⬜ | |
@@ -60,7 +60,19 @@ that differs from the canvas in the progress log below.
 
 ### Decisions and deviations
 
-- (none yet)
+- Stage 1: `getUser` reads `admin/get-user`, which returns the bare user object (not `{ user }`).
+  Invite create and cancel from a member run in server actions, so `createInvite` / `cancelInvite`
+  in `api/auth-api/client.ts` forward the cookie, `accept-language` (the invite email is localized
+  from it) and an `Origin` taken from the incoming request, because better-auth rejects a
+  cookie-bearing POST without one. **Not tried against a real session yet** (no signed-in
+  browser in this stage): confirm in stage 3 when the dialogs exist; if auth-server refuses the
+  server-side call, fall back to `authClient.invite.*` from the dialog like `NewInviteForm`.
+  The two 409s from membership-management are told apart by the English `detail` (matched, never
+  shown) in `getApiErrorMessage`. Actions live in `members/_actions/account-actions.ts` and return
+  `{ ok, error }`; the Users pages reuse them (no `users/_actions` folder needed). Helpers
+  (`getAccountStatus`, `getPendingInvite`, `getSuggestedUsers`, `getSuggestedMembers`) are in
+  `lib/members/account.ts`; a pending invite past `expiresAt` doesn't count as Invited. `lint`
+  and `tsc` pass.
 
 ## Token changes
 

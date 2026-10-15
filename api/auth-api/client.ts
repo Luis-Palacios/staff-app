@@ -1,6 +1,8 @@
 import type {
   AdminListInvitesResponse,
+  AdminUserListItem,
   AdminListUsersResponse,
+  AuthRole,
   AuthSession,
   AuthToken,
 } from "@/api/auth-api/types";
@@ -61,6 +63,77 @@ export function listInvites(cookie: string): Promise<AdminListInvitesResponse> {
     "/api/custom-auth/invites",
     {
       headers: { cookie },
+      cache: "no-store",
+    },
+  );
+}
+
+// Session-cookie-gated like listUsers. `admin/get-user` is better-auth's own endpoint, id in the
+// query string; it answers with the bare user object.
+export function getUser(
+  cookie: string,
+  id: string,
+): Promise<AdminUserListItem> {
+  return apiFetch<AdminUserListItem>(
+    getEnv().AUTH_SERVER_URL,
+    `/api/auth/admin/get-user?id=${encodeURIComponent(id)}`,
+    {
+      headers: { cookie },
+      cache: "no-store",
+    },
+  );
+}
+
+// better-invite's POST /invite/create and /invite/cancel are session-gated and permission-checked
+// (admin/elder) by auth-server itself. Called from a server action, so the incoming cookie is
+// forwarded, plus the browser's own Origin: better-auth rejects a cookie-bearing POST without one.
+// accept-language is forwarded because the invite email is localized from it.
+export interface ForwardedRequest {
+  cookie: string;
+  origin: string;
+  acceptLanguage: string | null;
+}
+
+function forwardedHeaders(request: ForwardedRequest): Record<string, string> {
+  return {
+    cookie: request.cookie,
+    origin: request.origin,
+    ...(request.acceptLanguage && {
+      "accept-language": request.acceptLanguage,
+    }),
+  };
+}
+
+export function createInvite(
+  request: ForwardedRequest,
+  input: { email: string; role: AuthRole },
+): Promise<unknown> {
+  return apiFetch<unknown>(
+    getEnv().AUTH_SERVER_URL,
+    "/api/auth/invite/create",
+    {
+      method: "POST",
+      headers: forwardedHeaders(request),
+      body: {
+        ...input,
+        redirectToAfterUpgrade: `${request.origin}/`,
+      },
+      cache: "no-store",
+    },
+  );
+}
+
+export function cancelInvite(
+  request: ForwardedRequest,
+  token: string,
+): Promise<unknown> {
+  return apiFetch<unknown>(
+    getEnv().AUTH_SERVER_URL,
+    "/api/auth/invite/cancel",
+    {
+      method: "POST",
+      headers: forwardedHeaders(request),
+      body: { token },
       cache: "no-store",
     },
   );

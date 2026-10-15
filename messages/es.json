@@ -398,6 +398,9 @@
     "signIn": "Iniciar sesión"
   },
   "ApiErrors": {
+    "forbidden": "Solo los administradores y los ancianos pueden hacer esto.",
+    "memberAlreadyLinked": "Este miembro ya está vinculado a otro usuario.",
+    "userAlreadyLinked": "Este usuario ya está vinculado a otro miembro.",
     "notFound": "No encontramos lo que buscabas.",
     "tooManyRequests": "Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.",
     "serviceUnavailable": "El servicio no está disponible en este momento. Inténtalo de nuevo en unos minutos.",
