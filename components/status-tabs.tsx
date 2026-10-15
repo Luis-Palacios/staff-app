@@ -10,7 +10,7 @@ import clsx from "clsx";
 // tokens. The selected label is heading-colored (not accent, as the theme
 // switch's icons are) so the accent count pill carries the emphasis.
 const segmentButton = clsx(
-  "h-[34px] gap-2 rounded-[7px] px-3.5 text-sm font-semibold",
+  "h-[34px] shrink-0 gap-2 rounded-[7px] px-3.5 text-sm font-semibold",
   "[--toggle-button-bg:transparent] [--toggle-button-bg-hover:transparent] [--toggle-button-bg-pressed:transparent]",
   "[--toggle-button-fg:var(--muted)] hover:[--toggle-button-fg:var(--foreground)]",
   "[--toggle-button-bg-selected:var(--segment-selected)] [--toggle-button-bg-selected-hover:var(--segment-selected)] [--toggle-button-bg-selected-pressed:var(--segment-selected)]",
@@ -45,7 +45,7 @@ export function StatusTabs<TKey extends string>({
     <ToggleButtonGroup
       disallowEmptySelection
       aria-label={ariaLabel}
-      className="max-w-full gap-0.5 overflow-x-auto rounded-[10px] border border-border bg-segment p-[3px]"
+      className="max-w-full justify-start gap-0.5 overflow-x-auto rounded-[10px] border border-border bg-segment p-[3px]"
       selectedKeys={[value]}
       onSelectionChange={handleSelectionChange}
     >

@@ -664,6 +664,7 @@
     "title": "Acceso para iniciar sesión",
     "noneTitle": "Sin cuenta",
     "noneBody": "Todavía no puede iniciar sesión en la aplicación del personal.",
+    "matchBanner": "Ya existe un usuario que inicia sesión con {email}.",
     "invitedTitle": "Invitación enviada",
     "invitedBody": "Esperando que {email} la acepte. Se vinculará automáticamente al hacerlo.",
     "invitedBy": "Enviada por {name} el {date}",

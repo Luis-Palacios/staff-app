@@ -7,10 +7,16 @@ import type { AccountStatus } from "@/lib/members/account";
 import { headers } from "next/headers";
 
 import { ApiError } from "@/api/api-client";
-import { getUser, listInvites } from "@/api/auth-api/client";
+import { getUser, listInvites, listUsers } from "@/api/auth-api/client";
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
+import { listMembers } from "@/api/members-api/client";
 import { canManageLinks } from "@/lib/auth/roles";
-import { getAccountStatus, getPendingInvite } from "@/lib/members/account";
+import {
+  getAccountStatus,
+  getLinkedUserIds,
+  getPendingInvite,
+  getSuggestedUsers,
+} from "@/lib/members/account";
 
 export interface MemberAccount {
   status: AccountStatus;
@@ -22,6 +28,8 @@ export interface MemberAccount {
   inviteToken: string | null;
   inviterName: string | null;
   invitedAt: string | null;
+  /** A user, not linked to any member, who signs in with the member's email (No account only). */
+  suggestedUser: { id: string; name: string; email: string } | null;
 }
 
 /**
@@ -40,6 +48,7 @@ export async function loadMemberAccount(
     inviteToken: null,
     inviterName: null,
     invitedAt: null,
+    suggestedUser: null,
   };
 
   if (!canManage) {
@@ -68,10 +77,25 @@ export async function loadMemberAccount(
 
   const { invites } = await listInvites(cookie);
   const invite = getPendingInvite(member, invites);
+  const status = getAccountStatus(member, invites);
+  let suggestedUser: MemberAccount["suggestedUser"] = null;
+
+  if (status === "none" && member.email) {
+    const [{ users }, members] = await Promise.all([
+      listUsers(cookie),
+      listMembers(),
+    ]);
+    const [match] = getSuggestedUsers(member, users, getLinkedUserIds(members));
+
+    if (match) {
+      suggestedUser = { id: match.id, name: match.name, email: match.email };
+    }
+  }
 
   return {
     ...none,
-    status: getAccountStatus(member, invites),
+    status,
+    suggestedUser,
     canManage,
     invitedEmail: invite ? (invite.email ?? member.email) : null,
     inviteToken: invite?.token ?? null,

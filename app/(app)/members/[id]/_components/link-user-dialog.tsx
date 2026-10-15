@@ -4,7 +4,10 @@ import type { LinkableUser } from "@/app/(app)/members/_actions/account-actions"
 import type { SubmitEvent } from "react";
 
 import { useMemo, useState, useTransition } from "react";
-import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/react/24/outline";
 import { Button, Input, Label, Modal } from "@heroui/react";
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
@@ -52,6 +55,12 @@ function UserOption({
           </span>
           <span className="truncate text-[13px] text-muted">{user.email}</span>
         </span>
+        {checked && (
+          <CheckCircleIcon
+            aria-hidden="true"
+            className="size-5 shrink-0 text-heading"
+          />
+        )}
         {tag && (
           <span className="shrink-0 rounded-full bg-success-soft px-2 py-0.5 text-xs font-semibold text-success-soft-foreground">
             {tag}
@@ -83,7 +92,8 @@ function LinkUserForm({
   const t = useTranslations("MemberAccountActions");
   const [isPending, startTransition] = useTransition();
   const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // The user's own pick; until they pick, the suggested match (if any) is the selection.
+  const [pickedId, setPickedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const suggested = useMemo(
@@ -103,6 +113,7 @@ function LinkUserForm({
       )
       .slice(0, MAX_RESULTS);
   }, [users, suggestedIds, query]);
+  const selectedId = pickedId ?? suggested[0]?.id ?? null;
   const selected = users?.find((user) => user.id === selectedId) ?? null;
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
@@ -138,7 +149,7 @@ function LinkUserForm({
 
         {suggested.length > 0 && (
           <fieldset className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0">
-            <legend className="mb-1 p-0 text-[13px] font-semibold text-heading">
+            <legend className="mb-1 p-0 text-xs font-semibold uppercase tracking-[0.08em] text-eyebrow">
               {t("suggestedMatch")}
             </legend>
             {suggested.map((user) => (
@@ -148,7 +159,7 @@ function LinkUserForm({
                 disabled={isPending}
                 tag={t("sameEmail")}
                 user={user}
-                onSelect={() => setSelectedId(user.id)}
+                onSelect={() => setPickedId(user.id)}
               />
             ))}
           </fieldset>
@@ -181,7 +192,7 @@ function LinkUserForm({
                   checked={selectedId === user.id}
                   disabled={isPending}
                   user={user}
-                  onSelect={() => setSelectedId(user.id)}
+                  onSelect={() => setPickedId(user.id)}
                 />
               ))
             )}
