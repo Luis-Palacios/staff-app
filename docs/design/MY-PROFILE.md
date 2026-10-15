@@ -49,14 +49,20 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Loader and session type | ⬜ | |
+| 1. Loader and session type | ✅ (createdAt pending live check) | see `git log` |
 | 2. Linked page | ⬜ | |
 | 3. Not-linked page, copy, sidebar | ⬜ | |
 | 4. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
 
-- [Fill in during implementation.]
+- **Stage 1, `createdAt`:** better-auth's get-session returns the full user row (auth-server has no
+  `customSession` and `createdAt` isn't `returned: false`), so `createdAt: string` was added to
+  `AuthSessionUser`. The servers weren't running, so I could not log the live response. A temporary,
+  uncommitted `console.log` in the stub page lets you confirm on localhost:3001; if it's missing,
+  drop the field and the "Account created" row.
+- **Stage 1, `loadMyProfile`:** `leadIds` is typed `ReadonlySet<number>`; a 404 from `getMember`
+  means not linked (`member: null`).
 
 ## Token changes
 
