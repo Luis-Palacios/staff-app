@@ -8,6 +8,7 @@ export interface AuthSessionUser {
   name: string;
   role: AuthRole;
   emailVerified: boolean;
+  createdAt: string;
 }
 
 export interface AuthSessionData {
