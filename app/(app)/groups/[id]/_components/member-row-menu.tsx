@@ -33,7 +33,10 @@ const menuItem = tv({
 });
 const { base: item, icon: itemIcon } = menuItem();
 
-const ROLES: SmallGroupRole[] = ["leader", "co_leader", "member"];
+export const ROLES: SmallGroupRole[] = ["leader", "co_leader", "member"];
+
+// Scoped users can't assign or change the leader (rule 9).
+export const SCOPED_ROLES: SmallGroupRole[] = ["co_leader", "member"];
 
 // The dot is the same one the role badge uses: solid for leaders, hollow for
 // plain members.
@@ -47,11 +50,14 @@ const ROLE_DOT: Record<SmallGroupRole, string> = {
 // reports what was picked; the card decides what needs confirming.
 export function MemberRowMenu({
   member,
+  roles,
   isDisabled,
   onChangeRole,
   onRemove,
 }: {
   member: SmallGroupMember;
+  /** The roles the menu offers. */
+  roles: SmallGroupRole[];
   isDisabled: boolean;
   onChangeRole: (role: SmallGroupRole) => void;
   onRemove: () => void;
@@ -92,7 +98,7 @@ export function MemberRowMenu({
 
               if (
                 typeof next === "string" &&
-                ROLES.includes(next as SmallGroupRole) &&
+                roles.includes(next as SmallGroupRole) &&
                 next !== member.role
               ) {
                 onChangeRole(next as SmallGroupRole);
@@ -102,7 +108,7 @@ export function MemberRowMenu({
             <Header className="px-2.5 pt-1.5 pb-1 text-xs font-semibold text-muted">
               {t("roleSection")}
             </Header>
-            {ROLES.map((role) => (
+            {roles.map((role) => (
               <Dropdown.Item
                 key={role}
                 className={item()}
