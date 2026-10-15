@@ -38,7 +38,7 @@ that differs from the boards in the progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Access helper, errors and nav | ⬜ | |
+| 1. Access helper, errors and nav | 🟨 code done; browser check per role pending | (this commit) |
 | 2. Groups list: *My groups* and empty states | ⬜ | |
 | 3. Group detail and edit: leader controls | ⬜ | |
 | 4. Dashboard by role | ⬜ | |
@@ -46,7 +46,10 @@ that differs from the boards in the progress log below.
 
 ### Decisions and deviations
 
-- (none yet)
+- Stage 1: added `lib/auth/small-group-access.ts` (`getCurrentSmallGroupAccess()`, server-only, reads
+  the session role) so the four group pages share one guard instead of repeating the session read.
+- Stage 1: the sidebar filters with `item.access` typed through `NavItem` (the `satisfies` literal
+  otherwise narrows `access` to `"full" | "scoped"`).
 
 ## Token changes
 

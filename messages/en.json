@@ -399,6 +399,8 @@
   },
   "ApiErrors": {
     "forbidden": "Only admins and elders can do this.",
+    "leadershipAdminsOnly": "Only admins and elders can change who leads a group.",
+    "ownGroupRole": "Ask an admin or elder to change your own role in this group.",
     "memberAlreadyLinked": "This member is already linked to another user.",
     "userAlreadyLinked": "This user is already linked to another member.",
     "notFound": "We couldn't find what you were looking for.",

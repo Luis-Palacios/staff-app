@@ -25,6 +25,8 @@ import { CloseIcon } from "@/components/icons";
 import { EkklesiaioLogo } from "@/components/brand/ekklesiaio-logo";
 import { ChurchContextCard } from "@/components/brand/church-context";
 import { siteConfig } from "@/config/site";
+import { getSmallGroupAccess } from "@/lib/auth/roles";
+import { useCurrentUser } from "@/lib/contexts/user-context";
 
 // Heroicons outline (24px grid), drawn at stroke 1.6 by `NavIcon` below.
 const iconRegistry: Record<NavIconName, HeroIcon> = {
@@ -161,6 +163,10 @@ const CollapsibleItem = ({
 export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
+  const access = getSmallGroupAccess(useCurrentUser().role);
+  const navItems = siteConfig.navItems.filter(
+    (item: NavItem) => !item.access || item.access.includes(access),
+  );
 
   return (
     <>
@@ -209,7 +215,7 @@ export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
         <ChurchContextCard className="mx-3.5 mb-3.5" context={context} />
 
         <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-1.5">
-          {siteConfig.navItems.map((item) =>
+          {navItems.map((item) =>
             item.items ? (
               <CollapsibleItem
                 key={item.labelKey}

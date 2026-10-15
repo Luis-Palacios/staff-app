@@ -14,7 +14,21 @@ export async function getApiErrorMessage(error: unknown): Promise<string> {
   const t = await getTranslations("ApiErrors");
 
   if (error instanceof ApiError) {
-    if (error.status === 403) return t("forbidden");
+    if (error.status === 403) {
+      // The member routes have two 403s for scoped callers and no codes; matched, never shown.
+      const detail = JSON.stringify(error.body ?? "").toLowerCase();
+
+      if (detail.includes("only admins and elders can change who leads")) {
+        return t("leadershipAdminsOnly");
+      }
+
+      if (detail.includes("change your own role in this group")) {
+        return t("ownGroupRole");
+      }
+
+      return t("forbidden");
+    }
+
     if (error.status === 409) {
       // membership-management has two 409s on the link route and no codes, so tell them apart by
       // which side the detail names; it is only matched, never shown.
