@@ -83,9 +83,12 @@ progress log below.
   1024 (`break-all` → `break-words`).
 - **Stage 4, roles checked:** deacon and plain `user` (both not linked) load `/users/me` with no redirect
   and see the "Ask an admin or elder" callout, no button; the sidebar hides Access › Users for `user`.
-- **Stage 4, still open:** canvas comparison for the three boards; the elder role; a group where the viewer
-  is only a member (should be plain text); a link to a deleted member; focus ring and keyboard order;
-  the four canvas deviations above.
+- **Stage 4, group links:** with the leader set to plain member in SGLA Beta (restored afterwards),
+  Alpha (led) kept its link and Beta rendered as plain text; `/groups/30` is a 404 for that leader, so
+  plain text is right. Keyboard focus shows the gold halo on the group link.
+- **Stage 4, still open:** canvas comparison for the three boards; the elder role (same code path as admin:
+  `canManageLinks` and `access === "full"`; no verified elder test account, since sign-up needs email
+  verification); a link to a deleted member; the four canvas deviations above.
 
 ## Token changes
 
