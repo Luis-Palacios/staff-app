@@ -37,7 +37,7 @@ There is no configured test runner or single-test command. Confirm the framework
 ## Design tokens
 
 - `tokens/` (W3C DTCG JSON) is the source of truth for the ekklesiaio brand. `tokens/brand.json` builds `styles/brand.css` (Tailwind `@theme`: `--color-navy-900` → `bg-navy-900`); `tokens/themes/light.json` and `dark.json` build `styles/theme.css` (HeroUI variables such as `--background`, `--accent`). Full guide: `docs/design/README.md`.
-- Never edit `styles/brand.css` or `styles/theme.css` by hand. Change the JSON, run `pnpm tokens`, and commit the JSON and generated CSS together; `pnpm tokens --check` must pass.
+- `pnpm tokens` also writes `../ekklesiaio-landing/brand/theme.css` when that sibling repo exists; commit it in the landing repo too. Never edit `styles/brand.css` or `styles/theme.css` by hand. Change the JSON, run `pnpm tokens`, and commit the JSON and generated CSS together; `pnpm tokens --check` must pass.
 - New semantic tokens go in both theme files with a `$description`; add a utility in `@theme inline` (`globals.css`) only if components need one.
 - No color, font-stack, radius or shadow literals in components or `globals.css`, and no component-level `dark:` overrides a token could express. Gold never carries text on a light background; status is never color alone.
 - Feature specs live in `docs/design/` and start from `docs/design/HANDOFF-TEMPLATE.md`. After a token change merges, the ekklesiaio Design System and design canvases must be re-synced (see `docs/design/README.md`).

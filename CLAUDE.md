@@ -127,7 +127,9 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
 for the design system and landing page that are synced from it. Full guide:
 `docs/design/README.md`.
 
-- `tokens/brand.json` → `styles/brand.css` (`@theme`: `--color-navy-900` → `bg-navy-900`, …).
+- `tokens/brand.json` → `styles/brand.css` (`@theme`: `--color-navy-900` → `bg-navy-900`, …),
+  and also → `../ekklesiaio-landing/brand/theme.css` when that sibling repo is checked out (commit it
+  there too; it keeps the landing page's own names via `LANDING_ALIASES` in `tokens/build.mjs`).
   `tokens/themes/{light,dark}.json` → `styles/theme.css` (`--background`, `--accent`, …).
 - **Never edit `styles/brand.css` or `styles/theme.css`.** Change the JSON, run `pnpm tokens`,
   commit the JSON and the generated CSS together (`pnpm tokens --check` must pass).
