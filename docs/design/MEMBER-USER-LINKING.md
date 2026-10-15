@@ -158,7 +158,10 @@ that differs from the canvas in the progress log below.
   account, and the `inviteFailed` toast renders. **Account column at 1024:** it now sits right after Member, so it is visible without scrolling; the table still scrolls sideways at that width (natural width about 905) and it is Phone and Open that sit past the fold. **Non-admin role checked** (signed in as a Small Group Leader, dark, es, 1440): the Members list is
   the original table (no Account column, no filter), Member detail has the pill but no Account card,
   Add member has no "Invite as a user" checkbox, and `/users` redirects to the dashboard.
-  **Still open:** 390 for the Member detail page (admin view, with the Account card and dialogs). Test members #66 and #67
+  **Member detail at 390** (admin, dark, es, iframe): the Account card sits below Small groups
+  in all three states (No account, Invited, Linked), buttons wrap, and the Invite, Link and Unlink
+  dialogs fit with nothing clipped or scrolling sideways. Linking then unlinking #67 worked.
+  **Not covered:** light mode for these dialogs at 390 (Link was checked in light at 1440). Test members #66 and #67
   and #66's pending invite are left on the dev DB.
 
 ## Token changes
