@@ -124,8 +124,8 @@ only.
 group" action); with active groups, or if the fetch fails, it renders nothing. I chose to leave it out rather than
 add an "{n} active groups" link, as the spec allowed. The Close wording was changed after Stage 6 review from "Ends
 every membership today" to "Removes every member from the group today" (and the confirm text to match), since
-"membership" read like church membership; the API only ends each person's time in that group. Verification: stages were tried by hand by Luis against the local API; no automated or scripted checks of
-light/dark, the three widths or Spanish were run. The weekday short labels are messages, not `Intl`.
+"membership" read like church membership; the API only ends each person's time in that group. Verification: Luis tried every stage by hand against the local API, in light and dark, at 1440 / 1024 / 390
+and in English and Spanish; nothing was scripted. The weekday short labels are messages, not `Intl`.
 
 ## The API (membership-management)
 
