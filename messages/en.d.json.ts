@@ -322,6 +322,9 @@ declare const messages: {
     "updated": "Changes saved",
     "ofTotal": "{count, number} of {total, number}"
   },
+  "NoMeetingDialog": {
+    "markedToast": "Marked as no meeting"
+  },
   "ReportForm": {
     "newTitle": "New report",
     "stepMeeting": "Meeting",
@@ -342,6 +345,22 @@ declare const messages: {
     "calendarLabel": "Meeting date calendar",
     "legendMeets": "Meeting day",
     "legendFiled": "Report filed",
+    "metQuestion": "Did the group meet on this date?",
+    "metYes": "Yes, we met",
+    "metNo": "No meeting",
+    "noMeetingEyebrow": "No meeting",
+    "noMeetingTitle": "The group didn’t meet",
+    "reasonLabel": "Reason",
+    "reasonHint": "For example a holiday, the weather, or the leaders were away. Anyone who can see this group’s reports can read it.",
+    "reasonCounter": "{count, number} / 255",
+    "noMeetingEffect": "{date} won’t count as a missing report on dashboards or in Reports.",
+    "saveNoMeeting": "Save as no meeting",
+    "legendNoMeeting": "No meeting",
+    "noMeetingOnDate": "{date} is marked as no meeting:",
+    "replaceWithReport": "The group met: replace with a report",
+    "openNoMeeting": "Open it",
+    "replacing": "The no-meeting mark for {date} will be replaced when you submit this report.",
+    "undo": "Undo",
     "openExisting": "Open that report",
     "address": "Where the group met",
     "addressHint": "The group’s usual address. Change it if you met somewhere else this time.",

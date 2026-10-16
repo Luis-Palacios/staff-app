@@ -15,6 +15,12 @@ export interface ReportDraft {
   prayer: string;
   praise: string;
   discussion: string;
+  /** Step 1: did the group meet? Defaults to yes; a no meeting uses only `reason`. */
+  met: boolean;
+  /** Kept when the leader switches back to yes, but only sent for a no meeting. */
+  reason: string;
+  /** The date has a no-meeting mark and the leader chose to replace it on submit. */
+  replacing: boolean;
   /** Keyed by member id. */
   answers: Record<string, ReportDraftAnswer>;
 }
@@ -38,6 +44,18 @@ function isDraft(value: unknown): value is ReportDraft {
   );
 }
 
+/** Drafts saved before no meeting existed lack these three; they mean "met, no reason". */
+function withMeetingDefaults(draft: ReportDraft): ReportDraft {
+  const saved: Partial<ReportDraft> = draft;
+
+  return {
+    ...draft,
+    met: typeof saved.met === "boolean" ? saved.met : true,
+    reason: typeof saved.reason === "string" ? saved.reason : "",
+    replacing: saved.replacing === true,
+  };
+}
+
 export function loadDraft(
   groupId: number | string,
   meetingDate: string,
@@ -49,7 +67,7 @@ export function loadDraft(
 
     const parsed: unknown = JSON.parse(raw);
 
-    return isDraft(parsed) ? parsed : null;
+    return isDraft(parsed) ? withMeetingDefaults(parsed) : null;
   } catch {
     return null;
   }

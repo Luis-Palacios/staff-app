@@ -18,6 +18,7 @@ import {
   createSmallGroupReport,
   deleteSmallGroupReport,
   getReportRoster,
+  getSmallGroupReport,
   listSmallGroupReports,
   updateSmallGroupReport,
 } from "@/api/small-groups-api/client";
@@ -55,8 +56,13 @@ export type ReportRosterResult =
   | {
       ok: true;
       roster: Awaited<ReturnType<typeof getReportRoster>>;
-      /** "There's already a report for {date}", set with `roster.existingReportId` (rule 1). */
+      /**
+       * "There's already a report for {date}", set whenever the date is taken (rule 1). The new-report
+       * flow shows it only for a held report; a no meeting can be replaced instead.
+       */
       existsMessage: string | null;
+      /** Set with `roster.existingReportHeld === false`: the mark's reason, null for none. */
+      noMeetingReason: string | null;
     }
   | { ok: false; message: string; kind?: ReportErrorKind };
 
@@ -86,6 +92,22 @@ function revalidateReports(groupId: number | string, reportId?: number) {
   if (reportId !== undefined) revalidatePath(`/groups/reports/${reportId}`);
 }
 
+/** The reason on the date's no-meeting mark, for the replace prompt; null when none or unreadable. */
+async function getNoMeetingReason(
+  roster: Awaited<ReturnType<typeof getReportRoster>>,
+): Promise<string | null> {
+  if (roster.existingReportHeld !== false || roster.existingReportId === null) {
+    return null;
+  }
+
+  try {
+    return (await getSmallGroupReport(roster.existingReportId)).notHeldReason;
+  } catch {
+    // The reason only adds context to the prompt.
+    return null;
+  }
+}
+
 /** The roster for a date, called as the date or group changes on the meeting step. */
 export async function getReportRosterAction(
   groupId: number,
@@ -106,7 +128,12 @@ export async function getReportRosterAction(
             date: formatCalendarDate(date, (await getLocale()) as Locale),
           });
 
-    return { ok: true, roster, existsMessage };
+    return {
+      ok: true,
+      roster,
+      existsMessage,
+      noMeetingReason: await getNoMeetingReason(roster),
+    };
   } catch (error) {
     const kind = getReportErrorKind(error);
 
@@ -258,29 +285,45 @@ export async function deleteReportAction(
   redirect("/groups/reports?saved=deleted");
 }
 
+/** Dates that already have a report (`filed`) or a no-meeting mark, for one group. */
+export interface ReportedDates {
+  filed: string[];
+  noMeeting: string[];
+}
+
 /**
- * Dates that already have a report for a group, for the meeting step's calendar. Looks a bit over
- * a year back; the roster's `existingReportId` is what actually blocks a duplicate.
+ * Dates that already have a report or a no meeting for a group, for the meeting step's calendar.
+ * Looks a bit over a year back; the roster's `existingReportId` is what actually blocks a
+ * duplicate.
  */
-export async function listFiledDatesAction(
+export async function listReportedDatesAction(
   groupId: number,
   today: string,
-): Promise<string[]> {
-  if (!(await hasPermission({ smallGroupReports: ["view"] }))) return [];
+): Promise<ReportedDates> {
+  const none: ReportedDates = { filed: [], noMeeting: [] };
+
+  if (!(await hasPermission({ smallGroupReports: ["view"] }))) return none;
 
   try {
     const { items } = await listSmallGroupReports({
       smallGroupId: groupId,
       from: addDays(today, -FILED_LOOKBACK_DAYS),
       to: today,
-      status: "filed",
+      status: "all",
       pageSize: 100,
     });
+    const dates = { ...none };
 
-    return items.map((item) => item.meetingDate);
+    for (const item of items) {
+      if (item.kind === "report") {
+        (item.held ? dates.filed : dates.noMeeting).push(item.meetingDate);
+      }
+    }
+
+    return dates;
   } catch {
     // The dots and the default date are conveniences; the roster still catches a duplicate.
-    return [];
+    return none;
   }
 }
 

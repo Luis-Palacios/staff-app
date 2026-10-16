@@ -64,12 +64,14 @@ export function EditReportForm({
   initialRoster,
   today,
   filedDates,
+  noMeetingDates,
   editMeta,
 }: {
   report: ReportDetail;
   initialRoster: ReportRoster;
   today: string;
   filedDates: string[];
+  noMeetingDates: string[];
   /** "Submitted by … on …", formatted on the server in the church's time zone. */
   editMeta: string;
 }) {
@@ -87,12 +89,16 @@ export function EditReportForm({
     prayer: report.groupPrayerRequest ?? "",
     praise: report.groupPraiseReport ?? "",
     discussion: report.groupRelevantDiscussion ?? "",
+    met: true,
+    reason: "",
+    replacing: false,
     answers: answersOf(report),
   }));
   const [failure, setFailure] = useState<ReportFailure | null>(null);
   const [reloading, setReloading] = useState(false);
   const latest = useRef(draft);
   const knownDates = new Set(filedDates);
+  const knownNoMeetingDates = new Set(noMeetingDates);
 
   function edit(patch: Partial<ReportDraft>) {
     latest.current = { ...latest.current, ...patch };
@@ -217,6 +223,7 @@ export function EditReportForm({
               filedDates={knownDates}
               isInvalid={dateProblem !== null}
               meetingDay={initialRoster.smallGroup.meetingDay}
+              noMeetingDates={knownNoMeetingDates}
               today={today}
               value={date}
               onChange={changeDate}

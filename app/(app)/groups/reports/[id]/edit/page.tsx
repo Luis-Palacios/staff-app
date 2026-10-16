@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { EditReportForm } from "../../_components/edit-report-form";
-import { listFiledDatesAction } from "../../_actions/report-actions";
+import { listReportedDatesAction } from "../../_actions/report-actions";
 import { loadReport } from "../../_lib/load-report";
 
 import { getReportRoster } from "@/api/small-groups-api/client";
@@ -38,9 +38,9 @@ export default async function EditReportPage({
   if (!report.permissions.canEdit) redirect(`/groups/reports/${report.id}`);
 
   const today = getChurchToday();
-  const [roster, filedDates] = await Promise.all([
+  const [roster, reported] = await Promise.all([
     getReportRoster(report.smallGroup.id, report.meetingDate),
-    listFiledDatesAction(report.smallGroup.id, today),
+    listReportedDatesAction(report.smallGroup.id, today),
   ]);
 
   return (
@@ -63,8 +63,9 @@ export default async function EditReportPage({
           name: report.submittedBy.name,
           dateTime: formatChurchDateTime(report.submittedAt, locale),
         })}
-        filedDates={filedDates}
+        filedDates={reported.filed}
         initialRoster={roster}
+        noMeetingDates={reported.noMeeting}
         report={report}
         today={today}
       />

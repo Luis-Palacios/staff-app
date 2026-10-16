@@ -36,6 +36,7 @@ export default async function ReportsPage({
   const scoped = access === "scoped";
   const filters = parseReportFilters(params);
   const tList = await getTranslations("ReportsList");
+  const tNoMeeting = await getTranslations("NoMeetingDialog");
 
   return (
     <>
@@ -51,6 +52,9 @@ export default async function ReportsPage({
         title={scoped ? t("myTitle") : t("title")}
       />
       {params.saved === "deleted" && <SavedToast message={tList("deleted")} />}
+      {params.saved === "marked" && (
+        <SavedToast message={tNoMeeting("markedToast")} />
+      )}
       <section className="flex flex-col gap-4">
         {/* Filter changes run in a transition (see ReportsBrowser), so the skeleton is first load only. */}
         <Suspense fallback={<ReportsListSkeleton />}>

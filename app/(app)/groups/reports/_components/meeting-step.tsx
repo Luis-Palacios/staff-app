@@ -1,6 +1,7 @@
 "use client";
 
 import type { Weekday } from "@/api/small-groups-api/types";
+import type { Locale } from "@/lib/locale-shared";
 
 import {
   ArrowRightIcon,
@@ -17,13 +18,24 @@ import {
 } from "@heroui/react";
 import clsx from "clsx";
 import NextLink from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
-import { type DateProblem, DateProblemNote } from "./date-problem-note";
+import {
+  type DateProblem,
+  DateProblemNote,
+  NoMeetingOnDateNote,
+} from "./date-problem-note";
 import { MeetingDatePicker } from "./meeting-date-picker";
+import { NoMeetingCard } from "./no-meeting-card";
+import { YesNoButtons } from "./yes-no-buttons";
 
 import { ADDRESS_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
+import { CalendarXIcon } from "@/components/icons";
 import { card, title } from "@/components/primitives";
+import {
+  formatCalendarShortDate,
+  formatCalendarWeekdayDate,
+} from "@/lib/format-date";
 import { WEEKDAY_KEYS } from "@/lib/weekdays";
 
 export interface FlowGroup {
@@ -34,6 +46,14 @@ export interface FlowGroup {
 }
 
 export type AttendanceMode = "guided" | "quick";
+
+/** The date already holds a no-meeting mark that a report may replace. */
+export interface NoMeetingOnDate {
+  existingReportId: number;
+  reason: string | null;
+  /** The leader chose to replace it; the mark goes only when the report is submitted. */
+  replacing: boolean;
+}
 
 const labelClass = "text-[13px] font-semibold text-heading";
 
@@ -94,14 +114,26 @@ export function MeetingStep({
   date,
   today,
   filedDates,
+  noMeetingDates,
   dateProblem,
+  noMeetingOnDate,
+  met,
+  reason,
   address,
   mode,
   canChoose,
   rosterLoading,
   noPeople,
+  saving,
+  canSaveNoMeeting,
+  saveError,
   onGroupChange,
   onDateChange,
+  onMetChange,
+  onReasonChange,
+  onReplace,
+  onUndoReplace,
+  onSaveNoMeeting,
   onAddressChange,
   onChooseMode,
   onCancel,
@@ -112,20 +144,37 @@ export function MeetingStep({
   date: string;
   today: string;
   filedDates: ReadonlySet<string>;
+  noMeetingDates: ReadonlySet<string>;
   dateProblem: DateProblem | null;
+  noMeetingOnDate: NoMeetingOnDate | null;
+  /** Did the group meet? Ignored while the date holds a no-meeting mark. */
+  met: boolean;
+  reason: string;
   address: string;
   mode: AttendanceMode | null;
   canChoose: boolean;
   rosterLoading: boolean;
   noPeople: boolean;
+  /** A no meeting is being saved. */
+  saving: boolean;
+  canSaveNoMeeting: boolean;
+  saveError: string | null;
   onGroupChange: (groupId: number) => void;
   onDateChange: (date: string) => void;
+  onMetChange: (met: boolean) => void;
+  onReasonChange: (reason: string) => void;
+  onReplace: () => void;
+  onUndoReplace: () => void;
+  onSaveNoMeeting: () => void;
   onAddressChange: (address: string) => void;
   onChooseMode: (mode: AttendanceMode) => void;
   onCancel: () => void;
 }) {
   const t = useTranslations("ReportForm");
   const tDays = useTranslations("Weekdays");
+  const locale = useLocale() as Locale;
+  // A no-meeting mark on the date hides the question: the only way forward is to replace it.
+  const meeting = noMeetingOnDate !== null || met;
 
   return (
     <div className="flex max-w-[720px] flex-col gap-8">
@@ -180,6 +229,7 @@ export function MeetingStep({
               filedDates={filedDates}
               isInvalid={dateProblem !== null}
               meetingDay={group.meetingDay}
+              noMeetingDates={noMeetingDates}
               today={today}
               value={date}
               onChange={onDateChange}
@@ -197,69 +247,115 @@ export function MeetingStep({
             </p>
           </div>
 
-          <TextField
-            className="gap-1.5"
-            maxLength={ADDRESS_MAX}
-            name="address"
-            value={address}
-            onChange={onAddressChange}
-          >
-            <Label className={labelClass}>{t("address")}</Label>
-            <InputGroup className="h-10 w-full rounded-control">
-              <InputGroup.Input className="text-sm sm:text-sm" />
-            </InputGroup>
-            <Description className="text-[13px] text-muted">
-              {t("addressHint")}
-            </Description>
-          </TextField>
+          {noMeetingOnDate ? (
+            <NoMeetingOnDateNote
+              date={formatCalendarWeekdayDate(date, locale)}
+              existingReportId={noMeetingOnDate.existingReportId}
+              reason={noMeetingOnDate.reason}
+              replacing={noMeetingOnDate.replacing}
+              shortDate={formatCalendarShortDate(date, locale)}
+              onReplace={onReplace}
+              onUndo={onUndoReplace}
+            />
+          ) : (
+            <fieldset className="flex min-w-0 flex-col gap-1.5">
+              <legend className={labelClass}>{t("metQuestion")}</legend>
+              <div className="sm:max-w-[440px]">
+                <YesNoButtons
+                  NoIcon={CalendarXIcon}
+                  label={t("metQuestion")}
+                  noLabel={t("metNo")}
+                  size="compact"
+                  value={met}
+                  yesLabel={t("metYes")}
+                  onChange={onMetChange}
+                />
+              </div>
+            </fieldset>
+          )}
+
+          {meeting && (
+            <TextField
+              className="gap-1.5"
+              maxLength={ADDRESS_MAX}
+              name="address"
+              value={address}
+              onChange={onAddressChange}
+            >
+              <Label className={labelClass}>{t("address")}</Label>
+              <InputGroup className="h-10 w-full rounded-control">
+                <InputGroup.Input className="text-sm sm:text-sm" />
+              </InputGroup>
+              <Description className="text-[13px] text-muted">
+                {t("addressHint")}
+              </Description>
+            </TextField>
+          )}
         </div>
       </section>
 
-      <section aria-labelledby="how-title" className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <h2
-            className={title({ size: "sm", className: "text-[22px]" })}
-            id="how-title"
-          >
-            {t("howTitle")}
-          </h2>
-          <p className="text-sm text-muted">
-            {noPeople ? t("noPeople") : t("howSub")}
-          </p>
-        </div>
-        <div
-          aria-busy={rosterLoading}
-          className="grid gap-4 sm:grid-cols-2"
-          inert={!canChoose}
-        >
-          <ModeCard
-            body={t("guidedBody")}
-            disabled={!canChoose}
-            icon={<UserIcon aria-hidden="true" className="size-5" />}
-            selected={mode === "guided"}
-            title={t("guidedTitle")}
-            onPick={() => onChooseMode("guided")}
-          />
-          <ModeCard
-            body={t("quickBody")}
-            disabled={!canChoose}
-            icon={<ListBulletIcon aria-hidden="true" className="size-5" />}
-            selected={mode === "quick"}
-            title={t("quickTitle")}
-            onPick={() => onChooseMode("quick")}
-          />
-        </div>
-      </section>
+      {!meeting && (
+        <NoMeetingCard
+          canSave={canSaveNoMeeting}
+          date={formatCalendarWeekdayDate(date, locale)}
+          error={saveError}
+          reason={reason}
+          saving={saving}
+          onCancel={onCancel}
+          onReasonChange={onReasonChange}
+          onSave={onSaveNoMeeting}
+        />
+      )}
 
-      <div>
-        <NextLink
-          className="text-sm font-semibold text-heading underline underline-offset-4"
-          href="/groups/reports"
-          onClick={onCancel}
-        >
-          {t("cancel")}
-        </NextLink>
-      </div>
+      {meeting && (
+        <section aria-labelledby="how-title" className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <h2
+              className={title({ size: "sm", className: "text-[22px]" })}
+              id="how-title"
+            >
+              {t("howTitle")}
+            </h2>
+            <p className="text-sm text-muted">
+              {noPeople ? t("noPeople") : t("howSub")}
+            </p>
+          </div>
+          <div
+            aria-busy={rosterLoading}
+            className="grid gap-4 sm:grid-cols-2"
+            inert={!canChoose}
+          >
+            <ModeCard
+              body={t("guidedBody")}
+              disabled={!canChoose}
+              icon={<UserIcon aria-hidden="true" className="size-5" />}
+              selected={mode === "guided"}
+              title={t("guidedTitle")}
+              onPick={() => onChooseMode("guided")}
+            />
+            <ModeCard
+              body={t("quickBody")}
+              disabled={!canChoose}
+              icon={<ListBulletIcon aria-hidden="true" className="size-5" />}
+              selected={mode === "quick"}
+              title={t("quickTitle")}
+              onPick={() => onChooseMode("quick")}
+            />
+          </div>
+        </section>
+      )}
+
+      {meeting && (
+        <div>
+          <NextLink
+            className="text-sm font-semibold text-heading underline underline-offset-4"
+            href="/groups/reports"
+            onClick={onCancel}
+          >
+            {t("cancel")}
+          </NextLink>
+        </div>
+      )}
     </div>
   );
 }

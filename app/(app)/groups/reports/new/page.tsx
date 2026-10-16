@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { ReportFlow } from "../_components/report-flow";
 import {
   getReportRosterAction,
-  listFiledDatesAction,
+  listReportedDatesAction,
 } from "../_actions/report-actions";
 import { defaultMeetingDate } from "../_lib/meeting-dates";
 
@@ -49,7 +49,9 @@ export default async function NewReportPage({
   const group =
     groups.find(({ id }) => id === requested) ?? ledGroup ?? groups[0];
   const today = getChurchToday();
-  const filedDates = new Set(await listFiledDatesAction(group.id, today));
+  const reported = await listReportedDatesAction(group.id, today);
+  // A date with a no meeting is as taken as one with a report when picking where to start.
+  const takenDates = new Set([...reported.filed, ...reported.noMeeting]);
   const requestedDate = first(params.date);
   // `?date=` comes from "File report" on a not-filed row; a future or malformed one is ignored.
   const date =
@@ -58,7 +60,7 @@ export default async function NewReportPage({
       : defaultMeetingDate({
           today,
           meetingDay: group.meetingDay,
-          filedDates,
+          filedDates: takenDates,
         });
   const rosterResult = await getReportRosterAction(group.id, date);
 
@@ -71,7 +73,7 @@ export default async function NewReportPage({
         meetingAddress,
       }))}
       initialDate={date}
-      initialFiledDates={[...filedDates]}
+      initialDates={reported}
       initialGroupId={group.id}
       initialRoster={
         rosterResult.ok
@@ -79,6 +81,7 @@ export default async function NewReportPage({
               status: "ready",
               roster: rosterResult.roster,
               existsMessage: rosterResult.existsMessage,
+              noMeetingReason: rosterResult.noMeetingReason,
             }
           : null
       }

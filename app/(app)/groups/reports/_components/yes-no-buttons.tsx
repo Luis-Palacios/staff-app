@@ -1,5 +1,7 @@
 "use client";
 
+import type { ComponentType, SVGProps } from "react";
+
 import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
@@ -17,6 +19,7 @@ export function YesNoButtons({
   label,
   size,
   describedBy,
+  NoIcon = XMarkIcon,
 }: {
   value: boolean | null;
   onChange: (value: boolean) => void;
@@ -26,6 +29,8 @@ export function YesNoButtons({
   label: string;
   size: "large" | "compact";
   describedBy?: string;
+  /** The No button's glyph; an X unless the answer is a different kind of "no". */
+  NoIcon?: ComponentType<SVGProps<SVGSVGElement>>;
 }) {
   const large = size === "large";
   const base = clsx(
@@ -67,7 +72,7 @@ export function YesNoButtons({
         type="button"
         onClick={() => onChange(false)}
       >
-        <XMarkIcon aria-hidden="true" className={icon} strokeWidth={2.2} />
+        <NoIcon aria-hidden="true" className={icon} strokeWidth={2.2} />
         {noLabel}
       </button>
     </div>
