@@ -508,12 +508,15 @@
     "followUpDescription": "Atrasados con sus reportes en las últimas 4 semanas, o sin líder.",
     "legendFiled": "Con reporte",
     "legendNotFiled": "Sin reporte",
-    "behind": "{missed, number} de las últimas {total, number} reuniones sin reporte",
+    "behind": "{missed, number} sin reporte en las últimas 4 semanas",
     "meetingsLabel": "Últimas reuniones: {list}",
     "meetingFiled": "{date} con reporte",
     "meetingNotFiled": "{date} sin reporte",
     "noLeaderLine": "Sin líder: nadie puede enviar sus reportes.",
-    "followUpLoadFailed": "No se pudo revisar qué grupos están atrasados."
+    "followUpLoadFailed": "No se pudo revisar qué grupos están atrasados.",
+    "view": "Ver",
+    "legendNoMeeting": "Sin reunión",
+    "meetingNoMeeting": "{date} sin reunión"
   },
   "LeaderDashboard": {
     "description": "Tus grupos pequeños esta semana.",

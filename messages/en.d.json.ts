@@ -511,12 +511,15 @@ declare const messages: {
     "followUpDescription": "Behind on reports in the last 4 weeks, or without a leader.",
     "legendFiled": "Filed",
     "legendNotFiled": "Not filed",
-    "behind": "{missed, number} of the last {total, number} meetings not filed",
+    "behind": "{missed, number} not filed in the last 4 weeks",
     "meetingsLabel": "Last meetings: {list}",
     "meetingFiled": "{date} filed",
     "meetingNotFiled": "{date} not filed",
     "noLeaderLine": "No leader, so nobody can file its reports.",
-    "followUpLoadFailed": "Couldn’t check which groups are behind."
+    "followUpLoadFailed": "Couldn’t check which groups are behind.",
+    "view": "View",
+    "legendNoMeeting": "No meeting",
+    "meetingNoMeeting": "{date} no meeting"
   },
   "LeaderDashboard": {
     "description": "Your small groups this week.",

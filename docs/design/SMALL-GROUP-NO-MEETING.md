@@ -49,7 +49,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | 2. New report step 1: met question, no-meeting form, replace | ✅ | see `git log` (stage 2 commit) |
 | 3. No meeting dialog and shortcuts | ✅ | see `git log` (stage 3 commit) |
 | 4. Reports list and no-meeting detail | ✅ | see `git log` (stage 4 commit) |
-| 5. Dashboards and Group detail | ⬜ | |
+| 5. Dashboards and Group detail | ✅ | see `git log` (stage 5 commit) |
 | 6. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
@@ -120,6 +120,16 @@ before the next one starts. After each stage, write a short summary in the progr
   page, and Edit reason (the reason shows in the list under the group). Not checked: dark, English,
   1024 / 390 (phone card), the delete dialog, closed group, and the File a report link landing in
   the replace state.
+- Stage 5: week rows and cards for `notHeld` show the reason under the date (table: one line,
+  cut at 220px with the full text in `title`; cards: wraps) and a **View** action to the detail.
+  Attendance and observations are `—` because they key off `held`. The follow-up text reuses the
+  `GroupsDashboard.behind` key with the new wording (no separate `notFiledInWeeks`); the dot for a
+  no meeting is a transparent chip with a `border-subtle` outline, plus a legend entry and a
+  `meetingNoMeeting` word in the `aria-label`. The Group detail row shows the reason (if any) as
+  its sub-line and a neutral badge. The leader dashboard's *Last report* needed no change.
+- Stage 5 checked in the browser (Spanish, light, 1440): the elder week table row and the group
+  page row. Not checked: the follow-up dots and legend (no group in the local data qualifies),
+  week cards below `xl`, dark, English, 1024 / 390.
 
 ## Token changes
 

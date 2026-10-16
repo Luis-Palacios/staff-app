@@ -20,6 +20,26 @@ export const FOLLOW_UP_MIN_NOT_FILED = 2;
 const dayChip =
   "flex h-7 w-[38px] items-center justify-center rounded-lg border-[1.5px] text-xs font-semibold tabular-nums";
 
+type Meeting = ReportSummaryGroup["recentMeetings"][number];
+
+function meetingWord(meeting: Meeting) {
+  if (meeting.held === false) return "meetingNoMeeting";
+
+  return meeting.reportId === null ? "meetingNotFiled" : "meetingFiled";
+}
+
+// Filed: solid green. Not filed: dashed amber. No meeting: a quiet outline, so it never reads as
+// something to chase.
+function dayClass(meeting: Meeting) {
+  if (meeting.held === false) {
+    return `${dayChip} border-solid border-subtle bg-transparent text-muted`;
+  }
+
+  return meeting.reportId === null
+    ? `${dayChip} border-dashed border-warning-soft-foreground bg-warning-soft text-warning-soft-foreground`
+    : `${dayChip} border-solid border-success-soft-foreground bg-success-soft text-success-soft-foreground`;
+}
+
 type FollowUpItem = { group: ReportSummaryGroup; behind: boolean };
 
 /** Behind groups first (most missed, then name), then groups with no leader (by name). */
@@ -123,6 +143,10 @@ export async function NeedsFollowUpCard({
               <span className="h-3 w-3.5 rounded border-[1.5px] border-dashed border-warning-soft-foreground bg-warning-soft" />
               {t("legendNotFiled")}
             </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-3 w-3.5 rounded border-[1.5px] border-solid border-subtle bg-transparent" />
+              {t("legendNoMeeting")}
+            </span>
           </div>
         )}
       </div>
@@ -139,17 +163,12 @@ export async function NeedsFollowUpCard({
             const label = t("meetingsLabel", {
               list: list.format(
                 meetings.map((meeting) =>
-                  t(
-                    meeting.reportId === null
-                      ? "meetingNotFiled"
-                      : "meetingFiled",
-                    {
-                      date: formatCalendarShortWeekdayDate(
-                        meeting.date,
-                        locale as Locale,
-                      ),
-                    },
-                  ),
+                  t(meetingWord(meeting), {
+                    date: formatCalendarShortWeekdayDate(
+                      meeting.date,
+                      locale as Locale,
+                    ),
+                  }),
                 ),
               ),
             });
@@ -179,23 +198,13 @@ export async function NeedsFollowUpCard({
                       role="img"
                     >
                       {meetings.map((meeting) => (
-                        <span
-                          key={meeting.date}
-                          className={
-                            meeting.reportId === null
-                              ? `${dayChip} border-dashed border-warning-soft-foreground bg-warning-soft text-warning-soft-foreground`
-                              : `${dayChip} border-solid border-success-soft-foreground bg-success-soft text-success-soft-foreground`
-                          }
-                        >
+                        <span key={meeting.date} className={dayClass(meeting)}>
                           {Number(meeting.date.slice(8))}
                         </span>
                       ))}
                     </span>
                     <span className="text-[13.5px] font-semibold text-warning-soft-foreground">
-                      {t("behind", {
-                        missed: notFiledDates.length,
-                        total: recentMeetings.length,
-                      })}
+                      {t("behind", { missed: notFiledDates.length })}
                     </span>
                   </span>
                 ) : (
