@@ -35,17 +35,56 @@ checking the nav and the pages by URL; the *Keep working* list from the spec is 
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 0. This handoff | ⬜ | |
-| 1. Permissions in the session | ⬜ | |
-| 2. Nav | ⬜ | |
-| 3. Pages and actions | ⬜ | |
-| 4. Leader member access | ⬜ | |
-| 5. Docs | ⬜ | |
+| 0. This handoff | ✅ | 22bfa36 |
+| 1. Permissions in the session | ✅ | c05a11b |
+| 2. Nav | ✅ | a75cd6d |
+| 3. Pages and actions | ✅ | 8e16621 |
+| 4. Leader member access | ✅ | daaa5b2 |
+| 5. Docs | ✅ | (this commit) |
 
 ### Decisions and deviations
 
-- **API types are hand-written** (`api/*/types.ts`, no generator), so "regenerate" means updating
-  them by hand against the API handoff. Done in the stage that first needs each type.
+- **API types are hand-written** (`api/*/types.ts`, no generator), so "regenerate" meant updating
+  them by hand against the API handoff: `MemberOption` and `listMemberOptions()` (stage 4),
+  `AuthSession.permissions` (stage 1). The other routes' shapes didn't change.
+- **How each role was tried.** Real sessions for `admin`, `smallGroupLeader` (linked to member 20,
+  leads group 3), a second unlinked leader, and scratch users `elder`, `deacon` (linked to member 41,
+  co-leads group 2) and `user` (linked to member 9), made by inserting `session` rows in
+  auth-server's dev DB and signing the cookie with its secret. The scratch users and the two links
+  were removed afterwards. Every page by URL was loaded for every role (`curl` with the cookie, reading
+  Next's `NEXT_HTTP_ERROR_FALLBACK;404` / `NEXT_REDIRECT` markers, since streaming answers 200 for
+  both), plus the sidebar's links per role. In a browser (a second origin, `127.0.0.1`, so the
+  existing admin session wasn't touched; narrow widths in same-origin iframes because the window
+  can't be resized below the screen): `user` dashboard and My profile (1440 light EN, 390 and 1024
+  dark ES); leader group detail, member detail and member edit (390 and 1024 light EN), the
+  add-member picker (dark EN); elder staff dashboard and member detail (dark EN, two columns).
+- **Not covered by the full light/dark × 1440/1024/390 × EN/ES matrix.** Only the combinations above
+  were looked at. The changed screens reuse existing components and no token or layout changed.
+- **Not exercised:** server actions that write (create/close/set leader, report create/edit/delete,
+  link/unlink, invite from a member, assign role), to keep the dev data as it was. Their permission
+  checks were verified against each role's real `permissions` (admin and elder pass every action's
+  check; leader and deacon pass exactly `smallGroups: update, manageMembers`, the picker, the report
+  actions and `members: update`; `user` none). The one write tried: a leader's member edit (phone,
+  address), which went through with no `email` in the body, and was then reverted.
+- Stage 2: the Dashboard leaf needs "no `smallGroups: all`", which an all-of check can't say, so
+  `NavItem` has `unless` next to `requires`. Links inside a group have their own `requires`, and a
+  group with no visible link is dropped.
+- Stage 3: `/users/[id]` needs `user: get` and `members: view, all, link` (it lists members for the
+  link card); the account server actions list their own needs (`members: link`, plus `user: list`,
+  `invites: create` / `cancel`, `members: view, all` where they read lists). A role with
+  `smallGroups: all` but no `membershipApplications: view` etc. gets the staff dashboard without
+  those sections. The dashboard for a plain `user` is a new small greeting (`WelcomeDashboard`).
+- Stage 4: the group detail links a member's name when the caller has `members: view` and either
+  `members: all` or the group is open (a closed group's members are out of scope, rule 3). The member
+  page links back to Members only with `members: view` + `all`, to a group only when the viewer can
+  open it (full access, or they lead it), and shows the Account card only with `members: link`.
+  The server action drops `email` from the PATCH unless `members: all`, as well as the form hiding it.
+- The add-member dialog no longer shows an email under each name or searches by it; the placeholder
+  says "name" only (copy table below).
+- `members: update` is not required for `GET /members/{id}` (rule 11), so My profile never checks a
+  permission. A linked `user` was tried: Member #9 shows with its contact data.
+- Left for the workspace stage: `members-management/CLAUDE.md` still says the roles are mirrored by
+  hand in `staff-app/lib/auth/roles.ts`. That file now only lists names, for display and assigning.
 
 ## Token changes
 
@@ -121,11 +160,14 @@ This log, roadmap Phase 9 marked done pointing at the spec, `CLAUDE.md` note, th
 
 ## Copy
 
-New strings, if any, are added to `messages/en.json` and `messages/es.json` in the stage that needs
-them, and listed here.
-
 | Namespace.key | English | Español |
 | --- | --- | --- |
+| `WelcomeDashboard.description` | You're signed in. | Ya iniciaste sesión. |
+| `WelcomeDashboard.title` | Your profile | Tu perfil |
+| `WelcomeDashboard.body` | Your profile shows your contact details and the groups you belong to. | Tu perfil muestra tus datos de contacto y los grupos a los que perteneces. |
+| `WelcomeDashboard.openProfile` | Open My profile | Abrir Mi perfil |
+| `GroupMembers.memberPlaceholder` (changed) | Search by name | Busca por nombre |
+| `GroupMembers.noEmail` (removed) | | |
 
 ## Not in this spec
 
@@ -135,9 +177,9 @@ See the cross-repo spec's *Not in this spec*.
 
 Run after implementation. Record findings in the progress log.
 
-- [ ] Each role's nav matches rule 7; every hidden page is a 404 by URL.
-- [ ] 1440 / 1024 / 390, light and dark, English and Spanish: nothing clipped, no sideways scroll.
-- [ ] No color, font, radius or shadow literals in the changed files, no new `dark:` overrides.
+- [x] Each role's nav matches rule 7; every hidden page is a 404 by URL.
+- [ ] 1440 / 1024 / 390, light and dark, English and Spanish: nothing clipped, no sideways scroll. (Partly: see the decisions above.)
+- [x] No color, font, radius or shadow literals in the changed files, no new `dark:` overrides.
 - [ ] Focus ring visible on every control; focus after dialogs makes sense.
-- [ ] No hard-coded strings (`react/jsx-no-literals` is clean).
-- [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+- [x] No hard-coded strings (`react/jsx-no-literals` is clean).
+- [x] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
