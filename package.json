@@ -16,7 +16,8 @@
 		"build": "next build",
 		"start": "next start -p 3001",
 		"lint": "eslint --fix",
-		"tokens": "node tokens/build.mjs"
+		"tokens": "node tokens/build.mjs",
+		"smoke": "node scripts/smoke-test.mjs"
 	},
 	"dependencies": {
 		"@heroicons/react": "^2.2.0",
