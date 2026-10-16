@@ -47,10 +47,14 @@ export function defaultReportRange(today: string): {
   to: string;
 } {
   const start = new Date(`${today}T00:00:00Z`);
-  const end = new Date(start);
 
   start.setUTCDate(start.getUTCDate() - start.getUTCDay());
-  end.setUTCDate(start.getUTCDate() + 6);
+
+  // Copy after moving `start` back to Sunday, so a week that starts in the previous month ends
+  // on the right day.
+  const end = new Date(start);
+
+  end.setUTCDate(end.getUTCDate() + 6);
 
   return {
     from: start.toISOString().slice(0, 10),
