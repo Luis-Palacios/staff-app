@@ -1,6 +1,8 @@
 import type { ComponentType, SVGProps } from "react";
 import type { Messages } from "next-intl";
-import type { SmallGroupAccess } from "@/lib/auth/permissions";
+import type { PermissionCheck, Permissions } from "@/lib/auth/permissions";
+
+import { can } from "@/lib/auth/permissions";
 
 export type SiteConfig = typeof siteConfig;
 
@@ -22,6 +24,8 @@ export type NavLabelKey = keyof Messages["Nav"];
 export type NavChildItem = {
   labelKey: NavLabelKey;
   href: string;
+  /** Permissions needed to see this link; omit to show it to everyone. */
+  requires?: PermissionCheck;
 };
 
 export type NavItem = {
@@ -30,9 +34,12 @@ export type NavItem = {
   icon: NavIconName | HeroIcon;
   /** Leaf link. Omit when the item only groups `items`. */
   href?: string;
-  /** Small group access levels that see this item; omit to show it to everyone. */
-  access?: SmallGroupAccess[];
-  /** Nested links — renders the item as a collapsible group. */
+  /** Permissions needed to see this item; omit to show it to everyone. It must match the check
+   *  the page itself makes (`notFound()`), so a hidden page is also unreachable by URL. */
+  requires?: PermissionCheck;
+  /** Hides the item from anyone who has all of these, for the leaf that stands in for a group. */
+  unless?: PermissionCheck;
+  /** Nested links — renders the item as a collapsible group, hidden when none is visible. */
   items?: NavChildItem[];
 };
 
@@ -79,15 +86,16 @@ export const siteConfig = {
     {
       labelKey: "dashboard",
       icon: "dashboard",
-      access: ["full"],
       items: [
         {
           labelKey: "dashboardGroups",
           href: "/",
+          requires: { smallGroups: ["all"] },
         },
         {
           labelKey: "dashboardStaff",
           href: "/dashboard/staff",
+          requires: { smallGroups: ["all"] },
         },
       ],
     },
@@ -95,25 +103,27 @@ export const siteConfig = {
       labelKey: "dashboard",
       icon: "dashboard",
       href: "/",
-      access: ["scoped", "none"],
+      unless: { smallGroups: ["all"] },
     },
     {
       labelKey: "members",
       icon: "members",
       href: "/members",
+      requires: { members: ["view", "all"] },
     },
     {
       labelKey: "groups",
       icon: "groups",
-      access: ["full", "scoped"],
       items: [
         {
           labelKey: "groupsList",
           href: "/groups",
+          requires: { smallGroups: ["view"] },
         },
         {
           labelKey: "groupsReports",
           href: "/groups/reports",
+          requires: { smallGroups: ["view"] },
         },
       ],
     },
@@ -121,6 +131,7 @@ export const siteConfig = {
       labelKey: "applications",
       icon: "applications",
       href: "/applications",
+      requires: { membershipApplications: ["view"] },
     },
     {
       labelKey: "access",
@@ -129,12 +140,36 @@ export const siteConfig = {
         {
           labelKey: "users",
           href: "/users",
+          requires: { user: ["list"] },
         },
         {
           labelKey: "invites",
           href: "/users/invites",
+          requires: { invites: ["create"] },
         },
       ],
     },
   ] satisfies NavItem[],
 };
+
+/**
+ * The nav the caller sees: items and links whose `requires` pass and whose `unless` doesn't, and
+ * groups left with no link dropped. The pages make the same checks (`notFound()`).
+ */
+export function getVisibleNavItems(permissions: Permissions): NavItem[] {
+  const visible = (entry: {
+    requires?: PermissionCheck;
+    unless?: PermissionCheck;
+  }) =>
+    (!entry.requires || can(permissions, entry.requires)) &&
+    (!entry.unless || !can(permissions, entry.unless));
+
+  return siteConfig.navItems.flatMap((item: NavItem) => {
+    if (!visible(item)) return [];
+    if (!item.items) return [item];
+
+    const items = item.items.filter(visible);
+
+    return items.length > 0 ? [{ ...item, items }] : [];
+  });
+}
