@@ -8,6 +8,7 @@ import { NewGroupLink } from "./_components/new-group-link";
 
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { groupsBreadcrumb } from "@/config/breadcrumbs";
+import { hasPermission } from "@/lib/auth/get-permissions";
 import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
 
 export default async function GroupsPage() {
@@ -22,7 +23,11 @@ export default async function GroupsPage() {
   return (
     <>
       <StaffAppPageHeader
-        actions={scoped ? undefined : <NewGroupLink variant="primary" />}
+        actions={
+          (await hasPermission({ smallGroups: ["create"] })) ? (
+            <NewGroupLink variant="primary" />
+          ) : undefined
+        }
         breadcrumbs={[groupsBreadcrumb]}
         description={scoped ? t("myDescription") : t("description")}
         title={scoped ? t("myTitle") : t("title")}

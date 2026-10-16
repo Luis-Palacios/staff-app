@@ -22,7 +22,8 @@ export async function requireStaffSession(): Promise<AuthSession> {
     redirect("/needs-verification");
   }
 
-  if (session.user.role && session.user.role === AuthRole.Pending) {
+  // A user with no role yet is `pending` (rule 10): fail closed.
+  if (!session.user.role || session.user.role === AuthRole.Pending) {
     redirect("/needs-role");
   }
 

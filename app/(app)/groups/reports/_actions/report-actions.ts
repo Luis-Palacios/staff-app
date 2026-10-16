@@ -12,6 +12,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { forbiddenUnless, hasPermission } from "@/lib/auth/get-permissions";
 import { formatCalendarDate } from "@/lib/format-date";
 import {
   createSmallGroupReport,
@@ -79,6 +80,12 @@ export async function getReportRosterAction(
   groupId: number,
   date: string,
 ): Promise<ReportRosterResult> {
+  const forbidden = await forbiddenUnless({ smallGroupReports: ["view"] });
+
+  if (forbidden) {
+    return { ok: false, message: await getApiErrorMessage(forbidden) };
+  }
+
   try {
     const roster = await getReportRoster(groupId, date);
     const existsMessage =
@@ -104,6 +111,10 @@ export async function createReportAction(
   groupId: number,
   input: ReportInput,
 ): Promise<ReportFailure> {
+  const forbidden = await forbiddenUnless({ smallGroupReports: ["create"] });
+
+  if (forbidden) return toFailure(forbidden, input.meetingDate);
+
   const parsed = reportBodySchema.safeParse(input);
 
   if (!parsed.success) {
@@ -127,6 +138,10 @@ export async function updateReportAction(
   groupId: number,
   input: ReportInput,
 ): Promise<ReportFailure> {
+  const forbidden = await forbiddenUnless({ smallGroupReports: ["update"] });
+
+  if (forbidden) return toFailure(forbidden, input.meetingDate);
+
   const parsed = reportBodySchema.safeParse(input);
 
   if (!parsed.success) {
@@ -147,6 +162,10 @@ export async function deleteReportAction(
   id: number,
   groupId: number,
 ): Promise<ReportFailure> {
+  const forbidden = await forbiddenUnless({ smallGroupReports: ["delete"] });
+
+  if (forbidden) return toFailure(forbidden, "");
+
   try {
     await deleteSmallGroupReport(id);
   } catch (error) {
@@ -165,6 +184,8 @@ export async function listFiledDatesAction(
   groupId: number,
   today: string,
 ): Promise<string[]> {
+  if (!(await hasPermission({ smallGroupReports: ["view"] }))) return [];
+
   try {
     const { items } = await listSmallGroupReports({
       smallGroupId: groupId,
@@ -185,6 +206,12 @@ export async function listFiledDatesAction(
 export async function listReportsPageAction(
   params: ReportListParams,
 ): Promise<{ ok: true; data: ReportList } | { ok: false; message: string }> {
+  const forbidden = await forbiddenUnless({ smallGroupReports: ["view"] });
+
+  if (forbidden) {
+    return { ok: false, message: await getApiErrorMessage(forbidden) };
+  }
+
   try {
     return { ok: true, data: await listSmallGroupReports(params) };
   } catch (error) {

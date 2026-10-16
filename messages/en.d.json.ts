@@ -501,6 +501,12 @@ declare const messages: {
     "openInvites": "Open invites",
     "openInvitesSub": "Sent, not accepted"
   },
+  "WelcomeDashboard": {
+    "description": "You're signed in.",
+    "title": "Your profile",
+    "body": "Your profile shows your contact details and the groups you belong to.",
+    "openProfile": "Open My profile"
+  },
   "StatTile": {
     "loadError": "Couldn't load"
   },

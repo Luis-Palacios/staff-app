@@ -1,18 +1,18 @@
 "use server";
 
+import type { PermissionCheck } from "@/lib/auth/permissions";
+
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 
 import { cancelInvite, createInvite, listUsers } from "@/api/auth-api/client";
-import { requireStaffSession } from "@/api/auth-api/helpers/require-staff-session";
-import { ApiError } from "@/api/api-client";
 import {
   linkMemberUser,
   listMembers,
   unlinkMemberUser,
 } from "@/api/members-api/client";
 import { getApiErrorMessage } from "@/lib/api-error-message";
-import { canManageLinks } from "@/lib/auth/permissions";
+import { forbiddenUnless } from "@/lib/auth/get-permissions";
 import { AuthRole } from "@/lib/auth/roles";
 import {
   getLinkedUserIds,
@@ -56,29 +56,27 @@ function revalidateAccountPages() {
   revalidatePath("/users/[id]", "page");
 }
 
-// The API and auth-server enforce the role too; this keeps a non-admin's call from going out at
-// all and gives the same "only admins and elders" message.
-async function requireLinkManager(): Promise<AccountActionFailure | null> {
-  const { permissions } = await requireStaffSession();
+// The API and auth-server enforce the permissions too; this keeps a call the user can't make from
+// going out at all and gives the same "only admins and elders" message.
+async function requirePermissions(
+  check: PermissionCheck,
+): Promise<AccountActionFailure | null> {
+  const forbidden = await forbiddenUnless(check);
 
-  return canManageLinks(permissions)
-    ? null
-    : failure(
-        new ApiError({
-          status: 403,
-          statusText: "Forbidden",
-          url: "",
-          method: "",
-          body: null,
-        }),
-      );
+  return forbidden ? failure(forbidden) : null;
 }
+
+// Link, unlink and the link dialogs (`members: link`).
+const requireLinkManager = () => requirePermissions({ members: ["link"] });
 
 /** Users no member is linked to, for the link dialog, plus the ones with the member's email. */
 export async function listLinkableUsersAction(
   memberId: number,
 ): Promise<LinkableUsersResult> {
-  const denied = await requireLinkManager();
+  const denied = await requirePermissions({
+    members: ["link", "view", "all"],
+    user: ["list"],
+  });
 
   if (denied) return denied;
 
@@ -118,7 +116,10 @@ export type LinkableMembersResult =
 export async function listLinkableMembersAction(
   userId: string,
 ): Promise<LinkableMembersResult> {
-  const denied = await requireLinkManager();
+  const denied = await requirePermissions({
+    members: ["link", "view", "all"],
+    user: ["list"],
+  });
 
   if (denied) return denied;
 
@@ -196,7 +197,11 @@ async function forwardedRequest() {
 export async function inviteMemberAction(
   email: string,
 ): Promise<AccountActionResult> {
-  const denied = await requireLinkManager();
+  const denied = await requirePermissions({
+    members: ["link"],
+    invites: ["create"],
+    user: ["list"],
+  });
 
   if (denied) return denied;
 
@@ -227,7 +232,10 @@ export async function inviteMemberAction(
 export async function cancelMemberInviteAction(
   token: string,
 ): Promise<AccountActionResult> {
-  const denied = await requireLinkManager();
+  const denied = await requirePermissions({
+    members: ["link"],
+    invites: ["cancel"],
+  });
 
   if (denied) return denied;
 

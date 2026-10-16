@@ -1,6 +1,6 @@
 import type { Locale } from "@/lib/locale-shared";
 
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { EditReportForm } from "../../_components/edit-report-form";
@@ -13,7 +13,7 @@ import {
   groupsBreadcrumb,
   groupsReportsBreadcrumb,
 } from "@/config/breadcrumbs";
-import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
+import { requirePermission } from "@/lib/auth/get-permissions";
 import { formatChurchDateTime, getChurchToday } from "@/lib/church-time";
 import { formatCalendarShortDate } from "@/lib/format-date";
 
@@ -22,7 +22,10 @@ export default async function EditReportPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  if ((await getCurrentSmallGroupAccess()) === "none") notFound();
+  await requirePermission({
+    smallGroups: ["view"],
+    smallGroupReports: ["view", "update"],
+  });
 
   const [{ id }, t, locale] = await Promise.all([
     params,

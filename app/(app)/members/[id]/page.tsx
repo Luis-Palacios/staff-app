@@ -8,6 +8,7 @@ import { MemberGroupsCard } from "./_components/member-groups-card";
 import { loadMember } from "@/app/(app)/members/_lib/load-member";
 import { loadMemberAccount } from "@/app/(app)/members/_lib/load-member-account";
 import { SavedToast } from "@/components/saved-toast";
+import { requirePermission } from "@/lib/auth/get-permissions";
 
 export default async function MemberDetailPage({
   params,
@@ -16,6 +17,8 @@ export default async function MemberDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ saved?: string }>;
 }) {
+  await requirePermission({ members: ["view"] });
+
   const [{ id }, { saved }, t, tForm] = await Promise.all([
     params,
     searchParams,

@@ -5,12 +5,15 @@ import { MemberForm } from "../../_components/member-form";
 import { loadMember } from "@/app/(app)/members/_lib/load-member";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { membersBreadcrumb } from "@/config/breadcrumbs";
+import { requirePermission } from "@/lib/auth/get-permissions";
 
 export default async function EditMemberPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requirePermission({ members: ["update"] });
+
   const { id } = await params;
   const [member, t] = await Promise.all([
     loadMember(id),

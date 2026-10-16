@@ -5,13 +5,12 @@ import type { MemberDetail } from "@/api/members-api/types";
 
 import { cache } from "react";
 import { headers } from "next/headers";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { ApiError } from "@/api/api-client";
 import { getUser } from "@/api/auth-api/client";
-import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { getMember, listMembers } from "@/api/members-api/client";
-import { canManageLinks } from "@/lib/auth/permissions";
+import { requirePermission } from "@/lib/auth/get-permissions";
 
 export interface UserAccount {
   user: AdminUserListItem;
@@ -20,15 +19,13 @@ export interface UserAccount {
 }
 
 /**
- * The user for `/users/[id]`, with the member linked to them. Like the Users list, the page is
- * for admins and elders (auth-server's `admin/get-user` refuses anyone else), so every viewer can
- * manage the link. An unknown id shows
+ * The user for `/users/[id]`, with the member linked to them. It needs `user: get` (auth-server's
+ * `admin/get-user`) and, for the link card, `members: view`, `all` (the full members list) and
+ * `link`; anyone without them gets the 404 page, so every viewer can manage the link. An unknown id shows
  * the 404 page; any other error goes to `app/(app)/error.tsx`.
  */
 export const loadUser = cache(async (id: string): Promise<UserAccount> => {
-  const session = await getServerSession();
-
-  if (!session || !canManageLinks(session.permissions)) redirect("/");
+  await requirePermission({ user: ["get"], members: ["view", "all", "link"] });
 
   const cookie = (await headers()).get("cookie") ?? "";
   let user: AdminUserListItem;
