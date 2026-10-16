@@ -110,6 +110,58 @@ export interface ReportSummaryGroup {
   } | null;
   /** Newest first. */
   notFiledDates: string[];
+  /** An active leader or co-leader today. */
+  hasLeader: boolean;
+  /** Newest first; every meeting date in the 28-day window, filed or not. */
+  recentMeetings: ReportRecentMeeting[];
+}
+
+export interface ReportRecentMeeting {
+  /** Date only, "YYYY-MM-DD". */
+  date: string;
+  /** Null when the meeting has no report. */
+  reportId: number | null;
+}
+
+export type ReportWeekStatus =
+  | "submitted"
+  | "notFiled"
+  | "today"
+  | "upcoming"
+  | "noLeader"
+  | "noMeetingDay";
+
+export interface ReportWeekReport {
+  id: number;
+  meetingDate: string;
+  rosterCount: number;
+  attendedGroupCount: number;
+  attendedChurchCount: number;
+  /** Attendance rows with an observation; admins and elders only (reports rule 9). */
+  observationCount: number;
+  submittedBy: ReportPerson;
+}
+
+export interface ReportWeekGroup {
+  smallGroup: { id: number; name: string; meetingDay: Weekday | null };
+  /** Active today: the leader, then co-leaders by name. */
+  leaders: { memberId: number; name: string; role: SmallGroupRole }[];
+  status: ReportWeekStatus;
+  /** The week's date on the group's meeting day; null without a meeting day. */
+  meetingDate: string | null;
+  /** Dated in the week, newest first. */
+  reports: ReportWeekReport[];
+}
+
+export interface ReportWeek {
+  /** The week's Sunday and Saturday, "YYYY-MM-DD". */
+  weekStart: string;
+  weekEnd: string;
+  /** The church's today. */
+  today: string;
+  isCurrentWeek: boolean;
+  /** Open groups, by name. */
+  groups: ReportWeekGroup[];
 }
 
 export interface ReportRosterPerson {

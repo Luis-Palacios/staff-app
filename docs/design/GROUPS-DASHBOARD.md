@@ -68,7 +68,7 @@ progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Menu and routes (`/`, `/dashboard/staff`) | ✅ | see `git log` |
-| 2. API types and client | ⬜ | |
+| 2. API types and client | ✅ | see `git log` |
 | 3. The week | ⬜ | |
 | 4. Needs follow-up | ⬜ | |
 | 5. Design review fixes | ⬜ | |
@@ -79,6 +79,8 @@ progress log below.
   `GroupsDashboard` exists with the interim body (greeting, `NoGroupsCard`, `MyGroupsSection ledOnly`)
   and its own `GroupsDashboard.description`. Sidebar needed no change. Checked in the browser as
   admin; leader/deacon redirect from `/dashboard/staff` is by code only (no such login used).
+- Stage 2: types match the running API's OpenAPI schema. `getSmallGroupReportSummary` is now a
+  React `cache()`d function.
 
 ## Token changes
 
