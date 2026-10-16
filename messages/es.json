@@ -416,7 +416,48 @@
     "fileLabel": "Enviar el reporte del {date}"
   },
   "GroupsDashboard": {
-    "description": "Cómo van todos los grupos pequeños esta semana."
+    "description": "Cómo van todos los grupos pequeños esta semana.",
+    "weekDescription": "El reporte de cada grupo abierto, de domingo a sábado.",
+    "thisWeek": "Esta semana",
+    "lastWeek": "Semana pasada",
+    "weekOf": "Semana del {date}",
+    "allReports": "Todos los reportes",
+    "weekNav": "Cambiar de semana",
+    "previousWeek": "Semana anterior",
+    "nextWeek": "Semana siguiente",
+    "weekSummary": "Resumen de la semana",
+    "weekLoadFailed": "Los reportes de la semana no se pudieron cargar. Inténtalo de nuevo en un momento.",
+    "status": {
+      "due": "Pendiente",
+      "notFiled": "Sin reporte",
+      "today": "Se reúne hoy",
+      "upcoming": "Próxima",
+      "submitted": "Enviado",
+      "noLeader": "Sin líder",
+      "noMeetingDay": "Sin día de reunión"
+    },
+    "count": {
+      "due": "{count, plural, one {<strong>#</strong> pendiente} other {<strong>#</strong> pendientes}}",
+      "notFiled": "{count, plural, other {<strong>#</strong> sin reporte}}",
+      "today": "{count, plural, one {<strong>#</strong> se reúne hoy} other {<strong>#</strong> se reúnen hoy}}",
+      "upcoming": "{count, plural, one {<strong>#</strong> próxima} other {<strong>#</strong> próximas}}",
+      "submitted": "{count, plural, one {<strong>#</strong> enviado} other {<strong>#</strong> enviados}}",
+      "noLeader": "{count, plural, other {<strong>#</strong> sin líder}}",
+      "noMeetingDay": "{count, plural, other {<strong>#</strong> sin día de reunión}}"
+    },
+    "colGroup": "Grupo",
+    "colStatus": "Estado",
+    "colAttendance": "En la reunión",
+    "colObservations": "Observaciones",
+    "colActions": "Acciones",
+    "attendance": "<strong>{attended, number}</strong> de {total, number}",
+    "observations": "{count, plural, =0 {Ninguna} one {# observación} other {# observaciones}}",
+    "moreReports": "+{count, number} más esta semana",
+    "noLeader": "Sin líder",
+    "viewReport": "Ver reporte",
+    "seeMeetings": "Ver reuniones",
+    "openGroup": "Abrir grupo",
+    "actionLabel": "{action}: {group}"
   },
   "LeaderDashboard": {
     "description": "Tus grupos pequeños esta semana.",

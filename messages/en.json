@@ -416,7 +416,48 @@
     "fileLabel": "File the report for {date}"
   },
   "GroupsDashboard": {
-    "description": "How every small group is doing this week."
+    "description": "How every small group is doing this week.",
+    "weekDescription": "Every open group’s report for the week, Sunday to Saturday.",
+    "thisWeek": "This week",
+    "lastWeek": "Last week",
+    "weekOf": "Week of {date}",
+    "allReports": "All reports",
+    "weekNav": "Change week",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "weekSummary": "Week summary",
+    "weekLoadFailed": "This week’s reports couldn’t load. Try again in a moment.",
+    "status": {
+      "due": "Due",
+      "notFiled": "Not filed",
+      "today": "Meets today",
+      "upcoming": "Upcoming",
+      "submitted": "Submitted",
+      "noLeader": "No leader",
+      "noMeetingDay": "No meeting day"
+    },
+    "count": {
+      "due": "{count, plural, other {<strong>#</strong> due}}",
+      "notFiled": "{count, plural, other {<strong>#</strong> not filed}}",
+      "today": "{count, plural, one {<strong>#</strong> meets today} other {<strong>#</strong> meet today}}",
+      "upcoming": "{count, plural, other {<strong>#</strong> upcoming}}",
+      "submitted": "{count, plural, other {<strong>#</strong> submitted}}",
+      "noLeader": "{count, plural, other {<strong>#</strong> without a leader}}",
+      "noMeetingDay": "{count, plural, other {<strong>#</strong> without a meeting day}}"
+    },
+    "colGroup": "Group",
+    "colStatus": "Status",
+    "colAttendance": "At the meeting",
+    "colObservations": "Observations",
+    "colActions": "Actions",
+    "attendance": "<strong>{attended, number}</strong> of {total, number}",
+    "observations": "{count, plural, =0 {None} one {# observation} other {# observations}}",
+    "moreReports": "+{count, number} more this week",
+    "noLeader": "No leader",
+    "viewReport": "View report",
+    "seeMeetings": "See meetings",
+    "openGroup": "Open group",
+    "actionLabel": "{action}: {group}"
   },
   "LeaderDashboard": {
     "description": "Your small groups this week.",
