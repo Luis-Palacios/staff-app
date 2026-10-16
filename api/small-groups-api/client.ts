@@ -5,11 +5,14 @@ import type {
   ReportListParams,
   ReportRoster,
   ReportSummaryGroup,
+  ReportWeek,
   SmallGroupDetail,
   SmallGroupInput,
   SmallGroupRole,
   SmallGroupSummary,
 } from "@/api/small-groups-api/types";
+
+import { cache } from "react";
 
 import { authenticatedFetch } from "@/api/authenticated-fetch";
 import { getEnv } from "@/lib/env/server";
@@ -145,11 +148,29 @@ export function listSmallGroupReports(
   );
 }
 
-/** Per open group in scope: the last report and the not-filed dates. */
-export function getSmallGroupReportSummary(): Promise<ReportSummaryGroup[]> {
-  return authenticatedFetch<ReportSummaryGroup[]>(
+/**
+ * Per open group in scope: the last report, the not-filed dates, whether it has a leader and its
+ * recent meetings. Cached per render, so the follow-up card and My groups make one request.
+ */
+export const getSmallGroupReportSummary = cache(
+  (): Promise<ReportSummaryGroup[]> =>
+    authenticatedFetch<ReportSummaryGroup[]>(
+      getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+      "/small-group-reports/summary",
+      { cache: "no-store" },
+    ),
+);
+
+/**
+ * Every open group's report status for the Sunday–Saturday week containing `date`
+ * ("YYYY-MM-DD"; default: the church's today). Admins and elders only; 422 for a later week.
+ */
+export function getSmallGroupReportWeek(date?: string): Promise<ReportWeek> {
+  const query = date ? `?date=${encodeURIComponent(date)}` : "";
+
+  return authenticatedFetch<ReportWeek>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
-    "/small-group-reports/summary",
+    `/small-group-reports/week${query}`,
     { cache: "no-store" },
   );
 }
