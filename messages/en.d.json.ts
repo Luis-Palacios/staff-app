@@ -7,6 +7,8 @@ declare const messages: {
   },
   "Nav": {
     "dashboard": "Dashboard",
+    "dashboardGroups": "Groups",
+    "dashboardStaff": "Staff",
     "members": "Members",
     "groups": "Groups",
     "groupsList": "List",
@@ -415,6 +417,9 @@ declare const messages: {
     "loadFailed": "The reports couldn’t load. Try again in a moment.",
     "openLabel": "Open the report for {date}",
     "fileLabel": "File the report for {date}"
+  },
+  "GroupsDashboard": {
+    "description": "How every small group is doing this week."
   },
   "LeaderDashboard": {
     "description": "Your small groups this week.",

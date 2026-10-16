@@ -67,7 +67,7 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Menu and routes (`/`, `/dashboard/staff`) | ⬜ | |
+| 1. Menu and routes (`/`, `/dashboard/staff`) | ✅ | see `git log` |
 | 2. API types and client | ⬜ | |
 | 3. The week | ⬜ | |
 | 4. Needs follow-up | ⬜ | |
@@ -75,8 +75,10 @@ progress log below.
 
 ### Decisions and deviations
 
-- [Anything decided during implementation, or where the build intentionally differs from the
-  canvas, and why.]
+- Stage 1: `StaffDashboard` takes `firstName` and `role` (it derives the staff-admin check itself).
+  `GroupsDashboard` exists with the interim body (greeting, `NoGroupsCard`, `MyGroupsSection ledOnly`)
+  and its own `GroupsDashboard.description`. Sidebar needed no change. Checked in the browser as
+  admin; leader/deacon redirect from `/dashboard/staff` is by code only (no such login used).
 
 ## Token changes
 

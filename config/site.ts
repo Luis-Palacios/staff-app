@@ -79,7 +79,23 @@ export const siteConfig = {
     {
       labelKey: "dashboard",
       icon: "dashboard",
+      access: ["full"],
+      items: [
+        {
+          labelKey: "dashboardGroups",
+          href: "/",
+        },
+        {
+          labelKey: "dashboardStaff",
+          href: "/dashboard/staff",
+        },
+      ],
+    },
+    {
+      labelKey: "dashboard",
+      icon: "dashboard",
       href: "/",
+      access: ["scoped", "none"],
     },
     {
       labelKey: "members",

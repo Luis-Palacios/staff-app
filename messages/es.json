@@ -4,6 +4,8 @@
   },
   "Nav": {
     "dashboard": "Panel",
+    "dashboardGroups": "Grupos",
+    "dashboardStaff": "Personal",
     "members": "Miembros",
     "groups": "Grupos",
     "groupsList": "Lista",
@@ -412,6 +414,9 @@
     "loadFailed": "No se pudieron cargar los reportes. Inténtalo de nuevo en un momento.",
     "openLabel": "Abrir el reporte del {date}",
     "fileLabel": "Enviar el reporte del {date}"
+  },
+  "GroupsDashboard": {
+    "description": "Cómo van todos los grupos pequeños esta semana."
   },
   "LeaderDashboard": {
     "description": "Tus grupos pequeños esta semana.",
