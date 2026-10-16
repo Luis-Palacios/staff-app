@@ -71,7 +71,7 @@ progress log below.
 | 2. API types and client | ✅ | see `git log` |
 | 3. The week | ✅ | see `git log` |
 | 4. Needs follow-up | ✅ | see `git log` |
-| 5. Design review fixes | ⬜ | |
+| 5. Design review fixes | ✅ | see `git log` |
 
 ### Decisions and deviations
 
