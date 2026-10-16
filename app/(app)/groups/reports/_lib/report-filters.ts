@@ -41,16 +41,21 @@ export function parseReportFilters(params: SearchParams): ReportFilters {
   };
 }
 
-/** The last six weeks ending `today` ("YYYY-MM-DD", the church's today): the API's default window. */
+/** The current week, Sunday through Saturday, around `today` ("YYYY-MM-DD", the church's today). */
 export function defaultReportRange(today: string): {
   from: string;
   to: string;
 } {
   const start = new Date(`${today}T00:00:00Z`);
+  const end = new Date(start);
 
-  start.setUTCDate(start.getUTCDate() - 42);
+  start.setUTCDate(start.getUTCDate() - start.getUTCDay());
+  end.setUTCDate(start.getUTCDate() + 6);
 
-  return { from: start.toISOString().slice(0, 10), to: today };
+  return {
+    from: start.toISOString().slice(0, 10),
+    to: end.toISOString().slice(0, 10),
+  };
 }
 
 /** True when the list is narrowed beyond its defaults (decides which empty state shows). */
