@@ -8,6 +8,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import { listSmallGroupReports } from "@/api/small-groups-api/client";
 import { DetailCardHeading } from "@/app/(app)/applications/[id]/_components/detail-card-heading";
+import { NoMeetingButton } from "@/app/(app)/groups/reports/_components/no-meeting-button";
 import { card, textLink } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCalendarMediumDate } from "@/lib/format-date";
@@ -111,17 +112,35 @@ export async function GroupReportsCard({
               );
             }
 
-            // A not-filed meeting links to filing it, when the caller can.
+            // A not-filed meeting links to filing it, or can be marked as no meeting, when the
+            // caller can. The button sits beside the link: a button can't live inside one.
             return (
-              <li key={`missing-${item.meetingDate}`}>
+              <li
+                key={`missing-${item.meetingDate}`}
+                className={
+                  canSubmit && open ? "flex items-center pr-6" : undefined
+                }
+              >
                 {canSubmit && open ? (
-                  <NextLink
-                    aria-label={t("fileLabel", { date })}
-                    className={rowClass}
-                    href={`/groups/reports/new?groupId=${group.id}&date=${item.meetingDate}`}
-                  >
-                    {row}
-                  </NextLink>
+                  <>
+                    <NextLink
+                      aria-label={t("fileLabel", { date })}
+                      className={`${rowClass} min-w-0 flex-1`}
+                      href={`/groups/reports/new?groupId=${group.id}&date=${item.meetingDate}`}
+                    >
+                      {row}
+                    </NextLink>
+                    <NoMeetingButton
+                      ariaLabel={t("noMeetingLabel", { date })}
+                      label={t("noMeetingAction")}
+                      target={{
+                        groupId: group.id,
+                        groupName: group.name,
+                        date: item.meetingDate,
+                      }}
+                      variant="button"
+                    />
+                  </>
                 ) : (
                   <div className={rowClass}>{row}</div>
                 )}

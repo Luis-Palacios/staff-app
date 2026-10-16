@@ -9,6 +9,7 @@ import clsx from "clsx";
 import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
+import { NoMeetingButton } from "./no-meeting-button";
 import { fileReportHref } from "./reports-table";
 
 import { card } from "@/components/primitives";
@@ -103,25 +104,41 @@ export default function ReportCard({
             {t("missingNote")}
           </p>
           {canSubmit && (
-            <NextLink
-              aria-label={t("fileReportLabel", {
-                group: item.smallGroup.name,
-                date,
-              })}
-              className={buttonVariants({
-                variant: "primary",
-                className:
-                  "h-[38px] w-full gap-1.5 px-3 text-[13px] font-semibold",
-              })}
-              href={fileReportHref(item.smallGroup.id, item.meetingDate)}
-            >
-              <PlusIcon
-                aria-hidden="true"
-                className="size-3.5"
-                strokeWidth={2}
+            <div className="grid grid-cols-2 gap-2">
+              <NextLink
+                aria-label={t("fileReportLabel", {
+                  group: item.smallGroup.name,
+                  date,
+                })}
+                className={buttonVariants({
+                  variant: "primary",
+                  className:
+                    "h-[38px] w-full gap-1.5 px-3 text-[13px] font-semibold",
+                })}
+                href={fileReportHref(item.smallGroup.id, item.meetingDate)}
+              >
+                <PlusIcon
+                  aria-hidden="true"
+                  className="size-3.5"
+                  strokeWidth={2}
+                />
+                {t("fileReport")}
+              </NextLink>
+              <NoMeetingButton
+                ariaLabel={t("noMeetingLabel", {
+                  group: item.smallGroup.name,
+                  date,
+                })}
+                className="h-[38px] w-full px-3 text-[13px]"
+                label={t("noMeetingAction")}
+                target={{
+                  groupId: item.smallGroup.id,
+                  groupName: item.smallGroup.name,
+                  date: item.meetingDate,
+                }}
+                variant="button"
               />
-              {t("fileReport")}
-            </NextLink>
+            </div>
           )}
         </>
       )}

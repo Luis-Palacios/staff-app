@@ -47,7 +47,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | --- | --- | --- |
 | 1. API types, client and server actions | ✅ | see `git log` (stage 1 commit) |
 | 2. New report step 1: met question, no-meeting form, replace | ✅ | see `git log` (stage 2 commit) |
-| 3. No meeting dialog and shortcuts | ⬜ | |
+| 3. No meeting dialog and shortcuts | ✅ | see `git log` (stage 3 commit) |
 | 4. Reports list and no-meeting detail | ⬜ | |
 | 5. Dashboards and Group detail | ⬜ | |
 | 6. Design review fixes | ⬜ | |
@@ -84,6 +84,23 @@ before the next one starts. After each stage, write a short summary in the progr
   `CalendarXIcon` in `components/icons.tsx` (Heroicons has none) and a `NoIcon` prop on
   `YesNoButtons`. `replacing` lives in the draft but is reset when the date changes without a saved
   draft, and is only honoured while the roster still reports a no meeting there.
+- Stage 3: `NoMeetingDialog` (HeroUI `Modal`, `kind` mark/edit, controlled) and `NoMeetingButton`
+  (trigger + dialog + refresh; `variant` link for the dashboard box, button for rows). The toast
+  can't live in the button: its row leaves "not filed" after the refresh and takes it along. A
+  `showToast()` / `ToastHost` pair (`components/toast-host.tsx`, mounted in `app/(app)/layout.tsx`)
+  shows it instead; `SavedToast` is unchanged. Stage 4's detail page reuses `NoMeetingButton`
+  with `kind="edit"`.
+- Stage 3: focus after a save goes to the first control of the neighbouring row (next, else
+  previous), 600 ms later; Escape and Cancel return focus to the trigger (React Aria).
+- Stage 3: the existing keys that said "the group met but no report was filed"
+  (`LeaderDashboard.notFiled`, `ReportsList.missingNote`, `GroupReportsCard.missing`) now say the
+  meeting has no report yet; the spec's `LeaderDashboard.noReportYet` already exists for "no last
+  report", so the new copy lives in `notFiled`. Each of the three namespaces got
+  `noMeetingAction` and an aria `noMeetingLabel`.
+- Stage 3 checked in the browser (Spanish, light): list row and phone card, dashboard box and
+  group page row, mark + toast + row leaving, Escape, the 390px dialog. Not checked: dark mode,
+  English, 1024px, the failure message inside the dialog, and the group page row on a phone.
+
 - Stage 2, for stage 4: `/groups/reports/[id]/edit` must redirect to the detail for a no meeting
   (its reason is edited in the dialog).
 - Stage 2 checked in the browser against the local API: Save (with and without a reason) lands on

@@ -16,6 +16,7 @@ import { Greeting, TodayDate } from "./dashboard-greeting";
 
 import { getMe } from "@/api/members-api/client";
 import { getSmallGroupReportSummary } from "@/api/small-groups-api/client";
+import { NoMeetingButton } from "@/app/(app)/groups/reports/_components/no-meeting-button";
 import { weekdayOf } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import { EmptyState } from "@/components/empty-state";
 import { card, textLink, title } from "@/components/primitives";
@@ -133,6 +134,19 @@ async function GroupCard({
             >
               {t("fileIt")}
             </NextLink>
+            <span aria-hidden="true">{"·"}</span>
+            <NoMeetingButton
+              ariaLabel={t("noMeetingLabel", {
+                date: formatCalendarShortWeekdayDate(date, locale),
+              })}
+              label={t("noMeetingAction")}
+              target={{
+                groupId: smallGroup.id,
+                groupName: smallGroup.name,
+                date,
+              }}
+              variant="link"
+            />
           </div>
         ))}
       </div>
