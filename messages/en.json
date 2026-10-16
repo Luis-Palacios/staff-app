@@ -276,7 +276,9 @@
     "closed": "Closed",
     "tableLabel": "Small group reports",
     "noMatches": "No reports match these filters.",
-    "results": "{count, plural, one {# result} other {# results}}"
+    "results": "{count, plural, one {# result} other {# results}}",
+    "noMeeting": "No meeting",
+    "markedBy": "Marked by {name}"
   },
   "ReportDetail": {
     "groupPage": "Group page",
@@ -319,7 +321,19 @@
     "deleteConfirm": "Delete report",
     "submitted": "Report submitted",
     "updated": "Changes saved",
-    "ofTotal": "{count, number} of {total, number}"
+    "ofTotal": "{count, number} of {total, number}",
+    "noMeeting": "No meeting",
+    "reasonEyebrow": "Reason",
+    "markedOn": "Marked by {name} on {dateTime}",
+    "editReason": "Edit reason",
+    "didntMeet": "The group didn’t meet",
+    "noReason": "No reason given.",
+    "noMeetingEffect": "This date doesn’t count as a missing report on dashboards or in Reports.",
+    "metAfterAllTitle": "Did the group meet after all?",
+    "metAfterAllBody": "File a report for this date. This mark is replaced when you submit it, so nothing is lost if you stop halfway.",
+    "fileInstead": "File a report for {date}",
+    "deleteNoMeetingTitle": "Delete this no-meeting mark?",
+    "deleteNoMeetingBody": "{date} will show as Not filed again if it was a meeting day."
   },
   "NoMeetingDialog": {
     "title": "No meeting on {date}?",

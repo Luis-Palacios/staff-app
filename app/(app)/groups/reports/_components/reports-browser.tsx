@@ -349,6 +349,7 @@ export default function ReportsBrowser({
       options={[
         { key: "all", label: t("all") },
         { key: "filed", label: t("filed") },
+        { key: "notHeld", label: t("noMeeting") },
         { key: "notFiled", label: t("notFiled") },
       ]}
       value={filters.status}
