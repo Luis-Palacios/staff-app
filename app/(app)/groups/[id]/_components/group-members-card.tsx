@@ -6,7 +6,7 @@ import type {
   SmallGroupMember,
 } from "@/api/small-groups-api/types";
 import type { GroupActionResult } from "@/app/(app)/groups/_actions/group-actions";
-import type { SmallGroupAccess } from "@/lib/auth/roles";
+import type { SmallGroupAccess } from "@/lib/auth/permissions";
 import type { Locale } from "@/lib/locale-shared";
 
 import { useState, useTransition } from "react";

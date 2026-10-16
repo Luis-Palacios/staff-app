@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { StaffDashboard } from "../../_components/staff-dashboard";
 
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
-import { getSmallGroupAccess } from "@/lib/auth/roles";
+import { getSmallGroupAccess } from "@/lib/auth/permissions";
 
 export default async function StaffDashboardPage() {
   const session = await getServerSession();
@@ -13,14 +13,13 @@ export default async function StaffDashboardPage() {
   }
 
   // Dashboard ▸ Staff is for admins and elders; everyone else has a single Dashboard at `/`.
-  if (getSmallGroupAccess(session.user.role) !== "full") {
+  if (getSmallGroupAccess(session.permissions) !== "full") {
     redirect("/");
   }
 
   return (
     <StaffDashboard
       firstName={session.user.name.trim().split(/\s+/)[0] ?? ""}
-      role={session.user.role}
     />
   );
 }

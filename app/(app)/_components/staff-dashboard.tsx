@@ -26,26 +26,23 @@ import {
 } from "@/api/applications-membership-api/client";
 import { listInvites, listUsers } from "@/api/auth-api/client";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
-import { AuthRole, STAFF_ADMIN_ROLES } from "@/lib/auth/roles";
+import { can } from "@/lib/auth/permissions";
+import { getPermissions } from "@/lib/auth/get-permissions";
+import { AuthRole } from "@/lib/auth/roles";
 import { mapSettled, settle } from "@/lib/settle";
 
 /**
  * The staff dashboard: applications, users and invites. Dashboard ▸ Staff for full roles
  * (`/dashboard/staff`) and the only dashboard for roles with no small group access (`/`).
  */
-export async function StaffDashboard({
-  firstName,
-  role,
-}: {
-  firstName: string;
-  role: string;
-}) {
+export async function StaffDashboard({ firstName }: { firstName: string }) {
   const t = await getTranslations("DashboardPage");
 
-  // TEMPORARY: same hardcoded admin/elder check as the users and invites pages,
-  // because listUsers and listInvites 403 for every other role. Replace it with
-  // the Phase 9 role→permission model.
-  const isStaffAdmin = STAFF_ADMIN_ROLES.some((allowed) => allowed === role);
+  const permissions = await getPermissions();
+  const isStaffAdmin = can(permissions, {
+    user: ["list"],
+    invites: ["create"],
+  });
   // Start every fetch now and await none of them here, so they run in
   // parallel. Each section awaits its own promise inside a Suspense boundary,
   // and sections that need the same data share one promise (one request).

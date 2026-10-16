@@ -25,8 +25,8 @@ import { CloseIcon } from "@/components/icons";
 import { EkklesiaioLogo } from "@/components/brand/ekklesiaio-logo";
 import { ChurchContextCard } from "@/components/brand/church-context";
 import { siteConfig } from "@/config/site";
-import { getSmallGroupAccess } from "@/lib/auth/roles";
-import { useCurrentUser } from "@/lib/contexts/user-context";
+import { getSmallGroupAccess } from "@/lib/auth/permissions";
+import { usePermissions } from "@/lib/contexts/user-context";
 
 // Heroicons outline (24px grid), drawn at stroke 1.6 by `NavIcon` below.
 const iconRegistry: Record<NavIconName, HeroIcon> = {
@@ -173,7 +173,7 @@ const CollapsibleItem = ({
 export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
-  const access = getSmallGroupAccess(useCurrentUser().role);
+  const access = getSmallGroupAccess(usePermissions());
   const navItems = siteConfig.navItems.filter(
     (item: NavItem) => !item.access || item.access.includes(access),
   );

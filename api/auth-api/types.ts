@@ -1,3 +1,4 @@
+import type { Permissions } from "@/lib/auth/permissions";
 import type { AuthRole } from "@/lib/auth/roles";
 
 export type { AuthRole };
@@ -20,6 +21,8 @@ export interface AuthSessionData {
 export interface AuthSession {
   session: AuthSessionData;
   user: AuthSessionUser;
+  /** From auth-server's `statements.ts`; `{}` when the session carries none (rule 10). */
+  permissions: Permissions;
 }
 
 export interface AuthToken {

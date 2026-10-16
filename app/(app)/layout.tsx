@@ -14,7 +14,7 @@ export default async function AppLayout({
   const locale = await getLocale();
 
   return (
-    <UserProvider user={session.user}>
+    <UserProvider permissions={session.permissions} user={session.user}>
       <AppShell context={context} locale={locale}>
         {children}
       </AppShell>

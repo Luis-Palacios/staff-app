@@ -9,7 +9,8 @@ import { defaultMeetingDate } from "../_lib/meeting-dates";
 
 import { getMe } from "@/api/members-api/client";
 import { listSmallGroups } from "@/api/small-groups-api/client";
-import { reportAccess } from "@/lib/auth/roles";
+import { getPermissions } from "@/lib/auth/get-permissions";
+import { reportAccess } from "@/lib/auth/permissions";
 import { getChurchToday } from "@/lib/church-time";
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -23,8 +24,12 @@ export default async function NewReportPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [params, me] = await Promise.all([searchParams, getMe()]);
-  const { access, canSubmit } = reportAccess(me.role, me);
+  const [params, me, permissions] = await Promise.all([
+    searchParams,
+    getMe(),
+    getPermissions(),
+  ]);
+  const { access, canSubmit } = reportAccess(permissions, me);
 
   // Rule 5: no member (or no access to groups) means no report to file, so this page doesn't exist.
   if (!canSubmit) notFound();

@@ -1,6 +1,6 @@
 import type { ComponentType, SVGProps } from "react";
 import type { Messages } from "next-intl";
-import type { SmallGroupAccess } from "@/lib/auth/roles";
+import type { SmallGroupAccess } from "@/lib/auth/permissions";
 
 export type SiteConfig = typeof siteConfig;
 

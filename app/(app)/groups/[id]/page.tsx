@@ -10,7 +10,8 @@ import { GroupMembersCard } from "./_components/group-members-card";
 import { getMe } from "@/api/members-api/client";
 import { loadGroup } from "@/app/(app)/groups/_lib/load-group";
 import { SavedToast } from "@/components/saved-toast";
-import { reportAccess } from "@/lib/auth/roles";
+import { getPermissions } from "@/lib/auth/get-permissions";
+import { reportAccess } from "@/lib/auth/permissions";
 import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
 
 export default async function GroupDetailPage({
@@ -34,7 +35,7 @@ export default async function GroupDetailPage({
   // Marks the caller's own row, which a scoped user can't change (rule 9). Full roles don't need it.
   const currentMemberId = access === "scoped" ? (me.member?.id ?? null) : null;
   // New report needs a linked member (rule 5); a closed group never takes one (rule 8).
-  const { canSubmit } = reportAccess(me.role, me);
+  const { canSubmit } = reportAccess(await getPermissions(), me);
 
   return (
     <>

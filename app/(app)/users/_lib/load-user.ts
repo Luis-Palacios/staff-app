@@ -11,7 +11,7 @@ import { ApiError } from "@/api/api-client";
 import { getUser } from "@/api/auth-api/client";
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { getMember, listMembers } from "@/api/members-api/client";
-import { canManageLinks } from "@/lib/auth/roles";
+import { canManageLinks } from "@/lib/auth/permissions";
 
 export interface UserAccount {
   user: AdminUserListItem;
@@ -28,7 +28,7 @@ export interface UserAccount {
 export const loadUser = cache(async (id: string): Promise<UserAccount> => {
   const session = await getServerSession();
 
-  if (!session || !canManageLinks(session.user.role)) redirect("/");
+  if (!session || !canManageLinks(session.permissions)) redirect("/");
 
   const cookie = (await headers()).get("cookie") ?? "";
   let user: AdminUserListItem;

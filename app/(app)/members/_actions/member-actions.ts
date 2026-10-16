@@ -18,7 +18,7 @@ import {
 } from "@/app/(app)/members/_lib/member-schema";
 import { inviteMemberAction } from "@/app/(app)/members/_actions/account-actions";
 import { getApiErrorMessage } from "@/lib/api-error-message";
-import { canManageLinks } from "@/lib/auth/roles";
+import { canManageLinks } from "@/lib/auth/permissions";
 import { requireStaffSession } from "@/api/auth-api/helpers/require-staff-session";
 
 /** A failed save. Success never returns: it redirects to the detail page. */
@@ -73,7 +73,7 @@ export async function createMemberAction(
   if (
     invite &&
     email &&
-    canManageLinks((await requireStaffSession()).user.role)
+    canManageLinks((await requireStaffSession()).permissions)
   ) {
     const result = await inviteMemberAction(email);
 

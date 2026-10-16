@@ -9,7 +9,7 @@ import { listInvites } from "@/api/auth-api/client";
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { listMembers } from "@/api/members-api/client";
 import { EmptyState } from "@/components/empty-state";
-import { canManageLinks } from "@/lib/auth/roles";
+import { canManageLinks } from "@/lib/auth/permissions";
 import { getAccountStatus, type AccountStatus } from "@/lib/members/account";
 
 export default async function MembersList() {
@@ -36,7 +36,7 @@ export default async function MembersList() {
   // call for the whole list, not one per row.
   let accounts: Record<number, AccountStatus> | undefined;
 
-  if (canManageLinks(session?.user.role)) {
+  if (canManageLinks(session?.permissions)) {
     const { invites } = await listInvites(
       (await headers()).get("cookie") ?? "",
     );

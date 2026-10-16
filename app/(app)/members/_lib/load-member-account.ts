@@ -10,7 +10,7 @@ import { ApiError } from "@/api/api-client";
 import { getUser, listInvites, listUsers } from "@/api/auth-api/client";
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { listMembers } from "@/api/members-api/client";
-import { canManageLinks } from "@/lib/auth/roles";
+import { canManageLinks } from "@/lib/auth/permissions";
 import {
   getAccountStatus,
   getLinkedUserIds,
@@ -40,7 +40,7 @@ export async function loadMemberAccount(
   member: MemberDetail,
 ): Promise<MemberAccount> {
   const session = await getServerSession();
-  const canManage = canManageLinks(session?.user.role);
+  const canManage = canManageLinks(session?.permissions);
   const cookie = (await headers()).get("cookie") ?? "";
   const none = {
     user: null,
