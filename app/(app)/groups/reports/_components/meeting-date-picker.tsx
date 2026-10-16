@@ -10,14 +10,16 @@ import { weekdayOf } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 
 /**
  * The meeting date: a date field with a calendar popover. Future days are off, today is ringed,
- * the group's meeting weekday carries a hollow gold dot and a day that already has a report a
- * filled success dot (the shape differs, so it never rests on colour alone; the legend names both).
+ * the group's meeting weekday carries a hollow gold dot, a day that already has a report a filled
+ * success dot and a day marked as no meeting a small filled subtle dot (shape and colour differ, so
+ * it never rests on colour alone; the legend names all three).
  */
 export function MeetingDatePicker({
   value,
   today,
   meetingDay,
   filedDates,
+  noMeetingDates,
   isInvalid,
   describedBy,
   onChange,
@@ -26,6 +28,7 @@ export function MeetingDatePicker({
   today: string;
   meetingDay: Weekday | null;
   filedDates: ReadonlySet<string>;
+  noMeetingDates: ReadonlySet<string>;
   isInvalid: boolean;
   describedBy: string;
   onChange: (date: string) => void;
@@ -74,6 +77,7 @@ export function MeetingDatePicker({
               {(date) => {
                 const iso = date.toString();
                 const filed = filedDates.has(iso);
+                const noMeeting = noMeetingDates.has(iso);
                 const meets =
                   meetingDay !== null && weekdayOf(iso) === meetingDay;
 
@@ -85,13 +89,15 @@ export function MeetingDatePicker({
                     {({ formattedDate }) => (
                       <>
                         {formattedDate}
-                        {(filed || meets) && (
+                        {(filed || noMeeting || meets) && (
                           <span
                             aria-hidden="true"
                             className={
                               filed
                                 ? "absolute bottom-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-success"
-                                : "absolute bottom-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full border-[1.5px] border-gold-500"
+                                : noMeeting
+                                  ? "absolute bottom-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-subtle"
+                                  : "absolute bottom-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full border-[1.5px] border-gold-500"
                             }
                           />
                         )}
@@ -121,6 +127,13 @@ export function MeetingDatePicker({
                 className="size-1.5 rounded-full bg-success"
               />
               {t("legendFiled")}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="size-1.5 rounded-full bg-subtle"
+              />
+              {t("legendNoMeeting")}
             </span>
           </div>
         </Calendar>

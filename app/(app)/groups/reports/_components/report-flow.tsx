@@ -7,6 +7,7 @@ import type { DateProblem } from "@/app/(app)/groups/reports/_components/date-pr
 import type {
   AttendanceMode,
   FlowGroup,
+  NoMeetingOnDate,
 } from "@/app/(app)/groups/reports/_components/meeting-step";
 import type { Locale } from "@/lib/locale-shared";
 
@@ -19,6 +20,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Button } from "@heroui/react";
 import NextLink from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 import { GroupStep } from "./group-step";
@@ -31,7 +33,9 @@ import { ReportStepper } from "./report-stepper";
 import {
   createReportAction,
   getReportRosterAction,
-  listFiledDatesAction,
+  listReportedDatesAction,
+  markNoMeeting,
+  type ReportedDates,
 } from "@/app/(app)/groups/reports/_actions/report-actions";
 import { formatChurchSunday } from "@/app/(app)/groups/reports/_lib/format-church-sunday";
 import { toReportInput } from "@/app/(app)/groups/reports/_lib/report-body";
@@ -57,7 +61,13 @@ import {
 /** What the roster call said about the chosen group and date. */
 type RosterState =
   | { status: "loading" }
-  | { status: "ready"; roster: ReportRoster; existsMessage: string | null }
+  | {
+      status: "ready";
+      roster: ReportRoster;
+      existsMessage: string | null;
+      /** The reason on the date's no-meeting mark, when it has one. */
+      noMeetingReason: string | null;
+    }
   | { status: "error"; message: string };
 
 type Step = "meeting" | "people" | "group" | "review" | "quick";
@@ -78,7 +88,16 @@ const NO_ANSWER: ReportDraftAnswer = {
 };
 
 function emptyDraft(address: string): ReportDraft {
-  return { address, prayer: "", praise: "", discussion: "", answers: {} };
+  return {
+    address,
+    prayer: "",
+    praise: "",
+    discussion: "",
+    met: true,
+    reason: "",
+    replacing: false,
+    answers: {},
+  };
 }
 
 /**
@@ -92,7 +111,7 @@ export function ReportFlow({
   today,
   initialGroupId,
   initialDate,
-  initialFiledDates,
+  initialDates,
   initialRoster,
 }: {
   groups: FlowGroup[];
@@ -100,7 +119,7 @@ export function ReportFlow({
   today: string;
   initialGroupId: number;
   initialDate: string;
-  initialFiledDates: string[];
+  initialDates: ReportedDates;
   initialRoster: Extract<RosterState, { status: "ready" }> | null;
 }) {
   const t = useTranslations("ReportForm");
@@ -108,8 +127,12 @@ export function ReportFlow({
   const [isSubmitting, startSubmit] = useTransition();
   const [groupId, setGroupId] = useState(initialGroupId);
   const [date, setDate] = useState(initialDate);
+  const router = useRouter();
   const [filedDates, setFiledDates] = useState(
-    () => new Set(initialFiledDates),
+    () => new Set(initialDates.filed),
+  );
+  const [noMeetingDates, setNoMeetingDates] = useState(
+    () => new Set(initialDates.noMeeting),
   );
   const [roster, setRoster] = useState<RosterState>(
     initialRoster ?? { status: "loading" },
@@ -146,6 +169,10 @@ export function ReportFlow({
     } else if (previousGroup.current !== groupId) {
       draftRef.current = emptyDraft(group.meetingAddress ?? "");
       setDraft(draftRef.current);
+    } else if (draftRef.current.replacing) {
+      // "Replace the no-meeting mark" belongs to one date; the next one starts with its own prompt.
+      draftRef.current = { ...draftRef.current, replacing: false };
+      setDraft(draftRef.current);
     }
 
     previousGroup.current = groupId;
@@ -169,6 +196,7 @@ export function ReportFlow({
               status: "ready",
               roster: result.roster,
               existsMessage: result.existsMessage,
+              noMeetingReason: result.noMeetingReason,
             }
           : { status: "error", message: result.message },
       );
@@ -213,16 +241,18 @@ export function ReportFlow({
     if (!next) return;
 
     // The new group's filed dates decide its starting date, so switch group and date together.
-    void listFiledDatesAction(nextId, today).then((dates) => {
-      const filed = new Set(dates);
+    void listReportedDatesAction(nextId, today).then((dates) => {
+      const filed = new Set(dates.filed);
+      const noMeeting = new Set(dates.noMeeting);
 
       setFiledDates(filed);
+      setNoMeetingDates(noMeeting);
       setGroupId(nextId);
       setDate(
         defaultMeetingDate({
           today,
           meetingDay: next.meetingDay,
-          filedDates: filed,
+          filedDates: new Set([...filed, ...noMeeting]),
         }),
       );
     });
@@ -255,9 +285,12 @@ export function ReportFlow({
   function submit() {
     if (roster.status !== "ready") return;
 
-    const input = toReportInput(draft, roster.roster, date, true);
+    const body = toReportInput(draft, roster.roster, date, true);
 
-    if (!input) return;
+    if (!body) return;
+
+    // Only while the date still holds the mark does the API get asked to replace it.
+    const input = replacing ? { ...body, replacesNoMeeting: true } : body;
 
     setFailure(null);
     // A successful submit redirects and never comes back, so the draft goes first and returns on failure.
@@ -273,6 +306,22 @@ export function ReportFlow({
     });
   }
 
+  function saveNoMeeting() {
+    setFailure(null);
+    startSubmit(async () => {
+      const result = await markNoMeeting(groupId, date, draft.reason);
+
+      if (result.ok) {
+        clearDraft(groupId, date);
+        router.push("/groups/reports?saved=marked");
+
+        return;
+      }
+
+      setFailure(result);
+    });
+  }
+
   function reloadPeople() {
     setReloading(true);
     void getReportRosterAction(groupId, date).then((result) => {
@@ -285,6 +334,7 @@ export function ReportFlow({
         status: "ready",
         roster: result.roster,
         existsMessage: result.existsMessage,
+        noMeetingReason: result.noMeetingReason,
       });
       setFailure(null);
     });
@@ -292,7 +342,20 @@ export function ReportFlow({
 
   const ready = roster.status === "ready" ? roster : null;
   const people = ready?.roster.people ?? [];
-  const exists = ready?.roster.existingReportId ?? null;
+  const existingId = ready?.roster.existingReportId ?? null;
+  // A no meeting on the date can be replaced by a report; a held report there is a duplicate.
+  const noMeetingId =
+    ready?.roster.existingReportHeld === false ? existingId : null;
+  const exists = noMeetingId === null ? existingId : null;
+  const replacing = noMeetingId !== null && draft.replacing;
+  const noMeetingOnDate: NoMeetingOnDate | null =
+    ready && noMeetingId !== null
+      ? {
+          existingReportId: noMeetingId,
+          reason: ready.noMeetingReason,
+          replacing,
+        }
+      : null;
   const dateFailure =
     failure && DATE_FAILURES.includes(failure.kind)
       ? {
@@ -324,7 +387,11 @@ export function ReportFlow({
     discussion: draft.discussion,
   };
   const heading = step === "review" ? t("reviewTitle") : t("newTitle");
-  const numbered = step === "quick" ? null : STEP_NUMBER[step];
+  // The quick list has no number, and neither has saving a no meeting from step 1.
+  const numbered =
+    step === "quick" || (step === "meeting" && !draft.met && !noMeetingOnDate)
+      ? null
+      : STEP_NUMBER[step];
   const person = people[personIndex];
   const blocking =
     failure !== null && !DATE_FAILURES.includes(failure.kind) ? failure : null;
@@ -374,15 +441,29 @@ export function ReportFlow({
       {step === "meeting" && (
         <MeetingStep
           address={draft.address}
-          canChoose={ready !== null && exists === null && !noPeople}
+          canChoose={
+            ready !== null &&
+            exists === null &&
+            !noPeople &&
+            (noMeetingOnDate === null || replacing)
+          }
+          canSaveNoMeeting={
+            ready !== null && exists === null && noMeetingOnDate === null
+          }
           date={date}
           dateProblem={dateProblem}
           filedDates={filedDates}
           group={group}
           groups={groups}
+          met={draft.met}
           mode={mode}
+          noMeetingDates={noMeetingDates}
+          noMeetingOnDate={noMeetingOnDate}
           noPeople={noPeople}
+          reason={draft.reason}
           rosterLoading={roster.status === "loading"}
+          saveError={!draft.met && blocking ? blocking.message : null}
+          saving={isSubmitting}
           scoped={scoped}
           today={today}
           onAddressChange={(address) => edit({ address })}
@@ -390,6 +471,14 @@ export function ReportFlow({
           onChooseMode={chooseMode}
           onDateChange={changeDate}
           onGroupChange={changeGroup}
+          onMetChange={(met) => {
+            setFailure(null);
+            edit({ met });
+          }}
+          onReasonChange={(reason) => edit({ reason })}
+          onReplace={() => edit({ replacing: true })}
+          onSaveNoMeeting={saveNoMeeting}
+          onUndoReplace={() => edit({ replacing: false })}
         />
       )}
 

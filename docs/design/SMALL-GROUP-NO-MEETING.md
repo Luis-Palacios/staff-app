@@ -46,7 +46,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. API types, client and server actions | ✅ | see `git log` (stage 1 commit) |
-| 2. New report step 1: met question, no-meeting form, replace | ⬜ | |
+| 2. New report step 1: met question, no-meeting form, replace | ✅ | see `git log` (stage 2 commit) |
 | 3. No meeting dialog and shortcuts | ⬜ | |
 | 4. Reports list and no-meeting detail | ⬜ | |
 | 5. Dashboards and Group detail | ⬜ | |
@@ -69,8 +69,25 @@ before the next one starts. After each stage, write a short summary in the progr
   `count.notHeld` keys were added here (stage 5 bullet 1). The keys are nested like the existing
   ones, not the flat `statusNotHeld` / `chipNotHeld` names in the Copy table. Stage 5 still owns the
   rows, cards and follow-up dots.
-- `listFiledDatesAction` (date picker) asks for `status: "filed"`, which is now held-only; stage 2
-  must also fetch the no-meeting dates.
+- Stage 2: `listFiledDatesAction` became `listReportedDatesAction` and returns `{ filed, noMeeting }`
+  from the list endpoint (`status: "all"`, keeping `kind === "report"` rows split on `held`), so
+  the picker's third dot needs no extra call. The edit form's picker gets the same sets. A date
+  with either counts as taken when choosing the starting date.
+- Stage 2: the roster action keeps `existsMessage` for any occupied date (the edit form needs it:
+  moving a report onto a no-meeting date is still a duplicate). Only the new-report flow branches
+  on `existingReportHeld === false`. It also fetches the mark's detail for the quoted reason
+  (`noMeetingReason`; null if that read fails).
+- Stage 2: saving goes to `/groups/reports?saved=marked` (the list, or My reports), not back to
+  wherever the leader came from, and the list shows the existing `SavedToast` with
+  `NoMeetingDialog.markedToast`. There is no extra focus handling: the list's toast has none today.
+- Stage 2: added `ReportForm.reasonCounter` (`n / 255`), since `counter` is fixed at 1024. A new
+  `CalendarXIcon` in `components/icons.tsx` (Heroicons has none) and a `NoIcon` prop on
+  `YesNoButtons`. `replacing` lives in the draft but is reset when the date changes without a saved
+  draft, and is only honoured while the roster still reports a no meeting there.
+- Stage 2, for stage 4: `/groups/reports/[id]/edit` must redirect to the detail for a no meeting
+  (its reason is edited in the dialog).
+- Stage 2 checked in the browser: the question and the no-meeting card (Spanish, light, desktop).
+  Not yet exercised: Save, the replace prompt, dark mode, 1024 / 390 and the picker's third dot.
 
 ## Token changes
 

@@ -319,6 +319,9 @@
     "updated": "Cambios guardados",
     "ofTotal": "{count, number} de {total, number}"
   },
+  "NoMeetingDialog": {
+    "markedToast": "Marcado sin reunión"
+  },
   "ReportForm": {
     "newTitle": "Nuevo reporte",
     "stepMeeting": "Reunión",
@@ -339,6 +342,22 @@
     "calendarLabel": "Calendario de la fecha de la reunión",
     "legendMeets": "Día de reunión",
     "legendFiled": "Reporte enviado",
+    "metQuestion": "¿El grupo se reunió en esta fecha?",
+    "metYes": "Sí, nos reunimos",
+    "metNo": "No hubo reunión",
+    "noMeetingEyebrow": "Sin reunión",
+    "noMeetingTitle": "El grupo no se reunió",
+    "reasonLabel": "Motivo",
+    "reasonHint": "Por ejemplo, un feriado, el clima o que los líderes estaban fuera. Cualquier persona que pueda ver los reportes de este grupo puede leerlo.",
+    "reasonCounter": "{count, number} / 255",
+    "noMeetingEffect": "El {date} no contará como reporte pendiente en los paneles ni en Reportes.",
+    "saveNoMeeting": "Guardar sin reunión",
+    "legendNoMeeting": "Sin reunión",
+    "noMeetingOnDate": "El {date} está marcado sin reunión:",
+    "replaceWithReport": "Sí hubo reunión: reemplazar con un reporte",
+    "openNoMeeting": "Abrirlo",
+    "replacing": "La marca de sin reunión del {date} se reemplazará cuando envíes este reporte.",
+    "undo": "Deshacer",
     "openExisting": "Abrir ese reporte",
     "address": "Dónde se reunió el grupo",
     "addressHint": "La dirección habitual del grupo. Cámbiala si esta vez se reunieron en otro lugar.",
