@@ -394,7 +394,11 @@
     "remaining": "{count, plural, one {Marca a la # persona que falta para enviar.} other {Marca a las # personas que faltan para enviar.}}",
     "allMarked": "Todas las personas están marcadas. Las notas solo las ven tú, los ancianos y los administradores.",
     "submit": "Enviar reporte",
-    "reloadPeople": "Volver a cargar personas"
+    "reloadPeople": "Volver a cargar personas",
+    "editTitle": "Editar reporte",
+    "editMeta": "Enviado por {name} el {dateTime}. Tus cambios conservan a quien lo envió.",
+    "save": "Guardar cambios",
+    "meetingDetails": "Detalles de la reunión"
   },
   "DashboardPage": {
     "description": "Esto es lo que necesita tu atención esta semana.",

@@ -1,11 +1,11 @@
 "use client";
 
-import type { ReportInput, ReportRoster } from "@/api/small-groups-api/types";
+import type { ReportRoster } from "@/api/small-groups-api/types";
 import type { ReportFailure } from "@/app/(app)/groups/reports/_actions/report-actions";
 import type { GroupTextField } from "@/app/(app)/groups/reports/_components/group-fields";
+import type { DateProblem } from "@/app/(app)/groups/reports/_components/date-problem-note";
 import type {
   AttendanceMode,
-  DateProblem,
   FlowGroup,
 } from "@/app/(app)/groups/reports/_components/meeting-step";
 import type { Locale } from "@/lib/locale-shared";
@@ -15,7 +15,6 @@ import {
   ArrowLeftIcon,
   CalendarDaysIcon,
   CheckIcon,
-  ExclamationCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "@heroui/react";
@@ -26,6 +25,7 @@ import { GroupStep } from "./group-step";
 import { MeetingStep } from "./meeting-step";
 import { PersonStep } from "./person-step";
 import { isMarked, ReportListStep } from "./report-list-step";
+import { ReportFooterStatus } from "./report-footer-status";
 import { ReportStepper } from "./report-stepper";
 
 import {
@@ -34,6 +34,7 @@ import {
   listFiledDatesAction,
 } from "@/app/(app)/groups/reports/_actions/report-actions";
 import { formatChurchSunday } from "@/app/(app)/groups/reports/_lib/format-church-sunday";
+import { toReportInput } from "@/app/(app)/groups/reports/_lib/report-body";
 import { defaultMeetingDate } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import {
   clearDraft,
@@ -59,9 +60,10 @@ type RosterState =
   | { status: "ready"; roster: ReportRoster; existsMessage: string | null }
   | { status: "error"; message: string };
 
-type Step = "meeting" | "people" | "group" | "review";
+type Step = "meeting" | "people" | "group" | "review" | "quick";
 
 const TOTAL_STEPS = 4;
+// The quick list has no steps: it is one screen, so no stepper and no "n / 4".
 const STEP_NUMBER = { meeting: 1, people: 2, group: 3, review: 4 } as const;
 /** Failures that belong on the date field: the leader has to pick another date. */
 const DATE_FAILURES: readonly (string | undefined)[] = [
@@ -77,43 +79,6 @@ const NO_ANSWER: ReportDraftAnswer = {
 
 function emptyDraft(address: string): ReportDraft {
   return { address, prayer: "", praise: "", discussion: "", answers: {} };
-}
-
-/** The API body for a complete draft, people in roster order; null while anyone is unanswered. */
-function toInput(
-  draft: ReportDraft,
-  roster: ReportRoster,
-  date: string,
-): ReportInput | null {
-  const attendances: ReportInput["attendances"] = [];
-
-  for (const person of roster.people) {
-    const answer = draft.answers[person.memberId];
-
-    if (
-      !answer ||
-      answer.attendedGroup === null ||
-      answer.attendedChurch === null
-    ) {
-      return null;
-    }
-
-    attendances.push({
-      memberId: person.memberId,
-      attendedGroup: answer.attendedGroup,
-      attendedChurch: answer.attendedChurch,
-      observation: answer.observation.trim() || null,
-    });
-  }
-
-  return {
-    meetingDate: date,
-    address: draft.address.trim() || null,
-    groupPrayerRequest: draft.prayer.trim() || null,
-    groupPraiseReport: draft.praise.trim() || null,
-    groupRelevantDiscussion: draft.discussion.trim() || null,
-    attendances,
-  };
 }
 
 /**
@@ -159,7 +124,9 @@ export function ReportFlow({
   const [step, setStep] = useState<Step>("meeting");
   const [personIndex, setPersonIndex] = useState(0);
   // Where Back from the review goes: the group step, or the person left when skipping to the list.
-  const [reviewFrom, setReviewFrom] = useState<"group" | "people">("group");
+  const [reviewFrom, setReviewFrom] = useState<"group" | "people" | "meeting">(
+    "group",
+  );
   const [failure, setFailure] = useState<ReportFailure | null>(null);
   const [reloading, setReloading] = useState(false);
   // The group and date the roster below belongs to, so the first render doesn't ask again.
@@ -269,6 +236,8 @@ export function ReportFlow({
   function chooseMode(next: AttendanceMode) {
     setMode(next);
 
+    if (next === "quick" && roster.status === "ready") setStep("quick");
+
     if (next === "guided" && roster.status === "ready") {
       const firstOpen = roster.roster.people.findIndex(
         (person) => !isMarked(draft.answers[person.memberId]),
@@ -286,7 +255,7 @@ export function ReportFlow({
   function submit() {
     if (roster.status !== "ready") return;
 
-    const input = toInput(draft, roster.roster, date);
+    const input = toReportInput(draft, roster.roster, date, true);
 
     if (!input) return;
 
@@ -355,6 +324,7 @@ export function ReportFlow({
     discussion: draft.discussion,
   };
   const heading = step === "review" ? t("reviewTitle") : t("newTitle");
+  const numbered = step === "quick" ? null : STEP_NUMBER[step];
   const person = people[personIndex];
   const blocking =
     failure !== null && !DATE_FAILURES.includes(failure.kind) ? failure : null;
@@ -377,16 +347,18 @@ export function ReportFlow({
           </span>
           <span className="truncate text-[13px] text-muted">{group.name}</span>
         </div>
-        <span className="pr-2 text-sm font-semibold text-muted tabular-nums">
-          {t("stepCount", { current: STEP_NUMBER[step], total: TOTAL_STEPS })}
-        </span>
+        {numbered !== null && (
+          <span className="pr-2 text-sm font-semibold text-muted tabular-nums">
+            {t("stepCount", { current: numbered, total: TOTAL_STEPS })}
+          </span>
+        )}
       </header>
 
       <div className="hidden md:block">
         <StaffAppPageHeader
           actions={
-            step === "meeting" ? undefined : (
-              <ReportStepper current={STEP_NUMBER[step]} />
+            numbered === null || step === "meeting" ? undefined : (
+              <ReportStepper current={numbered} />
             )
           }
           breadcrumbs={[
@@ -462,77 +434,51 @@ export function ReportFlow({
         />
       )}
 
-      {step === "review" && ready && (
+      {(step === "review" || step === "quick") && ready && (
         <div className="flex max-w-[1000px] flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-tile border border-border bg-surface px-4 py-3 text-sm">
-            <span className="flex items-center gap-2 font-semibold text-heading">
-              <CalendarDaysIcon aria-hidden="true" className="size-[18px]" />
-              {formatCalendarFullDate(date, locale)}
-            </span>
-            {draft.address && (
-              <span className="min-w-0 basis-full text-muted md:flex-1 md:basis-0 md:truncate">
-                {draft.address}
+          {step === "review" && (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-tile border border-border bg-surface px-4 py-3 text-sm">
+              <span className="flex items-center gap-2 font-semibold text-heading">
+                <CalendarDaysIcon aria-hidden="true" className="size-[18px]" />
+                {formatCalendarFullDate(date, locale)}
               </span>
-            )}
-            <Button
-              className="ml-auto font-semibold"
-              size="sm"
-              variant="outline"
-              onPress={() => setStep("meeting")}
-            >
-              {t("change")}
-            </Button>
-          </div>
+              {draft.address && (
+                <span className="min-w-0 basis-full text-muted md:flex-1 md:basis-0 md:truncate">
+                  {draft.address}
+                </span>
+              )}
+              <Button
+                className="ml-auto font-semibold"
+                size="sm"
+                variant="outline"
+                onPress={() => setStep("meeting")}
+              >
+                {t("change")}
+              </Button>
+            </div>
+          )}
           <ReportListStep
             observationsVisible
-            tintUnanswered
             answers={draft.answers}
             footer={
               <>
-                <div className="flex min-w-0 flex-1 basis-[240px] flex-col gap-2">
-                  {blocking && (
-                    <div
-                      className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-danger-soft px-3 py-2 text-sm text-danger-soft-foreground"
-                      role="alert"
-                    >
-                      <ExclamationCircleIcon
-                        aria-hidden="true"
-                        className="size-5 shrink-0"
-                      />
-                      <span className="min-w-0 flex-1">{blocking.message}</span>
-                      {blocking.kind === "rosterChanged" && (
-                        <Button
-                          isPending={reloading}
-                          size="sm"
-                          variant="outline"
-                          onPress={reloadPeople}
-                        >
-                          {t("reloadPeople")}
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                  <p
-                    className={
-                      remaining > 0
-                        ? "text-[13px] font-semibold text-warning-soft-foreground"
-                        : "text-[13px] text-muted"
-                    }
-                  >
-                    {remaining > 0
-                      ? t("remaining", { count: remaining })
-                      : t("allMarked")}
-                  </p>
-                </div>
+                <ReportFooterStatus
+                  failure={blocking}
+                  reloading={reloading}
+                  remaining={remaining}
+                  onReload={reloadPeople}
+                />
                 <div className="flex w-full flex-wrap gap-3 sm:w-auto">
                   <Button
                     className="flex-1 gap-2 font-semibold sm:flex-none"
                     isDisabled={isSubmitting}
                     variant="outline"
                     onPress={() =>
-                      reviewFrom === "group"
-                        ? setStep("group")
-                        : setStep("people")
+                      step === "quick"
+                        ? setStep("meeting")
+                        : reviewFrom === "group"
+                          ? setStep("group")
+                          : setStep("people")
                     }
                   >
                     <ArrowLeftIcon
@@ -562,6 +508,7 @@ export function ReportFlow({
             meetingDate={date}
             people={people}
             shortSundayLabel={shortSundayLabel}
+            tintUnanswered={step === "review"}
             onAnswer={answer}
             onGroupText={(field, value) => edit({ [field]: value })}
           />

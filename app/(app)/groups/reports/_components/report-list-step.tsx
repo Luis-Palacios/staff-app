@@ -25,8 +25,13 @@ import { card, title } from "@/components/primitives";
 import { formatCalendarShortDate } from "@/lib/format-date";
 
 /** Name, two Yes/No pairs and a note toggle per row (from `md`); the same row stacks below it. */
-const ROW_GRID =
-  "md:grid md:grid-cols-[minmax(0,1fr)_auto_auto_128px] md:items-center md:gap-x-5";
+const rowGrid = (withNotes: boolean) =>
+  clsx(
+    "md:grid md:items-center md:gap-x-5",
+    withNotes
+      ? "md:grid-cols-[minmax(0,1fr)_auto_auto_128px]"
+      : "md:grid-cols-[minmax(0,1fr)_auto_auto]",
+  );
 
 export function isMarked(answer: ReportDraftAnswer | undefined) {
   return (
@@ -78,7 +83,7 @@ function PersonRow({
     <li
       className={clsx(
         "flex flex-col gap-3 px-4 py-3.5 sm:px-5",
-        ROW_GRID,
+        rowGrid(observationsVisible),
         tintUnanswered && !isMarked(answer) && "bg-warning-soft/60",
       )}
     >
@@ -260,7 +265,7 @@ export function ReportListStep({
           aria-hidden="true"
           className={clsx(
             "hidden border-y border-separator bg-surface-secondary/50 px-5 py-2.5 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-muted",
-            ROW_GRID,
+            rowGrid(observationsVisible),
           )}
         >
           <span>{t("colMember")}</span>

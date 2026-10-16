@@ -85,8 +85,8 @@ components named below, never the board's literals.
 | 2. Reports list (`/groups/reports`) | ✅ | 6a5d945 |
 | 3. Report detail and delete | ✅ | 827d6c8 |
 | 4. New report: meeting step | ✅ | 023535d |
-| 5. New report: one person at a time, the group, review | ✅ | (filled in by the Stage 6 commit) |
-| 6. Quick list and edit | ⬜ | |
+| 5. New report: one person at a time, the group, review | ✅ | eb4b771 |
+| 6. Quick list and edit | ✅ | (filled in by the Stage 7 commit) |
 | 7. Entry points: Group detail card, leader dashboard | ⬜ | |
 | 8. Review pass | ⬜ | |
 
@@ -202,6 +202,29 @@ components named below, never the board's literals.
   (table plus flight payload); leak checks for other roles stay in Stage 8. Hit the API's own rate
   limit (60/min per user, 429 on `/me`) after many reloads: not a bug in the page, but the new report
   page makes roughly six API calls per load.
+- **Stage 6: Quick list follows the board, not a stepper.** No summary strip, no unanswered tint and no
+  `n / 4` on the phone header; the footer keeps **Back** (spec text) which returns to the meeting step,
+  though the board draws only the hint and **Submit report**. Both modes end on the same
+  `ReportListStep`.
+- **Stage 6: edit is its own form** (`EditReportForm`), not `ReportFlow`: no draft (the spec keeps drafts
+  for new reports), no steps. It starts from the report's rows, refetches the roster when the date
+  changes and keeps answers for people on both rosters; new people start unanswered and block **Save
+  changes**. A date that belongs to another report shows the duplicate error (the report's own date is
+  fine, rule 1). Shared with the new flow: `toReportInput` (`_lib/report-body.ts`), `DateProblemNote`,
+  `ReportFooterStatus`.
+- **Stage 6: hidden observations.** With `observationsVisible` false the edit page renders no note
+  column or toggles, the grid drops the empty column, and `observation` is left out of every row so the
+  API keeps the notes. A closed group's edit URL redirects to the report (read-only note shown).
+- **Stage 6: edit breadcrumbs** are Groups › Reports › "{group}, {date}" › Edit report (the board has
+  only Reports › Edit report); the extra crumb links back to the report.
+- Verified (Stage 6): leader (sgla-leader) filed **report 164** (Beta, Sep 23) through the quick list;
+  edited report 163 (own) and saved; opened **152** (submitted by someone else) in edit: **0** notes in
+  its edit and detail HTML (151, the leader's own, has 4 and 8), saved it, then as sgla-admin the notes on
+  152 are all still there (8 in detail, 4 in edit). As the unlinked admin `/groups/reports/new` is the 404
+  page and a closed group's edit (report 160) redirects to its detail. Layout: edit at 390 (light, ES; no
+  sideways scroll) and 1024 (dark, ES); quick list light 1440 ES; the review states from Stage 5 cover the
+  list at 390 and 1024. Not seen: quick list at 390/EN, edit in EN, a failing save (rosterChanged).
+  Test data added: reports 163 and 164, and 152 re-saved (same content).
 
 ## Pick-up notes (written at the end of session 1; read before Stage 4)
 
