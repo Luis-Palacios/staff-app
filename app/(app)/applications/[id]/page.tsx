@@ -9,12 +9,15 @@ import { getApplicationDetail } from "@/api/applications-membership-api/client";
 import { card } from "@/components/primitives";
 import PersonTimeline from "@/components/person_timeline";
 import PersonTimelineSkeleton from "@/components/person_timeline/skeleton";
+import { requirePermission } from "@/lib/auth/get-permissions";
 
 export default async function ApplicationDetail({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requirePermission({ membershipApplications: ["view"] });
+
   const { id } = await params;
   const t = await getTranslations("ApplicationDetailPage");
 

@@ -18,8 +18,7 @@ import {
 } from "@/app/(app)/members/_lib/member-schema";
 import { inviteMemberAction } from "@/app/(app)/members/_actions/account-actions";
 import { getApiErrorMessage } from "@/lib/api-error-message";
-import { canManageLinks } from "@/lib/auth/permissions";
-import { requireStaffSession } from "@/api/auth-api/helpers/require-staff-session";
+import { forbiddenUnless, hasPermission } from "@/lib/auth/get-permissions";
 
 /** A failed save. Success never returns: it redirects to the detail page. */
 export interface MemberActionFailure {
@@ -45,6 +44,10 @@ export async function createMemberAction(
   values: MemberFormValues,
   invite = false,
 ): Promise<MemberActionFailure> {
+  const forbidden = await forbiddenUnless({ members: ["create"] });
+
+  if (forbidden) return toFailure(forbidden);
+
   const parsed = memberSchema.safeParse(values);
 
   if (!parsed.success) {
@@ -73,7 +76,7 @@ export async function createMemberAction(
   if (
     invite &&
     email &&
-    canManageLinks((await requireStaffSession()).permissions)
+    (await hasPermission({ members: ["link"], invites: ["create"] }))
   ) {
     const result = await inviteMemberAction(email);
 
@@ -93,6 +96,10 @@ export async function updateMemberAction(
   id: string,
   changes: Partial<MemberFormValues>,
 ): Promise<MemberActionFailure> {
+  const forbidden = await forbiddenUnless({ members: ["update"] });
+
+  if (forbidden) return toFailure(forbidden);
+
   const parsed = memberChangesSchema.safeParse(changes);
 
   if (!parsed.success) {

@@ -3,19 +3,16 @@ import { redirect } from "next/navigation";
 import { StaffDashboard } from "../../_components/staff-dashboard";
 
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
-import { getSmallGroupAccess } from "@/lib/auth/permissions";
+import { requirePermission } from "@/lib/auth/get-permissions";
 
 export default async function StaffDashboardPage() {
+  // Dashboard ▸ Staff is for roles with `smallGroups: all`; its sections check their own data.
+  await requirePermission({ smallGroups: ["all"] });
+
   const session = await getServerSession();
 
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  // Dashboard ▸ Staff is for admins and elders; everyone else has a single Dashboard at `/`.
-  if (getSmallGroupAccess(session.permissions) !== "full") {
-    redirect("/");
-  }
+  // The (app) layout already redirects without a session; this narrows the type.
+  if (!session) redirect("/sign-in");
 
   return (
     <StaffDashboard

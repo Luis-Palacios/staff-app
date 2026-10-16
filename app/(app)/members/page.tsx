@@ -7,14 +7,21 @@ import MembersListSkeleton from "./_components/members-list-skeleton";
 
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { membersBreadcrumb } from "@/config/breadcrumbs";
+import { hasPermission, requirePermission } from "@/lib/auth/get-permissions";
 
 export default async function MembersPage() {
+  await requirePermission({ members: ["view", "all"] });
+
   const t = await getTranslations("MembersPage");
 
   return (
     <>
       <StaffAppPageHeader
-        actions={<AddMemberLink variant="primary" />}
+        actions={
+          (await hasPermission({ members: ["create"] })) ? (
+            <AddMemberLink variant="primary" />
+          ) : undefined
+        }
         breadcrumbs={[membersBreadcrumb]}
         description={t("description")}
         title={t("title")}

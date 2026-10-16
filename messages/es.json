@@ -498,6 +498,12 @@
     "openInvites": "Invitaciones abiertas",
     "openInvitesSub": "Enviadas, sin aceptar"
   },
+  "WelcomeDashboard": {
+    "description": "Ya iniciaste sesión.",
+    "title": "Tu perfil",
+    "body": "Tu perfil muestra tus datos de contacto y los grupos a los que perteneces.",
+    "openProfile": "Abrir Mi perfil"
+  },
   "StatTile": {
     "loadError": "No se pudo cargar"
   },

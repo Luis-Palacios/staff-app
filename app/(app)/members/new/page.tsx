@@ -6,8 +6,11 @@ import { requireStaffSession } from "@/api/auth-api/helpers/require-staff-sessio
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { membersBreadcrumb } from "@/config/breadcrumbs";
 import { canManageLinks } from "@/lib/auth/permissions";
+import { requirePermission } from "@/lib/auth/get-permissions";
 
 export default async function NewMemberPage() {
+  await requirePermission({ members: ["create"] });
+
   const [t, tLink, { permissions }] = await Promise.all([
     getTranslations("MemberFormPage"),
     getTranslations("AddMemberLink"),

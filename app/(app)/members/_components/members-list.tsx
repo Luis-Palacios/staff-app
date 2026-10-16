@@ -9,7 +9,7 @@ import { listInvites } from "@/api/auth-api/client";
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { listMembers } from "@/api/members-api/client";
 import { EmptyState } from "@/components/empty-state";
-import { canManageLinks } from "@/lib/auth/permissions";
+import { can, canManageLinks } from "@/lib/auth/permissions";
 import { getAccountStatus, type AccountStatus } from "@/lib/members/account";
 
 export default async function MembersList() {
@@ -23,7 +23,11 @@ export default async function MembersList() {
 
     return (
       <EmptyState
-        action={<AddMemberLink variant="empty" />}
+        action={
+          can(session?.permissions, { members: ["create"] }) ? (
+            <AddMemberLink variant="empty" />
+          ) : undefined
+        }
         icon={UsersIcon}
         title={t("title")}
       >

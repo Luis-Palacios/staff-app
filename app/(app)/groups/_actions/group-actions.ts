@@ -28,6 +28,7 @@ import {
   toFieldErrors,
 } from "@/app/(app)/groups/_lib/group-schema";
 import { getApiErrorMessage } from "@/lib/api-error-message";
+import { forbiddenUnless } from "@/lib/auth/get-permissions";
 
 /** A failed form save. Success never returns: it redirects to the detail page. */
 export interface GroupFormFailure {
@@ -51,10 +52,19 @@ async function toFormFailure(error: unknown): Promise<GroupFormFailure> {
   return { ok: false, formError: await getApiErrorMessage(error) };
 }
 
+/** A member action's failure for a caller who lacks the permission (rule 9). */
+async function toForbidden(error: unknown): Promise<GroupActionResult> {
+  return { ok: false, message: await getApiErrorMessage(error) };
+}
+
 /** POST: an empty address and an unset day are omitted. */
 export async function createGroupAction(
   values: GroupFormValues,
 ): Promise<GroupFormFailure> {
+  const forbidden = await forbiddenUnless({ smallGroups: ["create"] });
+
+  if (forbidden) return toFormFailure(forbidden);
+
   const parsed = groupSchema.safeParse(values);
 
   if (!parsed.success) {
@@ -88,6 +98,10 @@ export async function updateGroupAction(
   id: string,
   changes: Partial<GroupFormValues>,
 ): Promise<GroupFormFailure> {
+  const forbidden = await forbiddenUnless({ smallGroups: ["update"] });
+
+  if (forbidden) return toFormFailure(forbidden);
+
   const parsed = groupChangesSchema.safeParse(changes);
 
   if (!parsed.success) {
@@ -172,6 +186,14 @@ export async function addGroupMemberAction(
   memberId: number,
   role: SmallGroupRole,
 ): Promise<GroupActionResult> {
+  // Putting someone in as the leader is a leadership change (rule 6).
+  const forbidden = await forbiddenUnless({
+    smallGroups:
+      role === "leader" ? ["manageMembers", "setLeader"] : ["manageMembers"],
+  });
+
+  if (forbidden) return toForbidden(forbidden);
+
   try {
     await addSmallGroupMember(groupId, memberId, role);
   } catch (error) {
@@ -188,6 +210,13 @@ export async function changeGroupMemberRoleAction(
   memberId: number,
   role: SmallGroupRole,
 ): Promise<GroupActionResult> {
+  const forbidden = await forbiddenUnless({
+    smallGroups:
+      role === "leader" ? ["manageMembers", "setLeader"] : ["manageMembers"],
+  });
+
+  if (forbidden) return toForbidden(forbidden);
+
   try {
     await changeSmallGroupMemberRole(groupId, memberId, role);
   } catch (error) {
@@ -204,6 +233,10 @@ export async function setGroupLeaderAction(
   groupId: string,
   memberId: number,
 ): Promise<GroupActionResult> {
+  const forbidden = await forbiddenUnless({ smallGroups: ["setLeader"] });
+
+  if (forbidden) return toForbidden(forbidden);
+
   try {
     await setSmallGroupLeader(groupId, memberId);
   } catch (error) {
@@ -223,6 +256,10 @@ export async function removeGroupMemberAction(
   groupId: string,
   memberId: number,
 ): Promise<GroupActionResult> {
+  const forbidden = await forbiddenUnless({ smallGroups: ["manageMembers"] });
+
+  if (forbidden) return toForbidden(forbidden);
+
   try {
     await removeSmallGroupMember(groupId, memberId);
   } catch (error) {
@@ -244,6 +281,10 @@ export async function removeGroupMemberAction(
 export async function closeGroupAction(
   groupId: string,
 ): Promise<GroupActionResult> {
+  const forbidden = await forbiddenUnless({ smallGroups: ["close"] });
+
+  if (forbidden) return toForbidden(forbidden);
+
   try {
     await closeSmallGroup(groupId);
   } catch (error) {
@@ -268,6 +309,14 @@ export async function closeGroupAction(
 export async function listMembersForPickerAction(): Promise<
   { ok: true; members: MemberSummary[] } | { ok: false; message: string }
 > {
+  const forbidden = await forbiddenUnless({
+    smallGroups: ["manageMembers"],
+    members: ["search"],
+  });
+
+  if (forbidden)
+    return { ok: false, message: await getApiErrorMessage(forbidden) };
+
   try {
     return { ok: true, members: await listMembers() };
   } catch (error) {

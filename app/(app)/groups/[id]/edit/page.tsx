@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { GroupForm } from "../../_components/group-form";
@@ -6,14 +6,14 @@ import { GroupForm } from "../../_components/group-form";
 import { loadGroup } from "@/app/(app)/groups/_lib/load-group";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { groupsBreadcrumb } from "@/config/breadcrumbs";
-import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
+import { requirePermission } from "@/lib/auth/get-permissions";
 
 export default async function EditGroupPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  if ((await getCurrentSmallGroupAccess()) === "none") notFound();
+  await requirePermission({ smallGroups: ["view", "update"] });
 
   const { id } = await params;
   const [group, t] = await Promise.all([

@@ -31,6 +31,8 @@ import { InitialsAvatar } from "@/components/initials-avatar";
 import { card } from "@/components/primitives";
 import { SavedToast } from "@/components/saved-toast";
 import { StatusBadge, type StatusBadgeProps } from "@/components/status-badge";
+import { can } from "@/lib/auth/permissions";
+import { usePermissions } from "@/lib/contexts/user-context";
 import { formatCalendarDate } from "@/lib/format-date";
 
 const ROLE_BADGE: Record<
@@ -66,8 +68,9 @@ interface ToastState {
 // The members card: the list, and (for active groups) everything that changes
 // it. Each action saves on its own through a server action, confirms first
 // when it swaps the leader or removes someone, and ends in a toast. The page
-// re-renders from the revalidated data. Scoped users (rule 9) get no menu on the leader's row or
-// their own, and can only pick Member / Co-leader.
+// re-renders from the revalidated data. What shows follows the caller's permissions: `manageMembers`
+// for the add button and the row menus, `setLeader` for touching the leader's row and picking Leader,
+// and `all` for changing their own row (rule 9).
 export function GroupMembersCard({
   group,
   access,
@@ -75,7 +78,7 @@ export function GroupMembersCard({
 }: {
   group: SmallGroupDetail;
   access: SmallGroupAccess;
-  /** The caller's own member id; only needed for `scoped`. */
+  /** The caller's own member id; only needed without `smallGroups: all`. */
   currentMemberId: number | null;
 }) {
   const t = useTranslations("GroupMembersCard");
@@ -98,7 +101,10 @@ export function GroupMembersCard({
   const leader = group.members.find((member) => member.role === "leader");
   const groupId = String(group.id);
   const isClosed = group.closedAt !== null;
-  const scoped = access === "scoped";
+  const permissions = usePermissions();
+  const canManage = can(permissions, { smallGroups: ["manageMembers"] });
+  const canSetLeader = can(permissions, { smallGroups: ["setLeader"] });
+  const isFull = access === "full";
 
   function showToast(message: string, tone: ToastState["tone"] = "success") {
     setToast((current) => ({ id: (current?.id ?? 0) + 1, message, tone }));
@@ -171,7 +177,7 @@ export function GroupMembersCard({
         <DetailCardHeading eyebrow={t("eyebrow")}>
           {t("title")}
         </DetailCardHeading>
-        {!isClosed && (
+        {!isClosed && canManage && (
           <Button
             className="gap-2 font-semibold text-heading"
             isDisabled={isPending}
@@ -226,16 +232,16 @@ export function GroupMembersCard({
                 <StatusBadge {...ROLE_BADGE[member.role]}>
                   {tRole(member.role)}
                 </StatusBadge>
-                {scoped &&
-                (member.role === "leader" ||
-                  member.memberId === currentMemberId) ? (
+                {!canManage ||
+                (!canSetLeader && member.role === "leader") ||
+                (!isFull && member.memberId === currentMemberId) ? (
                   // Same size as the ⋯ button, so rows line up.
                   <span aria-hidden="true" className="size-9 shrink-0" />
                 ) : (
                   <MemberRowMenu
                     isDisabled={isPending}
                     member={member}
-                    roles={scoped ? SCOPED_ROLES : ROLES}
+                    roles={canSetLeader ? ROLES : SCOPED_ROLES}
                     onChangeRole={(role) => changeRole(member, role)}
                     onRemove={() => setRemoveTarget(member)}
                   />
@@ -246,13 +252,13 @@ export function GroupMembersCard({
         </ul>
       )}
 
-      {!isClosed && (
+      {!isClosed && canManage && (
         <AddMemberDialog
           group={group}
           isOpen={adding}
           loadError={pickerError}
           members={pickerMembers}
-          roles={scoped ? SCOPED_ADD_ROLES : undefined}
+          roles={canSetLeader ? undefined : SCOPED_ADD_ROLES}
           onAdded={(name) => {
             setAdding(false);
             showToast(tm("toasts.added", { name }));

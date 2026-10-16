@@ -19,16 +19,17 @@ const cardClasses = card({ className: "flex flex-col gap-3.5 px-[22px] py-5" });
 
 const errorLine = "text-sm text-danger";
 
-// Admin/elder only. Users waiting for a role (assignable right here) and a
-// link to invites nobody has accepted yet. Renders nothing when both are
-// empty, so the side column doesn't carry an empty card. A half that failed
-// to load shows a one-line error and the other half still renders.
+// Users waiting for a role (assignable right here, `user: list`) and a link to
+// invites nobody has accepted yet (`invites: create`). A half is `null` when the
+// caller lacks its permission. Renders nothing when both are empty, so the side
+// column doesn't carry an empty card. A half that failed to load shows a
+// one-line error and the other half still renders.
 export async function NeedsAttentionCard({
   pendingUsers: pendingUsersPromise,
   openInvites: openInvitesPromise,
 }: {
-  pendingUsers: Promise<Settled<AdminUserListItem[]>>;
-  openInvites: Promise<Settled<AdminInviteListItem[]>>;
+  pendingUsers: Promise<Settled<AdminUserListItem[]>> | null;
+  openInvites: Promise<Settled<AdminInviteListItem[]>> | null;
 }) {
   const [pendingUsers, openInvites, t] = await Promise.all([
     pendingUsersPromise,
@@ -36,8 +37,11 @@ export async function NeedsAttentionCard({
     getTranslations("NeedsAttentionCard"),
   ]);
 
-  const showUsers = !pendingUsers.ok || pendingUsers.value.length > 0;
-  const showInvites = !openInvites.ok || openInvites.value.length > 0;
+  const showUsers =
+    pendingUsers !== null &&
+    (!pendingUsers.ok || pendingUsers.value.length > 0);
+  const showInvites =
+    openInvites !== null && (!openInvites.ok || openInvites.value.length > 0);
 
   if (!showUsers && !showInvites) {
     return null;
@@ -47,7 +51,7 @@ export async function NeedsAttentionCard({
     <section className={cardClasses}>
       <h2 className={title({ size: "sm" })}>{t("title")}</h2>
 
-      {showUsers && (
+      {showUsers && pendingUsers && (
         <div className="flex flex-col gap-2.5">
           <h3 className="text-[13px] font-semibold text-muted">
             {t("waitingForRole")}
@@ -79,11 +83,11 @@ export async function NeedsAttentionCard({
 
       {showUsers && showInvites && <hr className="border-separator" />}
 
-      {showInvites && !openInvites.ok && (
+      {openInvites && !openInvites.ok && (
         <p className={errorLine}>{t("invitesError")}</p>
       )}
 
-      {openInvites.ok && openInvites.value.length > 0 && (
+      {openInvites?.ok && openInvites.value.length > 0 && (
         <NextLink
           className="flex items-center gap-3 rounded-control text-sm"
           href="/users/invites"

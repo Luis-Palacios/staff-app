@@ -6,8 +6,11 @@ import MembershipApplicationsListSkeleton from "./_components/membership-applica
 
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { applicationsBreadcrumb } from "@/config/breadcrumbs";
+import { requirePermission } from "@/lib/auth/get-permissions";
 
 export default async function ApplicationsPage() {
+  await requirePermission({ membershipApplications: ["view"] });
+
   const t = await getTranslations("ApplicationsPage");
 
   return (
