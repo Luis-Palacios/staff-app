@@ -137,12 +137,20 @@ export function MemberGroupsCard({
                 />
               </span>
               <div className="flex min-w-0 flex-[1_1_160px] flex-col">
-                <NextLink
-                  className={textLink({ className: "break-words text-[15px]" })}
-                  href={`/groups/${group.smallGroupId}`}
-                >
-                  {group.smallGroupName}
-                </NextLink>
+                {canOpen(group) ? (
+                  <NextLink
+                    className={textLink({
+                      className: "break-words text-[15px]",
+                    })}
+                    href={`/groups/${group.smallGroupId}`}
+                  >
+                    {group.smallGroupName}
+                  </NextLink>
+                ) : (
+                  <span className="break-words text-[15px] font-semibold text-heading">
+                    {group.smallGroupName}
+                  </span>
+                )}
                 <span className="text-[13px] text-muted">{joined(group)}</span>
               </div>
               <StatusBadge {...ROLE_BADGE[group.role]}>

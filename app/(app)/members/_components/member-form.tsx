@@ -164,12 +164,15 @@ export function MemberForm({
   initial,
   cancelHref,
   canInvite = false,
+  canEditEmail = true,
 }: {
   memberId?: string;
   initial?: MemberFormValues;
   cancelHref: string;
   /** Show "Invite as a user" (add form only, for roles that can manage links). */
   canInvite?: boolean;
+  /** Edit only: without `members: all` the email field is hidden and never sent (it is a 403). */
+  canEditEmail?: boolean;
 }) {
   const t = useTranslations("MemberForm");
   const router = useRouter();
@@ -243,6 +246,9 @@ export function MemberForm({
     const values = currentValues();
     const found = validate(values, phone);
 
+    // A hidden email isn't the user's to fix.
+    if (!canEditEmail) delete found.email;
+
     if (Object.keys(found).length > 0) {
       fail({ ok: false, fieldErrors: found });
 
@@ -273,6 +279,8 @@ export function MemberForm({
     const changes: Partial<MemberFormValues> = {};
 
     for (const field of MEMBER_FIELDS) {
+      if (field === "email" && !canEditEmail) continue;
+
       if (values[field].trim() !== original[field].trim()) {
         changes[field] = values[field];
       }
@@ -342,18 +350,20 @@ export function MemberForm({
           onChange={(v) => setTextField("name", v)}
         />
         <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5">
-          <Field
-            autoComplete="email"
-            disabled={isPending}
-            error={errors.email}
-            errorText={errorOf("email")}
-            help={t("emailHelp")}
-            label={t("email")}
-            name="email"
-            type="email"
-            value={text.email}
-            onChange={(v) => setTextField("email", v)}
-          />
+          {(canEditEmail || !isEdit) && (
+            <Field
+              autoComplete="email"
+              disabled={isPending}
+              error={errors.email}
+              errorText={errorOf("email")}
+              help={t("emailHelp")}
+              label={t("email")}
+              name="email"
+              type="email"
+              value={text.email}
+              onChange={(v) => setTextField("email", v)}
+            />
+          )}
           <PhoneField
             error={errorOf("phone")}
             hasOther={hasOther}

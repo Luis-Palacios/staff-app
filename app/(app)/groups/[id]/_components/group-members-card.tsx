@@ -1,6 +1,6 @@
 "use client";
 
-import type { MemberSummary, SmallGroupRole } from "@/api/members-api/types";
+import type { MemberOption, SmallGroupRole } from "@/api/members-api/types";
 import type {
   SmallGroupDetail,
   SmallGroupMember,
@@ -93,7 +93,7 @@ export function GroupMembersCard({
     null,
   );
   const [toast, setToast] = useState<ToastState | null>(null);
-  const [pickerMembers, setPickerMembers] = useState<MemberSummary[] | null>(
+  const [pickerMembers, setPickerMembers] = useState<MemberOption[] | null>(
     null,
   );
   const [pickerError, setPickerError] = useState<string | null>(null);
@@ -105,6 +105,11 @@ export function GroupMembersCard({
   const canManage = can(permissions, { smallGroups: ["manageMembers"] });
   const canSetLeader = can(permissions, { smallGroups: ["setLeader"] });
   const isFull = access === "full";
+  // A member's profile opens when the caller can view members and the member is in their scope:
+  // everyone with `members: all`, otherwise the active members of an open group they lead (rule 3).
+  const canOpenProfile =
+    can(permissions, { members: ["view"] }) &&
+    (can(permissions, { members: ["all"] }) || !isClosed);
 
   function showToast(message: string, tone: ToastState["tone"] = "success") {
     setToast((current) => ({ id: (current?.id ?? 0) + 1, message, tone }));
@@ -215,12 +220,18 @@ export function GroupMembersCard({
             >
               <InitialsAvatar name={member.memberName} />
               <div className="flex min-w-0 flex-[1_1_160px] flex-col">
-                <NextLink
-                  className="break-words text-[15px] font-semibold text-heading hover:underline"
-                  href={`/members/${member.memberId}`}
-                >
-                  {member.memberName}
-                </NextLink>
+                {canOpenProfile ? (
+                  <NextLink
+                    className="break-words text-[15px] font-semibold text-heading hover:underline"
+                    href={`/members/${member.memberId}`}
+                  >
+                    {member.memberName}
+                  </NextLink>
+                ) : (
+                  <span className="break-words text-[15px] font-semibold text-heading">
+                    {member.memberName}
+                  </span>
+                )}
                 <span className="text-[13px] text-muted">
                   {t("joined", {
                     date: formatCalendarDate(member.joinedAt, locale),

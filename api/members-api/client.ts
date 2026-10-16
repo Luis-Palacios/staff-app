@@ -2,6 +2,7 @@ import type {
   Me,
   MemberDetail,
   MemberInput,
+  MemberOption,
   MemberSummary,
 } from "@/api/members-api/types";
 
@@ -14,6 +15,14 @@ export function listMembers(): Promise<MemberSummary[]> {
   return authenticatedFetch<MemberSummary[]>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     "/members",
+  );
+}
+
+/** Every member's id and name (`members: search`), for pickers. Leaders may call it; no contact data. */
+export function listMemberOptions(): Promise<MemberOption[]> {
+  return authenticatedFetch<MemberOption[]>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    "/members/options",
   );
 }
 

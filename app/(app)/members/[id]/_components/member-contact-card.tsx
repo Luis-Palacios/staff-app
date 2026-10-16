@@ -52,9 +52,12 @@ function Field({
 export function MemberContactCard({
   member,
   variant = "default",
+  canEdit = true,
 }: {
   member: MemberDetail;
   variant?: "default" | "self";
+  /** Show the Edit link (`members: update`). */
+  canEdit?: boolean;
 }) {
   const t = useTranslations("MemberContactCard");
   const tSelf = useTranslations("MyProfilePage");
@@ -84,7 +87,7 @@ export function MemberContactCard({
         >
           {t("title")}
         </DetailCardHeading>
-        {!self && (
+        {!self && canEdit && (
           <NextLink
             aria-label={t("editLabel")}
             className={textLink({ className: "text-sm font-semibold" })}
