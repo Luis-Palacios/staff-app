@@ -50,7 +50,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | 3. No meeting dialog and shortcuts | ✅ | see `git log` (stage 3 commit) |
 | 4. Reports list and no-meeting detail | ✅ | see `git log` (stage 4 commit) |
 | 5. Dashboards and Group detail | ✅ | see `git log` (stage 5 commit) |
-| 6. Design review fixes | ⬜ | |
+| 6. Design review fixes | ✅ | see `git log` (stage 6 commit) |
 
 ### Decisions and deviations
 
@@ -130,6 +130,16 @@ before the next one starts. After each stage, write a short summary in the progr
 - Stage 5 checked in the browser (Spanish, light, 1440): the elder week table row and the group
   page row. Not checked: the follow-up dots and legend (no group in the local data qualifies),
   week cards below `xl`, dark, English, 1024 / 390.
+- Stage 6 (design review), no code fixes were needed. Checked: no color literals or new `dark:`
+  overrides in the changed files; `pnpm lint` has no warnings (`react/jsx-no-literals` clean) and
+  `tsc` passes (en/es parity); every place that reads a report as held checks `held` (list, card,
+  week rows, Group detail, follow-up dots, replace flow's date sets), and *Last report* and the
+  counts come from the API's held-only data; in the browser, dark mode on the detail page, and
+  390 / 1024 widths (list cards, detail, Group detail, list and detail at 1024) with no sideways
+  scroll. Earlier stages already covered the form, the replace flow and the dialog.
+- Not verified, for whoever has the data: English in the browser (the locale cookie didn't switch
+  here), the follow-up dots in a group that is behind on reports, the week cards, the delete dialog
+  of a no meeting and a closed group's detail.
 
 ## Token changes
 
