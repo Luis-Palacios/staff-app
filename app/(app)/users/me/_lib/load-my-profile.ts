@@ -2,7 +2,7 @@ import "server-only";
 
 import type { AuthSessionUser } from "@/api/auth-api/types";
 import type { MemberDetail } from "@/api/members-api/types";
-import type { SmallGroupAccess } from "@/lib/auth/roles";
+import type { Permissions, SmallGroupAccess } from "@/lib/auth/permissions";
 
 import { cache } from "react";
 import { redirect } from "next/navigation";
@@ -10,10 +10,11 @@ import { redirect } from "next/navigation";
 import { ApiError } from "@/api/api-client";
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { getMe, getMember } from "@/api/members-api/client";
-import { getSmallGroupAccess } from "@/lib/auth/roles";
+import { getSmallGroupAccess } from "@/lib/auth/permissions";
 
 export interface MyProfile {
   user: AuthSessionUser;
+  permissions: Permissions;
   /** The signed-in user's member, or `null` when no member is linked. */
   member: MemberDetail | null;
   access: SmallGroupAccess;
@@ -45,8 +46,9 @@ export const loadMyProfile = cache(async (): Promise<MyProfile> => {
 
   return {
     user: session.user,
+    permissions: session.permissions,
     member,
-    access: getSmallGroupAccess(session.user.role),
+    access: getSmallGroupAccess(session.permissions),
     leadIds: new Set(me.leads.map((lead) => lead.smallGroupId)),
   };
 });

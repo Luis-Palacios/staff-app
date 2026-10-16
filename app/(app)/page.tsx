@@ -5,7 +5,7 @@ import { LeaderDashboard } from "./_components/leader-dashboard";
 import { StaffDashboard } from "./_components/staff-dashboard";
 
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
-import { getSmallGroupAccess } from "@/lib/auth/roles";
+import { getSmallGroupAccess } from "@/lib/auth/permissions";
 
 export default async function DashboardPage({
   searchParams,
@@ -20,7 +20,7 @@ export default async function DashboardPage({
   }
 
   const firstName = session.user.name.trim().split(/\s+/)[0] ?? "";
-  const access = getSmallGroupAccess(session.user.role);
+  const access = getSmallGroupAccess(session.permissions);
 
   // Leaders and deacons get their own dashboard: their groups and what's left to file.
   if (access === "scoped") {
@@ -34,5 +34,5 @@ export default async function DashboardPage({
     );
   }
 
-  return <StaffDashboard firstName={firstName} role={session.user.role} />;
+  return <StaffDashboard firstName={firstName} />;
 }

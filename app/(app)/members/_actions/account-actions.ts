@@ -12,7 +12,8 @@ import {
   unlinkMemberUser,
 } from "@/api/members-api/client";
 import { getApiErrorMessage } from "@/lib/api-error-message";
-import { AuthRole, canManageLinks } from "@/lib/auth/roles";
+import { canManageLinks } from "@/lib/auth/permissions";
+import { AuthRole } from "@/lib/auth/roles";
 import {
   getLinkedUserIds,
   getSuggestedMembers,
@@ -58,9 +59,9 @@ function revalidateAccountPages() {
 // The API and auth-server enforce the role too; this keeps a non-admin's call from going out at
 // all and gives the same "only admins and elders" message.
 async function requireLinkManager(): Promise<AccountActionFailure | null> {
-  const { user } = await requireStaffSession();
+  const { permissions } = await requireStaffSession();
 
-  return canManageLinks(user.role)
+  return canManageLinks(permissions)
     ? null
     : failure(
         new ApiError({

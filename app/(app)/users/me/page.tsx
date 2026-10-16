@@ -9,7 +9,7 @@ import { loadMyProfile } from "./_lib/load-my-profile";
 
 import { MemberContactCard } from "@/app/(app)/members/[id]/_components/member-contact-card";
 import { MemberGroupsCard } from "@/app/(app)/members/[id]/_components/member-groups-card";
-import { canManageLinks } from "@/lib/auth/roles";
+import { canManageLinks } from "@/lib/auth/permissions";
 import { getChurchContext } from "@/lib/workspace";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // Read-only, for every role that can sign in. No loadUser(): it sends non-admins away.
 export default async function MyProfilePage() {
-  const { user, member, access, leadIds } = await loadMyProfile();
+  const { user, permissions, member, access, leadIds } = await loadMyProfile();
 
   if (!member) {
     const { church } = await getChurchContext();
@@ -31,7 +31,7 @@ export default async function MyProfilePage() {
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <MyAccountCard stacked user={user} />
           <MyMemberCard
-            canLink={canManageLinks(user.role)}
+            canLink={canManageLinks(permissions)}
             churchName={church.name}
             userId={user.id}
           />

@@ -15,18 +15,21 @@ import { getEnv } from "@/lib/env/server";
 // server and just forwards the cookie header it already received. Returns null for "no session"
 // (auth-server answers 200 + null body, never 4xx, for that case — verified in
 // better-auth/dist/api/routes/session.mjs) rather than throwing.
-export function getSession(cookie: string): Promise<AuthSession | null> {
-  return apiFetch<AuthSession | null>(
-    getEnv().AUTH_SERVER_URL,
-    "/api/auth/get-session",
-    {
-      headers: { cookie },
-      cache: "no-store",
-    },
-  );
+//
+// `permissions` is what the role can do (auth-server's customSession); a response without it gets
+// none, so a missing field fails closed (rule 10).
+export async function getSession(cookie: string): Promise<AuthSession | null> {
+  const session = await apiFetch<
+    (Omit<AuthSession, "permissions"> & Partial<AuthSession>) | null
+  >(getEnv().AUTH_SERVER_URL, "/api/auth/get-session", {
+    headers: { cookie },
+    cache: "no-store",
+  });
+
+  return session && { ...session, permissions: session.permissions ?? {} };
 }
 
-// Mints a short-lived JWT (role claim only, see auth-server's jwt.definePayload) from the
+// Mints a short-lived JWT (`role` and `perms` claims, see auth-server's jwt.definePayload) from the
 // incoming session cookie - server-to-server, same reasoning as getSession above: this runs on
 // the server and forwards the cookie header it already has, no browser call involved.
 export function getToken(cookie: string): Promise<AuthToken> {

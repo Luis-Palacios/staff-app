@@ -14,19 +14,21 @@ import {
   groupsBreadcrumb,
   groupsReportsBreadcrumb,
 } from "@/config/breadcrumbs";
-import { reportAccess } from "@/lib/auth/roles";
+import { getPermissions } from "@/lib/auth/get-permissions";
+import { reportAccess } from "@/lib/auth/permissions";
 
 export default async function ReportsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [params, me, t] = await Promise.all([
+  const [params, me, permissions, t] = await Promise.all([
     searchParams,
     getMe(),
+    getPermissions(),
     getTranslations("ReportsPage"),
   ]);
-  const { access, canSubmit } = reportAccess(me.role, me);
+  const { access, canSubmit } = reportAccess(permissions, me);
 
   // No access to groups: the shared 404 instead of a 403 from the API.
   if (access === "none") notFound();
