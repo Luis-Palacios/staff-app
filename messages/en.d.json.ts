@@ -269,7 +269,9 @@ declare const messages: {
     "openLabel": "Open: {group}, {date}",
     "fileReport": "File report",
     "fileReportLabel": "File report: {group}, {date}",
-    "missingNote": "This group met but no report was filed.",
+    "missingNote": "This meeting has no report yet.",
+    "noMeetingAction": "No meeting",
+    "noMeetingLabel": "Mark as no meeting: {group}, {date}",
     "atMeeting": "at the meeting",
     "atChurch": "at church",
     "showMore": "Show more",
@@ -323,7 +325,15 @@ declare const messages: {
     "ofTotal": "{count, number} of {total, number}"
   },
   "NoMeetingDialog": {
-    "markedToast": "Marked as no meeting"
+    "title": "No meeting on {date}?",
+    "body": "The date won’t count as a missing report. If the group did meet, file a report instead.",
+    "editTitle": "Edit the reason",
+    "editBody": "The date stays marked as no meeting.",
+    "reasonHint": "Anyone who can see this group’s reports can read it.",
+    "mark": "Mark as no meeting",
+    "save": "Save",
+    "markedToast": "Marked as no meeting",
+    "savedToast": "Reason saved"
   },
   "ReportForm": {
     "newTitle": "New report",
@@ -428,7 +438,9 @@ declare const messages: {
     "title": "Recent meetings",
     "viewAll": "View all",
     "counts": "{attended, number} of {total, number} at the meeting · {church, number} at church",
-    "missing": "The group met; no report was filed",
+    "missing": "This meeting has no report yet.",
+    "noMeetingAction": "No meeting",
+    "noMeetingLabel": "Mark {date} as no meeting",
     "closedNote": "This group is closed, so its reports are read-only.",
     "noneYet": "No reports yet.",
     "newReport": "New report",
@@ -501,8 +513,10 @@ declare const messages: {
     "lastReport": "Last report",
     "lastReportLine": "{attended, number} of {total, number} at the meeting · by {name}",
     "noReportYet": "No reports yet",
-    "notFiled": "{date}: the group met but no report was filed.",
+    "notFiled": "{date} has no report yet.",
     "fileIt": "File it",
+    "noMeetingAction": "No meeting",
+    "noMeetingLabel": "Mark {date} as no meeting",
     "openGroup": "Open group",
     "newReport": "New report",
     "loadFailed": "Your groups couldn’t load. Try again in a moment."

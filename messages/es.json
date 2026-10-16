@@ -266,7 +266,9 @@
     "openLabel": "Abrir: {group}, {date}",
     "fileReport": "Enviar reporte",
     "fileReportLabel": "Enviar reporte: {group}, {date}",
-    "missingNote": "El grupo se reunió, pero no se envió reporte.",
+    "missingNote": "Esta reunión aún no tiene reporte.",
+    "noMeetingAction": "No hubo reunión",
+    "noMeetingLabel": "Marcar sin reunión: {group}, {date}",
     "atMeeting": "en la reunión",
     "atChurch": "en la iglesia",
     "showMore": "Ver más",
@@ -320,7 +322,15 @@
     "ofTotal": "{count, number} de {total, number}"
   },
   "NoMeetingDialog": {
-    "markedToast": "Marcado sin reunión"
+    "title": "¿No hubo reunión el {date}?",
+    "body": "La fecha no contará como reporte pendiente. Si el grupo sí se reunió, envía un reporte.",
+    "editTitle": "Editar el motivo",
+    "editBody": "La fecha sigue marcada sin reunión.",
+    "reasonHint": "Cualquier persona que pueda ver los reportes de este grupo puede leerlo.",
+    "mark": "Marcar sin reunión",
+    "save": "Guardar",
+    "markedToast": "Marcado sin reunión",
+    "savedToast": "Motivo guardado"
   },
   "ReportForm": {
     "newTitle": "Nuevo reporte",
@@ -425,7 +435,9 @@
     "title": "Reuniones recientes",
     "viewAll": "Ver todos",
     "counts": "{attended, number} de {total, number} en la reunión · {church, number} en la iglesia",
-    "missing": "El grupo se reunió; no se envió reporte",
+    "missing": "Esta reunión aún no tiene reporte.",
+    "noMeetingAction": "No hubo reunión",
+    "noMeetingLabel": "Marcar el {date} sin reunión",
     "closedNote": "Este grupo está cerrado, así que sus reportes son de solo lectura.",
     "noneYet": "Aún no hay reportes.",
     "newReport": "Nuevo reporte",
@@ -498,8 +510,10 @@
     "lastReport": "Último reporte",
     "lastReportLine": "{attended, number} de {total, number} en la reunión · por {name}",
     "noReportYet": "Aún no hay reportes",
-    "notFiled": "{date}: el grupo se reunió, pero no se envió reporte.",
+    "notFiled": "El {date} aún no tiene reporte.",
     "fileIt": "Enviarlo",
+    "noMeetingAction": "No hubo reunión",
+    "noMeetingLabel": "Marcar el {date} sin reunión",
     "openGroup": "Abrir grupo",
     "newReport": "Nuevo reporte",
     "loadFailed": "No se pudieron cargar tus grupos. Inténtalo de nuevo en un momento."
