@@ -26,7 +26,7 @@ export async function WeekCards({ rows }: { rows: WeekRowView[] }) {
           <div className="flex flex-1 flex-col gap-3 px-[18px] py-4">
             <div className="flex items-start justify-between gap-2.5">
               <WeekGroupCell noLeader={t("noLeader")} row={item} />
-              <WeekStatusCell row={item} />
+              <WeekStatusCell wrapReason row={item} />
             </div>
             <dl className="grid grid-cols-2 gap-3 text-sm tabular-nums">
               <div className="flex flex-col gap-1">

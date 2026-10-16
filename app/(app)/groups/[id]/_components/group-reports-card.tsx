@@ -74,20 +74,32 @@ export async function GroupReportsCard({
                     {date}
                   </span>
                   <span className="text-[13px] text-muted">
-                    {item.kind === "report"
-                      ? t("counts", {
-                          attended: item.attendedGroupCount,
-                          total: item.rosterCount,
-                          church: item.attendedChurchCount,
-                        })
-                      : t("missing")}
+                    {item.kind === "report" && !item.held
+                      ? item.notHeldReason
+                      : item.kind === "report"
+                        ? t("counts", {
+                            attended: item.attendedGroupCount,
+                            total: item.rosterCount,
+                            church: item.attendedChurchCount,
+                          })
+                        : t("missing")}
                   </span>
                 </span>
                 <StatusBadge
-                  tone={item.kind === "report" ? "success" : "warning"}
-                  variant={item.kind === "report" ? "solid-dot" : "ring-dot"}
+                  tone={
+                    item.kind === "notFiled"
+                      ? "warning"
+                      : item.held
+                        ? "success"
+                        : "neutral"
+                  }
+                  variant={item.kind === "notFiled" ? "ring-dot" : "solid-dot"}
                 >
-                  {item.kind === "report" ? tList("filed") : tList("notFiled")}
+                  {item.kind === "notFiled"
+                    ? tList("notFiled")
+                    : item.held
+                      ? tList("filed")
+                      : tList("noMeeting")}
                 </StatusBadge>
                 <ChevronRightIcon
                   aria-hidden="true"

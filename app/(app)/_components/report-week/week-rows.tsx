@@ -33,6 +33,8 @@ export interface WeekRowView {
   leaders: string | null;
   badge: WeekBadgeStyle & { label: string };
   when: string | null;
+  /** A no meeting's reason. */
+  reason: string | null;
   moreReports: { label: string; href: string } | null;
   attendance: { attended: number; total: number; text: ReactNode } | null;
   observations: { count: number; text: string } | null;
@@ -68,9 +70,13 @@ export async function buildWeekRows(week: ReportWeek): Promise<WeekRowView[]> {
     const { smallGroup, status, reports } = group;
     const newest = reports[0];
     const key = weekStatusKey(status, week.isCurrentWeek);
+    const noMeeting = status === "notHeld" && newest;
     const action =
-      status === "submitted" && newest
-        ? { href: `/groups/reports/${newest.id}`, label: t("viewReport") }
+      (status === "submitted" || status === "notHeld") && newest
+        ? {
+            href: `/groups/reports/${newest.id}`,
+            label: status === "notHeld" ? t("view") : t("viewReport"),
+          }
         : status === "notFiled"
           ? {
               href: notFiledMeetingsHref(smallGroup.id, week.today),
@@ -79,7 +85,7 @@ export async function buildWeekRows(week: ReportWeek): Promise<WeekRowView[]> {
           : { href: `/groups/${smallGroup.id}`, label: t("openGroup") };
     let when: string | null = null;
 
-    if (status === "submitted" && newest) {
+    if ((status === "submitted" || status === "notHeld") && newest) {
       when = formatCalendarShortWeekdayDate(
         newest.meetingDate,
         locale as Locale,
@@ -105,6 +111,7 @@ export async function buildWeekRows(week: ReportWeek): Promise<WeekRowView[]> {
           : null,
       badge: { ...WEEK_STATUS_BADGE[status], label: t(`status.${key}`) },
       when,
+      reason: noMeeting ? noMeeting.notHeldReason : null,
       moreReports:
         reports.length > 1
           ? {
@@ -112,7 +119,7 @@ export async function buildWeekRows(week: ReportWeek): Promise<WeekRowView[]> {
               href: `/groups/reports?groupId=${smallGroup.id}&from=${week.weekStart}&to=${week.weekEnd}`,
             }
           : null,
-      attendance: newest
+      attendance: newest?.held
         ? {
             attended: newest.attendedGroupCount,
             total: newest.rosterCount,
@@ -123,7 +130,7 @@ export async function buildWeekRows(week: ReportWeek): Promise<WeekRowView[]> {
             }),
           }
         : null,
-      observations: newest
+      observations: newest?.held
         ? {
             count: newest.observationCount,
             text: t("observations", { count: newest.observationCount }),
@@ -160,7 +167,14 @@ export function WeekGroupCell({
   );
 }
 
-export function WeekStatusCell({ row }: { row: WeekRowView }) {
+export function WeekStatusCell({
+  row,
+  wrapReason = false,
+}: {
+  row: WeekRowView;
+  /** Cards let the reason wrap; the table cuts it at one line. */
+  wrapReason?: boolean;
+}) {
   return (
     <span className="flex flex-col items-start gap-1.5">
       <StatusBadge tone={row.badge.tone} variant={row.badge.variant}>
@@ -169,6 +183,18 @@ export function WeekStatusCell({ row }: { row: WeekRowView }) {
       {row.when && (
         <span className="whitespace-nowrap text-[13px] text-muted">
           {row.when}
+        </span>
+      )}
+      {row.reason && (
+        <span
+          className={
+            wrapReason
+              ? "text-[13px] italic text-muted"
+              : "block max-w-[220px] truncate text-[13px] italic text-muted"
+          }
+          title={row.reason}
+        >
+          {row.reason}
         </span>
       )}
       {row.moreReports && (
