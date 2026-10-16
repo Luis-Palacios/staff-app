@@ -17,10 +17,13 @@ export interface MemberSmallGroup {
   joinedAt: string;
 }
 
+export type MemberSex = "male" | "female";
+
 export interface MemberDetail extends MemberSummary {
   address: string | null;
   /** Date only, "YYYY-MM-DD". */
   birthDate: string | null;
+  sex: MemberSex | null;
   /** Current (active) groups only. */
   smallGroups: MemberSmallGroup[];
 }
@@ -31,6 +34,7 @@ export interface MemberInput {
   phone?: string | null;
   address?: string | null;
   birthDate?: string | null;
+  sex?: MemberSex | null;
 }
 
 export interface MeLead {

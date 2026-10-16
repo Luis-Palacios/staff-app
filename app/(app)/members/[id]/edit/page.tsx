@@ -37,6 +37,7 @@ export default async function EditMemberPage({
           phone: member.phone ?? "",
           address: member.address ?? "",
           birthDate: member.birthDate ?? "",
+          sex: member.sex ?? "",
         }}
         memberId={id}
       />
