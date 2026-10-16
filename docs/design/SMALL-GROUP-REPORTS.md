@@ -81,7 +81,7 @@ components named below, never the board's literals.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API client, types, actions, errors | ⬜ | |
+| 1. API client, types, actions, errors | ✅ | (this commit) |
 | 2. Reports list (`/groups/reports`) | ⬜ | |
 | 3. Report detail and delete | ⬜ | |
 | 4. New report: meeting step | ⬜ | |
@@ -92,7 +92,21 @@ components named below, never the board's literals.
 
 ### Decisions and deviations
 
-- (none yet)
+- **Stage 1: names are one `name`.** The API sends `{ memberId, name }` everywhere, not first and
+  last (API handoff log). Types use `name`; the spec's "first name" in the questions (`q1`, `q2`,
+  `addNote`) is taken as the first word of `name`.
+- **Stage 1: not-filed rows are for open groups only** (API handoff log). So a closed group never
+  shows a *Not filed* row.
+- **Stage 1: `ApiErrors.groupClosed` added.** The spec says "existing closed-group key", but the only
+  closed keys live under `GroupMembers`/`GroupClose` and say the group "can't be changed"; reports
+  need their own sentence.
+- **Stage 1: `reportAccess` lives in `lib/auth/roles.ts`** next to `getSmallGroupAccess` (client-safe).
+  `getApiErrorMessage` takes an optional `{ date }` for `reportExists`; `getReportErrorKind` and
+  `getExistingReportId` expose the matching so actions can return a kind to the form.
+- **Stage 1: date-only formatters** `formatCalendarShortDate`, `formatCalendarMediumDate` and
+  `formatCalendarFullDate` added to `lib/format-date.ts` (UTC, like `formatCalendarDate`), since report
+  dates have no time zone.
+- Verified: types checked against the running API's OpenAPI schemas (`localhost:8000`).
 
 ## Token changes
 

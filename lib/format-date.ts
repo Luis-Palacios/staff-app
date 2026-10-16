@@ -83,3 +83,49 @@ export function ageFromCalendarDate(
 
   return today.getFullYear() - year - (hadBirthday ? 0 : 1);
 }
+
+// Date-only values in a shorter or longer form than `formatCalendarDate`, with the same UTC
+// handling so the calendar day never shifts.
+function formatCalendarWith(
+  iso: string,
+  locale: Locale,
+  options: Intl.DateTimeFormatOptions,
+): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+
+  if (!match) return "";
+
+  const date = new Date(
+    Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
+  );
+
+  return new Intl.DateTimeFormat(locale, {
+    ...options,
+    timeZone: "UTC",
+  }).format(date);
+}
+
+// "Oct 8": a date-only value in a list row.
+export function formatCalendarShortDate(iso: string, locale: Locale): string {
+  return formatCalendarWith(iso, locale, { month: "short", day: "numeric" });
+}
+
+// "Thu, Oct 8, 2026".
+export function formatCalendarMediumDate(iso: string, locale: Locale): string {
+  return formatCalendarWith(iso, locale, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+// "Thursday, October 8, 2026": the report detail title.
+export function formatCalendarFullDate(iso: string, locale: Locale): string {
+  return formatCalendarWith(iso, locale, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}

@@ -415,7 +415,14 @@ declare const messages: {
     "notFound": "We couldn't find what you were looking for.",
     "tooManyRequests": "Too many requests. Wait a moment and try again.",
     "serviceUnavailable": "The service is unavailable right now. Try again in a few minutes.",
-    "generic": "Something went wrong. Try again."
+    "generic": "Something went wrong. Try again.",
+    "reportExists": "There’s already a report for {date}.",
+    "reportNeedsMember": "Link your account to a member to submit reports.",
+    "reportFutureDate": "The meeting date can’t be in the future.",
+    "reportRosterChanged": "The group’s members changed. Reload the list to continue.",
+    "reportNotLeaderOnDate": "You didn’t lead this group on that date.",
+    "reloadPeople": "Reload people",
+    "groupClosed": "This group is closed, so its reports can’t be changed."
   },
   "ApplicationStatus": {
     "pending": "Pending",
