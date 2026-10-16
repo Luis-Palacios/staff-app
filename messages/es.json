@@ -400,6 +400,34 @@
     "save": "Guardar cambios",
     "meetingDetails": "Detalles de la reunión"
   },
+  "GroupReportsCard": {
+    "eyebrow": "Reportes",
+    "title": "Reuniones recientes",
+    "viewAll": "Ver todos",
+    "counts": "{attended, number} de {total, number} en la reunión · {church, number} en la iglesia",
+    "missing": "El grupo se reunió; no se envió reporte",
+    "closedNote": "Este grupo está cerrado, así que sus reportes son de solo lectura.",
+    "noneYet": "Aún no hay reportes.",
+    "newReport": "Nuevo reporte",
+    "loadFailed": "No se pudieron cargar los reportes. Inténtalo de nuevo en un momento.",
+    "openLabel": "Abrir el reporte del {date}",
+    "fileLabel": "Enviar el reporte del {date}"
+  },
+  "LeaderDashboard": {
+    "description": "Tus grupos pequeños esta semana.",
+    "myGroups": "Mis grupos",
+    "viewMyReports": "Ver mis reportes",
+    "meetsToday": "Se reúne hoy",
+    "meets": "Se reúne {weekday}",
+    "lastReport": "Último reporte",
+    "lastReportLine": "{attended, number} de {total, number} en la reunión · por {name}",
+    "noReportYet": "Aún no hay reportes",
+    "notFiled": "{date}: el grupo se reunió, pero no se envió reporte.",
+    "fileIt": "Enviarlo",
+    "openGroup": "Abrir grupo",
+    "newReport": "Nuevo reporte",
+    "loadFailed": "No se pudieron cargar tus grupos. Inténtalo de nuevo en un momento."
+  },
   "DashboardPage": {
     "description": "Esto es lo que necesita tu atención esta semana.",
     "morning": "Buenos días",

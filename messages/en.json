@@ -400,6 +400,34 @@
     "save": "Save changes",
     "meetingDetails": "Meeting details"
   },
+  "GroupReportsCard": {
+    "eyebrow": "Reports",
+    "title": "Recent meetings",
+    "viewAll": "View all",
+    "counts": "{attended, number} of {total, number} at the meeting · {church, number} at church",
+    "missing": "The group met; no report was filed",
+    "closedNote": "This group is closed, so its reports are read-only.",
+    "noneYet": "No reports yet.",
+    "newReport": "New report",
+    "loadFailed": "The reports couldn’t load. Try again in a moment.",
+    "openLabel": "Open the report for {date}",
+    "fileLabel": "File the report for {date}"
+  },
+  "LeaderDashboard": {
+    "description": "Your small groups this week.",
+    "myGroups": "My groups",
+    "viewMyReports": "View my reports",
+    "meetsToday": "Meets today",
+    "meets": "Meets {weekday}",
+    "lastReport": "Last report",
+    "lastReportLine": "{attended, number} of {total, number} at the meeting · by {name}",
+    "noReportYet": "No reports yet",
+    "notFiled": "{date}: the group met but no report was filed.",
+    "fileIt": "File it",
+    "openGroup": "Open group",
+    "newReport": "New report",
+    "loadFailed": "Your groups couldn’t load. Try again in a moment."
+  },
   "DashboardPage": {
     "description": "Here's what needs your attention this week.",
     "morning": "Good morning",

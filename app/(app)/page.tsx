@@ -17,6 +17,7 @@ import {
   NeedsAttentionCard,
   NeedsAttentionCardSkeleton,
 } from "./_components/needs-attention-card";
+import { LeaderDashboard } from "./_components/leader-dashboard";
 import { NoGroupsCard } from "./_components/no-groups-card";
 import { RecentApplicationsCard } from "./_components/recent-applications-card";
 import { StatTile } from "./_components/stat-tile";
@@ -47,6 +48,13 @@ export default async function DashboardPage() {
     redirect("/sign-in");
   }
 
+  const firstName = session.user.name.trim().split(/\s+/)[0] ?? "";
+
+  // Leaders and deacons get their own dashboard: their groups and what's left to file.
+  if (getSmallGroupAccess(session.user.role) === "scoped") {
+    return <LeaderDashboard firstName={firstName} />;
+  }
+
   // TEMPORARY: same hardcoded admin/elder check as the users and invites pages,
   // because listUsers and listInvites 403 for every other role. Replace it with
   // the Phase 9 role→permission model.
@@ -54,7 +62,6 @@ export default async function DashboardPage() {
   // Only full roles get the "create the first group" nudge, and `none` would get a 403 from the
   // groups call, so it isn't made. Scoped users see their groups on the Groups page.
   const showGroupsNudge = getSmallGroupAccess(session.user.role) === "full";
-  const firstName = session.user.name.trim().split(/\s+/)[0] ?? "";
 
   // Start every fetch now and await none of them here, so they run in
   // parallel. Each section awaits its own promise inside a Suspense boundary,
