@@ -57,7 +57,7 @@ export function MeetingDatePicker({
         </DateField.Suffix>
       </DateField.Group>
       <DatePicker.Popover>
-        <Calendar aria-label={t("calendarLabel")}>
+        <Calendar aria-label={t("calendarLabel")} maxValue={parseDate(today)}>
           <Calendar.Header>
             <Calendar.YearPickerTrigger>
               <Calendar.YearPickerTriggerHeading />

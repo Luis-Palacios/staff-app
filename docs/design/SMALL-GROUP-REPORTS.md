@@ -88,7 +88,7 @@ components named below, never the board's literals.
 | 5. New report: one person at a time, the group, review | ✅ | eb4b771 |
 | 6. Quick list and edit | ✅ | 1167992 |
 | 7. Entry points: Group detail card, leader dashboard | ✅ | c208906 |
-| 8. Review pass | ⬜ | |
+| 8. Review pass | ✅ (elder and board comparison open, see below) | see `git log` |
 
 ### Decisions and deviations
 
@@ -248,12 +248,59 @@ components named below, never the board's literals.
   zone was Thu Oct 15), a linked admin or elder's New report on the card and dashboard, the closed-group
   card variant (`closedNote`), and the dashboard at 1440 in EN or light.
 
+- **Stage 8: review pass, what was run** (accounts: sgla-leader, sgla-deacon, sgla-user, sgla-admin
+  unlinked and, temporarily, linked to member 107 via `PUT /members/107/user`, unlinked again after).
+  - **One bug found and fixed:** the meeting date calendar (and the list's range calendar) let a future
+    day be picked: `maxValue` was only on the picker, not on the calendar inside it, so Arrow keys and
+    clicks reached tomorrow and the field turned invalid. `maxValue` is now on `Calendar` and
+    `RangeCalendar`; retested by keyboard (ArrowRight stops at today) and Escape returns focus to the
+    calendar button.
+  - **Observation privacy** (note text counted in the API JSON and in the fetched detail and edit
+    HTML, plus the list, dashboard, group pages and summary): admin sees all notes (2 in the API,
+    8 in detail HTML, 4 in edit); the leader sees them only on reports they submitted (151, 153, 155)
+    and **0** on 152, 154, 156, which covers another leader of the group and the co-leader on Beta;
+    deacon (404 from the API) and user (403) get **0** everywhere.
+  - **Meets today** badge: seen (Alpha moved to Thursday, reverted to Monday afterwards).
+  - **Linked admin:** Group detail shows **New report** (also a per-row one for the not-filed date);
+    the dashboard has none, because a full role's dashboard is unchanged. **Unlinked admin:** list has
+    the disabled **New report** with its reason, `/groups/reports/new` is the 404 page, Group detail
+    has no **New report**.
+  - **Closed group (Delta, as leader):** Group detail card with `closedNote` and no button; report 160
+    read-only (no Edit/Delete), its `/edit` redirects to the detail.
+  - **Failing save:** added a member to Alpha as admin while a quick list for today was filled in;
+    submit showed the alert with **Volver a cargar personas**; reloading kept the three answers, added
+    the new person unanswered and disabled Submit (3 of 4).
+  - **Date picker keyboard:** segments take Arrow keys; a future day is flagged "can't be future"
+    (field) and, after the fix, unreachable in the calendar; Tab reaches the calendar button, Enter
+    opens it.
+  - **Phone list:** Filters sheet (group, date range, **Listo**) opens and closes; **Show more** loads
+    the rest (44 rows) with no sideways scroll at 390.
+  - **Layout sweep** (iframe trick, programmatic check for sideways overflow, theme applied, error
+    pages): leader on dashboard, list, report detail, edit, new report, Group detail, closed Group
+    detail and closed report × light/dark × 1440/1024/390 × English/Spanish, all clean; admin on
+    dashboard, list, detail, edit and Group detail × light/dark × 3 widths in Spanish, all clean.
+  - **Not done:** an **elder** (no test account: needs a user with role `elder`, optionally linked to a
+    member), so elder is covered only through admin, which shares the same checks; the comparison
+    against the canvas boards (not opened this session); measured button heights (56/44px), the
+    person step's focus on the name, the gold-text rule, and admin/deacon/user pages in English.
+  - **Test data left behind:** Test Deacon (member 106) has a closed membership row in Alpha (joined
+    and left on 2026-10-15). No reports were added this session.
+  - **For the user to decide (not changed):** (1) scoped roles lost the application tiles on `/` because
+    the board shows only My groups; (2) Quick list keeps its **Back** button although its board has none.
+  - Also seen, outside this feature: a plain `user` still gets the full dashboard (Add member,
+    applications) at `/`, and the Members and Applications nav items.
+
 ## Pick-up notes (written at the end of session 1; read before Stage 4)
 
-**State:** stages 1–3 are done and committed on `small-group-reports` (hashes in the table). The
-branch is **not** pushed or merged. Stage 4 is next. Nothing is stubbed; every call goes to the real
-API on `localhost:8000` (`APPLICATIONS_MEMBERSHIP_API_URL`), whose report routes are on its `main`.
-Working tree is clean apart from what the last commit holds.
+**State (stale; stages 1–8 are done, see the table):** the notes below were written for Stage 4.
+Setup facts (accounts, ids, gotchas) still hold; the starter prompt at the end is obsolete. The
+branch is **not** pushed or merged. Nothing is stubbed; every call goes to the real API on
+`localhost:8000` (`APPLICATIONS_MEMBERSHIP_API_URL`), whose report routes are on its `main`.
+Added in Stage 8: the harness trick for sweeps is a script in the page that appends an iframe per
+combination and measures `scrollWidth`; the locale cookie can't be set with `document.cookie` (it is
+set by the server), so switch language once through the account menu. `PUT/DELETE /members/{id}/user`
+(body `{"userId": ...}`) links and unlinks; a roster change that affects *today's* report needs a
+member added to the group today (`POST /small-groups/{id}/members`) and the report dated today.
 
 ### What already exists (reuse, don't rebuild)
 
@@ -702,19 +749,19 @@ Run after implementation, against the boards listed above. Record findings in th
 - [ ] Every board matches in light and dark: layout, spacing, type, states.
 - [ ] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways; the list and the attendance
       table switch to cards below `md`; the person card's buttons stay 56px and the list's 44px.
-- [ ] Observations: admins and elders see them; the submitter sees their own; another leader of
+- [x] Observations: admins and elders see them; the submitter sees their own; another leader of
       the group, a deacon and a co-leader editing someone else's report never do (check the network
-      response too, not just the UI).
-- [ ] Unlinked admin/elder: **New report** disabled with the reason; the dashboard and Group
-      detail don't offer New report.
-- [ ] Closed group: report detail read-only, no Edit/Delete, no New report on its card.
-- [ ] Duplicate date caught on the date step; future dates not selectable; Submit disabled until
-      everyone is marked; the draft survives a reload and is cleared after submit.
+      response too, not just the UI). (Seen as admin, the submitter, another leader, the co-leader and a deacon, API and HTML; **elder not run**, no account.)
+- [x] Unlinked admin/elder: **New report** disabled with the reason; the dashboard and Group
+      detail don't offer New report. (Seen as admin; **elder not run**.)
+- [x] Closed group: report detail read-only, no Edit/Delete, no New report on its card.
+- [x] Duplicate date caught on the date step; future dates not selectable; Submit disabled until
+      everyone is marked; the draft survives a reload and is cleared after submit. (Future days were selectable in the calendar: fixed in Stage 8.)
 - [ ] Focus: each person step lands on the name; dialogs return focus to their trigger.
-- [ ] No color, font, radius or shadow literals in the changed files
+- [x] No color, font, radius or shadow literals in the changed files
       (`git diff main --name-only | xargs grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\('`), and no new
       `dark:` overrides a token could replace.
 - [ ] Gold never carries text on a light ground; status shows a dot and a word.
 - [ ] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean);
       `messages/parity.ts` passes.
-- [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+- [x] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
