@@ -84,7 +84,7 @@ components named below, never the board's literals.
 | 1. API client, types, actions, errors | ✅ | 4d16182 |
 | 2. Reports list (`/groups/reports`) | ✅ | 6a5d945 |
 | 3. Report detail and delete | ✅ | 827d6c8 |
-| 4. New report: meeting step | ⬜ | |
+| 4. New report: meeting step | ✅ | (filled in by the Stage 5 commit) |
 | 5. New report: one person at a time, the group, review | ⬜ | |
 | 6. Quick list and edit | ⬜ | |
 | 7. Entry points: Group detail card, leader dashboard | ⬜ | |
@@ -145,6 +145,32 @@ components named below, never the board's literals.
   scroll, person blocks), delete dialog opens, Escape returns focus to **Eliminar**; no console
   errors after the table fix. Delete was **not** confirmed against real data. Not yet seen: closed
   group, observations on a report that has them, leader/deacon views (Stage 8).
+- **Stage 4: the mode cards stop here.** Picking *One person at a time* or *Quick list* records the
+  mode (and saves the draft) but nothing follows until Stages 5 and 6; nothing is stubbed. `ReportFlow`
+  holds the group, date, address, mode and roster, so later steps hang off the same state.
+- **Stage 4: filed-date dots look back 400 days, once per group**, not per visible month
+  (`listFiledDatesAction`, one call of up to 100 reports). Older months show no filled dot; the
+  roster's `existingReportId` still blocks a duplicate on any date. The same set feeds the default date.
+- **Stage 4: the date step's duplicate message comes from the server.** `getReportRosterAction` now
+  returns `existsMessage` (`ApiErrors.reportExists`) so `ApiErrors` stays out of the client bundle.
+- **Stage 4: draft is written on edit, not on mount.** Address edits and picking a mode save
+  `ekk-report-draft:{group}:{date}` (merged over any existing draft, so later stages' fields survive);
+  Cancel and the phone ✕ clear it. A restored draft's address wins over the group's.
+- **Stage 4: phone task header is a `fixed` bar over the shell's top bar** (`md:hidden`, `z-40`), not a
+  shell change. Its "1 / 4" is always 1 on this step. The desktop stepper isn't built: it is hidden on
+  the meeting step anyway and arrives with Stage 5.
+- **Stage 4: `?date=` and `?groupId=`** are validated on the server (future or malformed dates and
+  groups the caller can't submit for are ignored). A group switch fetches the new group's filed dates
+  first, then switches group and date together, so there is one roster call, not two.
+- **Stage 4: extra keys** `ReportForm.meetingEyebrow`, `stepCount`, `close`, `groupHintFull`,
+  `dateHintNoDay`, `calendarLabel`, `rosterLoading`, `noPeople`, `stepsLabel`. Spanish `dateHint` has no
+  "los" of its own: the weekday comes from `Weekdays.sentence` ("los miércoles").
+- Verified (Stage 4), signed in as sgla-leader: light/dark, EN/ES, 1440, 1024 and a 390 frame (no
+  sideways scroll, task header shown only below `md`). Group select lists only Alpha and Beta. Default
+  date for Alpha is Sep 21 (latest Monday without a report); the calendar shows hollow and filled dots;
+  picking Sep 28 (filed) shows the error with **Open that report** and dims the cards; draft restores
+  after reload; Cancel clears it; no console errors. Not seen: a not-linked or unsubmittable caller
+  (404, Stage 8), a failing roster call, the date picker's keyboard flow.
 
 ## Pick-up notes (written at the end of session 1; read before Stage 4)
 

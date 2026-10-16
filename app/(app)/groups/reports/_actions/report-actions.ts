@@ -6,10 +6,13 @@ import type {
   ReportListParams,
 } from "@/api/small-groups-api/types";
 import type { ReportErrorKind } from "@/lib/api-error-message";
+import type { Locale } from "@/lib/locale-shared";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 
+import { formatCalendarDate } from "@/lib/format-date";
 import {
   createSmallGroupReport,
   deleteSmallGroupReport,
@@ -17,6 +20,10 @@ import {
   listSmallGroupReports,
   updateSmallGroupReport,
 } from "@/api/small-groups-api/client";
+import {
+  addDays,
+  FILED_LOOKBACK_DAYS,
+} from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import { reportBodySchema } from "@/app/(app)/groups/reports/_lib/report-schema";
 import {
   getApiErrorMessage,
@@ -35,7 +42,12 @@ export interface ReportFailure {
 }
 
 export type ReportRosterResult =
-  | { ok: true; roster: Awaited<ReturnType<typeof getReportRoster>> }
+  | {
+      ok: true;
+      roster: Awaited<ReturnType<typeof getReportRoster>>;
+      /** "There's already a report for {date}", set with `roster.existingReportId` (rule 1). */
+      existsMessage: string | null;
+    }
   | { ok: false; message: string; kind?: ReportErrorKind };
 
 async function toFailure(
@@ -68,7 +80,15 @@ export async function getReportRosterAction(
   date: string,
 ): Promise<ReportRosterResult> {
   try {
-    return { ok: true, roster: await getReportRoster(groupId, date) };
+    const roster = await getReportRoster(groupId, date);
+    const existsMessage =
+      roster.existingReportId === null
+        ? null
+        : (await getTranslations("ApiErrors"))("reportExists", {
+            date: formatCalendarDate(date, (await getLocale()) as Locale),
+          });
+
+    return { ok: true, roster, existsMessage };
   } catch (error) {
     const kind = getReportErrorKind(error);
 
@@ -135,6 +155,30 @@ export async function deleteReportAction(
 
   revalidateReports(groupId, id);
   redirect("/groups/reports?saved=deleted");
+}
+
+/**
+ * Dates that already have a report for a group, for the meeting step's calendar. Looks a bit over
+ * a year back; the roster's `existingReportId` is what actually blocks a duplicate.
+ */
+export async function listFiledDatesAction(
+  groupId: number,
+  today: string,
+): Promise<string[]> {
+  try {
+    const { items } = await listSmallGroupReports({
+      smallGroupId: groupId,
+      from: addDays(today, -FILED_LOOKBACK_DAYS),
+      to: today,
+      status: "filed",
+      pageSize: 100,
+    });
+
+    return items.map((item) => item.meetingDate);
+  } catch {
+    // The dots and the default date are conveniences; the roster still catches a duplicate.
+    return [];
+  }
 }
 
 /** One more page of the list, for "Show more" on phones. */
