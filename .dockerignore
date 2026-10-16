@@ -23,6 +23,7 @@ Dockerfile
 .gitignore
 .prettierrc
 eslint.config.mjs
+scripts
 
 # Docs and editor/agent/CI config.
 **/*.md

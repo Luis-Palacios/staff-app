@@ -39,6 +39,9 @@ Use `pnpm exec`/`pnpm dlx`, not `npx`: npm refuses to run here because of `devEn
   (`pnpm tokens --check` exits 1 if they're out of date; run it before committing token changes)
 - `pnpm lint` — ESLint with `--fix` (auto-formats; there is no separate Prettier script — Prettier runs through `eslint-plugin-prettier`)
 - `pnpm exec tsc --noEmit` — type-check (tsconfig is `noEmit`, so this is the only way to check types without a build)
+- `docker build -t staff-app:dev .` then `pnpm smoke staff-app:dev` — build the production image and
+  smoke-test it (health, a `/_next/static` CSS file, `/_next/image` through sharp). Run it after any
+  change to the `Dockerfile`, `.dockerignore`, `next.config.mjs` or dependencies
 
 There is **no test runner** configured. If asked to add tests, confirm the framework choice first.
 
