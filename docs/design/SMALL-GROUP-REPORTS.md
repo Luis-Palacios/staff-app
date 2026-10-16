@@ -84,8 +84,8 @@ components named below, never the board's literals.
 | 1. API client, types, actions, errors | ✅ | 4d16182 |
 | 2. Reports list (`/groups/reports`) | ✅ | 6a5d945 |
 | 3. Report detail and delete | ✅ | 827d6c8 |
-| 4. New report: meeting step | ✅ | (filled in by the Stage 5 commit) |
-| 5. New report: one person at a time, the group, review | ⬜ | |
+| 4. New report: meeting step | ✅ | 023535d |
+| 5. New report: one person at a time, the group, review | ✅ | (filled in by the Stage 6 commit) |
 | 6. Quick list and edit | ⬜ | |
 | 7. Entry points: Group detail card, leader dashboard | ⬜ | |
 | 8. Review pass | ⬜ | |
@@ -171,6 +171,37 @@ components named below, never the board's literals.
   picking Sep 28 (filed) shows the error with **Open that report** and dims the cards; draft restores
   after reload; Cancel clears it; no console errors. Not seen: a not-linked or unsubmittable caller
   (404, Stage 8), a failing roster call, the date picker's keyboard flow.
+- **Stage 5: the list step is built here, not in Stage 6.** Review *is* the list step (attendance
+  table, the three group textareas, footer), and Submit lives on it, so `report-list-step.tsx` and
+  `group-fields.tsx` arrive now. Stage 6 only wires **Quick list** to it and adds the edit page.
+  **Quick list** still does nothing when picked (as the mode cards did in Stage 4).
+- **Stage 5: the person step is left-aligned**, like the board and every page in the app, not centred as
+  the spec's "centred column" says. Width 640px; the list step is 1000px.
+- **Stage 5: draft = one object behind a ref.** `ReportFlow` keeps the draft in state and in a ref
+  (`draftRef`); every edit writes both and `localStorage`. Without the ref, two taps in the same frame
+  overwrote each other (seen while testing). On a group or date change the draft for that pair is
+  restored, else the current one is kept when only the date changed, else a fresh one for the new group.
+- **Stage 5: submit clears the draft first** and puts it back on failure, because a successful action
+  redirects and never returns to the client. Date failures (`exists`, `future`, `notLeaderOnDate`)
+  send the leader back to the meeting step with the message on the date field; `rosterChanged` shows
+  the alert with **Reload people** (answers stay keyed by member id, so people still on the roster keep
+  theirs); `needsMember` and `closed` show the alert on the review.
+- **Stage 5: guided mode resumes at the first unanswered person** (a restored draft doesn't start over).
+- **Stage 5: column titles use a short Sunday** ("Sun, Oct 11", new `formatCalendarShortWeekdayDate`);
+  the question keeps the long one ("Sunday, Oct 11").
+- **Stage 5: extra keys** `groupTitle`, `attendanceEyebrow`, `attendanceTitle`, `colMember`, `colNote`,
+  `yes`, `missedStreak`, `joinedSince`, `reloadPeople` (the latter three duplicate server-side keys
+  because the flow is client-only and refetches the roster).
+- **Stage 5: not-answered tint** (`warning-soft`) shows on every row of the review, including when
+  someone skips straight to it with nobody answered.
+- Verified (Stage 5), as sgla-leader: guided flow on Alpha (3 people) end to end, **submitted report
+  163** (SGLA Alpha, Sep 21: one note, a prayer text): detail shows the answers, the note to its
+  submitter, the draft is gone, no console errors. Person step dark 1440 EN and light 390 ES (56px
+  buttons, no sideways scroll); review dark 1440 EN, light 390 ES (44px pairs, stacked rows) and light
+  1024 ES (stepper beside the title). Note count in the fetched detail HTML for the submitter: 4
+  (table plus flight payload); leak checks for other roles stay in Stage 8. Hit the API's own rate
+  limit (60/min per user, 429 on `/me`) after many reloads: not a bug in the page, but the new report
+  page makes roughly six API calls per load.
 
 ## Pick-up notes (written at the end of session 1; read before Stage 4)
 
