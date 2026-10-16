@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * The five fields the API lets us change, as the form holds them: plain
+ * The six fields the API lets us change, as the form holds them: plain
  * strings, where "" means "not provided". Shared by the form and the server
  * actions. Messages are keys under `MemberForm.errors` (see messages/en.json),
  * not English text.
@@ -13,6 +13,7 @@ export const MEMBER_FIELDS = [
   "phone",
   "address",
   "birthDate",
+  "sex",
 ] as const;
 
 export type MemberField = (typeof MEMBER_FIELDS)[number];
@@ -24,7 +25,8 @@ export type MemberErrorKey =
   | "phoneTooLong"
   | "phoneDigitsOnly"
   | "addressTooLong"
-  | "birthDateInvalid";
+  | "birthDateInvalid"
+  | "sexInvalid";
 
 export type MemberFieldErrors = Partial<Record<MemberField, MemberErrorKey>>;
 
@@ -96,6 +98,10 @@ export const memberSchema = z.object({
     .refine((value) => value === "" || isValidBirthDate(value), {
       error: "birthDateInvalid" satisfies MemberErrorKey,
     }),
+  // Can't happen from the UI (a two-option control); guards the server action.
+  sex: z.enum(["", "male", "female"], {
+    error: "sexInvalid" satisfies MemberErrorKey,
+  }),
 });
 
 /** For edits: only the fields that changed are present. */

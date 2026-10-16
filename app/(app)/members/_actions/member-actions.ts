@@ -51,13 +51,14 @@ export async function createMemberAction(
     return { ok: false, fieldErrors: toFieldErrors(parsed.error) };
   }
 
-  const { name, email, phone, address, birthDate } = parsed.data;
+  const { name, email, phone, address, birthDate, sex } = parsed.data;
   const input: MemberInput = {
     name,
     ...(email && { email }),
     ...(phone && { phone }),
     ...(address && { address }),
     ...(birthDate && { birthDate }),
+    ...(sex && { sex }),
   };
   let id: number;
 
