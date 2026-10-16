@@ -5,10 +5,14 @@ import { parseWeekParam } from "../_lib/week-param";
 
 import { Greeting, TodayDate } from "./dashboard-greeting";
 import { MyGroupsSection } from "./leader-dashboard";
+import { NeedsFollowUpCard } from "./needs-follow-up-card";
 import { ReportWeekSection } from "./report-week/report-week-section";
 import { ReportWeekSkeleton } from "./report-week/report-week-skeleton";
 
-import { getSmallGroupReportWeek } from "@/api/small-groups-api/client";
+import {
+  getSmallGroupReportSummary,
+  getSmallGroupReportWeek,
+} from "@/api/small-groups-api/client";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { getChurchToday } from "@/lib/church-time";
 import { settle } from "@/lib/settle";
@@ -35,6 +39,8 @@ export async function GroupsDashboard({
   const reportWeek = settle(
     getSmallGroupReportWeek(requestedSunday ?? undefined),
   );
+  // The same cached call My groups makes, so the page asks for the summary once.
+  const summary = settle(getSmallGroupReportSummary());
 
   return (
     <>
@@ -54,7 +60,9 @@ export async function GroupsDashboard({
       />
 
       <div className="flex flex-col gap-7">
-        {/* Needs follow-up goes here (stage 4). */}
+        <Suspense fallback={null}>
+          <NeedsFollowUpCard summary={summary} week={reportWeek} />
+        </Suspense>
         <Suspense
           key={requestedSunday ?? "current"}
           fallback={<ReportWeekSkeleton />}
