@@ -44,9 +44,14 @@ export function GroupFields({
           value={values[field]}
           onChange={(value) => onChange(field, value)}
         >
-          <Label className="text-[13px] font-semibold text-heading md:flex md:min-h-9 md:items-end">
-            {t(field)}{" "}
-            <span className="font-normal text-muted">{t("optional")}</span>
+          <Label className="text-[13px] font-semibold text-heading">
+            {/* One flex child, so the words keep their spaces; the min height lines the boxes up when a title wraps. */}
+            <span className="md:flex md:min-h-9 md:items-end">
+              <span>
+                {t(field)}{" "}
+                <span className="font-normal text-muted">{t("optional")}</span>
+              </span>
+            </span>
           </Label>
           <TextArea className="text-sm" rows={layout === "grid" ? 5 : 4} />
           <div className="flex items-start justify-between gap-3">

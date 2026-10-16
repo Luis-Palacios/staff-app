@@ -4,7 +4,6 @@ import type { Weekday } from "@/api/small-groups-api/types";
 
 import {
   ArrowRightIcon,
-  ExclamationCircleIcon,
   ListBulletIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
@@ -20,6 +19,7 @@ import clsx from "clsx";
 import NextLink from "next/link";
 import { useTranslations } from "next-intl";
 
+import { type DateProblem, DateProblemNote } from "./date-problem-note";
 import { MeetingDatePicker } from "./meeting-date-picker";
 
 import { ADDRESS_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
@@ -34,12 +34,6 @@ export interface FlowGroup {
 }
 
 export type AttendanceMode = "guided" | "quick";
-
-export interface DateProblem {
-  message: string;
-  /** Set for a duplicate date, so the field can link to the report already filed. */
-  existingReportId: number | null;
-}
 
 const labelClass = "text-[13px] font-semibold text-heading";
 
@@ -190,28 +184,7 @@ export function MeetingStep({
               value={date}
               onChange={onDateChange}
             />
-            <div id="meeting-date-problem">
-              {dateProblem && (
-                <p
-                  className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-danger"
-                  role="alert"
-                >
-                  <ExclamationCircleIcon
-                    aria-hidden="true"
-                    className="size-4 shrink-0"
-                  />
-                  <span>{dateProblem.message}</span>
-                  {dateProblem.existingReportId !== null && (
-                    <NextLink
-                      className="font-semibold underline underline-offset-2"
-                      href={`/groups/reports/${dateProblem.existingReportId}`}
-                    >
-                      {t("openExisting")}
-                    </NextLink>
-                  )}
-                </p>
-              )}
-            </div>
+            <DateProblemNote problem={dateProblem} />
             <p className="text-[13px] text-muted" id="meeting-date-help">
               {group.meetingDay === null
                 ? t("dateHintNoDay")

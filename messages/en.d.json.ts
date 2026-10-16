@@ -397,7 +397,11 @@ declare const messages: {
     "remaining": "{count, plural, one {Mark the # remaining person to submit.} other {Mark the # remaining people to submit.}}",
     "allMarked": "Everyone is marked. Notes are seen only by you, the elders and admins.",
     "submit": "Submit report",
-    "reloadPeople": "Reload people"
+    "reloadPeople": "Reload people",
+    "editTitle": "Edit report",
+    "editMeta": "Submitted by {name} on {dateTime}. Your changes keep the original submitter.",
+    "save": "Save changes",
+    "meetingDetails": "Meeting details"
   },
   "DashboardPage": {
     "description": "Here's what needs your attention this week.",
