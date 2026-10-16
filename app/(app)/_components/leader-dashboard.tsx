@@ -168,26 +168,101 @@ async function GroupCard({
 }
 
 /**
- * The dashboard for small group leaders and deacons: the greeting, then **My groups** with each
- * group's last report and what's still to file. Full roles keep the regular dashboard.
+ * **My groups**: each group's last report and what's still to file. Scoped roles see every group
+ * they belong to, with empty states. With `ledOnly` (admins and elders on their dashboard) only
+ * the groups the linked member leads or co-leads show, and nothing renders when there are none.
  */
-export async function LeaderDashboard({ firstName }: { firstName: string }) {
-  const [t, tDash, tPage, locale, me] = await Promise.all([
+export async function MyGroupsSection({
+  ledOnly = false,
+}: {
+  ledOnly?: boolean;
+}) {
+  const [t, tPage, locale, me] = await Promise.all([
     getTranslations("LeaderDashboard"),
-    getTranslations("DashboardPage"),
     getTranslations("ReportsPage"),
     getLocale(),
     getMe(),
   ]);
   const linked = me.member !== null;
+
+  if (ledOnly && me.leads.length === 0) return null;
+
+  const ledIds = new Set(me.leads.map(({ smallGroupId }) => smallGroupId));
   // A failed read says so in the section; the greeting still shows.
   const groups = linked
     ? await getSmallGroupReportSummary().then(
-        (list) => list.filter((entry) => entry.smallGroup.closedAt === null),
+        (list) =>
+          list.filter(
+            (entry) =>
+              entry.smallGroup.closedAt === null &&
+              (!ledOnly || ledIds.has(entry.smallGroup.id)),
+          ),
         () => null,
       )
     : [];
   const today = getChurchToday();
+
+  if (ledOnly && groups?.length === 0) return null;
+
+  return (
+    <section aria-labelledby="my-groups" className="flex flex-col gap-4">
+      <div className="flex items-end justify-between gap-3">
+        <h2 className={title({ size: "sm" })} id="my-groups">
+          {t("myGroups")}
+        </h2>
+        {groups && groups.length > 0 && (
+          <NextLink
+            className={textLink({ className: "text-sm" })}
+            href="/groups/reports"
+          >
+            {t("viewMyReports")}
+          </NextLink>
+        )}
+      </div>
+
+      {!linked ? (
+        <EmptyState
+          className="max-w-[640px]"
+          icon={LinkIcon}
+          title={tPage("notLinkedTitle")}
+        >
+          {tPage("notLinkedBody")}
+        </EmptyState>
+      ) : groups === null ? (
+        <p className="text-sm text-muted">{t("loadFailed")}</p>
+      ) : groups.length === 0 ? (
+        <EmptyState
+          className="max-w-[640px]"
+          icon={UserGroupIcon}
+          title={tPage("noGroupsTitle")}
+        >
+          {tPage("noGroupsBody")}
+        </EmptyState>
+      ) : (
+        <ul className="grid max-w-[1000px] gap-4 md:grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
+          {groups.map((summary) => (
+            <GroupCard
+              key={summary.smallGroup.id}
+              locale={locale as Locale}
+              summary={summary}
+              today={today}
+            />
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+/**
+ * The dashboard for small group leaders and deacons: the greeting, then **My groups**. Full roles
+ * keep the regular dashboard, which adds the same section when they lead a group.
+ */
+export async function LeaderDashboard({ firstName }: { firstName: string }) {
+  const [t, tDash] = await Promise.all([
+    getTranslations("LeaderDashboard"),
+    getTranslations("DashboardPage"),
+  ]);
 
   return (
     <>
@@ -205,52 +280,7 @@ export async function LeaderDashboard({ firstName }: { firstName: string }) {
           />
         }
       />
-      <section aria-labelledby="my-groups" className="flex flex-col gap-4">
-        <div className="flex items-end justify-between gap-3">
-          <h2 className={title({ size: "sm" })} id="my-groups">
-            {t("myGroups")}
-          </h2>
-          {groups && groups.length > 0 && (
-            <NextLink
-              className={textLink({ className: "text-sm" })}
-              href="/groups/reports"
-            >
-              {t("viewMyReports")}
-            </NextLink>
-          )}
-        </div>
-
-        {!linked ? (
-          <EmptyState
-            className="max-w-[640px]"
-            icon={LinkIcon}
-            title={tPage("notLinkedTitle")}
-          >
-            {tPage("notLinkedBody")}
-          </EmptyState>
-        ) : groups === null ? (
-          <p className="text-sm text-muted">{t("loadFailed")}</p>
-        ) : groups.length === 0 ? (
-          <EmptyState
-            className="max-w-[640px]"
-            icon={UserGroupIcon}
-            title={tPage("noGroupsTitle")}
-          >
-            {tPage("noGroupsBody")}
-          </EmptyState>
-        ) : (
-          <ul className="grid max-w-[1000px] gap-4 md:grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
-            {groups.map((summary) => (
-              <GroupCard
-                key={summary.smallGroup.id}
-                locale={locale as Locale}
-                summary={summary}
-                today={today}
-              />
-            ))}
-          </ul>
-        )}
-      </section>
+      <MyGroupsSection />
     </>
   );
 }

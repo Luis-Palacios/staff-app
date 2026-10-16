@@ -17,7 +17,10 @@ import {
   NeedsAttentionCard,
   NeedsAttentionCardSkeleton,
 } from "./_components/needs-attention-card";
-import { LeaderDashboard } from "./_components/leader-dashboard";
+import {
+  LeaderDashboard,
+  MyGroupsSection,
+} from "./_components/leader-dashboard";
 import { NoGroupsCard } from "./_components/no-groups-card";
 import { RecentApplicationsCard } from "./_components/recent-applications-card";
 import { StatTile } from "./_components/stat-tile";
@@ -117,6 +120,12 @@ export default async function DashboardPage() {
       />
 
       <div className="flex flex-col gap-7">
+        {showGroupsNudge && (
+          <Suspense fallback={null}>
+            <MyGroupsSection ledOnly />
+          </Suspense>
+        )}
+
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(210px,1fr))] sm:gap-4">
           <StatTile
             href="/applications"

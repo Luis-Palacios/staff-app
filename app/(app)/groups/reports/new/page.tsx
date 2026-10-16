@@ -37,7 +37,12 @@ export default async function NewReportPage({
   if (groups.length === 0) redirect("/groups/reports");
 
   const requested = Number(first(params.groupId));
-  const group = groups.find(({ id }) => id === requested) ?? groups[0];
+  // Without `?groupId=`, an elder or admin who leads a group starts on it (the first, if several).
+  const ledGroup = me.leads
+    .map(({ smallGroupId }) => groups.find(({ id }) => id === smallGroupId))
+    .find((led) => led !== undefined);
+  const group =
+    groups.find(({ id }) => id === requested) ?? ledGroup ?? groups[0];
   const today = getChurchToday();
   const filedDates = new Set(await listFiledDatesAction(group.id, today));
   const requestedDate = first(params.date);
