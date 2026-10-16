@@ -1,6 +1,10 @@
 "use server";
 
-import type { ReportInput } from "@/api/small-groups-api/types";
+import type {
+  ReportInput,
+  ReportList,
+  ReportListParams,
+} from "@/api/small-groups-api/types";
 import type { ReportErrorKind } from "@/lib/api-error-message";
 
 import { revalidatePath } from "next/cache";
@@ -10,6 +14,7 @@ import {
   createSmallGroupReport,
   deleteSmallGroupReport,
   getReportRoster,
+  listSmallGroupReports,
   updateSmallGroupReport,
 } from "@/api/small-groups-api/client";
 import { reportBodySchema } from "@/app/(app)/groups/reports/_lib/report-schema";
@@ -130,4 +135,15 @@ export async function deleteReportAction(
 
   revalidateReports(groupId, id);
   redirect("/groups/reports?saved=deleted");
+}
+
+/** One more page of the list, for "Show more" on phones. */
+export async function listReportsPageAction(
+  params: ReportListParams,
+): Promise<{ ok: true; data: ReportList } | { ok: false; message: string }> {
+  try {
+    return { ok: true, data: await listSmallGroupReports(params) };
+  } catch (error) {
+    return { ok: false, message: await getApiErrorMessage(error) };
+  }
 }

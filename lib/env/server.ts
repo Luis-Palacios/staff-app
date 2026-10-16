@@ -16,6 +16,19 @@ const bareOrigin = z.url({ protocol: /^https?$/ }).refine((value) => {
 const schema = z.object({
   APPLICATIONS_MEMBERSHIP_API_URL: z.url(),
   AUTH_SERVER_URL: bareOrigin,
+  // Where the church is, so "today" matches the API's `church_today()`. Keep the two in step.
+  CHURCH_TIMEZONE: z
+    .string()
+    .default("America/Managua")
+    .refine((value) => {
+      try {
+        new Intl.DateTimeFormat("en", { timeZone: value });
+
+        return true;
+      } catch {
+        return false;
+      }
+    }, "must be an IANA time zone like America/Managua"),
 });
 
 type ServerEnv = z.infer<typeof schema>;
@@ -36,6 +49,7 @@ export function getEnv(): ServerEnv {
     APPLICATIONS_MEMBERSHIP_API_URL:
       process.env.APPLICATIONS_MEMBERSHIP_API_URL,
     AUTH_SERVER_URL: process.env.AUTH_SERVER_URL,
+    CHURCH_TIMEZONE: process.env.CHURCH_TIMEZONE || undefined,
   });
 
   if (!parsed.success) {

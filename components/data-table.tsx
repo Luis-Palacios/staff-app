@@ -100,37 +100,50 @@ export function DataTableOpenLink({
 // "Showing X–Y of Z" + Previous/Next. Render it as a direct child of <Table>,
 // after Table.ScrollContainer. Renders nothing when the list is empty, since
 // the table's empty state already says so.
-// TODO: the APIs don't paginate yet, so every list fits on one page and both
-// buttons stay disabled. Wire them up once there's a page/cursor parameter.
-export function DataTableFooter({ total }: { total: number }) {
+// Lists the APIs don't paginate pass only `total`, so both buttons stay
+// disabled. A paged list passes `page`, `pageSize` and `onPageChange`.
+export function DataTableFooter({
+  total,
+  page = 1,
+  pageSize,
+  onPageChange,
+}: {
+  total: number;
+  page?: number;
+  pageSize?: number;
+  onPageChange?: (page: number) => void;
+}) {
   const t = useTranslations("DataTable");
   const { footer } = dataTable();
 
   if (total === 0) return null;
 
+  const size = pageSize ?? total;
+  const start = (page - 1) * size + 1;
+  const end = Math.min(page * size, total);
+  const buttonClass = buttonVariants({
+    size: "sm",
+    variant: "outline",
+    className: smallOutlineButton,
+  });
+
   return (
     <Table.Footer className={footer()}>
-      <span>{t("showing", { start: 1, end: total, total })}</span>
+      <span>{t("showing", { start, end, total })}</span>
       <span className="flex gap-2">
         <button
-          disabled
-          className={buttonVariants({
-            size: "sm",
-            variant: "outline",
-            className: smallOutlineButton,
-          })}
+          className={buttonClass}
+          disabled={!onPageChange || page <= 1}
           type="button"
+          onClick={() => onPageChange?.(page - 1)}
         >
           {t("previous")}
         </button>
         <button
-          disabled
-          className={buttonVariants({
-            size: "sm",
-            variant: "outline",
-            className: smallOutlineButton,
-          })}
+          className={buttonClass}
+          disabled={!onPageChange || end >= total}
           type="button"
+          onClick={() => onPageChange?.(page + 1)}
         >
           {t("next")}
         </button>

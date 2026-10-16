@@ -1,26 +1,59 @@
-import { ChartBarIcon } from "@heroicons/react/24/outline";
-import { useTranslations } from "next-intl";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 
-import { EmptyState } from "@/components/empty-state";
+import { NewReportLink } from "./_components/new-report-link";
+import ReportsList from "./_components/reports-list";
+import ReportsListSkeleton from "./_components/reports-list-skeleton";
+import { parseReportFilters } from "./_lib/report-filters";
+
+import { getMe } from "@/api/members-api/client";
+import { SavedToast } from "@/components/saved-toast";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import {
   groupsBreadcrumb,
   groupsReportsBreadcrumb,
 } from "@/config/breadcrumbs";
+import { reportAccess } from "@/lib/auth/roles";
 
-export default function ReportsPage() {
-  const t = useTranslations("ReportsPage");
-  const tNav = useTranslations("Nav");
+export default async function ReportsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [params, me, t] = await Promise.all([
+    searchParams,
+    getMe(),
+    getTranslations("ReportsPage"),
+  ]);
+  const { access, canSubmit } = reportAccess(me.role, me);
+
+  // No access to groups: the shared 404 instead of a 403 from the API.
+  if (access === "none") notFound();
+
+  const scoped = access === "scoped";
+  const filters = parseReportFilters(params);
+  const tList = await getTranslations("ReportsList");
 
   return (
     <>
       <StaffAppPageHeader
+        actions={<NewReportLink canSubmit={canSubmit} />}
         breadcrumbs={[groupsBreadcrumb, groupsReportsBreadcrumb]}
-        title={tNav("groupsReports")}
+        description={scoped ? t("myDescription") : t("description")}
+        title={scoped ? t("myTitle") : t("title")}
       />
-      <EmptyState icon={ChartBarIcon} title={t("emptyTitle")}>
-        {t("emptyBody")}
-      </EmptyState>
+      {params.saved === "deleted" && <SavedToast message={tList("deleted")} />}
+      <section className="flex flex-col gap-4">
+        {/* Filter changes run in a transition (see ReportsBrowser), so the skeleton is first load only. */}
+        <Suspense fallback={<ReportsListSkeleton />}>
+          <ReportsList
+            canSubmit={canSubmit}
+            filters={filters}
+            scoped={scoped}
+          />
+        </Suspense>
+      </section>
     </>
   );
 }

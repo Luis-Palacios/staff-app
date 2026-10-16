@@ -81,8 +81,8 @@ components named below, never the board's literals.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API client, types, actions, errors | ✅ | (this commit) |
-| 2. Reports list (`/groups/reports`) | ⬜ | |
+| 1. API client, types, actions, errors | ✅ | 4d16182 |
+| 2. Reports list (`/groups/reports`) | ✅ | (this commit) |
 | 3. Report detail and delete | ⬜ | |
 | 4. New report: meeting step | ⬜ | |
 | 5. New report: one person at a time, the group, review | ⬜ | |
@@ -107,6 +107,28 @@ components named below, never the board's literals.
   `formatCalendarFullDate` added to `lib/format-date.ts` (UTC, like `formatCalendarDate`), since report
   dates have no time zone.
 - Verified: types checked against the running API's OpenAPI schemas (`localhost:8000`).
+- **Stage 2: church time zone.** "Today" for the default date range (and later the date picker and
+  "Meets today") needs the church's day, not UTC or the server's. New optional env
+  `CHURCH_TIMEZONE` (default `America/Managua`, same as the API's `church_timezone`; in
+  `.env.example`), read by `getChurchToday()` in `lib/church-time.ts`. Keep it equal to the API's.
+- **Stage 2: new dependency `@internationalized/date`** (3.12.4, already in the store through
+  HeroUI): the HeroUI date range picker takes its `CalendarDate` values.
+- **Stage 2: `DataTableFooter` now pages.** It takes optional `page`, `pageSize` and `onPageChange`;
+  callers that pass only `total` behave as before.
+- **Stage 2: `ReportsList.countOf` is `{count, number} of {total, number}`** (the spec has plain
+  `{count}`), because a bare ICU argument is typed `string` and these are numbers.
+- **Stage 2: extra keys** `ReportsList.closed`, `closedOption`, `done`, `fileReportLabel`,
+  `tableLabel`, `noMatches`, `results`. `ReportsPage.noMatchesTitle`/`clearFilters` reach the client
+  browser as props so `ReportsPage` stays a server namespace; `ReportsList` is a client namespace.
+- **Stage 2: date range is HeroUI's `DateRangePicker`** (editable segments plus a calendar), not the
+  button-style range of the board; it behaves the same and is keyboard accessible.
+- **Stage 2: "Show more" on phones** appends the next page through `listReportsPageAction`; the
+  table uses the URL `page` param.
+- Verified (Stage 2): signed in as the local admin (no linked member), in light and dark, English
+  and Spanish, at 1440 and the real 1024/390 viewports (a same-origin iframe, since the browser
+  window can't go below ~2000px here). Status tabs and URL filters work; **New report** is disabled
+  with its reason; no sideways scroll at 390; the Filters sheet opens. Not yet seen: the scoped
+  (leader/deacon) and linked variants, and the empty states; those need other accounts (Stage 8).
 
 ## Token changes
 
