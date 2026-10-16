@@ -70,7 +70,7 @@ progress log below.
 | 1. Menu and routes (`/`, `/dashboard/staff`) | ✅ | see `git log` |
 | 2. API types and client | ✅ | see `git log` |
 | 3. The week | ✅ | see `git log` |
-| 4. Needs follow-up | ⬜ | |
+| 4. Needs follow-up | ✅ | see `git log` |
 | 5. Design review fixes | ⬜ | |
 
 ### Decisions and deviations

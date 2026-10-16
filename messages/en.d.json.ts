@@ -460,7 +460,17 @@ declare const messages: {
     "viewReport": "View report",
     "seeMeetings": "See meetings",
     "openGroup": "Open group",
-    "actionLabel": "{action}: {group}"
+    "actionLabel": "{action}: {group}",
+    "followUpTitle": "Needs follow-up",
+    "followUpDescription": "Behind on reports in the last 4 weeks, or without a leader.",
+    "legendFiled": "Filed",
+    "legendNotFiled": "Not filed",
+    "behind": "{missed, number} of the last {total, number} meetings not filed",
+    "meetingsLabel": "Last meetings: {list}",
+    "meetingFiled": "{date} filed",
+    "meetingNotFiled": "{date} not filed",
+    "noLeaderLine": "No leader, so nobody can file its reports.",
+    "followUpLoadFailed": "Couldn’t check which groups are behind."
   },
   "LeaderDashboard": {
     "description": "Your small groups this week.",
