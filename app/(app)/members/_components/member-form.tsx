@@ -29,6 +29,7 @@ import { useTranslations } from "next-intl";
 import { z } from "zod";
 
 import { PhoneField } from "./phone-field";
+import { SexField } from "./sex-field";
 
 import {
   createMemberAction,
@@ -53,6 +54,7 @@ interface TextState {
   email: string;
   address: string;
   birthDate: string;
+  sex: string;
 }
 
 function todayIso(): string {
@@ -178,6 +180,7 @@ export function MemberForm({
     email: initial?.email ?? "",
     address: initial?.address ?? "",
     birthDate: initial?.birthDate ?? "",
+    sex: initial?.sex ?? "",
   });
   const [initialPhone] = useState(() => parsePhone(initial?.phone ?? null));
   const [phone, setPhone] = useState<PhoneParts>(initialPhone);
@@ -265,6 +268,7 @@ export function MemberForm({
       phone: initial?.phone ?? "",
       address: initial?.address ?? "",
       birthDate: initial?.birthDate ?? "",
+      sex: initial?.sex ?? "",
     };
     const changes: Partial<MemberFormValues> = {};
 
@@ -414,21 +418,28 @@ export function MemberForm({
           value={text.address}
           onChange={(v) => setTextField("address", v)}
         />
-        <Field
-          autoComplete="bday"
-          className="w-full gap-1.5 sm:w-1/2"
-          disabled={isPending}
-          error={errors.birthDate}
-          errorText={errorOf("birthDate")}
-          help={t("birthDateHelp")}
-          label={t("birthDate")}
-          max={max}
-          min={`${MIN_BIRTH_YEAR}-01-01`}
-          name="birthDate"
-          type="date"
-          value={text.birthDate}
-          onChange={(v) => setTextField("birthDate", v)}
-        />
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <Field
+            autoComplete="bday"
+            className="w-full gap-1.5"
+            disabled={isPending}
+            error={errors.birthDate}
+            errorText={errorOf("birthDate")}
+            help={t("birthDateHelp")}
+            label={t("birthDate")}
+            max={max}
+            min={`${MIN_BIRTH_YEAR}-01-01`}
+            name="birthDate"
+            type="date"
+            value={text.birthDate}
+            onChange={(v) => setTextField("birthDate", v)}
+          />
+          <SexField
+            disabled={isPending}
+            value={text.sex}
+            onChange={(v) => setTextField("sex", v)}
+          />
+        </div>
       </fieldset>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-separator bg-surface-secondary/50 px-6 py-4">
