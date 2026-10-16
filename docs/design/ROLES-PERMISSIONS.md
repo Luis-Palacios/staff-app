@@ -35,12 +35,13 @@ checking the nav and the pages by URL; the *Keep working* list from the spec is 
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 0. This handoff | ✅ | 22bfa36 |
-| 1. Permissions in the session | ✅ | c05a11b |
-| 2. Nav | ✅ | a75cd6d |
-| 3. Pages and actions | ✅ | 8e16621 |
-| 4. Leader member access | ✅ | daaa5b2 |
-| 5. Docs | ✅ | (this commit) |
+| 0. This handoff | ✅ | 4885d89 |
+| 1. Permissions in the session | ✅ | 4d160d4 |
+| 2. Nav | ✅ | 2fccc9e |
+| 3. Pages and actions | ✅ | 461a990 |
+| 4. Leader member access | ✅ | b28a575 |
+| 5. Docs | ✅ | f281bb7 |
+| 6. Review fix: no-role redirect loop | ✅ | (this commit) |
 
 ### Decisions and deviations
 
@@ -83,6 +84,10 @@ checking the nav and the pages by URL; the *Keep working* list from the spec is 
   says "name" only (copy table below).
 - `members: update` is not required for `GET /members/{id}` (rule 11), so My profile never checks a
   permission. A linked `user` was tried: Member #9 shows with its contact data.
+- Stage 6 (review fix): stage 3 made `requireStaffSession` send a `null` role to `/needs-role`,
+  but that page sent every non-`pending` role (`null` included) back to `/`, a redirect loop. It now
+  treats no role as `pending` too. Checked with `tsc` and ESLint only; not reproduced live (it needs
+  a user whose role was cleared in auth-server's DB).
 - Left for the workspace stage: `members-management/CLAUDE.md` still says the roles are mirrored by
   hand in `staff-app/lib/auth/roles.ts`. That file now only lists names, for display and assigning.
 

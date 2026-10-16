@@ -21,8 +21,9 @@ export default async function NeedsRolePage() {
 
   // auth-server reads the user row on every get-session (no cookie cache), so
   // a role given since sign-in shows up here on the next request. Send the
-  // user on; the (app) layout re-checks everything else.
-  if (session.user.role !== AuthRole.Pending) {
+  // user on; the (app) layout re-checks everything else. No role counts as
+  // `pending`, like in requireStaffSession, or the two would redirect in a loop.
+  if (session.user.role && session.user.role !== AuthRole.Pending) {
     redirect("/");
   }
 
