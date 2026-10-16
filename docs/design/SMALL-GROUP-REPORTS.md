@@ -87,7 +87,7 @@ components named below, never the board's literals.
 | 4. New report: meeting step | ✅ | 023535d |
 | 5. New report: one person at a time, the group, review | ✅ | eb4b771 |
 | 6. Quick list and edit | ✅ | 1167992 |
-| 7. Entry points: Group detail card, leader dashboard | ✅ | (see the commit after this one) |
+| 7. Entry points: Group detail card, leader dashboard | ✅ | c208906 |
 | 8. Review pass | ⬜ | |
 
 ### Decisions and deviations
