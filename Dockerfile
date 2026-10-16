@@ -21,6 +21,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # pnpm's install script swaps in its native binary. Allow it by name: npm 11 warns about unlisted
 # install scripts, npm 12 blocks them. pnpm exists only in this stage.
+# An ARG declared before FROM is only visible to FROM lines; without redeclaring it here,
+# pnpm@${PNPM_VERSION} would be pnpm@ (latest).
+ARG PNPM_VERSION
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g --allow-scripts=pnpm pnpm@${PNPM_VERSION}
 
