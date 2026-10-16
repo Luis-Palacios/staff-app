@@ -86,8 +86,12 @@ before the next one starts. After each stage, write a short summary in the progr
   draft, and is only honoured while the roster still reports a no meeting there.
 - Stage 2, for stage 4: `/groups/reports/[id]/edit` must redirect to the detail for a no meeting
   (its reason is edited in the dialog).
-- Stage 2 checked in the browser: the question and the no-meeting card (Spanish, light, desktop).
-  Not yet exercised: Save, the replace prompt, dark mode, 1024 / 390 and the picker's third dot.
+- Stage 2 checked in the browser against the local API: Save (with and without a reason) lands on
+  the list with the toast; the replace prompt (quoted reason, none without one), Replace and
+  submit (the held report replaced the mark, no 409); the held-duplicate error unchanged; the
+  picker's third dot and legend; dark mode; and 390px (via a 390-wide iframe, the window resize
+  did not change the viewport). Found and fixed: the replace button's label was clipped on a phone.
+  Not checked: Undo, 1024px, the phone in light mode, English.
 
 ## Token changes
 
