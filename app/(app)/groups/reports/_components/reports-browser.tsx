@@ -140,7 +140,7 @@ function DatesFilter({
         </DateField.Suffix>
       </DateField.Group>
       <DateRangePicker.Popover>
-        <RangeCalendar aria-label={t("dates")}>
+        <RangeCalendar aria-label={t("dates")} maxValue={parseDate(max)}>
           <RangeCalendar.Header>
             <RangeCalendar.YearPickerTrigger>
               <RangeCalendar.YearPickerTriggerHeading />
