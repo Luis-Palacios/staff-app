@@ -11,6 +11,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { NoMeetingButton } from "./no-meeting-button";
 
+import { fileReportHref } from "@/app/(app)/groups/reports/_lib/report-links";
 import {
   DataTableFooter,
   DataTableOpenLink,
@@ -18,10 +19,6 @@ import {
 } from "@/components/data-table";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCalendarMediumDate } from "@/lib/format-date";
-
-export function fileReportHref(groupId: number, date: string) {
-  return `/groups/reports/new?groupId=${groupId}&date=${date}`;
-}
 
 export default function ReportsTable({
   items,
@@ -84,6 +81,7 @@ export default function ReportsTable({
               const date = formatCalendarMediumDate(item.meetingDate, locale);
               const key = `${item.kind}-${item.smallGroup.id}-${item.meetingDate}`;
               const filed = item.kind === "report";
+              const noMeeting = item.kind === "report" && !item.held;
 
               return (
                 <Table.Row
@@ -99,26 +97,38 @@ export default function ReportsTable({
                       </span>
                       {/* Below xl the submitter column is hidden and folds under the date. */}
                       <span className="text-[12.5px] text-muted xl:hidden">
-                        {filed
-                          ? t("by", { name: item.submittedBy.name })
+                        {item.kind === "report"
+                          ? item.held
+                            ? t("by", { name: item.submittedBy.name })
+                            : t("noMeeting")
                           : notFiledBadge}
                       </span>
                     </span>
                   </Table.Cell>
                   <Table.Cell className={cell()}>
-                    <span className="flex flex-wrap items-center gap-2">
-                      <span className="text-[14.5px]">
-                        {item.smallGroup.name}
+                    <span className="flex flex-col gap-0.5">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="text-[14.5px]">
+                          {item.smallGroup.name}
+                        </span>
+                        {item.smallGroup.closedAt && (
+                          <StatusBadge tone="neutral" variant="ring-dot">
+                            {t("closed")}
+                          </StatusBadge>
+                        )}
                       </span>
-                      {item.smallGroup.closedAt && (
-                        <StatusBadge tone="neutral" variant="ring-dot">
-                          {t("closed")}
-                        </StatusBadge>
+                      {item.kind === "report" && item.notHeldReason && (
+                        <span
+                          className="block max-w-[260px] truncate text-[13px] italic text-muted"
+                          title={item.notHeldReason}
+                        >
+                          {item.notHeldReason}
+                        </span>
                       )}
                     </span>
                   </Table.Cell>
                   <Table.Cell className={cell()}>
-                    {filed
+                    {filed && !noMeeting
                       ? t("countOf", {
                           count: item.attendedGroupCount,
                           total: item.rosterCount,
@@ -126,7 +136,7 @@ export default function ReportsTable({
                       : "—"}
                   </Table.Cell>
                   <Table.Cell className={cell()}>
-                    {filed
+                    {filed && !noMeeting
                       ? t("countOf", {
                           count: item.attendedChurchCount,
                           total: item.rosterCount,
@@ -136,7 +146,20 @@ export default function ReportsTable({
                   <Table.Cell
                     className={cell({ className: "hidden xl:table-cell" })}
                   >
-                    {filed ? item.submittedBy.name : notFiledBadge}
+                    {item.kind !== "report" ? (
+                      notFiledBadge
+                    ) : item.held ? (
+                      item.submittedBy.name
+                    ) : (
+                      <span className="flex flex-col items-start gap-1">
+                        <StatusBadge tone="neutral">
+                          {t("noMeeting")}
+                        </StatusBadge>
+                        <span className="text-[12.5px] text-muted">
+                          {t("markedBy", { name: item.submittedBy.name })}
+                        </span>
+                      </span>
+                    )}
                   </Table.Cell>
                   <Table.Cell className={cell({ className: "text-right" })}>
                     {filed ? (

@@ -48,7 +48,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | 1. API types, client and server actions | ✅ | see `git log` (stage 1 commit) |
 | 2. New report step 1: met question, no-meeting form, replace | ✅ | see `git log` (stage 2 commit) |
 | 3. No meeting dialog and shortcuts | ✅ | see `git log` (stage 3 commit) |
-| 4. Reports list and no-meeting detail | ⬜ | |
+| 4. Reports list and no-meeting detail | ✅ | see `git log` (stage 4 commit) |
 | 5. Dashboards and Group detail | ⬜ | |
 | 6. Design review fixes | ⬜ | |
 
@@ -109,6 +109,17 @@ before the next one starts. After each stage, write a short summary in the progr
   picker's third dot and legend; dark mode; and 390px (via a 390-wide iframe, the window resize
   did not change the viewport). Found and fixed: the replace button's label was clipped on a phone.
   Not checked: Undo, 1024px, the phone in light mode, English.
+- Stage 4: the status chip is `ReportsList.noMeeting` (no separate `chipNotHeld`); the table row
+  keeps the existing `xl` breakpoint for the hidden Submitted by column, and its date sub-line
+  reads **No meeting** there. `fileReportHref` moved to `_lib/report-links.ts`, since the server
+  detail page can't call a function exported from a `"use client"` file. `NoMeetingButton` gained
+  `emphasis` (`primary` for **Edit reason**). `/groups/reports/[id]/edit` redirects a no meeting
+  to its detail. The filed-only summary tiles needed no change (the detail never renders them for
+  a no meeting).
+- Stage 4 checked in the browser (Spanish, light, 1440): the No meeting chip and rows, the detail
+  page, and Edit reason (the reason shows in the list under the group). Not checked: dark, English,
+  1024 / 390 (phone card), the delete dialog, closed group, and the File a report link landing in
+  the replace state.
 
 ## Token changes
 

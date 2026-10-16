@@ -11,6 +11,7 @@ import NextLink from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { DeleteReportDialog } from "../_components/delete-report-dialog";
+import { NoMeetingDetail } from "../_components/no-meeting-detail";
 import { ReportAttendanceCard } from "../_components/report-attendance-card";
 import { ReportSharedCard } from "../_components/report-shared-card";
 import { ReportSummaryTiles } from "../_components/report-summary-tiles";
@@ -50,6 +51,11 @@ export default async function ReportDetailPage({
     getLocale(),
   ]);
   const report = await loadReport(id);
+
+  if (!report.held) {
+    return <NoMeetingDetail report={report} />;
+  }
+
   const { smallGroup, meetingDate, permissions } = report;
   // Start dates of the people still in the group, for "In the group since" (the report has none).
   // A closed group has no active members, and a failed read just drops the hint.

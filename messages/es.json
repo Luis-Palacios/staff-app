@@ -276,7 +276,9 @@
     "closed": "Cerrado",
     "tableLabel": "Reportes de grupos pequeños",
     "noMatches": "Ningún reporte coincide con estos filtros.",
-    "results": "{count, plural, one {# resultado} other {# resultados}}"
+    "results": "{count, plural, one {# resultado} other {# resultados}}",
+    "noMeeting": "Sin reunión",
+    "markedBy": "Marcado por {name}"
   },
   "ReportDetail": {
     "groupPage": "Página del grupo",
@@ -319,7 +321,19 @@
     "deleteConfirm": "Eliminar reporte",
     "submitted": "Reporte enviado",
     "updated": "Cambios guardados",
-    "ofTotal": "{count, number} de {total, number}"
+    "ofTotal": "{count, number} de {total, number}",
+    "noMeeting": "Sin reunión",
+    "reasonEyebrow": "Motivo",
+    "markedOn": "Marcado por {name} el {dateTime}",
+    "editReason": "Editar motivo",
+    "didntMeet": "El grupo no se reunió",
+    "noReason": "No se indicó un motivo.",
+    "noMeetingEffect": "Esta fecha no cuenta como reporte pendiente en los paneles ni en Reportes.",
+    "metAfterAllTitle": "¿El grupo sí se reunió?",
+    "metAfterAllBody": "Envía un reporte para esta fecha. Esta marca se reemplaza cuando lo envíes, así que no se pierde nada si lo dejas a medias.",
+    "fileInstead": "Enviar un reporte para el {date}",
+    "deleteNoMeetingTitle": "¿Eliminar esta marca de sin reunión?",
+    "deleteNoMeetingBody": "El {date} volverá a aparecer como sin reporte si era día de reunión."
   },
   "NoMeetingDialog": {
     "title": "¿No hubo reunión el {date}?",

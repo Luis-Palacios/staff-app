@@ -34,6 +34,7 @@ export function NoMeetingButton({
   kind = "mark",
   target,
   variant,
+  emphasis = "outline",
   label,
   ariaLabel,
   className,
@@ -41,6 +42,8 @@ export function NoMeetingButton({
   kind?: NoMeetingKind;
   target: NoMeetingTarget;
   variant: "link" | "button";
+  /** The button's weight: `primary` for the detail page's main action. */
+  emphasis?: "outline" | "primary";
   label: string;
   ariaLabel?: string;
   className?: string;
@@ -83,7 +86,7 @@ export function NoMeetingButton({
           aria-label={ariaLabel}
           className={clsx("font-semibold", className)}
           size="sm"
-          variant="outline"
+          variant={emphasis}
           onPress={() => setOpen(true)}
         >
           {label}

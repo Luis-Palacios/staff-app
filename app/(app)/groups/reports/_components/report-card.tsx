@@ -10,8 +10,8 @@ import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
 import { NoMeetingButton } from "./no-meeting-button";
-import { fileReportHref } from "./reports-table";
 
+import { fileReportHref } from "@/app/(app)/groups/reports/_lib/report-links";
 import { card } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCalendarMediumDate } from "@/lib/format-date";
@@ -28,6 +28,29 @@ export default function ReportCard({
   const t = useTranslations("ReportsList");
   const locale = useLocale() as Locale;
   const date = formatCalendarMediumDate(item.meetingDate, locale);
+
+  const openLink =
+    item.kind === "report" ? (
+      <NextLink
+        aria-label={t("openLabel", {
+          group: item.smallGroup.name,
+          date,
+        })}
+        className={buttonVariants({
+          size: "sm",
+          variant: "outline",
+          className: "h-[34px] gap-1.5 px-3 text-[13px] font-semibold",
+        })}
+        href={`/groups/reports/${item.id}`}
+      >
+        {t("open")}
+        <ChevronRightIcon
+          aria-hidden="true"
+          className="size-3.5"
+          strokeWidth={2}
+        />
+      </NextLink>
+    ) : null;
 
   return (
     <article
@@ -51,14 +74,32 @@ export default function ReportCard({
           </p>
         </div>
         {item.kind === "report" ? (
-          <StatusBadge tone="success">{t("filed")}</StatusBadge>
+          item.held ? (
+            <StatusBadge tone="success">{t("filed")}</StatusBadge>
+          ) : (
+            <StatusBadge tone="neutral">{t("noMeeting")}</StatusBadge>
+          )
         ) : (
           <StatusBadge tone="warning" variant="ring-dot">
             {t("notFiled")}
           </StatusBadge>
         )}
       </div>
-      {item.kind === "report" ? (
+      {item.kind === "report" && !item.held ? (
+        <>
+          {item.notHeldReason && (
+            <p className="text-[13.5px] italic text-muted">
+              {item.notHeldReason}
+            </p>
+          )}
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[13px] text-muted">
+              {t("markedBy", { name: item.submittedBy.name })}
+            </span>
+            {openLink}
+          </div>
+        </>
+      ) : item.kind === "report" ? (
         <>
           <p className="text-[13.5px] text-foreground">
             {t("countOf", {
@@ -77,25 +118,7 @@ export default function ReportCard({
             <span className="text-[13px] text-muted">
               {t("by", { name: item.submittedBy.name })}
             </span>
-            <NextLink
-              aria-label={t("openLabel", {
-                group: item.smallGroup.name,
-                date,
-              })}
-              className={buttonVariants({
-                size: "sm",
-                variant: "outline",
-                className: "h-[34px] gap-1.5 px-3 text-[13px] font-semibold",
-              })}
-              href={`/groups/reports/${item.id}`}
-            >
-              {t("open")}
-              <ChevronRightIcon
-                aria-hidden="true"
-                className="size-3.5"
-                strokeWidth={2}
-              />
-            </NextLink>
+            {openLink}
           </div>
         </>
       ) : (

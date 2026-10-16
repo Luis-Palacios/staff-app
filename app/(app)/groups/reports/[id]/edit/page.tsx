@@ -34,6 +34,9 @@ export default async function EditReportPage({
   ]);
   const report = await loadReport(id);
 
+  // A no meeting only has a reason, which the detail page edits in a dialog.
+  if (!report.held) redirect(`/groups/reports/${report.id}`);
+
   // A closed group's reports are read-only (rule 8): back to the report, which says so.
   if (!report.permissions.canEdit) redirect(`/groups/reports/${report.id}`);
 
