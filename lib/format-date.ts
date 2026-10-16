@@ -129,3 +129,12 @@ export function formatCalendarFullDate(iso: string, locale: Locale): string {
     year: "numeric",
   });
 }
+
+// "Sunday, Oct 4": the church Sunday in a question or a column title.
+export function formatCalendarWeekdayDate(iso: string, locale: Locale): string {
+  return formatCalendarWith(iso, locale, {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  });
+}

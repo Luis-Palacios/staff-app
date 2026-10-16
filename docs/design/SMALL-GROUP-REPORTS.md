@@ -82,8 +82,8 @@ components named below, never the board's literals.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. API client, types, actions, errors | ✅ | 4d16182 |
-| 2. Reports list (`/groups/reports`) | ✅ | (this commit) |
-| 3. Report detail and delete | ⬜ | |
+| 2. Reports list (`/groups/reports`) | ✅ | 6a5d945 |
+| 3. Report detail and delete | ✅ | (this commit) |
 | 4. New report: meeting step | ⬜ | |
 | 5. New report: one person at a time, the group, review | ⬜ | |
 | 6. Quick list and edit | ⬜ | |
@@ -129,6 +129,22 @@ components named below, never the board's literals.
   window can't go below ~2000px here). Status tabs and URL filters work; **New report** is disabled
   with its reason; no sideways scroll at 390; the Filters sheet opens. Not yet seen: the scoped
   (leader/deacon) and linked variants, and the empty states; those need other accounts (Stage 8).
+- **Stage 3: testimony style is not a utility.** Added `testimony()` (a `tv` helper) to
+  `components/primitives.ts`: Newsreader italic 17px, no new Tailwind utility.
+- **Stage 3: "In the group since" is derived.** The report's attendance rows carry no join date, so
+  the page also reads the group (`getSmallGroup`) and uses the active membership's `joinedAt` when it
+  is within 30 days before the meeting. Closed groups (no active members) and failed reads show the
+  role instead. Worth adding `joinedAt` to the API rows if exactness matters.
+- **Stage 3: member name links are for full roles only** (scoped roles don't have member pages).
+- **Stage 3: timestamps in the church time zone.** "Submitted by … · {dateTime}" is formatted on the
+  server with `CHURCH_TIMEZONE` (`formatChurchDateTime`), so it matches for everyone.
+- **Stage 3: the attendance table is a client component** (`report-attendance-table.tsx`): HeroUI's
+  `Table` rendered straight from a server component caused a hydration mismatch.
+- **Stage 3: extra key** `ReportDetail.noAddress`, `ofTotal`. The delete dialog gets its text as props.
+- Verified (Stage 3): admin on a real report, Spanish dark at 1440 and a 390 frame (no sideways
+  scroll, person blocks), delete dialog opens, Escape returns focus to **Eliminar**; no console
+  errors after the table fix. Delete was **not** confirmed against real data. Not yet seen: closed
+  group, observations on a report that has them, leader/deacon views (Stage 8).
 
 ## Token changes
 

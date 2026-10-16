@@ -23,6 +23,12 @@ export const subtitle = tv({
   base: "text-base text-muted",
 });
 
+// Words someone said (prayer requests, praise, what the group discussed): Newsreader italic 17px,
+// "the way a letter does" (Foundations canvas). Not a Tailwind utility; one helper instead.
+export const testimony = tv({
+  base: "font-display text-[17px] italic leading-[1.5] text-foreground",
+});
+
 // Inline text link: navy (light) / gold-300 (dark) with a gold underline.
 export const textLink = tv({
   base: "font-semibold text-link underline decoration-gold-500 underline-offset-4",
