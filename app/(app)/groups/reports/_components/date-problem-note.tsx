@@ -105,7 +105,7 @@ export function NoMeetingOnDateNote({
       </p>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <Button
-          className="font-semibold"
+          className="h-auto min-h-9 w-full whitespace-normal py-2 font-semibold sm:w-auto"
           size="sm"
           variant="outline"
           onPress={onReplace}
