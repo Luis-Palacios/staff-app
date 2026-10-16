@@ -98,11 +98,21 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   exposing custom semantic tokens as utilities. **`brand.css` and `theme.css` are
   generated from `tokens/`** (see "Design tokens"). There is no `tailwind.config.*`
   file. PostCSS uses `@tailwindcss/postcss`.
+- **Roles and permissions** — what a role can do is decided only in auth-server's
+  `src/permissions/statements.ts`, which ships the computed `permissions` in the session
+  (`AuthSession.permissions`). This app checks **permissions, never role names**:
+  `can(permissions, { resource: [actions] })` (`lib/auth/permissions.ts`, all-of), server side with
+  `getPermissions()` / `hasPermission()` / `requirePermission()` (`notFound()`) /
+  `forbiddenUnless()` (server actions) from `lib/auth/get-permissions.ts`, client side with
+  `usePermissions()`. A nav item and its page use the same check, and a server action checks before
+  calling the API. A session without `permissions` has none. `lib/auth/roles.ts` is role names only
+  (labels, assigning a role). Rules and the role × route table: `docs/design/ROLES-PERMISSIONS.md`.
 - **Config-driven navigation** — `config/site.ts` (`siteConfig`) is the single
   source for the site name and nav items (labels are `Nav` message keys; the
   description is `Metadata.description`). Add or rename routes there, not
   inline in the sidebar. `NavItem` is either a leaf
-  (`icon` + `href`) or a collapsible group (`icon` + `items[]`); icon keys
+  (`icon` + `href`) or a collapsible group (`icon` + `items[]`); `requires` (a permission check) hides
+  items and links the caller can't use, `unless` the leaf that stands in for a group; icon keys
   resolve through `iconRegistry` in `components/sidebar.tsx`.
 - **`components/primitives.ts`** — `title()` (Newsreader display heading,
   `sm`/`md`/`lg`), `subtitle()` (muted body), `textLink()` (navy link with gold

@@ -1387,7 +1387,10 @@ pass; revisit if it still looks small next to the now-larger surrounding text.
 ---
 
 ## Phase 9 — Role-based nav & route gating
-`[ ]`
+`[x]` Done differently from the plan below: see `docs/specs/roles-and-permissions.md` (workspace
+repo) and `docs/design/ROLES-PERMISSIONS.md`. auth-server ships the computed permissions in the
+session and the JWT, and staff-app and membership-management check permissions, not role names. The
+text below is the original plan, kept for history.
 
 **Repo(s):** `staff-app` + `membership-management`
 
