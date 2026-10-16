@@ -34,15 +34,18 @@ the progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API types, schema and server actions | ⬜ | |
-| 2. Form field | ⬜ | |
-| 3. Detail and My profile row | ⬜ | |
+| 1. API types, schema and server actions | ✅ | |
+| 2. Form field | ✅ | |
+| 3. Detail and My profile row | ✅ | |
 | 4. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
 
-- [Anything decided during implementation, or where the build intentionally differs from the
-  canvas, and why.]
+- Stage 1 type-checks only together with stage 2 (`MemberFormValues` now requires `sex`, which
+  the form must supply); `createMemberAction` needed no cast.
+- Stage 2's commit also carries the `MemberContactCard` message keys (messages files are shared).
+- Not yet checked visually (light/dark, 1440/1024/390, canvas boards) or against the live API;
+  stage 4 is still open.
 
 ## Token changes
 
