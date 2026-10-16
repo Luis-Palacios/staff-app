@@ -412,7 +412,14 @@
     "notFound": "No encontramos lo que buscabas.",
     "tooManyRequests": "Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.",
     "serviceUnavailable": "El servicio no está disponible en este momento. Inténtalo de nuevo en unos minutos.",
-    "generic": "Algo salió mal. Inténtalo de nuevo."
+    "generic": "Algo salió mal. Inténtalo de nuevo.",
+    "reportExists": "Ya hay un reporte para el {date}.",
+    "reportNeedsMember": "Vincula tu cuenta a un miembro para enviar reportes.",
+    "reportFutureDate": "La fecha de la reunión no puede ser futura.",
+    "reportRosterChanged": "Cambiaron los miembros del grupo. Vuelve a cargar la lista para continuar.",
+    "reportNotLeaderOnDate": "No liderabas este grupo en esa fecha.",
+    "reloadPeople": "Volver a cargar personas",
+    "groupClosed": "Este grupo está cerrado, así que sus reportes no se pueden cambiar."
   },
   "ApplicationStatus": {
     "pending": "Pendiente",

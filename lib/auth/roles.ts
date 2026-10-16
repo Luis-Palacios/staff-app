@@ -39,6 +39,19 @@ export function getSmallGroupAccess(
   return "none";
 }
 
+/**
+ * What a caller can do with reports. `access` is `getSmallGroupAccess`; `canSubmit` is false for a
+ * caller with no linked member (rule 5, access rule 10), who can still view, edit and delete.
+ */
+export function reportAccess(
+  role: string | null | undefined,
+  me: { member: unknown },
+): { access: SmallGroupAccess; canSubmit: boolean } {
+  const access = getSmallGroupAccess(role);
+
+  return { access, canSubmit: access !== "none" && me.member !== null };
+}
+
 /** Only admins and elders link, unlink and invite from a member. */
 export function canManageLinks(role: string | null | undefined): boolean {
   return STAFF_ADMIN_ROLES.some((allowed) => allowed === role);

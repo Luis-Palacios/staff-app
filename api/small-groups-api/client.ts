@@ -1,4 +1,10 @@
 import type {
+  ReportDetail,
+  ReportInput,
+  ReportList,
+  ReportListParams,
+  ReportRoster,
+  ReportSummaryGroup,
   SmallGroupDetail,
   SmallGroupInput,
   SmallGroupRole,
@@ -112,6 +118,93 @@ export function removeSmallGroupMember(
   return authenticatedFetch<void>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     memberPath(groupId, memberId),
+    { method: "DELETE" },
+  );
+}
+
+function reportPath(id: number | string): string {
+  return `/small-group-reports/${encodeURIComponent(String(id))}`;
+}
+
+/** Filed reports and not-filed meetings in the caller's scope; paged. */
+export function listSmallGroupReports(
+  params: ReportListParams = {},
+): Promise<ReportList> {
+  const query = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  }
+
+  const suffix = query.size > 0 ? `?${query}` : "";
+
+  return authenticatedFetch<ReportList>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `/small-group-reports${suffix}`,
+    { cache: "no-store" },
+  );
+}
+
+/** Per open group in scope: the last report and the not-filed dates. */
+export function getSmallGroupReportSummary(): Promise<ReportSummaryGroup[]> {
+  return authenticatedFetch<ReportSummaryGroup[]>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    "/small-group-reports/summary",
+    { cache: "no-store" },
+  );
+}
+
+/** Who goes in a report for `date` ("YYYY-MM-DD"). 409 closed, 422 future. */
+export function getReportRoster(
+  groupId: number | string,
+  date: string,
+): Promise<ReportRoster> {
+  return authenticatedFetch<ReportRoster>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `${groupPath(groupId, "/report-roster")}?date=${encodeURIComponent(date)}`,
+    { cache: "no-store" },
+  );
+}
+
+/** Observations are present only when `observationsVisible` (rule 9). */
+export function getSmallGroupReport(
+  id: number | string,
+): Promise<ReportDetail> {
+  return authenticatedFetch<ReportDetail>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    reportPath(id),
+    { cache: "no-store" },
+  );
+}
+
+export function createSmallGroupReport(
+  groupId: number | string,
+  body: ReportInput,
+): Promise<ReportDetail> {
+  return authenticatedFetch<ReportDetail>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    groupPath(groupId, "/reports"),
+    { method: "POST", body },
+  );
+}
+
+/** Replaces the whole report; the submitter and time never change. */
+export function updateSmallGroupReport(
+  id: number | string,
+  body: ReportInput,
+): Promise<ReportDetail> {
+  return authenticatedFetch<ReportDetail>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    reportPath(id),
+    { method: "PATCH", body },
+  );
+}
+
+/** 204; the attendance rows go with it. */
+export function deleteSmallGroupReport(id: number | string): Promise<void> {
+  return authenticatedFetch<void>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    reportPath(id),
     { method: "DELETE" },
   );
 }
