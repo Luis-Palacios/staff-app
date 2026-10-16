@@ -25,11 +25,15 @@ import {
   addDays,
   FILED_LOOKBACK_DAYS,
 } from "@/app/(app)/groups/reports/_lib/meeting-dates";
-import { reportBodySchema } from "@/app/(app)/groups/reports/_lib/report-schema";
+import {
+  noMeetingSchema,
+  reportBodySchema,
+} from "@/app/(app)/groups/reports/_lib/report-schema";
 import {
   getApiErrorMessage,
   getExistingReportId,
   getReportErrorKind,
+  isExistingReportHeld,
 } from "@/lib/api-error-message";
 
 /** A failed save. Success never returns: it redirects to the report. */
@@ -40,7 +44,12 @@ export interface ReportFailure {
   kind?: ReportErrorKind;
   /** Set with `kind: "exists"`, to link to the report already filed for that date. */
   existingReportId?: number;
+  /** Set with `existingReportId`: false when that report is a no meeting, true when held. */
+  existingReportHeld?: boolean;
 }
+
+/** A no meeting saved or its reason changed; the caller closes its dialog or moves on. */
+export type NoMeetingResult = { ok: true } | ReportFailure;
 
 export type ReportRosterResult =
   | {
@@ -57,12 +66,14 @@ async function toFailure(
 ): Promise<ReportFailure> {
   const kind = getReportErrorKind(error);
   const existingReportId = getExistingReportId(error);
+  const existingReportHeld = isExistingReportHeld(error);
 
   return {
     ok: false,
     message: await getApiErrorMessage(error, { date: meetingDate }),
     ...(kind && { kind }),
     ...(existingReportId !== null && { existingReportId }),
+    ...(existingReportHeld !== null && { existingReportHeld }),
   };
 }
 
@@ -131,6 +142,77 @@ export async function createReportAction(
 
   revalidateReports(groupId, id);
   redirect(`/groups/reports/${id}?saved=submitted`);
+}
+
+/** Records that the group didn't meet on `date`. A blank reason is sent as none. */
+export async function markNoMeeting(
+  groupId: number,
+  date: string,
+  reason: string,
+): Promise<NoMeetingResult> {
+  const forbidden = await forbiddenUnless({ smallGroupReports: ["create"] });
+
+  if (forbidden) return toFailure(forbidden, date);
+
+  const parsed = noMeetingSchema.safeParse({
+    meetingDate: date,
+    notHeldReason: reason,
+  });
+
+  if (!parsed.success) {
+    return { ok: false, message: await getApiErrorMessage(null) };
+  }
+
+  let id: number;
+
+  try {
+    ({ id } = await createSmallGroupReport(groupId, {
+      held: false,
+      ...parsed.data,
+    }));
+  } catch (error) {
+    return toFailure(error, date);
+  }
+
+  revalidateReports(groupId, id);
+
+  return { ok: true };
+}
+
+/** Edits the reason of a no meeting (and keeps its date). */
+export async function updateNoMeetingReason(
+  id: number,
+  groupId: number,
+  date: string,
+  reason: string,
+): Promise<NoMeetingResult> {
+  const forbidden = await forbiddenUnless({ smallGroupReports: ["update"] });
+
+  if (forbidden) return toFailure(forbidden, date);
+
+  const parsed = noMeetingSchema.safeParse({
+    meetingDate: date,
+    notHeldReason: reason,
+  });
+
+  if (!parsed.success) {
+    return { ok: false, message: await getApiErrorMessage(null) };
+  }
+
+  try {
+    await updateSmallGroupReport(id, {
+      held: false,
+      meetingDate: parsed.data.meetingDate,
+      // PATCH replaces the report, so an emptied reason has to be an explicit null.
+      notHeldReason: parsed.data.notHeldReason ?? null,
+    });
+  } catch (error) {
+    return toFailure(error, date);
+  }
+
+  revalidateReports(groupId, id);
+
+  return { ok: true };
 }
 
 export async function updateReportAction(

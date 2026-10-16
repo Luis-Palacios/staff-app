@@ -3,6 +3,7 @@ import { z } from "zod";
 // Mirrors the API's limits (membership-management schemas/small_group_reports.py).
 export const ADDRESS_MAX = 255;
 export const TEXT_MAX = 1024;
+export const REASON_MAX = 255;
 
 const optionalText = (max: number) =>
   z.string().trim().max(max).nullable().optional();
@@ -18,6 +19,7 @@ export const reportBodySchema = z.object({
   groupPrayerRequest: optionalText(TEXT_MAX),
   groupPraiseReport: optionalText(TEXT_MAX),
   groupRelevantDiscussion: optionalText(TEXT_MAX),
+  replacesNoMeeting: z.boolean().optional(),
   attendances: z.array(
     z.object({
       memberId: z.number().int().positive(),
@@ -26,4 +28,16 @@ export const reportBodySchema = z.object({
       observation: optionalText(TEXT_MAX),
     }),
   ),
+});
+
+/** A date the group didn't meet. A blank reason is sent as none. */
+export const noMeetingSchema = z.object({
+  meetingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  notHeldReason: z
+    .string()
+    .trim()
+    .max(REASON_MAX)
+    .nullable()
+    .optional()
+    .transform((reason) => reason || undefined),
 });

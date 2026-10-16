@@ -45,7 +45,7 @@ before the next one starts. After each stage, write a short summary in the progr
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API types, client and server actions | ⬜ | |
+| 1. API types, client and server actions | ✅ | see `git log` (stage 1 commit) |
 | 2. New report step 1: met question, no-meeting form, replace | ⬜ | |
 | 3. No meeting dialog and shortcuts | ⬜ | |
 | 4. Reports list and no-meeting detail | ⬜ | |
@@ -54,7 +54,23 @@ before the next one starts. After each stage, write a short summary in the progr
 
 ### Decisions and deviations
 
-- [Anything decided during implementation, or where the build intentionally differs from the canvas.]
+- Stage 1: `ReportInput` stays the held body (gains optional `held?: true` and `replacesNoMeeting`);
+  a new `NoMeetingInput` is the `held: false` body. `createSmallGroupReport` and
+  `updateSmallGroupReport` accept either. No Zod union: `reportBodySchema` gets `replacesNoMeeting`
+  and `noMeetingSchema` is separate, since the actions know which one they are.
+- Stage 1: `markNoMeeting` and `updateNoMeetingReason` return `{ ok: true } | ReportFailure` and do
+  not redirect (the form and the dialog decide where to go). `updateNoMeetingReason` takes the
+  `groupId` as well, to revalidate the group page; an emptied reason is sent as an explicit
+  `null`, since PATCH replaces the report.
+- Stage 1: `ReportFailure` gains `existingReportHeld` (from the duplicate 409). The roster action's
+  `existsMessage` is untouched until stage 2 branches on `existingReportHeld`.
+- Stage 1: `ReportWeekStatus` gaining `"notHeld"` breaks the exhaustive record and the message key
+  types, so `WEEK_STATUS_ORDER` / `WEEK_STATUS_BADGE` and the `GroupsDashboard` `status.notHeld` and
+  `count.notHeld` keys were added here (stage 5 bullet 1). The keys are nested like the existing
+  ones, not the flat `statusNotHeld` / `chipNotHeld` names in the Copy table. Stage 5 still owns the
+  rows, cards and follow-up dots.
+- `listFiledDatesAction` (date picker) asks for `status: "filed"`, which is now held-only; stage 2
+  must also fetch the no-meeting dates.
 
 ## Token changes
 

@@ -1,4 +1,5 @@
 import type {
+  NoMeetingInput,
   ReportDetail,
   ReportInput,
   ReportList,
@@ -200,7 +201,7 @@ export function getSmallGroupReport(
 
 export function createSmallGroupReport(
   groupId: number | string,
-  body: ReportInput,
+  body: ReportInput | NoMeetingInput,
 ): Promise<ReportDetail> {
   return authenticatedFetch<ReportDetail>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
@@ -209,10 +210,13 @@ export function createSmallGroupReport(
   );
 }
 
-/** Replaces the whole report; the submitter and time never change. */
+/**
+ * Replaces the whole report; the submitter and time never change. A held report takes a
+ * `ReportInput`, a no meeting a `NoMeetingInput`; 422 if the kind would change.
+ */
 export function updateSmallGroupReport(
   id: number | string,
-  body: ReportInput,
+  body: ReportInput | NoMeetingInput,
 ): Promise<ReportDetail> {
   return authenticatedFetch<ReportDetail>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,

@@ -432,6 +432,7 @@
       "today": "Meets today",
       "upcoming": "Upcoming",
       "submitted": "Submitted",
+      "notHeld": "No meeting",
       "noLeader": "No leader",
       "noMeetingDay": "No meeting day"
     },
@@ -441,6 +442,7 @@
       "today": "{count, plural, one {<strong>#</strong> meets today} other {<strong>#</strong> meet today}}",
       "upcoming": "{count, plural, other {<strong>#</strong> upcoming}}",
       "submitted": "{count, plural, other {<strong>#</strong> submitted}}",
+      "notHeld": "{count, plural, other {<strong>#</strong> no meeting}}",
       "noLeader": "{count, plural, other {<strong>#</strong> without a leader}}",
       "noMeetingDay": "{count, plural, other {<strong>#</strong> without a meeting day}}"
     },
