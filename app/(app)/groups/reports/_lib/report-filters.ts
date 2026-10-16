@@ -1,5 +1,7 @@
 import type { ReportListStatus } from "@/api/small-groups-api/types";
 
+import { weekAround } from "@/lib/calendar-week";
+
 /** The list's filters as they travel in the URL, so links and Back keep them. */
 export interface ReportFilters {
   groupId: number | null;
@@ -46,20 +48,9 @@ export function defaultReportRange(today: string): {
   from: string;
   to: string;
 } {
-  const start = new Date(`${today}T00:00:00Z`);
+  const { start, end } = weekAround(today);
 
-  start.setUTCDate(start.getUTCDate() - start.getUTCDay());
-
-  // Copy after moving `start` back to Sunday, so a week that starts in the previous month ends
-  // on the right day.
-  const end = new Date(start);
-
-  end.setUTCDate(end.getUTCDate() + 6);
-
-  return {
-    from: start.toISOString().slice(0, 10),
-    to: end.toISOString().slice(0, 10),
-  };
+  return { from: start, to: end };
 }
 
 /** True when the list is narrowed beyond its defaults (decides which empty state shows). */

@@ -150,3 +150,31 @@ export function formatCalendarShortWeekdayDate(
     day: "numeric",
   });
 }
+
+// "Oct 11 – 17" (or "Oct 28 – Nov 3"): a week's range from two date-only values, in the picked
+// language's own range format.
+export function formatCalendarRange(
+  startIso: string,
+  endIso: string,
+  locale: Locale,
+): string {
+  const parse = (iso: string) => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+
+    return match
+      ? new Date(
+          Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
+        )
+      : null;
+  };
+  const start = parse(startIso);
+  const end = parse(endIso);
+
+  if (!start || !end) return "";
+
+  return new Intl.DateTimeFormat(locale, {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).formatRange(start, end);
+}

@@ -1,25 +1,40 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
+import { parseWeekParam } from "../_lib/week-param";
+
 import { Greeting, TodayDate } from "./dashboard-greeting";
 import { MyGroupsSection } from "./leader-dashboard";
-import { NoGroupsCard } from "./no-groups-card";
+import { ReportWeekSection } from "./report-week/report-week-section";
+import { ReportWeekSkeleton } from "./report-week/report-week-skeleton";
 
-import { listSmallGroups } from "@/api/small-groups-api/client";
+import { getSmallGroupReportWeek } from "@/api/small-groups-api/client";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
+import { getChurchToday } from "@/lib/church-time";
 import { settle } from "@/lib/settle";
 
 /**
- * Dashboard ▸ Groups for admins and elders: the greeting, then the groups blocks. Each block
- * awaits its own promise in its own Suspense boundary, so one failing call doesn't take the rest
- * of the page down.
+ * Dashboard ▸ Groups for admins and elders: the greeting, then the week and My groups. Each
+ * block awaits its own promise in its own Suspense boundary, so one failing call doesn't take
+ * the rest of the page down.
  */
-export async function GroupsDashboard({ firstName }: { firstName: string }) {
+export async function GroupsDashboard({
+  firstName,
+  week,
+}: {
+  firstName: string;
+  /** The raw `?week=` value. */
+  week: string | string[] | undefined;
+}) {
   const [t, tDash] = await Promise.all([
     getTranslations("GroupsDashboard"),
     getTranslations("DashboardPage"),
   ]);
-  const groups = settle(listSmallGroups());
+  const today = getChurchToday();
+  const requestedSunday = parseWeekParam(week, today);
+  const reportWeek = settle(
+    getSmallGroupReportWeek(requestedSunday ?? undefined),
+  );
 
   return (
     <>
@@ -39,8 +54,16 @@ export async function GroupsDashboard({ firstName }: { firstName: string }) {
       />
 
       <div className="flex flex-col gap-7">
-        <Suspense fallback={null}>
-          <NoGroupsCard groups={groups} />
+        {/* Needs follow-up goes here (stage 4). */}
+        <Suspense
+          key={requestedSunday ?? "current"}
+          fallback={<ReportWeekSkeleton />}
+        >
+          <ReportWeekSection
+            requestedSunday={requestedSunday}
+            today={today}
+            week={reportWeek}
+          />
         </Suspense>
         <Suspense fallback={null}>
           <MyGroupsSection ledOnly />

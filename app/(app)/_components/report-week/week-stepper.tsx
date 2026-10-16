@@ -1,0 +1,79 @@
+import type { Locale } from "@/lib/locale-shared";
+
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import NextLink from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
+
+import { addDays } from "@/app/(app)/groups/reports/_lib/meeting-dates";
+import { formatCalendarRange } from "@/lib/format-date";
+
+const buttonClass =
+  "flex size-10 items-center justify-center rounded-[9px] text-heading transition-colors hover:bg-default";
+
+/** Previous / range / next for the week in the URL (`?week=` is a Sunday; none = this week). */
+export async function WeekStepper({
+  weekStart,
+  weekEnd,
+  currentSunday,
+  isCurrentWeek,
+}: {
+  weekStart: string;
+  weekEnd: string;
+  currentSunday: string;
+  isCurrentWeek: boolean;
+}) {
+  const [t, locale] = await Promise.all([
+    getTranslations("GroupsDashboard"),
+    getLocale(),
+  ]);
+  const next = addDays(weekStart, 7);
+
+  return (
+    <div
+      aria-label={t("weekNav")}
+      className="flex h-[46px] items-center gap-1.5 rounded-xl border border-border bg-surface p-[3px]"
+      role="group"
+    >
+      <NextLink
+        aria-label={t("previousWeek")}
+        className={buttonClass}
+        href={`/?week=${addDays(weekStart, -7)}`}
+      >
+        <ChevronLeftIcon
+          aria-hidden="true"
+          className="size-4"
+          strokeWidth={2}
+        />
+      </NextLink>
+      <span className="min-w-[108px] text-center text-sm font-semibold tabular-nums text-heading">
+        {formatCalendarRange(weekStart, weekEnd, locale as Locale)}
+      </span>
+      {isCurrentWeek ? (
+        <button
+          disabled
+          aria-label={t("nextWeek")}
+          className={`${buttonClass} cursor-not-allowed text-muted opacity-60 hover:bg-transparent`}
+          type="button"
+        >
+          <ChevronRightIcon
+            aria-hidden="true"
+            className="size-4"
+            strokeWidth={2}
+          />
+        </button>
+      ) : (
+        <NextLink
+          aria-label={t("nextWeek")}
+          className={buttonClass}
+          href={next === currentSunday ? "/" : `/?week=${next}`}
+        >
+          <ChevronRightIcon
+            aria-hidden="true"
+            className="size-4"
+            strokeWidth={2}
+          />
+        </NextLink>
+      )}
+    </div>
+  );
+}
