@@ -4,11 +4,13 @@ import { getTranslations } from "next-intl/server";
 import { CloseGroupCard } from "./_components/close-group-card";
 import { GroupDetailHeader } from "./_components/group-detail-header";
 import { GroupDetailsCard } from "./_components/group-details-card";
+import { GroupReportsCard } from "./_components/group-reports-card";
 import { GroupMembersCard } from "./_components/group-members-card";
 
 import { getMe } from "@/api/members-api/client";
 import { loadGroup } from "@/app/(app)/groups/_lib/load-group";
 import { SavedToast } from "@/components/saved-toast";
+import { reportAccess } from "@/lib/auth/roles";
 import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
 
 export default async function GroupDetailPage({
@@ -28,9 +30,11 @@ export default async function GroupDetailPage({
     getTranslations("GroupSavedToast"),
   ]);
   const group = await loadGroup(id);
+  const me = await getMe();
   // Marks the caller's own row, which a scoped user can't change (rule 9). Full roles don't need it.
-  const currentMemberId =
-    access === "scoped" ? ((await getMe()).member?.id ?? null) : null;
+  const currentMemberId = access === "scoped" ? (me.member?.id ?? null) : null;
+  // New report needs a linked member (rule 5); a closed group never takes one (rule 8).
+  const { canSubmit } = reportAccess(me.role, me);
 
   return (
     <>
@@ -43,6 +47,7 @@ export default async function GroupDetailPage({
         />
         <div className="flex min-w-0 flex-[2_1_340px] flex-col gap-5">
           <GroupDetailsCard group={group} />
+          <GroupReportsCard canSubmit={canSubmit} group={group} />
           {!group.closedAt && access === "full" && (
             <CloseGroupCard group={group} />
           )}

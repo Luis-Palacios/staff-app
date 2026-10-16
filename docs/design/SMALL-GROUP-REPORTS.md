@@ -86,8 +86,8 @@ components named below, never the board's literals.
 | 3. Report detail and delete | ✅ | 827d6c8 |
 | 4. New report: meeting step | ✅ | 023535d |
 | 5. New report: one person at a time, the group, review | ✅ | eb4b771 |
-| 6. Quick list and edit | ✅ | (filled in by the Stage 7 commit) |
-| 7. Entry points: Group detail card, leader dashboard | ⬜ | |
+| 6. Quick list and edit | ✅ | 1167992 |
+| 7. Entry points: Group detail card, leader dashboard | ✅ | (see the commit after this one) |
 | 8. Review pass | ⬜ | |
 
 ### Decisions and deviations
@@ -225,6 +225,28 @@ components named below, never the board's literals.
   sideways scroll) and 1024 (dark, ES); quick list light 1440 ES; the review states from Stage 5 cover the
   list at 390 and 1024. Not seen: quick list at 390/EN, edit in EN, a failing save (rosterChanged).
   Test data added: reports 163 and 164, and 152 re-saved (same content).
+- **Stage 7: the leader dashboard replaces the regular one for scoped roles.** The board shows only the
+  greeting, a new description (`LeaderDashboard.description`) and **My groups**, with no application tiles,
+  recent applications or **Add member**, so that is what leaders and deacons get at `/`. The spec line
+  "replacing nothing they see today" can be read the other way (keep the old content and add My groups);
+  say so if the application tiles should stay for them. Full roles' dashboard is untouched.
+- **Stage 7: closed groups are left out of My groups** (the summary can include them); a leader whose
+  only group closed gets the "You don't lead a small group yet" state. Cards are `max-w` 1000px, auto-fill
+  340px columns. The not-linked and no-groups empty states are capped at 640px like the board.
+- **Stage 7: Group detail card** is a server component that reads `listSmallGroupReports({ smallGroupId,
+  pageSize: 4 })` itself; a failed read says so in the card. Each row links to its report; a not-filed row
+  links to filing it (`?groupId=&date=`) only when the caller can submit and the group is open.
+  `getMe()` is now called for full roles too (it is `cache()`d), for `canSubmit`.
+- **Stage 7: "View all"** goes to `/groups/reports?groupId=`, the list's existing group filter.
+- Verified (Stage 7): sgla-admin (unlinked): Group detail card with four rows, **no New report**;
+  sgla-leader: dashboard (two cards, role badges, last report, not-filed strip with **File it** after
+  deleting test report 164), Group detail with the card and **New report**; sgla-deacon (unlinked): the
+  not-linked state. **Delete was confirmed for the first time**: dialog, toast "Reporte eliminado" and the
+  list shows Beta Sep 23 as not filed again. Layout: dashboard and Group detail in EN light at 390 and 1024
+  (no sideways scroll), ES dark at 1440; quick list at 390 EN (also closes the Stage 6 gap).
+  **Not verified:** the **Meets today** badge (no SGLA group meets on a Thursday; today in the church time
+  zone was Thu Oct 15), a linked admin or elder's New report on the card and dashboard, the closed-group
+  card variant (`closedNote`), and the dashboard at 1440 in EN or light.
 
 ## Pick-up notes (written at the end of session 1; read before Stage 4)
 
