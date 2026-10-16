@@ -23,9 +23,18 @@ const ACCOUNT_BADGE = {
 export function MemberDetailHeader({
   member,
   status,
+  canListMembers,
+  canEdit,
+  canManage,
 }: {
   member: MemberDetail;
   status: AccountStatus;
+  /** `members: view` + `all`: the Members list exists for this viewer, so link back to it. */
+  canListMembers: boolean;
+  /** `members: update`. */
+  canEdit: boolean;
+  /** The Account card is on the page (`members: link`), so the pill can jump to it. */
+  canManage: boolean;
 }) {
   const t = useTranslations("MemberDetailHeader");
   const tStatus = useTranslations("AccountStatus");
@@ -34,7 +43,10 @@ export function MemberDetailHeader({
   return (
     <header className="mb-6 flex flex-col gap-6">
       <StaffAppBreadcrumbs
-        items={[membersBreadcrumb, { label: name, href: `/members/${id}` }]}
+        items={[
+          ...(canListMembers ? [membersBreadcrumb] : []),
+          { label: name, href: `/members/${id}` },
+        ]}
       />
       <div className="flex flex-wrap items-center gap-5">
         <InitialsAvatar
@@ -45,14 +57,20 @@ export function MemberDetailHeader({
         <div className="flex flex-[1_1_280px] flex-col gap-2">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
             <h1 className={title({ size: "md" })}>{name}</h1>
-            <NextLink
-              aria-label={t("accountLabel", { status: tStatus(status) })}
-              href="#acct-title"
-            >
+            {canManage ? (
+              <NextLink
+                aria-label={t("accountLabel", { status: tStatus(status) })}
+                href="#acct-title"
+              >
+                <StatusBadge {...ACCOUNT_BADGE[status]}>
+                  {tStatus(status)}
+                </StatusBadge>
+              </NextLink>
+            ) : (
               <StatusBadge {...ACCOUNT_BADGE[status]}>
                 {tStatus(status)}
               </StatusBadge>
-            </NextLink>
+            )}
           </div>
           <p className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-muted">
             <span>
@@ -72,34 +90,38 @@ export function MemberDetailHeader({
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <NextLink
-            className={buttonVariants({
-              variant: "outline",
-              className: "gap-2 font-semibold text-heading",
-            })}
-            href="/members"
-          >
-            <ArrowLeftIcon
-              aria-hidden="true"
-              className="size-4"
-              strokeWidth={2}
-            />
-            {t("allMembers")}
-          </NextLink>
-          <NextLink
-            className={buttonVariants({
-              variant: "primary",
-              className: "gap-2",
-            })}
-            href={`/members/${id}/edit`}
-          >
-            <PencilSquareIcon
-              aria-hidden="true"
-              className="size-4"
-              strokeWidth={2}
-            />
-            {t("edit")}
-          </NextLink>
+          {canListMembers && (
+            <NextLink
+              className={buttonVariants({
+                variant: "outline",
+                className: "gap-2 font-semibold text-heading",
+              })}
+              href="/members"
+            >
+              <ArrowLeftIcon
+                aria-hidden="true"
+                className="size-4"
+                strokeWidth={2}
+              />
+              {t("allMembers")}
+            </NextLink>
+          )}
+          {canEdit && (
+            <NextLink
+              className={buttonVariants({
+                variant: "primary",
+                className: "gap-2",
+              })}
+              href={`/members/${id}/edit`}
+            >
+              <PencilSquareIcon
+                aria-hidden="true"
+                className="size-4"
+                strokeWidth={2}
+              />
+              {t("edit")}
+            </NextLink>
+          )}
         </div>
       </div>
     </header>

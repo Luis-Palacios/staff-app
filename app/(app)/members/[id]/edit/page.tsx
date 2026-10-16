@@ -5,7 +5,8 @@ import { MemberForm } from "../../_components/member-form";
 import { loadMember } from "@/app/(app)/members/_lib/load-member";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { membersBreadcrumb } from "@/config/breadcrumbs";
-import { requirePermission } from "@/lib/auth/get-permissions";
+import { getPermissions, requirePermission } from "@/lib/auth/get-permissions";
+import { can } from "@/lib/auth/permissions";
 
 export default async function EditMemberPage({
   params,
@@ -15,9 +16,10 @@ export default async function EditMemberPage({
   await requirePermission({ members: ["update"] });
 
   const { id } = await params;
-  const [member, t] = await Promise.all([
+  const [member, t, permissions] = await Promise.all([
     loadMember(id),
     getTranslations("MemberFormPage"),
+    getPermissions(),
   ]);
   const firstName = member.name.trim().split(/\s+/)[0] ?? "";
 
@@ -25,7 +27,10 @@ export default async function EditMemberPage({
     <>
       <StaffAppPageHeader
         breadcrumbs={[
-          membersBreadcrumb,
+          // Leaders have no Members list to go back to.
+          ...(can(permissions, { members: ["view", "all"] })
+            ? [membersBreadcrumb]
+            : []),
           { label: member.name, href: `/members/${id}` },
           { label: t("editCrumb"), href: `/members/${id}/edit` },
         ]}
@@ -33,6 +38,8 @@ export default async function EditMemberPage({
         title={t("editTitle")}
       />
       <MemberForm
+        // The email is what an invite is matched to a member on, so only `members: all` changes it.
+        canEditEmail={can(permissions, { members: ["all"] })}
         cancelHref={`/members/${id}`}
         initial={{
           name: member.name,

@@ -5,10 +5,12 @@ import { MemberContactCard } from "./_components/member-contact-card";
 import { MemberDetailHeader } from "./_components/member-detail-header";
 import { MemberGroupsCard } from "./_components/member-groups-card";
 
+import { getMe } from "@/api/members-api/client";
 import { loadMember } from "@/app/(app)/members/_lib/load-member";
 import { loadMemberAccount } from "@/app/(app)/members/_lib/load-member-account";
 import { SavedToast } from "@/components/saved-toast";
-import { requirePermission } from "@/lib/auth/get-permissions";
+import { getPermissions, requirePermission } from "@/lib/auth/get-permissions";
+import { can, getSmallGroupAccess } from "@/lib/auth/permissions";
 
 export default async function MemberDetailPage({
   params,
@@ -19,6 +21,8 @@ export default async function MemberDetailPage({
 }) {
   await requirePermission({ members: ["view"] });
 
+  const [permissions, me] = await Promise.all([getPermissions(), getMe()]);
+
   const [{ id }, { saved }, t, tForm] = await Promise.all([
     params,
     searchParams,
@@ -27,14 +31,32 @@ export default async function MemberDetailPage({
   ]);
   const member = await loadMember(id);
   const account = await loadMemberAccount(member);
+  // The group links go only where the viewer can open the group: any group with full access,
+  // otherwise the groups they lead (the rest would 404).
+  const ledIds = new Set(me.leads.map((lead) => lead.smallGroupId));
+  const canOpenGroup = (group: { smallGroupId: number }) =>
+    getSmallGroupAccess(permissions) === "full" ||
+    ledIds.has(group.smallGroupId);
 
   return (
     <>
-      <MemberDetailHeader member={member} status={account.status} />
+      <MemberDetailHeader
+        canEdit={can(permissions, { members: ["update"] })}
+        canListMembers={can(permissions, { members: ["view", "all"] })}
+        canManage={account.canManage}
+        member={member}
+        status={account.status}
+      />
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <MemberContactCard member={member} />
+        <MemberContactCard
+          canEdit={can(permissions, { members: ["update"] })}
+          member={member}
+        />
         <div className="flex min-w-0 flex-col gap-5">
-          <MemberGroupsCard smallGroups={member.smallGroups} />
+          <MemberGroupsCard
+            canOpen={canOpenGroup}
+            smallGroups={member.smallGroups}
+          />
           {account.canManage && (
             <MemberAccountCard account={account} member={member} />
           )}

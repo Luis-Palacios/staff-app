@@ -1,6 +1,6 @@
 "use server";
 
-import type { MemberSummary, SmallGroupRole } from "@/api/members-api/types";
+import type { MemberOption, SmallGroupRole } from "@/api/members-api/types";
 import type { SmallGroupInput } from "@/api/small-groups-api/types";
 import type {
   GroupFieldErrors,
@@ -11,7 +11,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { ApiError } from "@/api/api-client";
-import { listMembers } from "@/api/members-api/client";
+import { listMemberOptions } from "@/api/members-api/client";
 import {
   addSmallGroupMember,
   changeSmallGroupMemberRole,
@@ -305,9 +305,9 @@ export async function closeGroupAction(
   return { ok: true };
 }
 
-/** Every member, for the add-member dialog's search (filtered in the browser). */
+/** Every member's name, for the add-member dialog's search (filtered in the browser). */
 export async function listMembersForPickerAction(): Promise<
-  { ok: true; members: MemberSummary[] } | { ok: false; message: string }
+  { ok: true; members: MemberOption[] } | { ok: false; message: string }
 > {
   const forbidden = await forbiddenUnless({
     smallGroups: ["manageMembers"],
@@ -318,7 +318,7 @@ export async function listMembersForPickerAction(): Promise<
     return { ok: false, message: await getApiErrorMessage(forbidden) };
 
   try {
-    return { ok: true, members: await listMembers() };
+    return { ok: true, members: await listMemberOptions() };
   } catch (error) {
     return { ok: false, message: await getApiErrorMessage(error) };
   }

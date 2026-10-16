@@ -7,6 +7,12 @@ export interface MemberSummary {
   userId: string | null;
 }
 
+/** A member as the add-member picker needs them: GET /members/options, names only. */
+export interface MemberOption {
+  id: number;
+  name: string;
+}
+
 export type SmallGroupRole = "member" | "leader" | "co_leader";
 
 export interface MemberSmallGroup {

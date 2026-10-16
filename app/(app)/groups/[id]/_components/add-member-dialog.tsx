@@ -1,7 +1,6 @@
 "use client";
 
-import type { SmallGroupRole } from "@/api/members-api/types";
-import type { MemberSummary } from "@/api/members-api/types";
+import type { MemberOption, SmallGroupRole } from "@/api/members-api/types";
 import type { SmallGroupDetail } from "@/api/small-groups-api/types";
 import type { Key, SubmitEvent } from "react";
 
@@ -35,7 +34,7 @@ function AddMemberForm({
   group: SmallGroupDetail;
   roles: SmallGroupRole[];
   /** Null while the members are still loading. */
-  members: MemberSummary[] | null;
+  members: MemberOption[] | null;
   loadError: string | null;
   onAdded: (name: string) => void;
   onClose: () => void;
@@ -45,7 +44,7 @@ function AddMemberForm({
   const [isPending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState("");
-  const [selected, setSelected] = useState<MemberSummary | null>(null);
+  const [selected, setSelected] = useState<MemberOption | null>(null);
   const [role, setRole] = useState<SmallGroupRole>("member");
   const [error, setError] = useState<string | null>(null);
   const leader = group.members.find((member) => member.role === "leader");
@@ -58,12 +57,7 @@ function AddMemberForm({
     const query = normalizeText(inputValue);
 
     return (members ?? [])
-      .filter(
-        (member) =>
-          !query ||
-          normalizeText(member.name).includes(query) ||
-          (member.email && normalizeText(member.email).includes(query)),
-      )
+      .filter((member) => !query || normalizeText(member.name).includes(query))
       .slice(0, MAX_RESULTS);
   }, [members, inputValue]);
 
@@ -167,16 +161,11 @@ function AddMemberForm({
                 <p className="px-3 py-2 text-sm text-muted">{emptyText}</p>
               )}
             >
-              {(member: MemberSummary) => (
+              {(member: MemberOption) => (
                 <ListBox.Item id={String(member.id)} textValue={member.name}>
                   <InitialsAvatar name={member.name} />
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="truncate text-sm font-semibold text-heading">
-                      {member.name}
-                    </span>
-                    <span className="truncate text-[13px] text-muted">
-                      {member.email ?? t("noEmail")}
-                    </span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-heading">
+                    {member.name}
                   </span>
                   {inGroup.has(String(member.id)) && (
                     <span className="shrink-0 text-xs font-semibold text-muted">
@@ -277,7 +266,7 @@ export function AddMemberDialog({
   group: SmallGroupDetail;
   /** The roles that can be picked; scoped users can't pick `leader`. Defaults to all three. */
   roles?: SmallGroupRole[];
-  members: MemberSummary[] | null;
+  members: MemberOption[] | null;
   loadError: string | null;
   onAdded: (name: string) => void;
 }) {
