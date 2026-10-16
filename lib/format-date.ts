@@ -138,3 +138,15 @@ export function formatCalendarWeekdayDate(iso: string, locale: Locale): string {
     day: "numeric",
   });
 }
+
+// "Sun, Oct 4": the church Sunday in a narrow column title.
+export function formatCalendarShortWeekdayDate(
+  iso: string,
+  locale: Locale,
+): string {
+  return formatCalendarWith(iso, locale, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
