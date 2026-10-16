@@ -49,7 +49,8 @@ export interface ReportPerson {
   name: string;
 }
 
-export type ReportListStatus = "all" | "filed" | "notFiled";
+/** `filed` is held reports only; a no meeting has its own value. */
+export type ReportListStatus = "all" | "filed" | "notHeld" | "notFiled";
 
 export interface ReportListParams {
   smallGroupId?: number;
@@ -70,6 +71,9 @@ export interface FiledReportItem {
   submittedBy: ReportPerson;
   /** ISO timestamp with offset. */
   submittedAt: string;
+  /** False = the group didn't meet that date (a no meeting); the counts are then 0. */
+  held: boolean;
+  notHeldReason: string | null;
   rosterCount: number;
   attendedGroupCount: number;
   attendedChurchCount: number;
@@ -86,7 +90,7 @@ export type ReportListItem = FiledReportItem | NotFiledItem;
 export interface ReportList {
   items: ReportListItem[];
   /** For the status control; ignores `status`. */
-  counts: { all: number; filed: number; notFiled: number };
+  counts: { all: number; filed: number; notHeld: number; notFiled: number };
   total: number;
   page: number;
   pageSize: number;
@@ -121,10 +125,13 @@ export interface ReportRecentMeeting {
   date: string;
   /** Null when the meeting has no report. */
   reportId: number | null;
+  /** Null when not filed; false when the group didn't meet. */
+  held: boolean | null;
 }
 
 export type ReportWeekStatus =
   | "submitted"
+  | "notHeld"
   | "notFiled"
   | "today"
   | "upcoming"
@@ -140,6 +147,8 @@ export interface ReportWeekReport {
   /** Attendance rows with an observation; admins and elders only (reports rule 9). */
   observationCount: number;
   submittedBy: ReportPerson;
+  held: boolean;
+  notHeldReason: string | null;
 }
 
 export interface ReportWeekGroup {
@@ -186,6 +195,8 @@ export interface ReportRoster {
   churchSunday: string;
   /** Set when a report already exists for that date (rule 1). */
   existingReportId: number | null;
+  /** False when that report is a no meeting, which a held report may replace; null without one. */
+  existingReportHeld: boolean | null;
   people: ReportRosterPerson[];
 }
 
@@ -210,6 +221,9 @@ export interface ReportDetail {
   };
   meetingDate: string;
   churchSunday: string;
+  /** False = a no meeting: no attendances, no texts, only `notHeldReason`. */
+  held: boolean;
+  notHeldReason: string | null;
   address: string | null;
   groupPrayerRequest: string | null;
   groupPraiseReport: string | null;
@@ -238,10 +252,21 @@ export interface ReportAttendanceInput {
 
 /** Create body; PATCH replaces the whole report with the same shape. */
 export interface ReportInput {
+  held?: true;
   meetingDate: string;
   address?: string | null;
   groupPrayerRequest?: string | null;
   groupPraiseReport?: string | null;
   groupRelevantDiscussion?: string | null;
   attendances: ReportAttendanceInput[];
+  /** Create only: delete the date's no meeting and insert this report in one transaction. */
+  replacesNoMeeting?: boolean;
+}
+
+/** Create or PATCH body for a date the group didn't meet. */
+export interface NoMeetingInput {
+  held: false;
+  meetingDate: string;
+  /** At most 255; leave out or null for none. */
+  notHeldReason?: string | null;
 }

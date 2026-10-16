@@ -48,6 +48,18 @@ export function getExistingReportId(error: unknown): number | null {
   return typeof id === "number" ? id : null;
 }
 
+/** True when a duplicate-date 409 says the existing report is a held one (`existingReportHeld`). */
+export function isExistingReportHeld(error: unknown): boolean | null {
+  if (!(error instanceof ApiError) || typeof error.body !== "object") {
+    return null;
+  }
+
+  const held = (error.body as { existingReportHeld?: unknown } | null)
+    ?.existingReportHeld;
+
+  return typeof held === "boolean" ? held : null;
+}
+
 /**
  * Turns an error from membership-management into text in the current
  * language. That API sends English `detail` strings and no codes, so this maps

@@ -7,6 +7,7 @@ export const WEEK_STATUS_ORDER: readonly ReportWeekStatus[] = [
   "today",
   "upcoming",
   "submitted",
+  "notHeld",
   "noLeader",
   "noMeetingDay",
 ];
@@ -21,6 +22,7 @@ export const WEEK_STATUS_BADGE: Record<ReportWeekStatus, WeekBadgeStyle> = {
   today: { tone: "accent", variant: "solid-dot" },
   upcoming: { tone: "neutral", variant: "ring-dot" },
   submitted: { tone: "success", variant: "solid-dot" },
+  notHeld: { tone: "neutral", variant: "solid-dot" },
   noLeader: { tone: "neutral", variant: "ring-dot" },
   noMeetingDay: { tone: "neutral", variant: "ring-dot" },
 };

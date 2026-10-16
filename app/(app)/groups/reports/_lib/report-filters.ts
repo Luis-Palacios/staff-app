@@ -16,7 +16,12 @@ export interface ReportFilters {
 export const REPORT_PAGE_SIZE = 25;
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-const STATUSES: readonly ReportListStatus[] = ["all", "filed", "notFiled"];
+const STATUSES: readonly ReportListStatus[] = [
+  "all",
+  "filed",
+  "notHeld",
+  "notFiled",
+];
 
 type SearchParams = Record<string, string | string[] | undefined>;
 

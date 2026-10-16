@@ -432,6 +432,7 @@
       "today": "Se reúne hoy",
       "upcoming": "Próxima",
       "submitted": "Enviado",
+      "notHeld": "Sin reunión",
       "noLeader": "Sin líder",
       "noMeetingDay": "Sin día de reunión"
     },
@@ -441,6 +442,7 @@
       "today": "{count, plural, one {<strong>#</strong> se reúne hoy} other {<strong>#</strong> se reúnen hoy}}",
       "upcoming": "{count, plural, one {<strong>#</strong> próxima} other {<strong>#</strong> próximas}}",
       "submitted": "{count, plural, one {<strong>#</strong> enviado} other {<strong>#</strong> enviados}}",
+      "notHeld": "{count, plural, other {<strong>#</strong> sin reunión}}",
       "noLeader": "{count, plural, other {<strong>#</strong> sin líder}}",
       "noMeetingDay": "{count, plural, other {<strong>#</strong> sin día de reunión}}"
     },
