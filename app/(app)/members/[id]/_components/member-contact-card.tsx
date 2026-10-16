@@ -8,6 +8,7 @@ import {
   InformationCircleIcon,
   MapPinIcon,
   PhoneIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 import { useLocale, useTranslations } from "next-intl";
 import NextLink from "next/link";
@@ -58,7 +59,7 @@ export function MemberContactCard({
   const t = useTranslations("MemberContactCard");
   const tSelf = useTranslations("MyProfilePage");
   const locale = useLocale() as Locale;
-  const { id, email, phone, address, birthDate } = member;
+  const { id, email, phone, address, birthDate, sex } = member;
   const notProvided = <span className="text-subtle">{t("notProvided")}</span>;
   const age = birthDate ? ageFromCalendarDate(birthDate) : null;
   const self = variant === "self";
@@ -120,6 +121,9 @@ export function MemberContactCard({
           ) : (
             notProvided
           )}
+        </Field>
+        <Field bleed={self} icon={UserIcon} label={t("sex")}>
+          {sex ? t(sex === "male" ? "sexMale" : "sexFemale") : notProvided}
         </Field>
       </dl>
       {self && (
