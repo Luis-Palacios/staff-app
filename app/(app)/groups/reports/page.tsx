@@ -38,7 +38,12 @@ export default async function ReportsPage({
   return (
     <>
       <StaffAppPageHeader
-        actions={<NewReportLink canSubmit={canSubmit} />}
+        // Hide what a role can't use; only a full role with no member sees it disabled (rule 5).
+        actions={
+          scoped && !canSubmit ? undefined : (
+            <NewReportLink canSubmit={canSubmit} />
+          )
+        }
         breadcrumbs={[groupsBreadcrumb, groupsReportsBreadcrumb]}
         description={scoped ? t("myDescription") : t("description")}
         title={scoped ? t("myTitle") : t("title")}

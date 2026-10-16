@@ -83,7 +83,7 @@ components named below, never the board's literals.
 | --- | --- | --- |
 | 1. API client, types, actions, errors | ✅ | 4d16182 |
 | 2. Reports list (`/groups/reports`) | ✅ | 6a5d945 |
-| 3. Report detail and delete | ✅ | (this commit) |
+| 3. Report detail and delete | ✅ | 827d6c8 |
 | 4. New report: meeting step | ⬜ | |
 | 5. New report: one person at a time, the group, review | ⬜ | |
 | 6. Quick list and edit | ⬜ | |
@@ -145,6 +145,126 @@ components named below, never the board's literals.
   scroll, person blocks), delete dialog opens, Escape returns focus to **Eliminar**; no console
   errors after the table fix. Delete was **not** confirmed against real data. Not yet seen: closed
   group, observations on a report that has them, leader/deacon views (Stage 8).
+
+## Pick-up notes (written at the end of session 1; read before Stage 4)
+
+**State:** stages 1–3 are done and committed on `small-group-reports` (hashes in the table). The
+branch is **not** pushed or merged. Stage 4 is next. Nothing is stubbed; every call goes to the real
+API on `localhost:8000` (`APPLICATIONS_MEMBERSHIP_API_URL`), whose report routes are on its `main`.
+Working tree is clean apart from what the last commit holds.
+
+### What already exists (reuse, don't rebuild)
+
+- `api/small-groups-api/{client,types}.ts`: `getReportRoster`, `createSmallGroupReport`,
+  `updateSmallGroupReport`, `listSmallGroupReports`, `getSmallGroupReportSummary`, and the types
+  (`ReportRoster`, `ReportInput`, `ReportDetail`, ...). People are `{ memberId, name }` (one `name`).
+- `groups/reports/_actions/report-actions.ts`: `getReportRosterAction(groupId, date)` (the date
+  step calls it on every date/group change), `createReportAction(groupId, input)` and
+  `updateReportAction(id, groupId, input)` (both redirect on success, return a `ReportFailure` with
+  `kind` and `existingReportId`), `deleteReportAction`, `listReportsPageAction`.
+- `groups/reports/_lib/`: `report-schema.ts` (body schema, `ADDRESS_MAX`/`TEXT_MAX`),
+  `report-draft.ts` (`loadDraft`/`saveDraft`/`clearDraft`, key `ekk-report-draft:{groupId}:{date}`),
+  `format-church-sunday.ts` ("Sunday, Oct 11"), `report-filters.ts`, `load-report.ts` (`loadReport`,
+  use it for the edit page).
+- `lib/auth/roles.ts` `reportAccess(role, me)` → `{ access, canSubmit }`; `lib/church-time.ts`
+  `getChurchToday()` (server) for "today" (needed for the date picker's future-days rule and the
+  default date); `lib/api-error-message.ts` maps every report error (`getReportErrorKind`).
+- The list's **File report** links already point at `/groups/reports/new?groupId=&date=`
+  (`fileReportHref` in `reports-table.tsx`); `NewReportLink` already links `/groups/reports/new`.
+- Messages: `ReportsPage`, `ReportsList` (client namespace), `ReportDetail`, and `ApiErrors.report*`
+  / `groupClosed` / `reloadPeople` are in. **`ReportForm`, `GroupReportsCard`, `LeaderDashboard`
+  are not**: take them from the Copy table below. Use `{count, number}`-style ICU for numeric
+  arguments (a bare `{count}` is typed `string`), and `ReportForm.q1`/`q2`/`addNote`/`noteLabel`
+  take `name` = the person's **first word**, `sunday` = `formatChurchSunday(...)`.
+- HeroUI v3.2.4 date pieces are available and `@internationalized/date` is a direct dependency:
+  `DatePicker` / `DateRangePicker` + `DateField.Group/Input/Segment/Suffix`, `Calendar` /
+  `RangeCalendar` with `Header`, `YearPickerTrigger(+Heading,+Indicator)`, `NavButton slot=...`,
+  `Grid`, `GridHeader`, `GridBody`, `Cell`, `CellIndicator`, `YearPickerGrid(+Body, +Cell)`. See
+  `reports-browser.tsx` for a working range picker. The Stage 4 picker needs per-day decoration
+  (hollow gold dot on the meeting weekday, filled success dot where a report exists, today ringed,
+  future days disabled via `maxValue`/`isDateUnavailable`): render it inside `Calendar.Cell`.
+
+### Gotchas learned (save yourself the time)
+
+- **HeroUI `Table` must live in a client component.** Rendering it from a server component caused a
+  hydration mismatch (6 console errors); `report-attendance-table.tsx` shows the pattern (server
+  translates, client renders, labels passed as props).
+- **Narrow viewports:** the Chrome window can't go below ~2000px here. Test 1024/390 by replacing
+  the page with a same-origin iframe: in the page, run
+  `document.documentElement.innerHTML='<body style="margin:0"><iframe id="f" src="/groups/reports" style="width:390px;height:780px;border:0;display:block;margin:0 auto"></iframe></body>'`
+  (then `document.getElementById('f').contentWindow` for scrolling/measuring `scrollWidth`).
+- **Shell heredocs with apostrophes break** in this Bash tool ("unexpected EOF"); write files with the
+  Write tool and use small Python/sed edits. Lint with `pnpm lint` (autofixes imports/prop order),
+  then `pnpm exec tsc --noEmit`. `messages/en.d.json.ts` regenerates itself: commit it.
+- **Messages:** edit `messages/en.json` and `es.json` together. A tiny Python merge that keeps key
+  order (`json.dumps(..., ensure_ascii=False, indent=2)`, keep the trailing newline) round-trips
+  cleanly. Client namespaces go in `i18n/client-namespaces.ts`; prefer passing labels as props.
+- **Console check:** after loading a page, `read_console_messages` with `onlyErrors` and a `.`
+  pattern; old messages stay in the log, so clear (`clear: true`) before the run you care about.
+- **Canvas:** open the Staff App canvas, page "Small group reports", click a board's expand icon,
+  then the play button (top right) to get a menu of every board by name ("New report · 2 one person
+  at a time", "Edit report (always the list)", "Nuevo reporte · revisar, 1024 (ES)", ...). The New
+  report boards are clickable prototypes. The page needs the user's claude.ai session (it is open in
+  Chrome).
+- **Sign-in switching in Chrome:** `fetch('/api/auth/sign-out', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'})`,
+  open `/sign-in`, click the email field (~(1114,362) at a 1553px-wide screenshot), type, click the
+  password field (~(1090,433)), type, Enter.
+
+### Test data and accounts (local test DB; the user said it is fine to change)
+
+Accounts `sgla-admin@`, `sgla-leader@`, `sgla-deacon@`, `sgla-user@example.test`; they share one
+test password, which the user gave in chat (ask them; it is deliberately not written here).
+
+| Account | Role | Linked member | What it shows |
+| --- | --- | --- | --- |
+| sgla-leader | smallGroupLeader | Test Leader | leads SGLA Alpha, co-leads SGLA Beta, led the closed SGLA Delta. **Can submit**: use it for Stages 4–7 |
+| sgla-admin | admin | none | full list, **New report disabled** with the reason (the `Reports-Unlinked` board) |
+| sgla-deacon | deacon | none | "Your account isn't linked" empty state, no New report |
+| sgla-user | user | n/a | `/groups/reports` is the 404 page, no Groups nav |
+
+Real accounts (`Luis Palacios`, an unlinked admin) share the same DB and see ~29 seeded reports for
+the `GP - #n` groups. To check a **linked full role** (admin/elder), link `sgla-admin` to a member with
+`PUT /members/{id}/user` from the members page, then unlink afterwards.
+
+Groups (ids): Alpha 29 (Mondays, leader Test Leader), Beta 30 (Wednesdays, leader Test Deacon,
+Test Leader is co-leader), Gamma 31 (Fridays, someone else's: out of the leader's scope), Delta 32
+(closed 2026-10-15). Session 1 **backdated every SGLA membership by 60 days** (they all started today
+before, so past rosters were empty) and **seeded reports 151–162** (three per group, marker text
+`SGLA test…` in the prayer request and observations) through a scratch script that is not in the
+repo. Who submitted: Alpha 151 and 153 by Test Leader, 152 by co-leader Test Member Dos; Beta 154 and
+156 by Test Deacon, 155 by Test Leader; Gamma 157–159 by Test Member Uno; Delta 160–162 by Test
+Leader. To remove them: delete attendances then reports whose `group_prayer_request LIKE 'SGLA test%'`.
+Creating reports through the new flow will add more rows for the same groups; any date up to today
+without a report is free (the list shows not-filed rows for Alpha 2026-09-21 and Beta 2026-09-23).
+
+### Checks already done (don't repeat; Stage 8 re-runs them against the finished feature)
+
+- Stage 2 list as admin (unlinked), as leader (My reports, closed badge, not-filed + File report),
+  as deacon (not linked), as user (404). Stage 3 detail: closed read-only (no Edit/Delete, no links to
+  member pages for scoped roles). **Observation privacy, including the HTML/flight payload**
+  (fetch the page and count the note text): leader sees notes on reports 151/153/155 (their own),
+  zero on 152/154 (other submitters); admin sees all of 151/152/154/157/160.
+- Fixed in this session: scoped roles that can't submit no longer get a disabled New report
+  (only a full role does).
+
+### Known gaps, not yet seen in the UI
+
+- Phone **Filters sheet** content (only opened); **Show more** (button present, not clicked).
+- A report with no shared text (`nothingShared`), and one whose address differs from the group's.
+- Date range picker interaction (calendar popover) was not exercised.
+- Spanish on every detail state, the 1024 detail layout, and light mode for the scoped views.
+- No leader/deacon view of the **Group detail** card or the dashboard yet (Stage 7).
+
+### Starter prompt for the next session
+
+> Continue `docs/design/SMALL-GROUP-REPORTS.md` in this repo at **Stage 4**. Read the
+> "Pick-up notes" section first, then `../docs/specs/small-group-reports.md`, then open the Small
+> group reports page of the Staff App canvas for the stage's boards. Stages 1–3 are committed on
+> branch `small-group-reports`; keep going on that branch, one commit per stage, log filled in
+> (fill the previous stage's hash in each new commit). Use the `sgla-leader@example.test` account
+> (ask me for the shared test password) for stages 4–7 and the other accounts for stage 8. Light and
+> dark, 1440 / 1024 / 390, English and Spanish. The API is running on :8000; if it isn't, tell me
+> instead of stubbing.
 
 ## Token changes
 
