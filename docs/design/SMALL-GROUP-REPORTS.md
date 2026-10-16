@@ -279,9 +279,11 @@ components named below, never the board's literals.
     pages): leader on dashboard, list, report detail, edit, new report, Group detail, closed Group
     detail and closed report × light/dark × 1440/1024/390 × English/Spanish, all clean; admin on
     dashboard, list, detail, edit and Group detail × light/dark × 3 widths in Spanish, all clean.
-  - **Not done:** an **elder** (no test account: needs a user with role `elder`, optionally linked to a
-    member), so elder is covered only through admin, which shares the same checks; the comparison
-    against the canvas boards (not opened this session); measured button heights (56/44px), the
+  - **Elder** (sgla-user set to `elder` with `admin/set-role`, then restored to `user`): unlinked, it
+    sees the notes on every report (API and HTML), the list's disabled **New report** with its reason,
+    no New report on Group detail; linked to member 108 (unlinked again afterwards) it gets New report
+    on the list and Group detail, the report form loads, and detail shows Edit, Delete and the notes.
+  - **Not done:** the comparison against the canvas boards (the user does it from Claude desktop) (not opened this session); measured button heights (56/44px), the
     person step's focus on the name, the gold-text rule, and admin/deacon/user pages in English.
   - **Test data left behind:** Test Deacon (member 106) has a closed membership row in Alpha (joined
     and left on 2026-10-15). No reports were added this session.
@@ -751,9 +753,9 @@ Run after implementation, against the boards listed above. Record findings in th
       table switch to cards below `md`; the person card's buttons stay 56px and the list's 44px.
 - [x] Observations: admins and elders see them; the submitter sees their own; another leader of
       the group, a deacon and a co-leader editing someone else's report never do (check the network
-      response too, not just the UI). (Seen as admin, the submitter, another leader, the co-leader and a deacon, API and HTML; **elder not run**, no account.)
+      response too, not just the UI). (Seen as admin, elder, the submitter, another leader, the co-leader and a deacon, API and HTML.)
 - [x] Unlinked admin/elder: **New report** disabled with the reason; the dashboard and Group
-      detail don't offer New report. (Seen as admin; **elder not run**.)
+      detail don't offer New report. (Seen as admin and elder, linked and unlinked.)
 - [x] Closed group: report detail read-only, no Edit/Delete, no New report on its card.
 - [x] Duplicate date caught on the date step; future dates not selectable; Submit disabled until
       everyone is marked; the draft survives a reload and is cleared after submit. (Future days were selectable in the calendar: fixed in Stage 8.)
