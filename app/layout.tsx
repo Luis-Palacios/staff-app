@@ -22,6 +22,11 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s - ${siteConfig.name}`,
     },
     description: t("description"),
+    appleWebApp: {
+      capable: true,
+      title: siteConfig.name,
+      statusBarStyle: "default",
+    },
   };
 }
 
