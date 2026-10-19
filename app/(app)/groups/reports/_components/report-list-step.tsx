@@ -175,7 +175,7 @@ function PersonRow({
           </Label>
           {/* Opened by the user's own press, so moving focus into it is what they expect. */}
           {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
-          <TextArea autoFocus={focusNote} className="text-sm" rows={2} />
+          <TextArea autoFocus={focusNote} className="text-sm" rows={3} />
           <p className="text-[13px] text-muted">{t("notePrivacy")}</p>
         </TextField>
       )}

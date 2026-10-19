@@ -194,7 +194,7 @@ export function PersonStep({
               </Label>
               {/* Opened by the user's own press, so moving focus into it is what they expect. */}
               {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
-              <TextArea autoFocus={focusNote} className="text-sm" rows={3} />
+              <TextArea autoFocus={focusNote} className="text-sm" rows={4} />
               <p className="flex items-center gap-1.5 text-[13px] text-muted">
                 <LockClosedIcon
                   aria-hidden="true"
