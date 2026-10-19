@@ -21,9 +21,12 @@ import { formatCalendarMediumDate } from "@/lib/format-date";
 export default function ReportCard({
   item,
   canSubmit,
+  leader,
 }: {
   item: ReportListItem;
   canSubmit: boolean;
+  /** The group's current leader; undefined when it has none. */
+  leader: string | undefined;
 }) {
   const t = useTranslations("ReportsList");
   const locale = useLocale() as Locale;
@@ -72,6 +75,9 @@ export default function ReportCard({
               </StatusBadge>
             )}
           </p>
+          {!item.smallGroup.closedAt && (
+            <p className="text-[13px] text-muted">{leader ?? t("noLeader")}</p>
+          )}
         </div>
         {item.kind === "report" ? (
           item.held ? (

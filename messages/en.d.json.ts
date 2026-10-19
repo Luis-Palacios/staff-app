@@ -249,6 +249,7 @@ declare const messages: {
     "allGroups": "All groups",
     "allMyGroups": "All my groups",
     "closedOption": "{name} (closed)",
+    "noLeader": "No leader yet",
     "dates": "Meeting dates",
     "status": "Report status",
     "all": "All",

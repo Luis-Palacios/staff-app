@@ -177,11 +177,13 @@ function ReportCards({
   filters,
   defaults,
   canSubmit,
+  leaders,
 }: {
   data: ReportList;
   filters: ReportFilters;
   defaults: { from: string; to: string };
   canSubmit: boolean;
+  leaders: Record<number, string>;
 }) {
   const t = useTranslations("ReportsList");
   const [extra, setExtra] = useState<ReportListItem[]>([]);
@@ -220,6 +222,7 @@ function ReportCards({
             key={`${item.kind}-${item.smallGroup.id}-${item.meetingDate}`}
             canSubmit={canSubmit}
             item={item}
+            leader={leaders[item.smallGroup.id]}
           />
         ))
       )}
@@ -247,6 +250,7 @@ export default function ReportsBrowser({
   groups,
   scoped,
   canSubmit,
+  leaders,
   noMatchesTitle,
   clearFiltersLabel,
 }: {
@@ -256,6 +260,8 @@ export default function ReportsBrowser({
   groups: GroupOption[];
   scoped: boolean;
   canSubmit: boolean;
+  /** Current leader's name by group id; groups without one have no entry. */
+  leaders: Record<number, string>;
   /** `ReportsPage` strings, passed down so that namespace stays on the server. */
   noMatchesTitle: string;
   clearFiltersLabel: string;
@@ -458,6 +464,7 @@ export default function ReportsBrowser({
               <ReportsTable
                 canSubmit={canSubmit}
                 items={data.items}
+                leaders={leaders}
                 page={data.page}
                 pageSize={data.pageSize || REPORT_PAGE_SIZE}
                 total={data.total}
@@ -470,6 +477,7 @@ export default function ReportsBrowser({
               data={data}
               defaults={defaults}
               filters={filters}
+              leaders={leaders}
             />
           </>
         )}

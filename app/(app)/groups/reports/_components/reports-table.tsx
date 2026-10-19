@@ -22,6 +22,7 @@ import { formatCalendarMediumDate } from "@/lib/format-date";
 
 export default function ReportsTable({
   items,
+  leaders,
   total,
   page,
   pageSize,
@@ -29,6 +30,7 @@ export default function ReportsTable({
   onPageChange,
 }: {
   items: ReportListItem[];
+  leaders: Record<number, string>;
   total: number;
   page: number;
   pageSize: number;
@@ -117,6 +119,11 @@ export default function ReportsTable({
                           </StatusBadge>
                         )}
                       </span>
+                      {!item.smallGroup.closedAt && (
+                        <span className="text-[13px] text-muted">
+                          {leaders[item.smallGroup.id] ?? t("noLeader")}
+                        </span>
+                      )}
                       {item.kind === "report" && item.notHeldReason && (
                         <span
                           className="block max-w-[260px] truncate text-[13px] italic text-muted"

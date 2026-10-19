@@ -101,6 +101,11 @@ export default async function ReportsList({
         name,
         closed: closedAt !== null,
       }))}
+      leaders={Object.fromEntries(
+        groups.flatMap(({ id, leaderName }) =>
+          leaderName === null ? [] : [[id, leaderName]],
+        ),
+      )}
       noMatchesTitle={t("noMatchesTitle")}
       scoped={scoped}
     />
