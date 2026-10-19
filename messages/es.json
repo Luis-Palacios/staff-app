@@ -946,6 +946,7 @@
     "eyebrow": "Grupos pequeños",
     "title": "Grupos y roles actuales",
     "joined": "Se unió el {date}",
+    "leader": "Líder: {name}",
     "emptyTitle": "Aún no está en un grupo pequeño",
     "emptyBody": "Los grupos y roles aparecerán aquí cuando se una a uno."
   },

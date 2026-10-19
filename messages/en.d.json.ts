@@ -949,6 +949,7 @@ declare const messages: {
     "eyebrow": "Small groups",
     "title": "Current groups & roles",
     "joined": "Joined {date}",
+    "leader": "Led by {name}",
     "emptyTitle": "Not in a small group yet",
     "emptyBody": "Groups and roles show up here when they join one."
   },

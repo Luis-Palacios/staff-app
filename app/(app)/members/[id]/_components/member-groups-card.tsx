@@ -26,10 +26,13 @@ export function MemberGroupsCard({
   smallGroups,
   variant = "default",
   canOpen = () => true,
+  leaders = {},
 }: {
   smallGroups: MemberSmallGroup[];
   variant?: "default" | "self";
   canOpen?: (group: MemberSmallGroup) => boolean;
+  /** Leader name by small group id; a group without an entry shows no leader line. */
+  leaders?: Record<number, string>;
 }) {
   const t = useTranslations("MemberGroupsCard");
   const tSelf = useTranslations("MyProfilePage");
@@ -38,6 +41,15 @@ export function MemberGroupsCard({
   const self = variant === "self";
   const joined = (group: MemberSmallGroup) =>
     t("joined", { date: formatCalendarDate(group.joinedAt, locale) });
+  const leaderLine = (group: MemberSmallGroup) => {
+    const name = leaders[group.smallGroupId];
+
+    return name ? (
+      <span className="break-words text-[13px] text-muted">
+        {t("leader", { name })}
+      </span>
+    ) : null;
+  };
 
   return (
     <section
@@ -84,6 +96,7 @@ export function MemberGroupsCard({
                   <span className="break-words text-[15px] font-semibold text-heading">
                     {group.smallGroupName}
                   </span>
+                  {leaderLine(group)}
                   <span className="text-[13px] text-muted">
                     {joined(group)}
                   </span>
@@ -151,6 +164,7 @@ export function MemberGroupsCard({
                     {group.smallGroupName}
                   </span>
                 )}
+                {leaderLine(group)}
                 <span className="text-[13px] text-muted">{joined(group)}</span>
               </div>
               <StatusBadge {...ROLE_BADGE[group.role]}>

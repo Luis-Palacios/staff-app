@@ -6,6 +6,7 @@ import { MemberDetailHeader } from "./_components/member-detail-header";
 import { MemberGroupsCard } from "./_components/member-groups-card";
 
 import { getMe } from "@/api/members-api/client";
+import { listSmallGroups } from "@/api/small-groups-api/client";
 import { loadMember } from "@/app/(app)/members/_lib/load-member";
 import { loadMemberAccount } from "@/app/(app)/members/_lib/load-member-account";
 import { SavedToast } from "@/components/saved-toast";
@@ -31,6 +32,13 @@ export default async function MemberDetailPage({
   ]);
   const member = await loadMember(id);
   const account = await loadMemberAccount(member);
+  // Leader names come from the groups list; if it can't be read the card just omits them.
+  const groups = await listSmallGroups().catch(() => []);
+  const leaders = Object.fromEntries(
+    groups.flatMap(({ id: groupId, leaderName }) =>
+      leaderName === null ? [] : [[groupId, leaderName]],
+    ),
+  );
   // The group links go only where the viewer can open the group: any group with full access,
   // otherwise the groups they lead (the rest would 404).
   const ledIds = new Set(me.leads.map((lead) => lead.smallGroupId));
@@ -55,6 +63,7 @@ export default async function MemberDetailPage({
         <div className="flex min-w-0 flex-col gap-5">
           <MemberGroupsCard
             canOpen={canOpenGroup}
+            leaders={leaders}
             smallGroups={member.smallGroups}
           />
           {account.canManage && (
