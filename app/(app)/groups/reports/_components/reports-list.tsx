@@ -45,7 +45,11 @@ export default async function ReportsList({
     getMe(),
   ]);
 
-  if (data.counts.all === 0 && !hasActiveFilters(filters)) {
+  // An empty default week (always on Sundays) still shows the browser, so the filters can reach past
+  // weeks. The empty states are only for callers with no groups to report on.
+  const noGroups = scoped ? me.leads.length === 0 : groups.length === 0;
+
+  if (data.counts.all === 0 && !hasActiveFilters(filters) && noGroups) {
     if (scoped && me.member === null) {
       return (
         <EmptyState icon={UserGroupIcon} title={t("notLinkedTitle")}>
@@ -54,7 +58,7 @@ export default async function ReportsList({
       );
     }
 
-    if (scoped && me.leads.length === 0) {
+    if (scoped) {
       return (
         <EmptyState icon={UserGroupIcon} title={t("noGroupsTitle")}>
           {t("noGroupsBody")}

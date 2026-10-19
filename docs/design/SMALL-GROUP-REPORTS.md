@@ -502,7 +502,9 @@ URL search params), `reports-table.tsx`, `report-card.tsx`, `reports-list-skelet
   two counts, "By …" and **Open**; not-filed cards show `ReportsList.missingNote` and a full-width
   **File report** when allowed. Pagination: table footer as Members; cards get **Show more**.
 - Empty states (`EmptyState`):
-  - full, no reports at all: `emptyTitle`/`emptyBody`, action **View groups**;
+  - full, no groups at all: `emptyTitle`/`emptyBody`, action **View groups**;
+  - a caller with groups whose default week is empty (always on Sundays) gets the list with its
+    filters, not an empty state, so earlier weeks stay reachable;
   - scoped, `getMe().member === null`: `notLinkedTitle`/`notLinkedBody`, no action;
   - scoped, leads nothing: `noGroupsTitle`/`noGroupsBody`, no action;
   - filters match nothing: `noMatchesTitle` with **Clear filters**.
