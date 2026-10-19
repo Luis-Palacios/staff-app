@@ -4,10 +4,14 @@ import type { SubmitEvent } from "react";
 
 import { useState, useTransition } from "react";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import { Button, Input, Label, Modal } from "@heroui/react";
+import { Button, Input, Label, ListBox, Modal, Select } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
 import { inviteMemberAction } from "@/app/(app)/members/_actions/account-actions";
+import { AUTH_ROLES, AuthRole } from "@/lib/auth/roles";
+
+// Nobody is invited straight into pending (same filter as the Users page invite form).
+const ASSIGNABLE_ROLES = AUTH_ROLES.filter((role) => role !== AuthRole.Pending);
 
 function InviteUserForm({
   defaultEmail,
@@ -26,6 +30,7 @@ function InviteUserForm({
   const tRoles = useTranslations("Roles");
   const [isPending, startTransition] = useTransition();
   const [email, setEmail] = useState(defaultEmail);
+  const [role, setRole] = useState<AuthRole>(AuthRole.SmallGroupLeader);
   const [error, setError] = useState<string | null>(null);
   const [userExists, setUserExists] = useState(false);
 
@@ -39,7 +44,7 @@ function InviteUserForm({
     setError(null);
     setUserExists(false);
     startTransition(async () => {
-      const result = await inviteMemberAction(address);
+      const result = await inviteMemberAction(address, role);
 
       if (result.ok) onSent(address);
       else if (result.code === "userExists") setUserExists(true);
@@ -80,12 +85,29 @@ function InviteUserForm({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-[13px] font-semibold text-heading">
-            {t("roleLabel")}
-          </span>
-          <p className="rounded-xl border border-border bg-default px-3 py-2.5 text-sm text-heading">
-            {tRoles("smallGroupLeader")}
-          </p>
+          <Select.Root
+            className="w-full gap-1.5"
+            isDisabled={isPending}
+            selectedKey={role}
+            onSelectionChange={(key) => key && setRole(key as AuthRole)}
+          >
+            <Label className="text-[13px] font-semibold text-heading">
+              {t("roleLabel")}
+            </Label>
+            <Select.Trigger>
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {ASSIGNABLE_ROLES.map((r) => (
+                  <ListBox.Item key={r} id={r}>
+                    {tRoles(r)}
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
+          </Select.Root>
           <p className="text-[13px] text-muted">{t("roleHint")}</p>
         </div>
 

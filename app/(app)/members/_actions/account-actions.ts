@@ -193,9 +193,10 @@ async function forwardedRequest() {
   };
 }
 
-/** Invites the member's email with the fixed role Small Group Leader. */
+/** Invites the member's email with the chosen role (the dialog defaults to Small Group Leader). */
 export async function inviteMemberAction(
   email: string,
+  role: AuthRole = AuthRole.SmallGroupLeader,
 ): Promise<AccountActionResult> {
   const denied = await requirePermissions({
     members: ["link"],
@@ -218,7 +219,7 @@ export async function inviteMemberAction(
 
     await createInvite(await forwardedRequest(), {
       email,
-      role: AuthRole.SmallGroupLeader,
+      role,
     });
   } catch (error) {
     return failure(error);
