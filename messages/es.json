@@ -1061,7 +1061,7 @@
     "emailLabel": "Correo",
     "emailHint": "Del perfil del miembro. Cámbialo si usa otra dirección.",
     "roleLabel": "Rol",
-    "roleHint": "Las invitaciones empiezan con el rol de Líder de grupo pequeño. Cámbialo después desde Usuarios.",
+    "roleHint": "Por defecto es Líder de grupo pequeño. Puedes cambiarlo después desde Usuarios.",
     "autoLinkNote": "Cuando la acepte, su cuenta se vinculará automáticamente a este miembro.",
     "userExists": "Ya existe un usuario con este correo. Vincúlalo en su lugar.",
     "inviteSubmit": "Enviar invitación",
