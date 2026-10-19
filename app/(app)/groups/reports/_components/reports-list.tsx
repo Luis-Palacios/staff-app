@@ -96,9 +96,9 @@ export default async function ReportsList({
       data={data}
       defaults={defaults}
       filters={filters}
-      groups={groups.map(({ id, name, closedAt }) => ({
+      groups={groups.map(({ id, name, leaderName, closedAt }) => ({
         id,
-        name,
+        name: leaderName ? `${name} - ${leaderName}` : name,
         closed: closedAt !== null,
       }))}
       leaders={Object.fromEntries(

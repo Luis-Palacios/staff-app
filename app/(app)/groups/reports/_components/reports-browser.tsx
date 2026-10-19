@@ -58,7 +58,7 @@ function GroupFilter({
 
   return (
     <Select.Root
-      className="w-full gap-1.5 md:w-[220px]"
+      className="w-full gap-1.5 md:w-[300px]"
       selectedKey={value === null ? ALL_GROUPS : String(value)}
       onSelectionChange={(key) =>
         onChange(key === ALL_GROUPS || key === null ? null : Number(key))
