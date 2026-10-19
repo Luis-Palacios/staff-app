@@ -28,7 +28,11 @@
     "openMenu": "Abrir menú",
     "home": "Inicio de ekklesiaio",
     "search": "Buscar",
-    "searchPlaceholder": "Buscar personas, solicitudes…"
+    "searchPlaceholder": "Buscar miembros…",
+    "searchResults": "Miembros",
+    "searching": "Buscando…",
+    "searchEmpty": "Ningún miembro coincide con “{query}”.",
+    "searchError": "No se pudo buscar. Inténtalo de nuevo."
   },
   "Roles": {
     "admin": "Administrador",

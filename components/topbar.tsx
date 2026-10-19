@@ -10,14 +10,7 @@ import {
   useState,
   useTransition,
 } from "react";
-import {
-  Dropdown,
-  Header,
-  InputGroup,
-  Kbd,
-  TextField,
-  useMediaQuery,
-} from "@heroui/react";
+import { Dropdown, Header, Kbd, useMediaQuery } from "@heroui/react";
 import {
   ArrowRightStartOnRectangleIcon,
   CheckIcon,
@@ -36,9 +29,11 @@ import { THEME_OPTIONS, ThemeSwitch } from "@/components/theme-switch";
 import { EkklesiaioMark } from "@/components/brand/ekklesiaio-logo";
 import { MenuIcon } from "@/components/icons";
 import { InitialsAvatar, initialsOf } from "@/components/initials-avatar";
+import { MemberSearch } from "@/components/member-search";
 import { StatusBadge } from "@/components/status-badge";
-import { useCurrentUser } from "@/lib/contexts/user-context";
+import { useCurrentUser, usePermissions } from "@/lib/contexts/user-context";
 import { authClient } from "@/lib/auth/auth-client";
+import { can } from "@/lib/auth/permissions";
 import { isLocale, LOCALE_LABELS, LOCALES } from "@/lib/locale-shared";
 import { setLocale } from "@/app/(app)/_actions/set-locale";
 
@@ -109,6 +104,8 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
   const tTheme = useTranslations("ThemeSwitch");
   const router = useRouter();
   const currentUser = useCurrentUser();
+  // The search finds members; the API narrows it to the caller's own groups.
+  const canSearch = can(usePermissions(), { members: ["view"] });
   const isMac = useIsMac();
   const { theme, setTheme } = useTheme();
   // The check moves as soon as a language is picked. When the transition
@@ -136,6 +133,8 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
 
   // Ctrl/⌘ K focuses the search field (opening it first below `sm`).
   useEffect(() => {
+    if (!canSearch) return;
+
     function onKeyDown(event: KeyboardEvent) {
       if (event.key?.toLowerCase() !== "k" || !(event.metaKey || event.ctrlKey))
         return;
@@ -148,7 +147,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
     document.addEventListener("keydown", onKeyDown);
 
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [canSearch]);
 
   function selectLocale(next: Locale) {
     if (next === locale) return;
@@ -203,30 +202,17 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
         </span>
       </div>
 
-      <TextField
-        aria-label={tTopbar("search")}
-        className={clsx(
-          "max-w-[520px] flex-1",
-          // Mobile: hidden until the search button opens it on its own row.
-          isSearchOpen
-            ? "order-last basis-full sm:order-none sm:basis-auto"
-            : "hidden sm:flex",
-        )}
-        type="search"
-      >
-        <InputGroup className="h-[42px] w-full">
-          <InputGroup.Prefix className="border-0 pr-2.5 pl-3">
-            <MagnifyingGlassIcon
-              className="pointer-events-none size-[18px] shrink-0 text-muted"
-              strokeWidth={1.8}
-            />
-          </InputGroup.Prefix>
-          <InputGroup.Input
-            ref={searchInputRef}
-            className="text-sm"
-            placeholder={tTopbar("searchPlaceholder")}
-          />
-          <InputGroup.Suffix className="border-0 pr-2 pl-2">
+      {canSearch && (
+        <MemberSearch
+          className={clsx(
+            "max-w-[520px] flex-1",
+            // Mobile: hidden until the search button opens it on its own row.
+            isSearchOpen
+              ? "order-last basis-full sm:order-none sm:basis-auto"
+              : "hidden sm:flex",
+          )}
+          inputRef={searchInputRef}
+          shortcut={
             <Kbd className="hidden h-auto rounded-md border border-border px-[7px] py-0.5 text-xs font-semibold [word-spacing:normal] lg:inline-flex">
               {isMac ? (
                 <Kbd.Abbr keyValue="command" />
@@ -235,19 +221,22 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
               )}
               <Kbd.Content>K</Kbd.Content>
             </Kbd>
-          </InputGroup.Suffix>
-        </InputGroup>
-      </TextField>
+          }
+          onNavigate={() => setIsSearchOpen(false)}
+        />
+      )}
 
       <div className="ml-auto flex items-center gap-2 lg:gap-3">
-        <button
-          aria-expanded={isSearchOpen}
-          aria-label={tTopbar("search")}
-          className="flex size-11 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary sm:hidden"
-          onClick={() => setIsSearchOpen((open) => !open)}
-        >
-          <MagnifyingGlassIcon className="size-5" strokeWidth={1.8} />
-        </button>
+        {canSearch && (
+          <button
+            aria-expanded={isSearchOpen}
+            aria-label={tTopbar("search")}
+            className="flex size-11 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary sm:hidden"
+            onClick={() => setIsSearchOpen((open) => !open)}
+          >
+            <MagnifyingGlassIcon className="size-5" strokeWidth={1.8} />
+          </button>
+        )}
         <div className="hidden sm:block">
           <ThemeSwitch />
         </div>

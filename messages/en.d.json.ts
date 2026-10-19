@@ -31,7 +31,11 @@ declare const messages: {
     "openMenu": "Open menu",
     "home": "ekklesiaio home",
     "search": "Search",
-    "searchPlaceholder": "Search people, applications…"
+    "searchPlaceholder": "Search members…",
+    "searchResults": "Members",
+    "searching": "Searching…",
+    "searchEmpty": "No members match “{query}”.",
+    "searchError": "Couldn’t search. Try again."
   },
   "Roles": {
     "admin": "Admin",

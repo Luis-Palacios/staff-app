@@ -26,6 +26,19 @@ export function listMemberOptions(): Promise<MemberOption[]> {
   );
 }
 
+/**
+ * Members whose name matches `query` (`members: view`), for the top bar search. The API applies
+ * the caller's members scope (everyone, or only their groups' members) and ignores case and
+ * accents. It rejects a `query` under 2 characters.
+ */
+export function searchMembers(query: string): Promise<MemberOption[]> {
+  return authenticatedFetch<MemberOption[]>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `/members/search?q=${encodeURIComponent(query)}`,
+    { cache: "no-store" },
+  );
+}
+
 export function getMember(id: string): Promise<MemberDetail> {
   return authenticatedFetch<MemberDetail>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
