@@ -38,6 +38,7 @@ export async function WeekStepper({
         aria-label={t("previousWeek")}
         className={buttonClass}
         href={`/?week=${addDays(weekStart, -7)}`}
+        scroll={false}
       >
         <ChevronLeftIcon
           aria-hidden="true"
@@ -66,6 +67,7 @@ export async function WeekStepper({
           aria-label={t("nextWeek")}
           className={buttonClass}
           href={next === currentSunday ? "/" : `/?week=${next}`}
+          scroll={false}
         >
           <ChevronRightIcon
             aria-hidden="true"
