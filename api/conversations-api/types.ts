@@ -4,7 +4,7 @@
 export type ConversationStatus = "open" | "resolved";
 
 /** Elders' side = the author had `smallGroups: all` when writing; leaders' side otherwise. */
-export type ConversationSide = "elder" | "leader";
+export type ConversationSide = "elders" | "leaders";
 
 export type ConversationInboxTab = "reply" | "open" | "resolved";
 

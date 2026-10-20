@@ -6,6 +6,7 @@ import type {
 import type { Locale } from "@/lib/locale-shared";
 
 import { LockClosedIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
 import NextLink from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -62,6 +63,7 @@ export async function ReportAttendanceCard({
   joinedByMember,
   linkMembers,
   conversations,
+  activePersonId,
 }: {
   report: ReportDetail;
   /** Active membership start dates, to say "In the group since" for new people. */
@@ -70,6 +72,8 @@ export async function ReportAttendanceCard({
   linkMembers: boolean;
   /** The report's threads; `null` when the caller can't see conversations. */
   conversations: ReportConversations | null;
+  /** `?person=`: the row whose panel is open. */
+  activePersonId?: number;
 }) {
   const [t, tRole, tConv, locale] = await Promise.all([
     getTranslations("ReportDetail"),
@@ -210,6 +214,7 @@ export async function ReportAttendanceCard({
             conversation: showConversations
               ? conversationFor(person, "table")
               : undefined,
+            focused: person.memberId === activePersonId,
           }))}
           showConversations={showConversations}
           showObservations={observationsVisible}
@@ -240,7 +245,11 @@ export async function ReportAttendanceCard({
           return (
             <li
               key={person.memberId}
-              className="flex flex-col gap-2.5 border-t border-separator px-[18px] py-3.5"
+              className={clsx(
+                "flex flex-col gap-2.5 border-t border-separator px-[18px] py-3.5",
+                person.memberId === activePersonId &&
+                  "bg-focus-row shadow-[inset_3px_0_0_var(--color-gold-500)]",
+              )}
             >
               <div className="flex items-center gap-3">
                 <InitialsAvatar name={person.name} />
