@@ -110,3 +110,20 @@ export function userAccountAccess(
     assignAdmin: can(permissions, { adminAccounts: ["manage"] }),
   };
 }
+
+/**
+ * Who sees report conversations: the audience of a report's observations (`viewObservations`, or
+ * leading the group) and nobody else. `leadsGroup` is the caller's own knowledge: on Report detail
+ * the group they lead, elsewhere whether their small group access is scoped. The API enforces the
+ * scope; this decides what to show.
+ */
+export function canSeeConversations(
+  permissions: Permissions | null | undefined,
+  leadsGroup: boolean,
+): boolean {
+  return (
+    can(permissions, { smallGroupReports: ["view"] }) &&
+    (can(permissions, { smallGroupReports: ["viewObservations"] }) ||
+      leadsGroup)
+  );
+}

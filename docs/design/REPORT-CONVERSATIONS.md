@@ -48,7 +48,7 @@ before the next one starts. After each stage, write a short summary in the progr
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API types, client and server actions | ⬜ | |
+| 1. API types, client and server actions | ✅ | see `git log` ("Add report conversations API client and actions") |
 | 2. Report detail: Conversation column, phone bubbles, summary, delete dialog | ⬜ | |
 | 3. Conversation panel and sheet | ⬜ | |
 | 4. Conversations page, nav item and badge | ⬜ | |
@@ -57,7 +57,15 @@ before the next one starts. After each stage, write a short summary in the progr
 
 ### Decisions and deviations
 
-- (fill in per stage)
+- Stage 1: client and types live in a new `api/conversations-api/` (not `small-groups-api`), as the
+  handoff allowed. Actions return `{ ok, conversation }` / `{ ok: false, kind, message, conversation? }`;
+  `kind` matches the `Conversations.errors.*` key and `conversation` is set only for `stale`. Error
+  matching is in `_lib/conversation-errors.ts`. Anything not in the table is `generic`.
+- Stage 1: actions check `smallGroupReports: view` (the API's own gate); scope and the audience are the
+  API's. `canSeeConversations(permissions, leadsGroup)` is in `lib/auth/permissions.ts` for the later
+  stages. Only the `Conversations.errors` keys are added so far; other copy comes with its stage.
+- Stage 1: added `listConversationsAction` (inbox "Show more"). All write actions revalidate the
+  report, `/conversations` and `/`.
 
 ## Token changes
 
