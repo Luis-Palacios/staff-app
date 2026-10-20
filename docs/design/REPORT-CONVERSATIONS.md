@@ -51,7 +51,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | 1. API types, client and server actions | ✅ | see `git log` ("Add report conversations API client and actions") |
 | 2. Report detail: Conversation column, phone bubbles, summary, delete dialog | ✅ | "Show conversations on Report detail" |
 | 3. Conversation panel and sheet | ✅ | "Add the conversation panel and sheet" |
-| 4. Conversations page, nav item and badge | ⬜ | |
+| 4. Conversations page, nav item and badge | ✅ | "Add the Conversations page, nav item and badge" |
 | 5. Dashboard blocks | ⬜ | |
 | 6. Design review fixes | ⬜ | |
 
@@ -87,6 +87,17 @@ before the next one starts. After each stage, write a short summary in the progr
 - Stage 3 checked at 1440 dark English as admin on report 35: open, reply with ⌘+Enter, resolve, resolved
   banner. NOT yet checked: the sheet (< 1024), light, Spanish, edit/delete, stale-resolve and the
   not-linked note.
+- Stage 4: nav visibility is `canSeeConversationsInbox(permissions)` (scoped group access stands in for
+  "leads a group" where there is no group in hand), called from `getVisibleNavItems` through a
+  `conversations: true` flag on the nav item, and from the page (`notFound()`). The badge count is read in
+  the `(app)` layout (only for callers who see the item; a failure shows no badge) and passed
+  layout → `AppShell` → `Sidebar`.
+- Stage 4: the group select lists every group in the caller's scope (open and closed), not only groups that
+  have threads: nothing in the API says which have threads.
+- Stage 4: `StatusTabs` got a `highlighted` prop (gold count pill while above 0); `ConversationRow` is shared
+  with the Stage 5 dashboard block (`compact`).
+- Stage 4 checked at 1440 dark English as admin (tabs, counts, rows, badge). Not yet checked: light,
+  Spanish, 1024/390, leader view, empty and Show more (the seed has fewer than 25 threads).
 
 ## Token changes
 

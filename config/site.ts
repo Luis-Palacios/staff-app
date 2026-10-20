@@ -2,7 +2,7 @@ import type { ComponentType, SVGProps } from "react";
 import type { Messages } from "next-intl";
 import type { PermissionCheck, Permissions } from "@/lib/auth/permissions";
 
-import { can } from "@/lib/auth/permissions";
+import { can, canSeeConversationsInbox } from "@/lib/auth/permissions";
 
 export type SiteConfig = typeof siteConfig;
 
@@ -15,6 +15,7 @@ export type NavIconName =
   | "members"
   | "groups"
   | "applications"
+  | "conversations"
   | "access";
 
 /** A key of the `Nav` namespace (messages/en.json). The sidebar and the
@@ -37,6 +38,9 @@ export type NavItem = {
   /** Permissions needed to see this item; omit to show it to everyone. It must match the check
    *  the page itself makes (`notFound()`), so a hidden page is also unreachable by URL. */
   requires?: PermissionCheck;
+  /** A nav item whose visibility is a helper rather than a plain permission check, and which
+   *  carries the sidebar's needs-my-reply badge. */
+  conversations?: true;
   /** Hides the item from anyone who has all of these, for the leaf that stands in for a group. */
   unless?: PermissionCheck;
   /** Nested links — renders the item as a collapsible group, hidden when none is visible. */
@@ -106,6 +110,12 @@ export const siteConfig = {
       unless: { smallGroups: ["all"] },
     },
     {
+      labelKey: "conversations",
+      icon: "conversations",
+      href: "/conversations",
+      conversations: true,
+    },
+    {
       labelKey: "members",
       icon: "members",
       href: "/members",
@@ -160,7 +170,9 @@ export function getVisibleNavItems(permissions: Permissions): NavItem[] {
   const visible = (entry: {
     requires?: PermissionCheck;
     unless?: PermissionCheck;
+    conversations?: true;
   }) =>
+    (!entry.conversations || canSeeConversationsInbox(permissions)) &&
     (!entry.requires || can(permissions, entry.requires)) &&
     (!entry.unless || !can(permissions, entry.unless));
 

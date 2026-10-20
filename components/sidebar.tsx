@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
 import {
+  ChatBubbleLeftRightIcon,
   DocumentTextIcon,
   ShieldCheckIcon,
   Squares2X2Icon,
@@ -33,6 +34,7 @@ const iconRegistry: Record<NavIconName, HeroIcon> = {
   members: UsersIcon,
   groups: UserGroupIcon,
   applications: DocumentTextIcon,
+  conversations: ChatBubbleLeftRightIcon,
   access: ShieldCheckIcon,
 };
 
@@ -68,20 +70,26 @@ const iconClass = (active: boolean) =>
 interface SidebarProps {
   /** The ministry and church shown under the logo. */
   context: ChurchContext;
+  /** Needs-my-reply count for the Conversations badge. */
+  conversationsWaiting: number;
   isOpen: boolean;
   onNavigate: () => void;
 }
 
 const LeafLink = ({
   item,
+  badge = 0,
   pathname,
   onNavigate,
 }: {
   item: NavItem;
+  /** A count shown as a gold pill; 0 hides it. */
+  badge?: number;
   pathname: string;
   onNavigate: () => void;
 }) => {
   const t = useTranslations("Nav");
+  const tConv = useTranslations("Conversations");
   const Icon = resolveIcon(item.icon);
   const active = isActivePath(pathname, item.href!);
 
@@ -97,6 +105,14 @@ const LeafLink = ({
     >
       <Icon className={iconClass(active)} strokeWidth={1.6} />
       <span className="flex-1">{t(item.labelKey)}</span>
+      {badge > 0 && (
+        <span
+          aria-label={tConv("badgeLabel", { count: String(badge) })}
+          className="min-w-[22px] rounded-full bg-gold-500 px-1.5 py-px text-center text-xs font-bold tabular-nums text-navy-900"
+        >
+          {badge}
+        </span>
+      )}
     </NextLink>
   );
 };
@@ -169,7 +185,12 @@ const CollapsibleItem = ({
   );
 };
 
-export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
+export const Sidebar = ({
+  context,
+  conversationsWaiting,
+  isOpen,
+  onNavigate,
+}: SidebarProps) => {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
   const navItems = getVisibleNavItems(usePermissions());
@@ -232,6 +253,7 @@ export const Sidebar = ({ context, isOpen, onNavigate }: SidebarProps) => {
             ) : (
               <LeafLink
                 key={item.labelKey}
+                badge={item.conversations ? conversationsWaiting : 0}
                 item={item}
                 pathname={pathname}
                 onNavigate={onNavigate}
