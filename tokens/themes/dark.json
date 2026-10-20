@@ -53,6 +53,11 @@
     "$type": "color",
     "$value": "{color.gold-500}"
   },
+  "focus-row": {
+    "$type": "color",
+    "$value": "rgb(242 181 68 / 0.08)",
+    "$description": "tint of the table row whose conversation panel is open (with a 3px gold-500 inset edge)"
+  },
   "link": {
     "$type": "color",
     "$value": "{color.gold-300}"

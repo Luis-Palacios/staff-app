@@ -25,6 +25,7 @@
     --accent-foreground: #FFFFFF; /* = color.white */
     --focus: #8A5B00; /* gold-800: plain gold-500 is ~1.7:1 on paper, fails WCAG 1.4.11 */
     --shadow-focus: 0 0 0 2px var(--background), 0 0 0 4px var(--focus);
+    --focus-row: #FBF6EA; /* tint of the table row whose conversation panel is open (with a 3px gold-500 inset edge) */
     --link: #0B2341; /* = color.navy-900 */
     --border: #E2E5EA; /* = color.line */
     --separator: #EEF0F3; /* = color.line-subtle */
@@ -77,6 +78,7 @@
     --accent: #F2B544; /* gold: primary buttons, selection */
     --accent-foreground: #0B2341; /* = color.navy-900 */
     --focus: #F2B544; /* = color.gold-500 */
+    --focus-row: rgb(242 181 68 / 0.08); /* tint of the table row whose conversation panel is open (with a 3px gold-500 inset edge) */
     --link: #F7D48F; /* = color.gold-300 */
     --border: #1F3B60; /* = color.line-on-dark */
     --separator: #173052; /* = color.line-subtle-on-dark */
