@@ -39,19 +39,17 @@ export default async function ConversationsPage({
   const requestedTab = first(params.tab);
   const tab = TABS.find((candidate) => candidate === requestedTab) ?? "reply";
   const requestedGroup = Number(first(params.group));
-  const groupId =
-    Number.isInteger(requestedGroup) && requestedGroup > 0
-      ? requestedGroup
-      : null;
+  const groups = await listSmallGroups();
+  // A group that isn't in the list (a stale link) is no filter, so the select never goes blank.
+  const groupId = groups.some(({ id }) => id === requestedGroup)
+    ? requestedGroup
+    : null;
   const elder = getSmallGroupAccess(permissions) === "full";
-  const [data, groups] = await Promise.all([
-    listConversations({
-      tab,
-      ...(groupId !== null && { smallGroupId: groupId }),
-      limit: PAGE_SIZE,
-    }),
-    listSmallGroups(),
-  ]);
+  const data = await listConversations({
+    tab,
+    ...(groupId !== null && { smallGroupId: groupId }),
+    limit: PAGE_SIZE,
+  });
 
   return (
     <>

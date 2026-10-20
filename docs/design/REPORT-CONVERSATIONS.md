@@ -103,17 +103,18 @@ before the next one starts. After each stage, write a short summary in the progr
   `counts.reply` (the whole tab), the rows the first 3. It reuses `ConversationRow` with `compact`.
 - Stage 5 checked at 1440 dark English as admin. Not checked: the leader dashboard (no leader sign-in
   available locally), light, Spanish, 1024/390.
-- Stage 6 (review, partial): only 1440 was possible; the Chrome window would not resize to 1024 or 390, and
-  there is no local leader sign-in. Checked at 1440: dark and light on Report detail with the panel (open,
-  resolved, reply, resolve), the Conversation column and summary, the Conversations page (tabs, counts,
-  rows, group select), the sidebar badge and the elder dashboard block. No color/font/radius literals in the
-  new files (grep), `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm tokens --check` pass.
-  **Still to check by hand:** 1024 and 390 (the bottom sheet, phone cards, scrolling tabs), Spanish,
-  the leader views (Report detail as a leader, Conversations, dashboard block), edit / delete a comment,
-  the stale-resolve path, the not-linked note, the empty states, "Show more" past 25, focus return to
-  the row control, and an orphaned thread.
-  Seen while checking: the desktop panel is full height and fixed, so it covers the top bar (theme switch,
-  account menu) while open. That follows the spec; say if the panel should start below the top bar instead.
+- Stage 6 (review, second pass, admin only): widths were checked by loading the app in a same-origin iframe at
+  390 and 1024 (the Chrome window would not resize), Spanish by the `ekk_locale` cookie. Checked as admin:
+  390 dark (bottom sheet, phone cards, no sideways scroll); 1024 dark Spanish (420px panel); 1440 dark and
+  light; edit, delete (inline confirm, stub), reopen, stale-resolve (stays open, thread re-rendered, "New"
+  divider, message), the not-linked note (admin unlinked in the local DB, then relinked), "Show more" (28
+  extra threads inserted, 34 rows, button gone, then deleted) and the empty state.
+  Fixed on the way: the edit textarea now takes focus (cursor at the end) and scrolls into view; an unknown
+  `?group=` on `/conversations` is ignored instead of blanking the select.
+  Seen, not changed: at 1024 the page is cramped beside the 420px panel (the title wraps to 3 lines; the
+  table scrolls in its own box); the desktop panel covers the top bar while open (accepted).
+  **Still to check:** light at 390 and 1024; the leader views (needs a leader sign-in); focus returning to the
+  row control; an orphaned thread.
 
 ## Token changes
 

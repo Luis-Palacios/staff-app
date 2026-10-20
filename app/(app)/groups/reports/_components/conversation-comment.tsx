@@ -2,7 +2,7 @@
 
 import type { ConversationComment as Comment } from "@/api/conversations-api/types";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Dropdown } from "@heroui/react";
 import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
@@ -37,6 +37,19 @@ export function ConversationComment({
   const { comment } = view;
   const [mode, setMode] = useState<"view" | "edit" | "confirmDelete">("view");
   const [draft, setDraft] = useState(comment.body ?? "");
+  const editRef = useRef<HTMLTextAreaElement>(null);
+
+  // Editing starts with the cursor at the end of the text, ready to type.
+  useEffect(() => {
+    if (mode !== "edit") return;
+
+    const field = editRef.current;
+
+    field?.focus();
+    field?.setSelectionRange(field.value.length, field.value.length);
+    // The Save / Cancel row sits under the field; keep both in view.
+    field?.closest("form")?.scrollIntoView({ block: "nearest" });
+  }, [mode]);
 
   if (comment.deleted) {
     return (
@@ -149,6 +162,7 @@ export function ConversationComment({
             }}
           >
             <textarea
+              ref={editRef}
               aria-label={t("edit")}
               className="min-h-[88px] w-full resize-y rounded-[10px] border-[1.5px] border-field-border bg-field-background px-3 py-2.5 text-[14.5px] leading-normal text-field-foreground"
               rows={3}
