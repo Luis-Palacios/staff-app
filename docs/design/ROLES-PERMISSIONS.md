@@ -79,7 +79,8 @@ checking the nav and the pages by URL; the *Keep working* list from the spec is 
   `members: all` or the group is open (a closed group's members are out of scope, rule 3). The member
   page links back to Members only with `members: view` + `all`, to a group only when the viewer can
   open it (full access, or they lead it), and shows the Account card only with `members: link`.
-  The server action drops `email` from the PATCH unless `members: all`, as well as the form hiding it.
+  Without `members: all` the email field shows only while the member has no `userId` (rule 8); a linked
+  member gets a note instead, and the form sends `email` only when it changed. The API stays the guard.
 - The add-member dialog no longer shows an email under each name or searches by it; the placeholder
   says "name" only (copy table below).
 - `members: update` is not required for `GET /members/{id}` (rule 11), so My profile never checks a
@@ -117,7 +118,7 @@ means no permissions (rule 10).
 | `GET /members` | `members: view` + `all` | Members list, link dialogs, account status |
 | `GET /members/options` → `[{ id, name }]` | `members: search` | Add-member picker (new) |
 | `GET /members/{id}` | own member: nothing (rule 11); others: `members: view` + members scope | member detail, My profile |
-| `PATCH /members/{id}` | `members: update` + scope; **a body with `email` is 403 without `members: all`, even unchanged** | member edit |
+| `PATCH /members/{id}` | `members: update` + scope; **a body with `email` for a linked member is 403 without `members: all`, even unchanged** | member edit |
 | `POST /members` | `members: create` | add member |
 | `PUT`, `DELETE /members/{id}/user` | `members: link` | account card, link dialogs |
 

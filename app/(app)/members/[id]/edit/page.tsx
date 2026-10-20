@@ -21,6 +21,8 @@ export default async function EditMemberPage({
     getTranslations("MemberFormPage"),
     getPermissions(),
   ]);
+  const canEditEmail =
+    can(permissions, { members: ["all"] }) || member.userId === null;
   const firstName = member.name.trim().split(/\s+/)[0] ?? "";
 
   return (
@@ -38,9 +40,11 @@ export default async function EditMemberPage({
         title={t("editTitle")}
       />
       <MemberForm
-        // The email is what an invite is matched to a member on, so only `members: all` changes it.
-        canEditEmail={can(permissions, { members: ["all"] })}
+        // The email is what an invite is matched to a member on: without `members: all` it can
+        // change only while the member has no user (rule 8).
+        canEditEmail={canEditEmail}
         cancelHref={`/members/${id}`}
+        emailLinked={member.userId !== null}
         initial={{
           name: member.name,
           email: member.email ?? "",
