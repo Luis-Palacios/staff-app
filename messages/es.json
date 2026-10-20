@@ -633,7 +633,8 @@
     "cannotBanYourself": "No puedes bloquearte a ti mismo.",
     "cannotAssignAdmin": "Solo un administrador puede asignar el rol de Admin.",
     "cannotManageAdmin": "Solo un administrador puede cambiar o bloquear una cuenta de administrador.",
-    "notAllowed": "No tienes permiso para hacer eso."
+    "notAllowed": "No tienes permiso para hacer eso.",
+    "bannedUser": "Esta cuenta ha sido bloqueada. Contacta al personal de tu iglesia si crees que es un error."
   },
   "PasswordField": {
     "show": "Mostrar contraseña",

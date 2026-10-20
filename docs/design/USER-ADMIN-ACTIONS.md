@@ -38,7 +38,8 @@ Branch **`user-admin-actions`**. Each stage lints (`pnpm lint`) and type-checks
   dialog (reason, length: until unbanned / 1 / 7 / 30 days).
 - The Account card also shows the ban reason and end date while the user is banned.
 - Error codes mapped in `useAuthErrorMessage`: `YOU_CANNOT_CHANGE_YOUR_OWN_ROLE`,
-  `YOU_CANNOT_BAN_YOURSELF`, `YOU_CANNOT_ASSIGN_ADMIN_ROLE`, `YOU_CANNOT_MANAGE_ADMIN_ACCOUNTS`, and
+  `YOU_CANNOT_BAN_YOURSELF`, `YOU_CANNOT_ASSIGN_ADMIN_ROLE`, `YOU_CANNOT_MANAGE_ADMIN_ACCOUNTS`, `BANNED_USER` (a banned user
+  signing in; better-auth answers 403), and
   better-auth's two `YOU_ARE_NOT_ALLOWED_TO_*` ones.
 - Not exercised in a browser: no test sign-in was available in this session. Checked: `pnpm lint`
   (only an existing warning in `member-form.tsx`), `pnpm exec tsc --noEmit`. Still to check by hand,
