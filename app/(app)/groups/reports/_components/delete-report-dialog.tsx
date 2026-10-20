@@ -18,7 +18,14 @@ export function DeleteReportDialog({
 }: {
   reportId: number;
   groupId: number;
-  labels: { trigger: string; title: string; body: string; confirm: string };
+  labels: {
+    trigger: string;
+    title: string;
+    body: string;
+    confirm: string;
+    /** "This also deletes 3 conversations.", left out when there are none. */
+    conversations?: string;
+  };
 }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -59,6 +66,11 @@ export function DeleteReportDialog({
         onOpenChange={setOpen}
       >
         {labels.body}
+        {labels.conversations && (
+          <span className="mt-2 block font-semibold text-heading">
+            {labels.conversations}
+          </span>
+        )}
       </ConfirmDialog>
       {failure && (
         <SavedToast key={failure.id} message={failure.message} tone="danger" />

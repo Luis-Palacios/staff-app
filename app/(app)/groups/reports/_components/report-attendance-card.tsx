@@ -1,3 +1,4 @@
+import type { ReportConversations } from "@/api/conversations-api/types";
 import type {
   ReportAttendance,
   ReportDetail,
@@ -8,6 +9,8 @@ import { LockClosedIcon } from "@heroicons/react/24/outline";
 import NextLink from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { ConversationIndicator } from "./conversation-indicator";
+import { ConversationSummary } from "./conversation-summary";
 import { ReportAttendanceTable } from "./report-attendance-table";
 
 import { formatChurchSunday } from "@/app/(app)/groups/reports/_lib/format-church-sunday";
@@ -58,16 +61,20 @@ export async function ReportAttendanceCard({
   report,
   joinedByMember,
   linkMembers,
+  conversations,
 }: {
   report: ReportDetail;
   /** Active membership start dates, to say "In the group since" for new people. */
   joinedByMember: Record<number, string>;
   /** Member pages are for full roles only. */
   linkMembers: boolean;
+  /** The report's threads; `null` when the caller can't see conversations. */
+  conversations: ReportConversations | null;
 }) {
-  const [t, tRole, locale] = await Promise.all([
+  const [t, tRole, tConv, locale] = await Promise.all([
     getTranslations("ReportDetail"),
     getTranslations("SmallGroupRole"),
+    getTranslations("Conversations"),
     getLocale(),
   ]);
   const { attendances, totals, observationsVisible, meetingDate } = report;
@@ -88,6 +95,42 @@ export async function ReportAttendanceCard({
     return joined
       ? t("joinedSince", { date: formatCalendarDate(joined, typedLocale) })
       : tRole(person.role);
+  };
+
+  const showConversations = conversations !== null;
+  const summaryByMember = new Map(
+    (conversations?.conversations ?? []).map((summary) => [
+      summary.anchor.memberId,
+      summary,
+    ]),
+  );
+  const conversationFor = (
+    person: ReportAttendance,
+    size: "table" | "card",
+  ) => {
+    const summary = summaryByMember.get(person.memberId);
+    const first = person.name.split(/\s+/)[0];
+    const state = summary
+      ? summary.status === "resolved"
+        ? tConv("statusResolved")
+        : summary.needsMyReply
+          ? tConv("statusReply")
+          : tConv("statusOpen")
+      : "";
+
+    return (
+      <ConversationIndicator
+        labels={{
+          start: tConv("startAria", { first }),
+          row: summary
+            ? tConv("rowAria", { first, count: summary.commentCount, state })
+            : "",
+        }}
+        memberId={person.memberId}
+        size={size}
+        summary={summary}
+      />
+    );
   };
 
   const hrefFor = (person: ReportAttendance) =>
@@ -116,16 +159,29 @@ export async function ReportAttendanceCard({
             {t("attendance")}
           </h2>
         </div>
-        <p className="flex items-center gap-1.5 text-[13px] text-muted">
-          {observationsVisible && (
-            <LockClosedIcon
-              aria-hidden="true"
-              className="size-3.5 shrink-0"
-              strokeWidth={1.8}
+        <div className="flex flex-col items-end gap-2">
+          {conversations !== null && conversations.counts.total > 0 && (
+            <ConversationSummary
+              needsReply={conversations.counts.needsMyReply > 0}
+              reply={tConv("summaryReply", {
+                count: String(conversations.counts.needsMyReply),
+              })}
+              total={tConv("summaryTotal", {
+                count: conversations.counts.total,
+              })}
             />
           )}
-          {observationsVisible ? t("obsPrivacy") : t("obsHidden")}
-        </p>
+          <p className="flex items-center gap-1.5 text-[13px] text-muted">
+            {observationsVisible && (
+              <LockClosedIcon
+                aria-hidden="true"
+                className="size-3.5 shrink-0"
+                strokeWidth={1.8}
+              />
+            )}
+            {observationsVisible ? t("obsPrivacy") : t("obsHidden")}
+          </p>
+        </div>
       </header>
 
       {/* md and up: the table. */}
@@ -137,6 +193,7 @@ export async function ReportAttendanceCard({
             colMeeting: t("colMeeting"),
             colChurch: t("colChurch", { sunday }),
             observation: t("observation"),
+            conversation: tConv("column"),
             attended: t("attended"),
             absent: t("absent"),
             atChurch: t("atChurch"),
@@ -150,7 +207,11 @@ export async function ReportAttendanceCard({
             attendedGroup: person.attendedGroup,
             attendedChurch: person.attendedChurch,
             observation: person.observation,
+            conversation: showConversations
+              ? conversationFor(person, "table")
+              : undefined,
           }))}
+          showConversations={showConversations}
           showObservations={observationsVisible}
         />
         <dl className="flex flex-wrap items-center gap-x-10 gap-y-1 border-t border-border bg-surface-secondary/50 px-[22px] py-3 text-[13.5px] font-semibold text-heading">
@@ -161,6 +222,11 @@ export async function ReportAttendanceCard({
           <dd className="tabular-nums">{churchTotal}</dd>
           {totalsObservations && (
             <dd className="font-normal text-muted">{totalsObservations}</dd>
+          )}
+          {conversations !== null && (
+            <dd className="font-normal text-muted sm:ml-auto">
+              {tConv("summaryTotal", { count: conversations.counts.total })}
+            </dd>
           )}
         </dl>
       </div>
@@ -178,7 +244,7 @@ export async function ReportAttendanceCard({
             >
               <div className="flex items-center gap-3">
                 <InitialsAvatar name={person.name} />
-                <div className="flex min-w-0 flex-col">
+                <div className="flex min-w-0 flex-1 flex-col">
                   {href ? (
                     <NextLink
                       className={`${nameClass} hover:underline`}
@@ -193,6 +259,7 @@ export async function ReportAttendanceCard({
                     {subLine(person)}
                   </span>
                 </div>
+                {showConversations && conversationFor(person, "card")}
               </div>
               <div className="flex flex-wrap gap-x-5 gap-y-2">
                 <div className="flex flex-col items-start gap-1">
