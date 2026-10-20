@@ -107,6 +107,10 @@ export async function getApiErrorMessage(
         return t("ownGroupRole");
       }
 
+      if (detail.includes("linked to a user")) {
+        return t("memberEmailLinked");
+      }
+
       return t("forbidden");
     }
 

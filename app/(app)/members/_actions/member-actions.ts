@@ -112,14 +112,10 @@ export async function updateMemberAction(
     return { ok: false, fieldErrors: toFieldErrors(parsed.error) };
   }
 
-  // Rule 8: the API answers 403 to a PATCH that has `email` from a caller without `members: all`,
-  // even if the value is unchanged, so the key must not be in the body at all.
-  const { name, ...rest } = parsed.data;
-  const optional = (await hasPermission({ members: ["all"] }))
-    ? rest
-    : Object.fromEntries(
-        Object.entries(rest).filter(([field]) => field !== "email"),
-      );
+  // Rule 8: without `members: all` the API answers 403 to a PATCH that has `email` for a linked
+  // member, even if the value is unchanged. The form sends `email` only when it changed and only
+  // when the field is shown, and the API stays the guard.
+  const { name, ...optional } = parsed.data;
   const patch: Partial<MemberInput> = {
     ...(name !== undefined && { name }),
     ...Object.fromEntries(

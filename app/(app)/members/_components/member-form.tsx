@@ -173,6 +173,7 @@ export function MemberForm({
   cancelHref,
   canInvite = false,
   canEditEmail = true,
+  emailLinked = false,
   own = false,
 }: {
   memberId?: string;
@@ -180,8 +181,10 @@ export function MemberForm({
   cancelHref: string;
   /** Show "Invite as a user" (add form only, for roles that can manage links). */
   canInvite?: boolean;
-  /** Edit only: without `members: all` the email field is hidden and never sent (it is a 403). */
+  /** Edit only: when false (a linked member, without `members: all`) the email field is hidden and never sent (it is a 403). */
   canEditEmail?: boolean;
+  /** Edit only: the member has a user; with `canEditEmail` false, a note replaces the email field. */
+  emailLinked?: boolean;
   /** My profile: edit the signed-in user's own member via `PATCH /me/member`. Pass no `memberId`, and `canEditEmail={false}`. */
   own?: boolean;
 }) {
@@ -383,6 +386,9 @@ export function MemberForm({
               value={text.email}
               onChange={(v) => setTextField("email", v)}
             />
+          )}
+          {!canEditEmail && emailLinked && (
+            <p className="text-[13px] text-muted">{t("emailLinkedNote")}</p>
           )}
           <PhoneField
             error={errorOf("phone")}
