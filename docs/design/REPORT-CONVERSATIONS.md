@@ -53,7 +53,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | 3. Conversation panel and sheet | ✅ | "Add the conversation panel and sheet" |
 | 4. Conversations page, nav item and badge | ✅ | "Add the Conversations page, nav item and badge" |
 | 5. Dashboard blocks | ✅ | "Add the Waiting for your reply block to the dashboards" |
-| 6. Design review fixes | ◐ | "Record the design review" |
+| 6. Design review fixes | ✅ | "Record the design review" |
 
 ### Decisions and deviations
 
@@ -116,8 +116,13 @@ before the next one starts. After each stage, write a short summary in the progr
   Leader pass (signed in as the GP - #1 leader, Spanish, dark, 1440): dashboard block ("Los ancianos
   preguntaron…", 1 row), nav badge, Conversations (scoped to their group, "Todos mis grupos"), Report detail
   with the panel (observation shown, Resolver, reply box) and a report of another group gives the 404 page.
-  **Still to check:** light at 390 and 1024; the leader at 390/1024; focus returning to the row control; an
-  orphaned thread.
+  Third pass: light at 390 (sheet, leader) and 1024 (Conversations, leader) fine; an orphaned thread opens
+  with the `unknownPerson` name and `notOnReportAnymore` note and still takes replies; focus lands on the
+  heading on open and returns to the row control on close. That last one needed a fix: the table builds its
+  cells again after the panel unmounts, so the panel retries the focus for up to 500ms on unmount.
+  Seen: a burst of page loads trips the API's 60/minute default limit; Report detail then hides the
+  Conversation column (a failed read never fails the report).
+  Everything on the checklist has been looked at; "Still to check by hand" is now empty.
 
 ## Token changes
 

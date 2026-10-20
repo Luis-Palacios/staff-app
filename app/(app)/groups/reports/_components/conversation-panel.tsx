@@ -173,6 +173,9 @@ export function ConversationPanel({
   );
   const [draft, setDraft] = useState("");
   const [closing, setClosing] = useState(false);
+  // Set when the user closes the panel: once it unmounts (the page re-rendered without it), the
+  // row's control gets the focus back.
+  const returnFocus = useRef(false);
   const [isPending, startTransition] = useTransition();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
@@ -205,15 +208,8 @@ export function ConversationPanel({
     if (closing) return;
 
     const leave = () => {
+      returnFocus.current = true;
       router.replace(closeHref, { scroll: false });
-      // The row's control takes focus back (the panel is gone after the navigation).
-      requestAnimationFrame(() =>
-        document
-          .querySelector<HTMLElement>(
-            `[data-conversation-member="${person.memberId}"]`,
-          )
-          ?.focus(),
-      );
     };
 
     // The desktop panel slides out first (the sheet animates itself); no motion, no wait.
@@ -227,6 +223,30 @@ export function ConversationPanel({
       leave();
     }
   }
+
+  useEffect(() => {
+    const memberId = person.memberId;
+
+    return () => {
+      if (!returnFocus.current) return;
+
+      // The table builds its cells again when the page re-renders, so keep trying for a moment
+      // until the control that now exists holds the focus.
+      let tries = 0;
+      const timer = window.setInterval(() => {
+        const control = document.querySelector<HTMLElement>(
+          `[data-conversation-member="${memberId}"]`,
+        );
+
+        control?.focus();
+        tries += 1;
+
+        if (tries >= 10 || (control && document.activeElement === control)) {
+          window.clearInterval(timer);
+        }
+      }, 50);
+    };
+  }, [person.memberId]);
 
   // Non-modal: Escape closes it from anywhere on the page (the sheet below has its own).
   useEffect(() => {
