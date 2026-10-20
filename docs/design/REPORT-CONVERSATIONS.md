@@ -53,7 +53,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | 3. Conversation panel and sheet | ✅ | "Add the conversation panel and sheet" |
 | 4. Conversations page, nav item and badge | ✅ | "Add the Conversations page, nav item and badge" |
 | 5. Dashboard blocks | ✅ | "Add the Waiting for your reply block to the dashboards" |
-| 6. Design review fixes | ⬜ | |
+| 6. Design review fixes | ◐ | "Record the design review" |
 
 ### Decisions and deviations
 
@@ -103,6 +103,17 @@ before the next one starts. After each stage, write a short summary in the progr
   `counts.reply` (the whole tab), the rows the first 3. It reuses `ConversationRow` with `compact`.
 - Stage 5 checked at 1440 dark English as admin. Not checked: the leader dashboard (no leader sign-in
   available locally), light, Spanish, 1024/390.
+- Stage 6 (review, partial): only 1440 was possible; the Chrome window would not resize to 1024 or 390, and
+  there is no local leader sign-in. Checked at 1440: dark and light on Report detail with the panel (open,
+  resolved, reply, resolve), the Conversation column and summary, the Conversations page (tabs, counts,
+  rows, group select), the sidebar badge and the elder dashboard block. No color/font/radius literals in the
+  new files (grep), `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm tokens --check` pass.
+  **Still to check by hand:** 1024 and 390 (the bottom sheet, phone cards, scrolling tabs), Spanish,
+  the leader views (Report detail as a leader, Conversations, dashboard block), edit / delete a comment,
+  the stale-resolve path, the not-linked note, the empty states, "Show more" past 25, focus return to
+  the row control, and an orphaned thread.
+  Seen while checking: the desktop panel is full height and fixed, so it covers the top bar (theme switch,
+  account menu) while open. That follows the spec; say if the panel should start below the top bar instead.
 
 ## Token changes
 
