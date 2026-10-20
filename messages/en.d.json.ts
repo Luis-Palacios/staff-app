@@ -636,7 +636,8 @@ declare const messages: {
     "cannotBanYourself": "You can’t ban yourself.",
     "cannotAssignAdmin": "Only an admin can assign the Admin role.",
     "cannotManageAdmin": "Only an admin can change or ban an admin account.",
-    "notAllowed": "You don’t have permission to do that."
+    "notAllowed": "You don’t have permission to do that.",
+    "bannedUser": "This account has been banned. Contact your church staff if you think this is a mistake."
   },
   "PasswordField": {
     "show": "Show password",
