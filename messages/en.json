@@ -353,6 +353,17 @@
     "markedToast": "Marked as no meeting",
     "savedToast": "Reason saved"
   },
+  "Conversations": {
+    "errors": {
+      "notLinked": "Link your account to a member to comment.",
+      "notYours": "You can only change your own comments.",
+      "deleted": "That comment was deleted.",
+      "notOnReport": "This person is no longer on the report. Reload the page.",
+      "generic": "Couldn’t save. Try again.",
+      "stale": "There’s a new comment since you opened this. Read it, then resolve again.",
+      "race": "Someone else just started this conversation. Send your comment again."
+    }
+  },
   "ReportForm": {
     "newTitle": "New report",
     "stepMeeting": "Meeting",

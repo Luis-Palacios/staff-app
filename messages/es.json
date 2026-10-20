@@ -353,6 +353,17 @@
     "markedToast": "Marcado sin reunión",
     "savedToast": "Motivo guardado"
   },
+  "Conversations": {
+    "errors": {
+      "notLinked": "Vincula tu cuenta con un miembro para comentar.",
+      "notYours": "Solo puedes cambiar tus propios comentarios.",
+      "deleted": "Ese comentario fue eliminado.",
+      "notOnReport": "Esta persona ya no está en el reporte. Recarga la página.",
+      "generic": "No se pudo guardar. Inténtalo de nuevo.",
+      "stale": "Hay un comentario nuevo desde que abriste esto. Léelo y vuelve a resolver.",
+      "race": "Alguien más acaba de iniciar esta conversación. Envía tu comentario otra vez."
+    }
+  },
   "ReportForm": {
     "newTitle": "Nuevo reporte",
     "stepMeeting": "Reunión",
