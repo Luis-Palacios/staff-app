@@ -9,6 +9,7 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { buttonVariants } from "@heroui/react";
+import clsx from "clsx";
 import NextLink from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -168,7 +169,10 @@ export default async function ReportDetailPage({
 
   return (
     <div
-      className={panel ? "lg:pr-[444px] min-[1200px]:pr-[484px]" : undefined}
+      className={clsx(
+        "transition-[padding] duration-200 ease-out motion-reduce:transition-none",
+        panel && "lg:pr-[444px] min-[1200px]:pr-[484px]",
+      )}
     >
       <StaffAppPageHeader
         actions={

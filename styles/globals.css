@@ -37,6 +37,28 @@
 }
 
 @theme inline {
+  /* The conversation panel sliding in from, and back out to, the right edge. */
+  --animate-panel-in: panel-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-panel-out: panel-out 180ms ease-in both;
+
+  @keyframes panel-in {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes panel-out {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
   --color-heading: var(--heading);
   --color-eyebrow: var(--eyebrow);
   --color-subtle: var(--subtle);

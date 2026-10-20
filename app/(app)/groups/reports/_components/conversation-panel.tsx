@@ -55,6 +55,8 @@ export interface ConversationPanelLabels {
 }
 
 const DESKTOP_QUERY = "(min-width: 1024px)";
+// Matches `--animate-panel-out` in globals.css.
+const CLOSE_MS = 180;
 
 function subscribe(callback: () => void) {
   const query = window.matchMedia(DESKTOP_QUERY);
@@ -170,6 +172,7 @@ export function ConversationPanel({
     null,
   );
   const [draft, setDraft] = useState("");
+  const [closing, setClosing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
@@ -199,15 +202,30 @@ export function ConversationPanel({
   }, [isDesktop]);
 
   function close() {
-    router.replace(closeHref, { scroll: false });
-    // The row's control takes focus back (the panel is gone after the navigation).
-    requestAnimationFrame(() =>
-      document
-        .querySelector<HTMLElement>(
-          `[data-conversation-member="${person.memberId}"]`,
-        )
-        ?.focus(),
-    );
+    if (closing) return;
+
+    const leave = () => {
+      router.replace(closeHref, { scroll: false });
+      // The row's control takes focus back (the panel is gone after the navigation).
+      requestAnimationFrame(() =>
+        document
+          .querySelector<HTMLElement>(
+            `[data-conversation-member="${person.memberId}"]`,
+          )
+          ?.focus(),
+      );
+    };
+
+    // The desktop panel slides out first (the sheet animates itself); no motion, no wait.
+    if (
+      isDesktop &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setClosing(true);
+      window.setTimeout(leave, CLOSE_MS);
+    } else {
+      leave();
+    }
   }
 
   // Non-modal: Escape closes it from anywhere on the page (the sheet below has its own).
@@ -553,7 +571,8 @@ export function ConversationPanel({
         aria-labelledby="conversation-title"
         aria-modal="false"
         className={clsx(
-          "fixed inset-y-0 right-0 z-40 flex w-[420px] flex-col border-l border-separator bg-surface text-foreground shadow-overlay-menu min-[1200px]:w-[460px]",
+          "fixed inset-y-0 right-0 z-40 flex w-[420px] flex-col border-l border-separator bg-surface text-foreground shadow-overlay-menu motion-reduce:animate-none min-[1200px]:w-[460px]",
+          closing ? "animate-panel-out" : "animate-panel-in",
         )}
         role="dialog"
       >
