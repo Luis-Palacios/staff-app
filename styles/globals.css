@@ -40,6 +40,7 @@
   --color-heading: var(--heading);
   --color-eyebrow: var(--eyebrow);
   --color-subtle: var(--subtle);
+  --color-focus-row: var(--focus-row);
   --color-rail: var(--rail);
   --color-rail-edge: var(--rail-edge);
   --color-segment: var(--segment);
