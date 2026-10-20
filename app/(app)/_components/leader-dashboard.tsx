@@ -10,9 +10,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { buttonVariants } from "@heroui/react";
 import NextLink from "next/link";
+import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Greeting, TodayDate } from "./dashboard-greeting";
+import { WaitingForReplyCard } from "./waiting-for-reply-card";
 
 import { getMe } from "@/api/members-api/client";
 import { getSmallGroupReportSummary } from "@/api/small-groups-api/client";
@@ -294,6 +296,9 @@ export async function LeaderDashboard({ firstName }: { firstName: string }) {
           />
         }
       />
+      <Suspense fallback={null}>
+        <WaitingForReplyCard />
+      </Suspense>
       <MyGroupsSection />
     </>
   );

@@ -435,7 +435,11 @@ declare const messages: {
     "emptyOther": "No conversations here yet.",
     "seeOpen": "See open conversations",
     "showMore": "Show more",
-    "listError": "Couldn’t load more. Try again."
+    "listError": "Couldn’t load more. Try again.",
+    "waitingTitle": "Waiting for your reply",
+    "waitingElder": "Leaders answered these conversations about people in their groups.",
+    "waitingLeader": "Elders asked about people in your groups.",
+    "all": "All conversations"
   },
   "ReportForm": {
     "newTitle": "New report",

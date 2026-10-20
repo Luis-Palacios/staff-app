@@ -8,6 +8,7 @@ import { MyGroupsSection } from "./leader-dashboard";
 import { NeedsFollowUpCard } from "./needs-follow-up-card";
 import { ReportWeekSection } from "./report-week/report-week-section";
 import { ReportWeekSkeleton } from "./report-week/report-week-skeleton";
+import { WaitingForReplyCard } from "./waiting-for-reply-card";
 
 import {
   getSmallGroupReportSummary,
@@ -58,6 +59,10 @@ export async function GroupsDashboard({
           />
         }
       />
+
+      <Suspense fallback={null}>
+        <WaitingForReplyCard />
+      </Suspense>
 
       <div className="flex flex-col gap-7">
         <Suspense fallback={null}>
