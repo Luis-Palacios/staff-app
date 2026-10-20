@@ -25,7 +25,7 @@ import {
   getConversation,
   listReportConversations,
 } from "@/api/conversations-api/client";
-import { getMe, getMember } from "@/api/members-api/client";
+import { getMe } from "@/api/members-api/client";
 import { getSmallGroup } from "@/api/small-groups-api/client";
 import { SavedToast } from "@/components/saved-toast";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
@@ -57,11 +57,10 @@ export default async function ReportDetailPage({
 
   if (access === "none") notFound();
 
-  const [{ id }, { saved, person }, t, tConv, locale] = await Promise.all([
+  const [{ id }, { saved, person }, t, locale] = await Promise.all([
     params,
     searchParams,
     getTranslations("ReportDetail"),
-    getTranslations("Conversations"),
     getLocale(),
   ]);
   const report = await loadReport(id);
@@ -118,12 +117,6 @@ export default async function ReportDetailPage({
 
     // No row and no thread: a stale link, so no panel.
     if (thread !== undefined && (personRow || thread)) {
-      const orphanName = personRow
-        ? null
-        : await getMember(String(personId))
-            .then((member) => member.name)
-            .catch(() => tConv("unknownPerson"));
-
       panel = (
         <ConversationPanel
           key={personId}
@@ -140,7 +133,9 @@ export default async function ReportDetailPage({
           meetingDate={formatCalendarShortWeekdayDate(meetingDate, typedLocale)}
           person={{
             memberId: personId,
-            name: personRow?.name ?? orphanName ?? tConv("unknownPerson"),
+            // The thread carries the name even when the attendance row is gone; with no thread yet the
+            // guard above means there is a row.
+            name: thread?.member.name ?? personRow?.name ?? "",
             observation: personRow?.observation ?? null,
             onReport: personRow
               ? {

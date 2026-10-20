@@ -80,8 +80,8 @@ before the next one starts. After each stage, write a short summary in the progr
   (passed as a prop) so server and browser render the same text.
 - Stage 3: no `router.refresh()` in the panel: the server actions `revalidatePath` the page, which refreshes it.
   Extra refreshes tripped the API's 60/minute per-user default limit in dev.
-- Stage 3: an orphaned thread's person name comes from `getMember` (may 404 for a scoped leader), falling
-  back to `Conversations.unknownPerson`. The leaders' role word (Leader / Co-leader) comes from the
+- Stage 3: an orphaned thread's person name used to come from `getMember` with an `unknownPerson` fallback;
+  see review fix 2. The leaders' role word (Leader / Co-leader) comes from the
   report's attendance roles; a former leader who commented shows "Leader".
 - Stage 3: delete confirms inline in the comment (no dialog), as the spec says "in the menu".
 - Stage 3 checked at 1440 dark English as admin on report 35: open, reply with ⌘+Enter, resolve, resolved
@@ -128,6 +128,12 @@ before the next one starts. After each stage, write a short summary in the progr
   navigation renders the page again (checked: dot present while open, gone after close). Real writes
   (comment, edit, delete, resolve, reopen) still revalidate. Reading changes no needs-reply count, so the
   sidebar badge is unaffected.
+- Review fix 2: the API thread now carries `member: { id, name }` (API commit "Return the member's id and name
+  on the conversation thread"), so the panel names the person from `thread.member.name` (or the attendance
+  row when there is no thread yet). `getMember` and its fallback are gone from Report detail, and so is the
+  `Conversations.unknownPerson` key (nothing else used it). This also fixes scoped leaders, who could not
+  read the member. Checked as the GP - #1 leader on an orphaned thread: the real name shows. Needs the
+  membership-management branch at or after that commit.
 
 ## Token changes
 
