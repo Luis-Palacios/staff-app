@@ -1014,7 +1014,8 @@ declare const messages: {
       "sexInvalid": "Pick Male or Female."
     },
     "inviteLabel": "Invite as a user",
-    "inviteHelp": "Defaults to Small Group Leader. You can change it later from Users.",
+    "inviteHelp": "Defaults to the User role. An invite can't be edited once sent, so pick the role below.",
+    "inviteRoleLabel": "Role",
     "inviteNeedsEmail": "Enter a valid email above to invite this member.",
     "submitAndInvite": "Add member and send invite",
     "inviteFailed": "Member added. The invite couldn’t be sent. Try again from the Account card."
@@ -1072,7 +1073,7 @@ declare const messages: {
     "emailLabel": "Email",
     "emailHint": "From the member’s profile. Change it if they use another address.",
     "roleLabel": "Role",
-    "roleHint": "Defaults to Small Group Leader. You can change it later from Users.",
+    "roleHint": "Defaults to User. An invite can't be edited once sent, so pick the role now.",
     "autoLinkNote": "When they accept, their account is linked to this member automatically.",
     "userExists": "A user with this email already exists. Link them instead.",
     "inviteSubmit": "Send invite",

@@ -1011,7 +1011,8 @@
       "sexInvalid": "Elige Masculino o Femenino."
     },
     "inviteLabel": "Invitar como usuario",
-    "inviteHelp": "Las invitaciones empiezan con el rol Líder de grupo pequeño. Cámbialo después desde Usuarios.",
+    "inviteHelp": "Por defecto tendrá el rol Usuario. Una invitación no se puede editar una vez enviada, así que elige el rol abajo.",
+    "inviteRoleLabel": "Rol",
     "inviteNeedsEmail": "Escribe un correo válido arriba para invitar a este miembro.",
     "submitAndInvite": "Agregar miembro y enviar invitación",
     "inviteFailed": "Miembro agregado. No se pudo enviar la invitación. Inténtalo de nuevo desde la tarjeta Cuenta."
@@ -1069,7 +1070,7 @@
     "emailLabel": "Correo",
     "emailHint": "Del perfil del miembro. Cámbialo si usa otra dirección.",
     "roleLabel": "Rol",
-    "roleHint": "Por defecto es Líder de grupo pequeño. Puedes cambiarlo después desde Usuarios.",
+    "roleHint": "Por defecto es Usuario. Una invitación no se puede editar una vez enviada, así que elige el rol ahora.",
     "autoLinkNote": "Cuando la acepte, su cuenta se vinculará automáticamente a este miembro.",
     "userExists": "Ya existe un usuario con este correo. Vincúlalo en su lugar.",
     "inviteSubmit": "Enviar invitación",
