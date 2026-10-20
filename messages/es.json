@@ -13,7 +13,8 @@
     "applications": "Solicitudes",
     "access": "Acceso",
     "users": "Usuarios",
-    "invites": "Invitaciones"
+    "invites": "Invitaciones",
+    "conversations": "Conversaciones"
   },
   "Sidebar": {
     "home": "Inicio de ekklesiaio",
@@ -407,7 +408,31 @@
     "composerLabel": "Escribe un comentario",
     "charsLeft": "{count} caracteres restantes",
     "openMyProfile": "Abrir Mi perfil",
-    "unknownPerson": "Esta persona"
+    "unknownPerson": "Esta persona",
+    "badgeLabel": "{count} esperan tu respuesta",
+    "eyebrow": "Reportes de grupos pequeños",
+    "title": "Conversaciones",
+    "subtitleElder": "Preguntas y seguimiento sobre personas en los reportes de todos los grupos.",
+    "subtitleLeader": "Preguntas y seguimiento de los ancianos sobre personas en los grupos que lideras.",
+    "tabReply": "Esperan mi respuesta",
+    "tabOpen": "Abiertas",
+    "tabResolved": "Resueltas",
+    "tabsLabel": "Conversaciones",
+    "group": "Grupo",
+    "allGroups": "Todos los grupos",
+    "allMyGroups": "Todos mis grupos",
+    "closed": "Cerrado",
+    "you": "Tú:",
+    "resolvedLine": "Resuelta por {name}.",
+    "deletedShort": "Comentario eliminado",
+    "commentsShort": "{count, plural, one {# comentario} other {# comentarios}}",
+    "emptyTitle": "Estás al día",
+    "emptyElder": "Ninguna conversación espera tu respuesta. Cuando un líder responda, aparecerá aquí y en tu inicio.",
+    "emptyLeader": "Ninguna conversación espera tu respuesta. Cuando un anciano pregunte por alguien de tus grupos, aparecerá aquí.",
+    "emptyOther": "Aún no hay conversaciones aquí.",
+    "seeOpen": "Ver conversaciones abiertas",
+    "showMore": "Mostrar más",
+    "listError": "No se pudo cargar más. Inténtalo de nuevo."
   },
   "ReportForm": {
     "newTitle": "Nuevo reporte",

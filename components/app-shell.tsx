@@ -12,9 +12,16 @@ type AppShellProps = {
   children: React.ReactNode;
   context: ChurchContext;
   locale: Locale;
+  /** Conversations waiting for the caller's reply: the sidebar badge (0 hides it). */
+  conversationsWaiting: number;
 };
 
-export const AppShell = ({ children, context, locale }: AppShellProps) => {
+export const AppShell = ({
+  children,
+  context,
+  locale,
+  conversationsWaiting,
+}: AppShellProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Lock body scroll while the mobile sidebar overlay is open.
@@ -30,6 +37,7 @@ export const AppShell = ({ children, context, locale }: AppShellProps) => {
     <div className="flex min-h-screen">
       <Sidebar
         context={context}
+        conversationsWaiting={conversationsWaiting}
         isOpen={isSidebarOpen}
         onNavigate={() => setIsSidebarOpen(false)}
       />

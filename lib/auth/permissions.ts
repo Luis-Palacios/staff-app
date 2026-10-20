@@ -127,3 +127,16 @@ export function canSeeConversations(
       leadsGroup)
   );
 }
+
+/**
+ * Whether the Conversations nav item, page and badge exist for this caller. Without a group in hand
+ * "leads a group" is read from the access level: scoped access is the leaders' (rule 6).
+ */
+export function canSeeConversationsInbox(
+  permissions: Permissions | null | undefined,
+): boolean {
+  return canSeeConversations(
+    permissions,
+    getSmallGroupAccess(permissions) === "scoped",
+  );
+}

@@ -16,7 +16,8 @@ declare const messages: {
     "applications": "Applications",
     "access": "Access",
     "users": "Users",
-    "invites": "Invites"
+    "invites": "Invites",
+    "conversations": "Conversations"
   },
   "Sidebar": {
     "home": "ekklesiaio home",
@@ -410,7 +411,31 @@ declare const messages: {
     "composerLabel": "Write a comment",
     "charsLeft": "{count} characters left",
     "openMyProfile": "Open My profile",
-    "unknownPerson": "This person"
+    "unknownPerson": "This person",
+    "badgeLabel": "{count} waiting for your reply",
+    "eyebrow": "Small group reports",
+    "title": "Conversations",
+    "subtitleElder": "Questions and follow-ups about people in every group’s reports.",
+    "subtitleLeader": "Elders’ questions and follow-ups about people in the groups you lead.",
+    "tabReply": "Needs my reply",
+    "tabOpen": "Open",
+    "tabResolved": "Resolved",
+    "tabsLabel": "Conversations",
+    "group": "Group",
+    "allGroups": "All groups",
+    "allMyGroups": "All my groups",
+    "closed": "Closed",
+    "you": "You:",
+    "resolvedLine": "Resolved by {name}.",
+    "deletedShort": "Comment deleted",
+    "commentsShort": "{count, plural, one {# comment} other {# comments}}",
+    "emptyTitle": "You’re all caught up",
+    "emptyElder": "No conversation is waiting for your reply. When a leader answers, it shows up here and on your dashboard.",
+    "emptyLeader": "No conversation is waiting for your reply. When an elder asks about someone in your groups, it shows up here.",
+    "emptyOther": "No conversations here yet.",
+    "seeOpen": "See open conversations",
+    "showMore": "Show more",
+    "listError": "Couldn’t load more. Try again."
   },
   "ReportForm": {
     "newTitle": "New report",

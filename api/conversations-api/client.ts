@@ -6,6 +6,8 @@ import type {
   ReportConversations,
 } from "@/api/conversations-api/types";
 
+import { cache } from "react";
+
 import { ApiError } from "@/api/api-client";
 import { authenticatedFetch } from "@/api/authenticated-fetch";
 import { getEnv } from "@/lib/env/server";
@@ -119,9 +121,8 @@ export function listConversations(
   return request<ConversationInbox>(`/report-conversations${suffix}`);
 }
 
-/** The sidebar badge. Answers 0, never 403, outside the audience. */
-export async function getConversationCounts(): Promise<{
-  needsMyReply: number;
-}> {
-  return request<{ needsMyReply: number }>("/report-conversations/counts");
-}
+/** The sidebar badge. Answers 0, never 403, outside the audience. Cached per render. */
+export const getConversationCounts = cache(
+  (): Promise<{ needsMyReply: number }> =>
+    request<{ needsMyReply: number }>("/report-conversations/counts"),
+);

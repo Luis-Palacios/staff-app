@@ -27,12 +27,15 @@ export function StatusTabs<TKey extends string>({
   options,
   value,
   counts,
+  highlighted,
   onChange,
 }: {
   ariaLabel: string;
   options: readonly { key: TKey; label: string }[];
   value: TKey;
   counts: Record<TKey, number>;
+  /** Tabs whose count is a call to action (gold, navy text) while above 0. */
+  highlighted?: readonly TKey[];
   onChange: (value: TKey) => void;
 }) {
   const handleSelectionChange = (keys: Set<Key>) => {
@@ -54,7 +57,8 @@ export function StatusTabs<TKey extends string>({
           {label}
           <span
             data-count
-            className="rounded-full px-[7px] py-px text-xs font-semibold tabular-nums"
+            className="rounded-full px-[7px] py-px text-xs font-semibold tabular-nums data-[highlight=true]:bg-gold-500! data-[highlight=true]:text-navy-900!"
+            data-highlight={highlighted?.includes(key) && counts[key] > 0}
           >
             {counts[key]}
           </span>
