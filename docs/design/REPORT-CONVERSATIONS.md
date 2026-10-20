@@ -50,7 +50,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | --- | --- | --- |
 | 1. API types, client and server actions | ✅ | see `git log` ("Add report conversations API client and actions") |
 | 2. Report detail: Conversation column, phone bubbles, summary, delete dialog | ✅ | "Show conversations on Report detail" |
-| 3. Conversation panel and sheet | ⬜ | |
+| 3. Conversation panel and sheet | ✅ | "Add the conversation panel and sheet" |
 | 4. Conversations page, nav item and badge | ⬜ | |
 | 5. Dashboard blocks | ⬜ | |
 | 6. Design review fixes | ⬜ | |
@@ -73,6 +73,20 @@ before the next one starts. After each stage, write a short summary in the progr
 - Stage 2: a failed or 403 conversations read hides the column instead of failing the report.
 - Stage 2 checked in the browser at 1440, dark, English (admin, seeded report 35). 1024/390, light and
   Spanish are not checked yet: the Chrome window couldn't be resized; do them in Stage 6.
+- Stage 3: the API's `side` values are `"elders"` / `"leaders"` (plural), not what the spec table implies.
+- Stage 3: the panel is one client component with two shells (a fixed `aside` ≥ 1024 via `matchMedia`, a HeroUI
+  `Drawer` bottom sheet below). `Conversations` is now a client namespace. Escape closes the desktop panel
+  from a document listener (the sheet has react-aria's own). Times are formatted in the church time zone
+  (passed as a prop) so server and browser render the same text.
+- Stage 3: no `router.refresh()` in the panel: the server actions `revalidatePath` the page, which refreshes it.
+  Extra refreshes tripped the API's 60/minute per-user default limit in dev.
+- Stage 3: an orphaned thread's person name comes from `getMember` (may 404 for a scoped leader), falling
+  back to `Conversations.unknownPerson`. The leaders' role word (Leader / Co-leader) comes from the
+  report's attendance roles; a former leader who commented shows "Leader".
+- Stage 3: delete confirms inline in the comment (no dialog), as the spec says "in the menu".
+- Stage 3 checked at 1440 dark English as admin on report 35: open, reply with ⌘+Enter, resolve, resolved
+  banner. NOT yet checked: the sheet (< 1024), light, Spanish, edit/delete, stale-resolve and the
+  not-linked note.
 
 ## Token changes
 

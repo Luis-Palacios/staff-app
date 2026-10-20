@@ -20,6 +20,7 @@ export const CLIENT_NAMESPACES = [
   "CancelInviteButton",
   "ChurchContext",
   "ConfirmDialog",
+  "Conversations",
   "DataTable",
   "ErrorState",
   "ForgotPasswordForm",

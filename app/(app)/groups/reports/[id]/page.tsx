@@ -1,5 +1,6 @@
 import type { ReportConversations } from "@/api/conversations-api/types";
 import type { Locale } from "@/lib/locale-shared";
+import type { ReactNode } from "react";
 
 import { notFound } from "next/navigation";
 import {
@@ -11,6 +12,7 @@ import { buttonVariants } from "@heroui/react";
 import NextLink from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { ConversationPanel } from "../_components/conversation-panel";
 import { DeleteReportDialog } from "../_components/delete-report-dialog";
 import { NoMeetingDetail } from "../_components/no-meeting-detail";
 import { ReportAttendanceCard } from "../_components/report-attendance-card";
@@ -18,7 +20,11 @@ import { ReportSharedCard } from "../_components/report-shared-card";
 import { ReportSummaryTiles } from "../_components/report-summary-tiles";
 import { loadReport } from "../_lib/load-report";
 
-import { listReportConversations } from "@/api/conversations-api/client";
+import {
+  getConversation,
+  listReportConversations,
+} from "@/api/conversations-api/client";
+import { getMe, getMember } from "@/api/members-api/client";
 import { getSmallGroup } from "@/api/small-groups-api/client";
 import { SavedToast } from "@/components/saved-toast";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
@@ -35,23 +41,26 @@ import {
   formatCalendarDate,
   formatCalendarFullDate,
   formatCalendarShortDate,
+  formatCalendarShortWeekdayDate,
 } from "@/lib/format-date";
+import { getEnv } from "@/lib/env/server";
 
 export default async function ReportDetailPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; person?: string }>;
 }) {
   const access = await getCurrentSmallGroupAccess();
 
   if (access === "none") notFound();
 
-  const [{ id }, { saved }, t, locale] = await Promise.all([
+  const [{ id }, { saved, person }, t, tConv, locale] = await Promise.all([
     params,
     searchParams,
     getTranslations("ReportDetail"),
+    getTranslations("Conversations"),
     getLocale(),
   ]);
   const report = await loadReport(id);
@@ -77,11 +86,18 @@ export default async function ReportDetailPage({
     }
   }
 
+  const typedLocale = locale as Locale;
   // Conversations share the audience of the observations. The API is the authority (403 outside
   // it); a failed read just hides the column rather than failing the report.
   let conversations: ReportConversations | null = null;
 
-  if (canSeeConversations(await getPermissions(), report.observationsVisible)) {
+  const [userPermissions, me] = await Promise.all([getPermissions(), getMe()]);
+  const leadsGroup = me.leads.some(
+    ({ smallGroupId }) => smallGroupId === smallGroup.id,
+  );
+  const canConverse = canSeeConversations(userPermissions, leadsGroup);
+
+  if (canConverse) {
     try {
       conversations = await listReportConversations(report.id);
     } catch {
@@ -89,14 +105,71 @@ export default async function ReportDetailPage({
     }
   }
 
-  const typedLocale = locale as Locale;
+  // `?person=`: the panel. A person with a thread but no row (edited off the report) still opens.
+  const personId = /^[1-9]\d*$/.test(person ?? "") ? Number(person) : null;
+  const personRow = report.attendances.find((a) => a.memberId === personId);
+  let panel: ReactNode = null;
+
+  if (conversations !== null && personId !== null) {
+    const thread = await getConversation(report.id, personId).catch(
+      () => undefined,
+    );
+
+    // No row and no thread: a stale link, so no panel.
+    if (thread !== undefined && (personRow || thread)) {
+      const orphanName = personRow
+        ? null
+        : await getMember(String(personId))
+            .then((member) => member.name)
+            .catch(() => tConv("unknownPerson"));
+
+      panel = (
+        <ConversationPanel
+          key={personId}
+          closeHref={`/groups/reports/${report.id}`}
+          groupName={smallGroup.name}
+          initialThread={thread}
+          labels={{
+            attended: t("attended"),
+            absent: t("absent"),
+            atChurch: t("atChurch"),
+            notAtChurch: t("notAtChurch"),
+          }}
+          linked={me.member !== null}
+          meetingDate={formatCalendarShortWeekdayDate(meetingDate, typedLocale)}
+          person={{
+            memberId: personId,
+            name: personRow?.name ?? orphanName ?? tConv("unknownPerson"),
+            observation: personRow?.observation ?? null,
+            onReport: personRow
+              ? {
+                  attendedGroup: personRow.attendedGroup,
+                  attendedChurch: personRow.attendedChurch,
+                }
+              : null,
+          }}
+          reportId={report.id}
+          roleByMember={Object.fromEntries(
+            report.attendances
+              .filter((a) => a.role !== "member")
+              .map((a) => [a.memberId, a.role as "leader" | "co_leader"]),
+          )}
+          submittedBy={report.submittedBy.name}
+          timeZone={getEnv().CHURCH_TIMEZONE}
+        />
+      );
+    }
+  }
+
   const shortDate = formatCalendarShortDate(meetingDate, typedLocale);
   const groupHref = `/groups/${smallGroup.id}`;
   const buttonClass =
     "h-[42px] flex-1 gap-2 px-[18px] font-semibold sm:flex-none md:h-[42px]";
 
   return (
-    <>
+    <div
+      className={panel ? "lg:pr-[444px] min-[1200px]:pr-[484px]" : undefined}
+    >
       <StaffAppPageHeader
         actions={
           <div className="flex w-full flex-wrap gap-3 sm:w-auto">
@@ -213,6 +286,7 @@ export default async function ReportDetailPage({
       {(saved === "submitted" || saved === "updated") && (
         <SavedToast message={t(saved)} />
       )}
-    </>
+      {panel}
+    </div>
   );
 }

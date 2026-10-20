@@ -19,6 +19,8 @@ export interface AttendanceTableRow {
   observation?: string | null;
   /** The Conversation cell; present for every row when `showConversations`. */
   conversation?: ReactNode;
+  /** This row's conversation panel is open: the focus tint and the gold edge. */
+  focused?: boolean;
 }
 
 export interface AttendanceTableLabels {
@@ -97,7 +99,14 @@ export function ReportAttendanceTable({
           </Table.Header>
           <Table.Body>
             {rows.map((person) => (
-              <Table.Row key={person.memberId} className={row()}>
+              <Table.Row
+                key={person.memberId}
+                className={row({
+                  className: person.focused
+                    ? "bg-focus-row shadow-[inset_3px_0_0_var(--color-gold-500)]"
+                    : undefined,
+                })}
+              >
                 <Table.Cell className={cell()}>
                   <DataTablePrimaryCell
                     href={person.href}

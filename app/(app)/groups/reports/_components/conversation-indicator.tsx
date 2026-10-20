@@ -72,6 +72,7 @@ export function ConversationIndicator({
       <NextLink
         aria-label={labels.start}
         className={startLink({ size })}
+        data-conversation-member={memberId}
         href={href}
         scroll={false}
         title={labels.start}
@@ -93,6 +94,7 @@ export function ConversationIndicator({
         size,
         tone: resolved ? "resolved" : summary.needsMyReply ? "reply" : "open",
       })}
+      data-conversation-member={memberId}
       href={href}
       scroll={false}
     >
