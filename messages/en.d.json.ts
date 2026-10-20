@@ -631,7 +631,12 @@ declare const messages: {
     "passwordTooLong": "That password is too long.",
     "emailNotVerified": "Verify your email before signing in.",
     "invalidToken": "This link is no longer valid.",
-    "tooManyRequests": "Too many attempts. Wait a moment and try again."
+    "tooManyRequests": "Too many attempts. Wait a moment and try again.",
+    "cannotChangeOwnRole": "You can’t change your own role.",
+    "cannotBanYourself": "You can’t ban yourself.",
+    "cannotAssignAdmin": "Only an admin can assign the Admin role.",
+    "cannotManageAdmin": "Only an admin can change or ban an admin account.",
+    "notAllowed": "You don’t have permission to do that."
   },
   "PasswordField": {
     "show": "Show password",
@@ -1099,7 +1104,11 @@ declare const messages: {
     "verifiedYes": "Verified",
     "verifiedNo": "Not verified",
     "status": "Status",
-    "joined": "Joined"
+    "joined": "Joined",
+    "banReason": "Ban reason",
+    "banExpires": "Ban ends",
+    "banNoExpiry": "Until unbanned",
+    "noReason": "No reason given"
   },
   "UserMember": {
     "eyebrow": "Member",
@@ -1131,6 +1140,30 @@ declare const messages: {
     "unlinkBody": "This account keeps its role. Member #{id} keeps their profile and small groups. Only the connection is removed. If the role is Small Group Leader or Deacon, the account stops seeing that member’s small groups. You can link them again later.",
     "unlinkConfirm": "Unlink",
     "unlinkToast": "Unlinked from {name}"
+  },
+  "UserAccountActions": {
+    "roleLabel": "Role for {name}",
+    "saveRole": "Save role",
+    "roleToast": "Role of {name} changed",
+    "confirmAdminTitle": "Assign the Admin role?",
+    "confirmAdminLabel": "Make admin",
+    "confirmAdminBody": "{name} will be able to manage every user, role and invite.",
+    "ban": "Ban user…",
+    "unban": "Unban",
+    "banTitle": "Ban {name}?",
+    "banBody": "They are signed out everywhere and can’t sign in until the ban ends or you unban them. Their linked member isn’t changed.",
+    "reasonLabel": "Reason (optional)",
+    "reasonPlaceholder": "Why is this account being banned?",
+    "expiryLabel": "Ban length",
+    "expiryNone": "Until unbanned",
+    "expiryDays": "{count, plural, one {# day} other {# days}}",
+    "banSubmit": "Ban user",
+    "cancel": "Cancel",
+    "bannedToast": "{name} was banned",
+    "unbanTitle": "Unban {name}?",
+    "unbanBody": "They will be able to sign in again.",
+    "unbanLabel": "Unban",
+    "unbannedToast": "{name} was unbanned"
   }
 };
 export default messages;
