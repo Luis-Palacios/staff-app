@@ -49,7 +49,7 @@ Not exercised live: the elder role (same code path as admin, no verified elder t
 
 ## Not in this spec
 
-- Edit profile (name, phone, address) and who may edit which fields.
+- Edit profile: see `EDIT-OWN-PROFILE.md`.
 - Profile photo upload.
 - Saving the language choice to the user profile (today it's the `ekk_locale` cookie; see
   `ACCOUNT-MENU-AND-LANGUAGE.md`).
