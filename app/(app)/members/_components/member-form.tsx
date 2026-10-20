@@ -19,6 +19,8 @@ import {
   Description,
   FieldError,
   InputGroup,
+  ListBox,
+  Select,
   TextField,
 } from "@heroui/react";
 import { Label } from "@heroui/react/label";
@@ -27,6 +29,11 @@ import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
+
+import { AUTH_ROLES, AuthRole } from "@/lib/auth/roles";
+
+// Nobody is invited straight into pending (same filter as the invite dialog).
+const ASSIGNABLE_ROLES = AUTH_ROLES.filter((role) => role !== AuthRole.Pending);
 
 import { PhoneField } from "./phone-field";
 import { SexField } from "./sex-field";
@@ -179,6 +186,7 @@ export function MemberForm({
   own?: boolean;
 }) {
   const t = useTranslations("MemberForm");
+  const tRoles = useTranslations("Roles");
   const router = useRouter();
   const isEdit = memberId !== undefined || own;
   const [isPending, startTransition] = useTransition();
@@ -195,6 +203,7 @@ export function MemberForm({
   const [formError, setFormError] = useState<string | null>(null);
   const [failures, setFailures] = useState(0);
   const [invite, setInvite] = useState(false);
+  const [inviteRole, setInviteRole] = useState<AuthRole>(AuthRole.User);
   const alertRef = useRef<HTMLDivElement>(null);
   const hasOther = initialPhone.country === OTHER_COUNTRY;
   const showInvite = canInvite && !isEdit;
@@ -264,7 +273,11 @@ export function MemberForm({
 
     if (!isEdit) {
       startTransition(async () => {
-        const failure = await createMemberAction(values, willInvite);
+        const failure = await createMemberAction(
+          values,
+          willInvite,
+          inviteRole,
+        );
 
         if (failure) fail(failure);
       });
@@ -408,6 +421,31 @@ export function MemberForm({
               {emailValid ? t("inviteHelp") : t("inviteNeedsEmail")}
             </Description>
           </Checkbox>
+        )}
+        {willInvite && (
+          <Select.Root
+            className="w-full gap-1.5"
+            isDisabled={isPending}
+            selectedKey={inviteRole}
+            onSelectionChange={(key) => key && setInviteRole(key as AuthRole)}
+          >
+            <Label className="text-[13px] font-semibold text-heading">
+              {t("inviteRoleLabel")}
+            </Label>
+            <Select.Trigger>
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {ASSIGNABLE_ROLES.map((r) => (
+                  <ListBox.Item key={r} id={r}>
+                    {tRoles(r)}
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
+          </Select.Root>
         )}
       </fieldset>
 

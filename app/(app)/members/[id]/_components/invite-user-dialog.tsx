@@ -30,7 +30,7 @@ function InviteUserForm({
   const tRoles = useTranslations("Roles");
   const [isPending, startTransition] = useTransition();
   const [email, setEmail] = useState(defaultEmail);
-  const [role, setRole] = useState<AuthRole>(AuthRole.SmallGroupLeader);
+  const [role, setRole] = useState<AuthRole>(AuthRole.User);
   const [error, setError] = useState<string | null>(null);
   const [userExists, setUserExists] = useState(false);
 

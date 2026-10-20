@@ -23,6 +23,7 @@ import {
 import { inviteMemberAction } from "@/app/(app)/members/_actions/account-actions";
 import { getApiErrorMessage } from "@/lib/api-error-message";
 import { forbiddenUnless, hasPermission } from "@/lib/auth/get-permissions";
+import { AuthRole } from "@/lib/auth/roles";
 
 /** A failed save. Success never returns: it redirects to the detail page. */
 export interface MemberActionFailure {
@@ -41,12 +42,13 @@ async function toFailure(error: unknown): Promise<MemberActionFailure> {
 
 /**
  * POST: empty optional fields are omitted. With `invite`, the member's email is then invited
- * (role Small Group Leader). The member is never rolled back if the invite fails: the redirect
+ * (with `inviteRole`, User by default). The member is never rolled back if the invite fails: the redirect
  * says so and the Account card can retry.
  */
 export async function createMemberAction(
   values: MemberFormValues,
   invite = false,
+  inviteRole: AuthRole = AuthRole.User,
 ): Promise<MemberActionFailure> {
   const forbidden = await forbiddenUnless({ members: ["create"] });
 
@@ -82,7 +84,7 @@ export async function createMemberAction(
     email &&
     (await hasPermission({ members: ["link"], invites: ["create"] }))
   ) {
-    const result = await inviteMemberAction(email);
+    const result = await inviteMemberAction(email, inviteRole);
 
     redirect(
       `/members/${id}?saved=${result.ok ? "createdInvited" : "inviteFailed"}`,
