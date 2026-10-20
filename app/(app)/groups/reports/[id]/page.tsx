@@ -281,6 +281,7 @@ export default async function ReportDetailPage({
       <ReportSummaryTiles report={report} />
       <ReportSharedCard report={report} />
       <ReportAttendanceCard
+        activePersonId={panel ? (personId ?? undefined) : undefined}
         conversations={conversations}
         joinedByMember={joinedByMember}
         linkMembers={access === "full"}

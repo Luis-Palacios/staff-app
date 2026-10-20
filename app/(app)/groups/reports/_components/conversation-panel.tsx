@@ -234,9 +234,12 @@ export function ConversationPanel({
       // until the control that now exists holds the focus.
       let tries = 0;
       const timer = window.setInterval(() => {
-        const control = document.querySelector<HTMLElement>(
-          `[data-conversation-member="${memberId}"]`,
-        );
+        // The table (md and up) and the cards (below) both render a control; only one is shown.
+        const control = [
+          ...document.querySelectorAll<HTMLElement>(
+            `[data-conversation-member="${memberId}"]`,
+          ),
+        ].find((element) => element.getClientRects().length > 0);
 
         control?.focus();
         tries += 1;
