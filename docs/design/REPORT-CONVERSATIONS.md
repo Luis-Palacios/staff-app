@@ -123,6 +123,11 @@ before the next one starts. After each stage, write a short summary in the progr
   Seen: a burst of page loads trips the API's 60/minute default limit; Report detail then hides the
   Conversation column (a failed read never fails the report).
   Everything on the checklist has been looked at; "Still to check by hand" is now empty.
+- Review fix 1: `markConversationReadAction(conversationId)` no longer revalidates (so it takes no `reportId`).
+  Opening the panel no longer re-renders the page under it; the row's dot clears when the panel closes and the
+  navigation renders the page again (checked: dot present while open, gone after close). Real writes
+  (comment, edit, delete, resolve, reopen) still revalidate. Reading changes no needs-reply count, so the
+  sidebar badge is unaffected.
 
 ## Token changes
 

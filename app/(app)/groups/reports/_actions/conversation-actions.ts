@@ -174,17 +174,18 @@ export async function reopenConversationAction(
   }
 }
 
-/** Called when the panel opens on an existing thread. A failure is ignored: it only clears a dot. */
+/**
+ * Called when the panel opens on an existing thread. A failure is ignored: it only clears a dot.
+ * It does not revalidate: closing the panel navigates, which re-renders the page and the dot with it,
+ * and revalidating here would re-render the page under the panel the moment it opens.
+ */
 export async function markConversationReadAction(
-  reportId: number,
   conversationId: number,
 ): Promise<{ ok: boolean }> {
   if (await forbidden()) return { ok: false };
 
   try {
     await markConversationRead(conversationId);
-
-    revalidateConversations(reportId);
 
     return { ok: true };
   } catch {

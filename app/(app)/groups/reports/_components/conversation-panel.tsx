@@ -187,12 +187,12 @@ export function ConversationPanel({
     setDraft(readDraft(key));
   }, [key]);
 
-  // Opening on an existing thread marks it read, and its action refreshes the row's dot. The "New"
+  // Opening on an existing thread marks it read. The "New"
   // divider keeps showing from the thread loaded here.
   useEffect(() => {
     if (initialThread) {
-      // The action revalidates the page, which refreshes the row's dot.
-      void markConversationReadAction(reportId, initialThread.id);
+      // The row's dot updates when the panel closes and the page renders again.
+      void markConversationReadAction(initialThread.id);
     }
     // Once per opened person.
   }, [person.memberId]);
