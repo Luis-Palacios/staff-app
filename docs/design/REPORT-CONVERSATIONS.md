@@ -77,10 +77,10 @@ Shapes in the API handoff. Client functions in `api/small-groups-api/client.ts` 
 | `getConversation(reportId, memberId)` | `GET …/conversations/{memberId}` (404 `No conversation yet` → `null`) |
 | `addComment(reportId, memberId, body)` | `POST …/conversations/{memberId}/comments` |
 | `editComment(commentId, body)` · `deleteComment(commentId)` | `PATCH` / `DELETE /report-conversation-comments/{id}` |
-| `resolveConversation(id)` · `reopenConversation(id)` | `POST /report-conversations/{id}/resolve` · `/reopen` |
+| `resolveConversation(id, lastCommentId)` · `reopenConversation(id)` | `POST /report-conversations/{id}/resolve` (body `{ lastCommentId }`, required, may be `null`) · `/reopen` (no body) |
 | `markConversationRead(id)` | `POST /report-conversations/{id}/read` |
-| `listConversations({ tab, smallGroupId, limit, offset })` | `GET /report-conversations` |
-| `getConversationCounts()` | `GET /report-conversations/counts` |
+| `listConversations({ tab, smallGroupId, limit, offset })` | `GET /report-conversations` (`tab` defaults to `reply`) |
+| `getConversationCounts()` | `GET /report-conversations/counts` (answers `{ needsMyReply: 0 }`, never 403, for anyone outside the audience) |
 
 Server actions in `app/(app)/groups/reports/_actions/conversation-actions.ts`; every one checks the
 same permission as the page before calling the API (roles-and-permissions rule 7). Errors mapped
@@ -89,10 +89,33 @@ to message keys:
 | API | Key |
 | --- | --- |
 | 409 `Link your account` | `Conversations.errors.notLinked` |
+| 409 `new comment since you opened` (resolve only) | `Conversations.errors.stale`; the body also has `conversation` (the current thread): re-render from it, don't refetch |
+| 409 `Someone else just started` | `Conversations.errors.race` (send again) |
 | 403 `not your comment` | `Conversations.errors.notYours` |
 | 409 `deleted` | `Conversations.errors.deleted` |
-| 422 `attendance` | `Conversations.errors.notOnReport` (reload the page) |
+| 422 `attendance row` | `Conversations.errors.notOnReport` (reload the page) |
 | anything else | `Conversations.errors.generic` |
+
+### What the build changed (from the API handoff's decisions log)
+
+Read the log in `membership-management/docs/REPORT-CONVERSATIONS-API-HANDOFF.md` for the full list;
+these affect this repo:
+
+- **Inbox row:** the person is `member: { id, name }` (not `memberId`). `lastComment` is always
+  present; when every comment in the thread was deleted it has `deleted: true` and `excerpt: null`
+  (show the stub text "Comment deleted"). Excerpts are cut at 160 characters with no ellipsis: add
+  one in the UI when the length is 160.
+- **Tab counts ignore `smallGroupId`:** the three numbers are the whole inbox and stay put when a
+  group is picked; `total` (for "Show more") is the filtered tab.
+- **Report detail** always has `conversationCount` (for the delete dialog).
+- **Orphaned threads:** editing a report can remove a person's attendance row while their thread
+  survives. The thread still opens and still takes replies (`GET …/conversations/{memberId}`
+  returns it), and the summaries still list it, but the table has no row for it. Rule 1 (a
+  member must be on the report) only applies to **starting** a thread.
+- **Resolve is checked against what you saw:** send the id of the newest non-deleted comment
+  rendered in the panel (`null` if there are none). If someone commented since, the API refuses
+  with 409 + the current thread (handled in Stage 3).
+- Every write needs a linked member, including edit, delete, resolve and reopen (409).
 
 **Who sees the feature:** the same check that shows observations on Report detail (observations
 visible = `viewObservations` or leads the group). Use one helper, e.g.
@@ -155,6 +178,14 @@ page, `delete-report-dialog.tsx`.
   Under it, a one-line note of who will see it (Copy table; no email is sent yet, so v1 copy
   says who *sees* it, not who gets an email; the boards' email wording comes with Part 2).
   A resolved thread's placeholder says replying reopens it.
+- **Resolve:** send `lastCommentId` = the newest non-deleted comment in the rendered thread. On
+  the stale 409: replace the thread with `conversation` from the error body, keep the panel open,
+  show `Conversations.errors.stale` inline above the thread (`role="status"`), and move focus to
+  the "New" divider so the new comment is read first. Resolving again then works.
+- **Orphaned thread** (opened from the inbox or the summary, no attendance row on the report): the
+  context box shows `Conversations.notOnReportAnymore` instead of the attendance pills and the
+  observation. Everything else (reply, resolve, edit) works as usual. The report summary's counts
+  include it even though no row shows it; that's expected.
 - **Mark read** when the panel opens on an existing thread (`markConversationRead`), then refresh
   the row's indicator.
 - **Not linked** (admin/elder without a member): the composer area is replaced by the note
@@ -255,6 +286,9 @@ New keys under `Conversations` (plus the few under existing namespaces). Both la
 | `Conversations.errors.deleted` | That comment was deleted. | Ese comentario fue eliminado. |
 | `Conversations.errors.notOnReport` | This person is no longer on the report. Reload the page. | Esta persona ya no está en el reporte. Recarga la página. |
 | `Conversations.errors.generic` | Couldn’t save. Try again. | No se pudo guardar. Inténtalo de nuevo. |
+| `Conversations.errors.stale` | There’s a new comment since you opened this. Read it, then resolve again. | Hay un comentario nuevo desde que abriste esto. Léelo y vuelve a resolver. |
+| `Conversations.errors.race` | Someone else just started this conversation. Send your comment again. | Alguien más acaba de iniciar esta conversación. Envía tu comentario otra vez. |
+| `Conversations.notOnReportAnymore` | {first} is no longer on this report. The conversation stays here. | {first} ya no está en este reporte. La conversación se queda aquí. |
 | `ReportDetail.obsPrivacy` (changed) | Observations and conversations are seen only by admins, elders and the group’s leaders. | Las observaciones y conversaciones solo las ven administradores, ancianos y los líderes del grupo. |
 | `DeleteReport.conversations` | This also deletes {count, plural, one {# conversation} other {# conversations}}. | También se {count, plural, one {elimina # conversación} other {eliminan # conversaciones}}. |
 
