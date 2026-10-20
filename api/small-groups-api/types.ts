@@ -231,6 +231,8 @@ export interface ReportDetail {
   submittedBy: ReportPerson;
   submittedAt: string;
   observationsVisible: boolean;
+  /** Threads on this report (what a delete takes with it); 0 for a no meeting. */
+  conversationCount: number;
   attendances: ReportAttendance[];
   totals: {
     roster: number;

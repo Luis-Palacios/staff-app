@@ -49,7 +49,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. API types, client and server actions | ✅ | see `git log` ("Add report conversations API client and actions") |
-| 2. Report detail: Conversation column, phone bubbles, summary, delete dialog | ⬜ | |
+| 2. Report detail: Conversation column, phone bubbles, summary, delete dialog | ✅ | "Show conversations on Report detail" |
 | 3. Conversation panel and sheet | ⬜ | |
 | 4. Conversations page, nav item and badge | ⬜ | |
 | 5. Dashboard blocks | ⬜ | |
@@ -66,6 +66,13 @@ before the next one starts. After each stage, write a short summary in the progr
   stages. Only the `Conversations.errors` keys are added so far; other copy comes with its stage.
 - Stage 1: added `listConversationsAction` (inbox "Show more"). All write actions revalidate the
   report, `/conversations` and `/`.
+- Token: added `focus-row` (light gold-50, dark gold-500 at 8%) in its own commit, `bg-focus-row`; used by Stage 3.
+- Stage 2: the delete-dialog copy is `ReportDetail.deleteConversations` (no `DeleteReport` namespace exists);
+  `obsPrivacy` changed in place. The "3 conversations" footer is a `dd` in the totals strip (the table has no
+  `tfoot`). `ReportDetail.conversationCount` drives the dialog; the summary pills use the list's `counts`.
+- Stage 2: a failed or 403 conversations read hides the column instead of failing the report.
+- Stage 2 checked in the browser at 1440, dark, English (admin, seeded report 35). 1024/390, light and
+  Spanish are not checked yet: the Chrome window couldn't be resized; do them in Stage 6.
 
 ## Token changes
 

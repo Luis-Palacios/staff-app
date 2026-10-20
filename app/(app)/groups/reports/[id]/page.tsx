@@ -1,3 +1,4 @@
+import type { ReportConversations } from "@/api/conversations-api/types";
 import type { Locale } from "@/lib/locale-shared";
 
 import { notFound } from "next/navigation";
@@ -17,6 +18,7 @@ import { ReportSharedCard } from "../_components/report-shared-card";
 import { ReportSummaryTiles } from "../_components/report-summary-tiles";
 import { loadReport } from "../_lib/load-report";
 
+import { listReportConversations } from "@/api/conversations-api/client";
 import { getSmallGroup } from "@/api/small-groups-api/client";
 import { SavedToast } from "@/components/saved-toast";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
@@ -25,6 +27,8 @@ import {
   groupsBreadcrumb,
   groupsReportsBreadcrumb,
 } from "@/config/breadcrumbs";
+import { getPermissions } from "@/lib/auth/get-permissions";
+import { canSeeConversations } from "@/lib/auth/permissions";
 import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
 import { formatChurchDateTime } from "@/lib/church-time";
 import {
@@ -73,6 +77,18 @@ export default async function ReportDetailPage({
     }
   }
 
+  // Conversations share the audience of the observations. The API is the authority (403 outside
+  // it); a failed read just hides the column rather than failing the report.
+  let conversations: ReportConversations | null = null;
+
+  if (canSeeConversations(await getPermissions(), report.observationsVisible)) {
+    try {
+      conversations = await listReportConversations(report.id);
+    } catch {
+      conversations = null;
+    }
+  }
+
   const typedLocale = locale as Locale;
   const shortDate = formatCalendarShortDate(meetingDate, typedLocale);
   const groupHref = `/groups/${smallGroup.id}`;
@@ -109,6 +125,12 @@ export default async function ReportDetailPage({
                     date: formatCalendarDate(meetingDate, typedLocale),
                   }),
                   confirm: t("deleteConfirm"),
+                  conversations:
+                    report.conversationCount > 0
+                      ? t("deleteConversations", {
+                          count: report.conversationCount,
+                        })
+                      : undefined,
                 }}
                 reportId={report.id}
               />
@@ -182,6 +204,7 @@ export default async function ReportDetailPage({
       <ReportSummaryTiles report={report} />
       <ReportSharedCard report={report} />
       <ReportAttendanceCard
+        conversations={conversations}
         joinedByMember={joinedByMember}
         linkMembers={access === "full"}
         report={report}

@@ -320,7 +320,7 @@
     "notAtChurch": "No fue a la iglesia",
     "missedStreak": "Faltó a las últimas {count, number} reuniones",
     "joinedSince": "En el grupo desde el {date}",
-    "obsPrivacy": "Las observaciones solo las ven administradores, ancianos y el líder y co-líderes con cuentas de usuario.",
+    "obsPrivacy": "Las observaciones y conversaciones solo las ven administradores, ancianos y los líderes del grupo.",
     "obsHidden": "Las observaciones de este reporte solo las ven administradores, ancianos y el líder y co-líderes con cuentas de usuario.",
     "obsCount": "{count, plural, one {# observación} other {# observaciones}}",
     "deleteTitle": "¿Eliminar este reporte?",
@@ -340,7 +340,8 @@
     "metAfterAllBody": "Envía un reporte para esta fecha. Esta marca se reemplaza cuando lo envíes, así que no se pierde nada si lo dejas a medias.",
     "fileInstead": "Enviar un reporte para el {date}",
     "deleteNoMeetingTitle": "¿Eliminar esta marca de sin reunión?",
-    "deleteNoMeetingBody": "El {date} volverá a aparecer como sin reporte si era día de reunión."
+    "deleteNoMeetingBody": "El {date} volverá a aparecer como sin reporte si era día de reunión.",
+    "deleteConversations": "También se {count, plural, one {elimina # conversación} other {eliminan # conversaciones}}."
   },
   "NoMeetingDialog": {
     "title": "¿No hubo reunión el {date}?",
@@ -362,7 +363,15 @@
       "generic": "No se pudo guardar. Inténtalo de nuevo.",
       "stale": "Hay un comentario nuevo desde que abriste esto. Léelo y vuelve a resolver.",
       "race": "Alguien más acaba de iniciar esta conversación. Envía tu comentario otra vez."
-    }
+    },
+    "column": "Conversación",
+    "startAria": "Iniciar una conversación sobre {first}",
+    "rowAria": "Conversación sobre {first}: {count, plural, one {# comentario} other {# comentarios}}, {state}",
+    "statusOpen": "Abierta",
+    "statusResolved": "Resuelta",
+    "statusReply": "Espera tu respuesta",
+    "summaryTotal": "{count, plural, one {# conversación} other {# conversaciones}}",
+    "summaryReply": "{count} espera tu respuesta"
   },
   "ReportForm": {
     "newTitle": "Nuevo reporte",

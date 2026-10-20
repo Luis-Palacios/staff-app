@@ -323,7 +323,7 @@ declare const messages: {
     "notAtChurch": "Not at church",
     "missedStreak": "Missed the last {count, number} meetings",
     "joinedSince": "In the group since {date}",
-    "obsPrivacy": "Observations are seen only by admins, elders and the leader and co-leaders with user accounts.",
+    "obsPrivacy": "Observations and conversations are seen only by admins, elders and the group’s leaders.",
     "obsHidden": "Observations on this report are seen only by admins, elders and the leader and co-leaders with user accounts.",
     "obsCount": "{count, plural, one {# observation} other {# observations}}",
     "deleteTitle": "Delete this report?",
@@ -343,7 +343,8 @@ declare const messages: {
     "metAfterAllBody": "File a report for this date. This mark is replaced when you submit it, so nothing is lost if you stop halfway.",
     "fileInstead": "File a report for {date}",
     "deleteNoMeetingTitle": "Delete this no-meeting mark?",
-    "deleteNoMeetingBody": "{date} will show as Not filed again if it was a meeting day."
+    "deleteNoMeetingBody": "{date} will show as Not filed again if it was a meeting day.",
+    "deleteConversations": "This also deletes {count, plural, one {# conversation} other {# conversations}}."
   },
   "NoMeetingDialog": {
     "title": "No meeting on {date}?",
@@ -365,7 +366,15 @@ declare const messages: {
       "generic": "Couldn’t save. Try again.",
       "stale": "There’s a new comment since you opened this. Read it, then resolve again.",
       "race": "Someone else just started this conversation. Send your comment again."
-    }
+    },
+    "column": "Conversation",
+    "startAria": "Start a conversation about {first}",
+    "rowAria": "Conversation about {first}: {count, plural, one {# comment} other {# comments}}, {state}",
+    "statusOpen": "Open",
+    "statusResolved": "Resolved",
+    "statusReply": "Needs your reply",
+    "summaryTotal": "{count, plural, one {# conversation} other {# conversations}}",
+    "summaryReply": "{count} needs your reply"
   },
   "ReportForm": {
     "newTitle": "New report",

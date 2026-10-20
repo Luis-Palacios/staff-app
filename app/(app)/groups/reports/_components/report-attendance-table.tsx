@@ -17,6 +17,8 @@ export interface AttendanceTableRow {
   attendedChurch: boolean;
   /** Only present when observations are visible to the caller. */
   observation?: string | null;
+  /** The Conversation cell; present for every row when `showConversations`. */
+  conversation?: ReactNode;
 }
 
 export interface AttendanceTableLabels {
@@ -25,6 +27,7 @@ export interface AttendanceTableLabels {
   colMeeting: string;
   colChurch: string;
   observation: string;
+  conversation: string;
   attended: string;
   absent: string;
   atChurch: string;
@@ -50,15 +53,18 @@ function Attended({
 }
 
 // A client component because HeroUI's Table builds its rows from a collection in the browser; the
-// server renders only the text. The observation column exists only when `showObservations`.
+// server renders only the text. The observation column exists only when `showObservations`, the
+// conversation column only when `showConversations`.
 export function ReportAttendanceTable({
   rows,
   labels,
   showObservations,
+  showConversations,
 }: {
   rows: AttendanceTableRow[];
   labels: AttendanceTableLabels;
   showObservations: boolean;
+  showConversations: boolean;
 }) {
   const { column, row, cell } = dataTable();
 
@@ -81,6 +87,11 @@ export function ReportAttendanceTable({
             {showObservations && (
               <Table.Column className={column()}>
                 {labels.observation}
+              </Table.Column>
+            )}
+            {showConversations && (
+              <Table.Column className={column({ className: "text-right" })}>
+                {labels.conversation}
               </Table.Column>
             )}
           </Table.Header>
@@ -117,6 +128,15 @@ export function ReportAttendanceTable({
                     ) : (
                       <span className="text-subtle">—</span>
                     )}
+                  </Table.Cell>
+                )}
+                {showConversations && (
+                  <Table.Cell
+                    className={cell({
+                      className: "whitespace-nowrap text-right",
+                    })}
+                  >
+                    {person.conversation}
                   </Table.Cell>
                 )}
               </Table.Row>
