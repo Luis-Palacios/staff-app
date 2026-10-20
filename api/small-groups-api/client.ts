@@ -72,16 +72,20 @@ export function closeSmallGroup(id: string): Promise<SmallGroupDetail> {
   );
 }
 
-/** The member joins today. 409: closed, already in the group, or already has a leader. */
+/**
+ * The member joins on `joinedAt` ("YYYY-MM-DD", default today). 409: closed, already in the group,
+ * already has a leader, or the date overlaps an earlier period; 422: a future date.
+ */
 export function addSmallGroupMember(
   groupId: string,
   memberId: number,
   role: SmallGroupRole,
+  joinedAt?: string,
 ): Promise<SmallGroupDetail> {
   return authenticatedFetch<SmallGroupDetail>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     groupPath(groupId, "/members"),
-    { method: "POST", body: { memberId, role } },
+    { method: "POST", body: { memberId, role, joinedAt } },
   );
 }
 

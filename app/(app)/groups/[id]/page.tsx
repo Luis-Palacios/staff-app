@@ -10,6 +10,7 @@ import { GroupMembersCard } from "./_components/group-members-card";
 import { getMe } from "@/api/members-api/client";
 import { loadGroup } from "@/app/(app)/groups/_lib/load-group";
 import { SavedToast } from "@/components/saved-toast";
+import { getChurchToday } from "@/lib/church-time";
 import { getPermissions } from "@/lib/auth/get-permissions";
 import { can, reportAccess } from "@/lib/auth/permissions";
 import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
@@ -46,6 +47,7 @@ export default async function GroupDetailPage({
           access={access}
           currentMemberId={currentMemberId}
           group={group}
+          today={getChurchToday()}
         />
         <div className="flex min-w-0 flex-[2_1_340px] flex-col gap-5">
           <GroupDetailsCard group={group} />

@@ -185,6 +185,7 @@ export async function addGroupMemberAction(
   groupId: string,
   memberId: number,
   role: SmallGroupRole,
+  joinedAt?: string,
 ): Promise<GroupActionResult> {
   // Putting someone in as the leader is a leadership change (rule 6).
   const forbidden = await forbiddenUnless({
@@ -195,7 +196,7 @@ export async function addGroupMemberAction(
   if (forbidden) return toForbidden(forbidden);
 
   try {
-    await addSmallGroupMember(groupId, memberId, role);
+    await addSmallGroupMember(groupId, memberId, role, joinedAt);
   } catch (error) {
     return toActionFailure(error, groupId, memberId, "add", role);
   }
