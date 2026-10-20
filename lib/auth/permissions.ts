@@ -20,6 +20,7 @@ export interface PermissionStatements {
     | "delete"
     | "viewObservations";
   invites: "create" | "cancel";
+  ownProfile: "update";
   user: "create" | "list" | "get" | "ban" | "set-role";
 }
 

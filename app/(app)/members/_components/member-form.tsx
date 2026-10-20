@@ -34,6 +34,7 @@ import { SexField } from "./sex-field";
 import {
   createMemberAction,
   updateMemberAction,
+  updateMyMemberAction,
 } from "@/app/(app)/members/_actions/member-actions";
 import {
   MEMBER_FIELDS,
@@ -165,6 +166,7 @@ export function MemberForm({
   cancelHref,
   canInvite = false,
   canEditEmail = true,
+  own = false,
 }: {
   memberId?: string;
   initial?: MemberFormValues;
@@ -173,10 +175,12 @@ export function MemberForm({
   canInvite?: boolean;
   /** Edit only: without `members: all` the email field is hidden and never sent (it is a 403). */
   canEditEmail?: boolean;
+  /** My profile: edit the signed-in user's own member via `PATCH /me/member`. Pass no `memberId`, and `canEditEmail={false}`. */
+  own?: boolean;
 }) {
   const t = useTranslations("MemberForm");
   const router = useRouter();
-  const isEdit = memberId !== undefined;
+  const isEdit = memberId !== undefined || own;
   const [isPending, startTransition] = useTransition();
   const [text, setText] = useState<TextState>({
     name: initial?.name ?? "",
@@ -293,7 +297,10 @@ export function MemberForm({
     }
 
     startTransition(async () => {
-      const failure = await updateMemberAction(memberId, changes);
+      const failure =
+        memberId === undefined
+          ? await updateMyMemberAction(changes)
+          : await updateMemberAction(memberId, changes);
 
       if (failure) fail(failure);
     });

@@ -43,6 +43,9 @@ export interface MemberInput {
   sex?: MemberSex | null;
 }
 
+/** `PATCH /me/member`: the five fields the user may edit on their own member. No email. */
+export type OwnMemberInput = Partial<Omit<MemberInput, "email">>;
+
 export interface MeLead {
   smallGroupId: number;
   name: string;

@@ -830,6 +830,7 @@
   "MyProfilePage": {
     "title": "My profile",
     "eyebrow": "My profile",
+    "contactFooterEditable": "You can edit your name, phone, address, birthday and sex. To change your email or anything else, ask an admin or elder.",
     "contactFooter": "These come from your church’s member record. If something is wrong, ask an admin or elder to update it.",
     "groupsTitle": "My groups & roles",
     "groupsEmptyBody": "Your groups and roles show up here when you join one.",
@@ -969,6 +970,8 @@
     "newDescription": "Add someone who is already a member of this church. Only the name is required.",
     "editTitle": "Edit member",
     "editCrumb": "Edit",
+    "ownEditTitle": "Edit my profile",
+    "ownEditDescription": "Update your name, phone, address, birthday and sex. Your email can only be changed by an admin or elder.",
     "editDescription": "Update {firstName}'s contact and personal details. Small groups and roles are managed from each group."
   },
   "MemberForm": {
