@@ -432,7 +432,11 @@
     "emptyOther": "Aún no hay conversaciones aquí.",
     "seeOpen": "Ver conversaciones abiertas",
     "showMore": "Mostrar más",
-    "listError": "No se pudo cargar más. Inténtalo de nuevo."
+    "listError": "No se pudo cargar más. Inténtalo de nuevo.",
+    "waitingTitle": "Esperan tu respuesta",
+    "waitingElder": "Los líderes respondieron estas conversaciones sobre personas de sus grupos.",
+    "waitingLeader": "Los ancianos preguntaron por personas de tus grupos.",
+    "all": "Todas las conversaciones"
   },
   "ReportForm": {
     "newTitle": "Nuevo reporte",

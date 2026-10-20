@@ -52,7 +52,7 @@ before the next one starts. After each stage, write a short summary in the progr
 | 2. Report detail: Conversation column, phone bubbles, summary, delete dialog | ✅ | "Show conversations on Report detail" |
 | 3. Conversation panel and sheet | ✅ | "Add the conversation panel and sheet" |
 | 4. Conversations page, nav item and badge | ✅ | "Add the Conversations page, nav item and badge" |
-| 5. Dashboard blocks | ⬜ | |
+| 5. Dashboard blocks | ✅ | "Add the Waiting for your reply block to the dashboards" |
 | 6. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
@@ -98,6 +98,11 @@ before the next one starts. After each stage, write a short summary in the progr
   with the Stage 5 dashboard block (`compact`).
 - Stage 4 checked at 1440 dark English as admin (tabs, counts, rows, badge). Not yet checked: light,
   Spanish, 1024/390, leader view, empty and Show more (the seed has fewer than 25 threads).
+- Stage 5: `waiting-for-reply-card.tsx` fetches for itself inside a `Suspense` (null fallback) under the
+  greeting in both dashboards, so a failure just hides it. The count in the heading is the inbox's
+  `counts.reply` (the whole tab), the rows the first 3. It reuses `ConversationRow` with `compact`.
+- Stage 5 checked at 1440 dark English as admin. Not checked: the leader dashboard (no leader sign-in
+  available locally), light, Spanish, 1024/390.
 
 ## Token changes
 
