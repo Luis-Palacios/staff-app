@@ -4,6 +4,7 @@ import type {
   MemberInput,
   MemberOption,
   MemberSummary,
+  OwnMemberInput,
 } from "@/api/members-api/types";
 
 import { cache } from "react";
@@ -62,6 +63,18 @@ export function updateMember(
   return authenticatedFetch<MemberDetail>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     `/members/${encodeURIComponent(id)}`,
+    { method: "PATCH", body: changes },
+  );
+}
+
+/**
+ * The signed-in user's own member (`ownProfile: update`), found from the JWT, never by id. Send
+ * only the fields that changed; `null` clears all but `name`. The API rejects `email` (422).
+ */
+export function updateMyMember(changes: OwnMemberInput): Promise<MemberDetail> {
+  return authenticatedFetch<MemberDetail>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    "/me/member",
     { method: "PATCH", body: changes },
   );
 }

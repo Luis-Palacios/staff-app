@@ -1,6 +1,6 @@
 "use server";
 
-import type { MemberInput } from "@/api/members-api/types";
+import type { MemberInput, OwnMemberInput } from "@/api/members-api/types";
 import type {
   MemberFieldErrors,
   MemberFormValues,
@@ -10,7 +10,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { ApiError } from "@/api/api-client";
-import { createMember, updateMember } from "@/api/members-api/client";
+import {
+  createMember,
+  updateMember,
+  updateMyMember,
+} from "@/api/members-api/client";
 import {
   memberChangesSchema,
   memberSchema,
@@ -130,4 +134,42 @@ export async function updateMemberAction(
   revalidatePath("/members");
   revalidatePath(`/members/${id}`);
   redirect(`/members/${id}?saved=updated`);
+}
+
+/**
+ * PATCH /me/member, for My profile: the signed-in user's own member, with no id and no email (the
+ * email is what an invite matches on, and the API answers 422 to it). Same validation and
+ * empty-to-null rule as `updateMemberAction`.
+ */
+export async function updateMyMemberAction(
+  changes: Partial<Omit<MemberFormValues, "email">>,
+): Promise<MemberActionFailure> {
+  const forbidden = await forbiddenUnless({ ownProfile: ["update"] });
+
+  if (forbidden) return toFailure(forbidden);
+
+  // The schema drops unknown keys, so an `email` a caller sneaks in is never sent.
+  const parsed = memberChangesSchema.omit({ email: true }).safeParse(changes);
+
+  if (!parsed.success) {
+    return { ok: false, fieldErrors: toFieldErrors(parsed.error) };
+  }
+
+  const { name, ...optional } = parsed.data;
+  const patch: OwnMemberInput = {
+    ...(name !== undefined && { name }),
+    ...Object.fromEntries(
+      Object.entries(optional).map(([field, value]) => [field, value || null]),
+    ),
+  };
+
+  try {
+    await updateMyMember(patch);
+  } catch (error) {
+    return toFailure(error);
+  }
+
+  revalidatePath("/members");
+  revalidatePath("/users/me");
+  redirect("/users/me?saved=updated");
 }

@@ -48,7 +48,8 @@ function Field({
   );
 }
 
-// `self` is My profile: read-only, with a note on who to ask to fix the record.
+// `self` is My profile: an Edit link when `canEdit` (`ownProfile: update`, goes to /users/me/edit),
+// and a note on who to ask for what you can't change.
 export function MemberContactCard({
   member,
   variant = "default",
@@ -56,7 +57,7 @@ export function MemberContactCard({
 }: {
   member: MemberDetail;
   variant?: "default" | "self";
-  /** Show the Edit link (`members: update`). */
+  /** Show the Edit link (`members: update`; on My profile, `ownProfile: update`). */
   canEdit?: boolean;
 }) {
   const t = useTranslations("MemberContactCard");
@@ -87,11 +88,11 @@ export function MemberContactCard({
         >
           {t("title")}
         </DetailCardHeading>
-        {!self && canEdit && (
+        {canEdit && (
           <NextLink
             aria-label={t("editLabel")}
             className={textLink({ className: "text-sm font-semibold" })}
-            href={`/members/${id}/edit`}
+            href={self ? "/users/me/edit" : `/members/${id}/edit`}
           >
             {t("edit")}
           </NextLink>
@@ -136,7 +137,7 @@ export function MemberContactCard({
             className="mt-0.5 size-[18px] shrink-0"
             strokeWidth={1.7}
           />
-          {tSelf("contactFooter")}
+          {tSelf(canEdit ? "contactFooterEditable" : "contactFooter")}
         </p>
       )}
     </section>

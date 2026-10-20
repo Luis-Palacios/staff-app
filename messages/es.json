@@ -830,6 +830,7 @@
   "MyProfilePage": {
     "title": "Mi perfil",
     "eyebrow": "Mi perfil",
+    "contactFooterEditable": "Puedes editar tu nombre, teléfono, dirección, fecha de nacimiento y sexo. Para cambiar tu correo o cualquier otro dato, pide a un administrador o anciano.",
     "contactFooter": "Estos datos vienen del registro de miembros de tu iglesia. Si algo está mal, pide a un administrador o anciano que lo actualice.",
     "groupsTitle": "Mis grupos y roles",
     "groupsEmptyBody": "Tus grupos y roles aparecerán aquí cuando te unas a uno.",
@@ -969,6 +970,8 @@
     "newDescription": "Agrega a alguien que ya es miembro de esta iglesia. Solo el nombre es obligatorio.",
     "editTitle": "Editar miembro",
     "editCrumb": "Editar",
+    "ownEditTitle": "Editar mi perfil",
+    "ownEditDescription": "Actualiza tu nombre, teléfono, dirección, fecha de nacimiento y sexo. Tu correo solo puede cambiarlo un administrador o anciano.",
     "editDescription": "Actualiza los datos de contacto y personales de {firstName}. Los grupos pequeños y los roles se administran desde cada grupo."
   },
   "MemberForm": {
