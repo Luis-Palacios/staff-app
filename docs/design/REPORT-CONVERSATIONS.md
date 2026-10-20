@@ -113,8 +113,11 @@ before the next one starts. After each stage, write a short summary in the progr
   `?group=` on `/conversations` is ignored instead of blanking the select.
   Seen, not changed: at 1024 the page is cramped beside the 420px panel (the title wraps to 3 lines; the
   table scrolls in its own box); the desktop panel covers the top bar while open (accepted).
-  **Still to check:** light at 390 and 1024; the leader views (needs a leader sign-in); focus returning to the
-  row control; an orphaned thread.
+  Leader pass (signed in as the GP - #1 leader, Spanish, dark, 1440): dashboard block ("Los ancianos
+  preguntaron…", 1 row), nav badge, Conversations (scoped to their group, "Todos mis grupos"), Report detail
+  with the panel (observation shown, Resolver, reply box) and a report of another group gives the 404 page.
+  **Still to check:** light at 390 and 1024; the leader at 390/1024; focus returning to the row control; an
+  orphaned thread.
 
 ## Token changes
 
