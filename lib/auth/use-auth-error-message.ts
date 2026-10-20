@@ -19,6 +19,12 @@ const CODE_TO_KEY: Record<string, AuthErrorKey> = {
   EMAIL_NOT_VERIFIED: "emailNotVerified",
   INVALID_TOKEN: "invalidToken",
   TOKEN_EXPIRED: "invalidToken",
+  YOU_CANNOT_CHANGE_YOUR_OWN_ROLE: "cannotChangeOwnRole",
+  YOU_CANNOT_BAN_YOURSELF: "cannotBanYourself",
+  YOU_CANNOT_ASSIGN_ADMIN_ROLE: "cannotAssignAdmin",
+  YOU_CANNOT_MANAGE_ADMIN_ACCOUNTS: "cannotManageAdmin",
+  YOU_ARE_NOT_ALLOWED_TO_CHANGE_USERS_ROLE: "notAllowed",
+  YOU_ARE_NOT_ALLOWED_TO_BAN_USERS: "notAllowed",
 };
 
 /**

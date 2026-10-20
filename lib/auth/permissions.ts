@@ -22,6 +22,7 @@ export interface PermissionStatements {
   invites: "create" | "cancel";
   ownProfile: "update";
   user: "create" | "list" | "get" | "ban" | "set-role";
+  adminAccounts: "manage";
 }
 
 export type Resource = keyof PermissionStatements;
@@ -88,4 +89,24 @@ export function canManageLinks(
   permissions: Permissions | null | undefined,
 ): boolean {
   return can(permissions, { members: ["link"] });
+}
+
+/**
+ * What the caller can do to another user's account on `/users/[id]`. Nobody changes their own role
+ * or bans themselves (user-admin-actions rule 6). Whether the *target* is an admin account isn't
+ * known here (no role → permission map in this app), so auth-server's guard rejects that case and
+ * the form shows its message.
+ */
+export function userAccountAccess(
+  permissions: Permissions | null | undefined,
+  callerId: string,
+  targetId: string,
+): { changeRole: boolean; ban: boolean; assignAdmin: boolean } {
+  const other = callerId !== targetId;
+
+  return {
+    changeRole: other && can(permissions, { user: ["set-role"] }),
+    ban: other && can(permissions, { user: ["ban"] }),
+    assignAdmin: can(permissions, { adminAccounts: ["manage"] }),
+  };
 }

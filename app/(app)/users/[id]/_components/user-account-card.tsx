@@ -3,6 +3,8 @@ import type { Locale } from "@/lib/locale-shared";
 
 import { useLocale, useTranslations } from "next-intl";
 
+import { UserAccountActions } from "./user-account-actions";
+
 import { DetailCardHeading } from "@/app/(app)/applications/[id]/_components/detail-card-heading";
 import { RoleBadge } from "@/app/(app)/users/_components/role-badge";
 import { UserStatusChips } from "@/app/(app)/users/_components/user-status-chips";
@@ -27,7 +29,7 @@ function Field({
   );
 }
 
-// Read-only: editing a user (profile, role, ban) is a later feature.
+// Shows the account; the actions below it (role, ban) appear with the caller's permissions.
 export function UserAccountCard({ user }: { user: AdminUserListItem }) {
   const t = useTranslations("UserDetail");
   const locale = useLocale() as Locale;
@@ -64,7 +66,20 @@ export function UserAccountCard({ user }: { user: AdminUserListItem }) {
         <Field label={t("joined")}>
           {formatLocalDate(user.createdAt, locale)}
         </Field>
+        {user.banned && (
+          <>
+            <Field label={t("banReason")}>
+              {user.banReason ?? t("noReason")}
+            </Field>
+            <Field label={t("banExpires")}>
+              {user.banExpires
+                ? formatLocalDate(user.banExpires, locale)
+                : t("banNoExpiry")}
+            </Field>
+          </>
+        )}
       </dl>
+      <UserAccountActions user={user} />
     </section>
   );
 }

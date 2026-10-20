@@ -628,7 +628,12 @@
     "passwordTooLong": "Esa contraseña es demasiado larga.",
     "emailNotVerified": "Verifica tu correo antes de iniciar sesión.",
     "invalidToken": "Este enlace ya no es válido.",
-    "tooManyRequests": "Demasiados intentos. Espera un momento e inténtalo de nuevo."
+    "tooManyRequests": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
+    "cannotChangeOwnRole": "No puedes cambiar tu propio rol.",
+    "cannotBanYourself": "No puedes bloquearte a ti mismo.",
+    "cannotAssignAdmin": "Solo un administrador puede asignar el rol de Admin.",
+    "cannotManageAdmin": "Solo un administrador puede cambiar o bloquear una cuenta de administrador.",
+    "notAllowed": "No tienes permiso para hacer eso."
   },
   "PasswordField": {
     "show": "Mostrar contraseña",
@@ -1096,7 +1101,11 @@
     "verifiedYes": "Verificado",
     "verifiedNo": "Sin verificar",
     "status": "Estado",
-    "joined": "Se unió"
+    "joined": "Se unió",
+    "banReason": "Motivo del bloqueo",
+    "banExpires": "El bloqueo termina",
+    "banNoExpiry": "Hasta que se desbloquee",
+    "noReason": "Sin motivo"
   },
   "UserMember": {
     "eyebrow": "Miembro",
@@ -1128,5 +1137,29 @@
     "unlinkBody": "Esta cuenta conserva su rol. El miembro n.º {id} conserva su perfil y sus grupos pequeños. Solo se elimina la conexión. Si el rol es Líder de grupo pequeño o Diácono, la cuenta deja de ver los grupos pequeños de ese miembro. Puedes vincularles de nuevo más adelante.",
     "unlinkConfirm": "Desvincular",
     "unlinkToast": "Desvinculada de {name}"
+  },
+  "UserAccountActions": {
+    "roleLabel": "Rol de {name}",
+    "saveRole": "Guardar rol",
+    "roleToast": "Se cambió el rol de {name}",
+    "confirmAdminTitle": "¿Asignar el rol de Admin?",
+    "confirmAdminLabel": "Hacer admin",
+    "confirmAdminBody": "{name} podrá gestionar todos los usuarios, roles e invitaciones.",
+    "ban": "Bloquear usuario…",
+    "unban": "Desbloquear",
+    "banTitle": "¿Bloquear a {name}?",
+    "banBody": "Se cerrará su sesión en todos los dispositivos y no podrá iniciar sesión hasta que termine el bloqueo o lo desbloquees. Su miembro vinculado no cambia.",
+    "reasonLabel": "Motivo (opcional)",
+    "reasonPlaceholder": "¿Por qué se bloquea esta cuenta?",
+    "expiryLabel": "Duración del bloqueo",
+    "expiryNone": "Hasta que se desbloquee",
+    "expiryDays": "{count, plural, one {# día} other {# días}}",
+    "banSubmit": "Bloquear usuario",
+    "cancel": "Cancelar",
+    "bannedToast": "Se bloqueó a {name}",
+    "unbanTitle": "¿Desbloquear a {name}?",
+    "unbanBody": "Podrá iniciar sesión de nuevo.",
+    "unbanLabel": "Desbloquear",
+    "unbannedToast": "Se desbloqueó a {name}"
   }
 }
