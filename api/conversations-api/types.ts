@@ -49,6 +49,8 @@ export interface ConversationComment {
 export interface ConversationThread {
   id: number;
   anchor: ConversationAnchor;
+  /** The person the thread is about: there even when their attendance row is gone. */
+  member: { id: number; name: string };
   status: ConversationStatus;
   resolvedBy: ConversationPerson | null;
   resolvedAt: string | null;

@@ -411,7 +411,6 @@ declare const messages: {
     "composerLabel": "Write a comment",
     "charsLeft": "{count} characters left",
     "openMyProfile": "Open My profile",
-    "unknownPerson": "This person",
     "badgeLabel": "{count} waiting for your reply",
     "eyebrow": "Small group reports",
     "title": "Conversations",
