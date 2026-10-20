@@ -75,11 +75,14 @@ export function GroupMembersCard({
   group,
   access,
   currentMemberId,
+  today,
 }: {
   group: SmallGroupDetail;
   access: SmallGroupAccess;
   /** The caller's own member id; only needed without `smallGroups: all`. */
   currentMemberId: number | null;
+  /** Today at the church ("YYYY-MM-DD"): the join date's default and latest value. */
+  today: string;
 }) {
   const t = useTranslations("GroupMembersCard");
   const tm = useTranslations("GroupMembers");
@@ -270,6 +273,7 @@ export function GroupMembersCard({
           loadError={pickerError}
           members={pickerMembers}
           roles={canSetLeader ? undefined : SCOPED_ADD_ROLES}
+          today={today}
           onAdded={(name) => {
             setAdding(false);
             showToast(tm("toasts.added", { name }));

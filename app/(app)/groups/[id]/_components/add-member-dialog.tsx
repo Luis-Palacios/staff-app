@@ -6,7 +6,18 @@ import type { Key, SubmitEvent } from "react";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import { Button, ComboBox, Input, Label, ListBox, Modal } from "@heroui/react";
+import { parseDate } from "@internationalized/date";
+import {
+  Button,
+  Calendar,
+  ComboBox,
+  DateField,
+  DatePicker,
+  Input,
+  Label,
+  ListBox,
+  Modal,
+} from "@heroui/react";
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
 
@@ -28,11 +39,13 @@ function AddMemberForm({
   roles,
   members,
   loadError,
+  today,
   onAdded,
   onClose,
 }: {
   group: SmallGroupDetail;
   roles: SmallGroupRole[];
+  today: string;
   /** Null while the members are still loading. */
   members: MemberOption[] | null;
   loadError: string | null;
@@ -46,6 +59,7 @@ function AddMemberForm({
   const [inputValue, setInputValue] = useState("");
   const [selected, setSelected] = useState<MemberOption | null>(null);
   const [role, setRole] = useState<SmallGroupRole>("member");
+  const [joinedAt, setJoinedAt] = useState(today);
   const [error, setError] = useState<string | null>(null);
   const leader = group.members.find((member) => member.role === "leader");
   const inGroup = useMemo(
@@ -60,6 +74,9 @@ function AddMemberForm({
       .filter((member) => !query || normalizeText(member.name).includes(query))
       .slice(0, MAX_RESULTS);
   }, [members, inputValue]);
+
+  // Making someone leader while there is one is a swap, which always starts today.
+  const isSwap = role === "leader" && leader !== undefined;
 
   function handleSelection(key: Key | null) {
     const member =
@@ -86,11 +103,14 @@ function AddMemberForm({
 
     setError(null);
     startTransition(async () => {
-      // Making someone leader while there is one is a swap: one call.
-      const result =
-        role === "leader" && leader
-          ? await setGroupLeaderAction(String(group.id), person.id)
-          : await addGroupMemberAction(String(group.id), person.id, role);
+      const result = isSwap
+        ? await setGroupLeaderAction(String(group.id), person.id)
+        : await addGroupMemberAction(
+            String(group.id),
+            person.id,
+            role,
+            joinedAt,
+          );
 
       if (result.ok) {
         onAdded(person.name);
@@ -213,6 +233,59 @@ function AddMemberForm({
           )}
         </fieldset>
 
+        {!isSwap && (
+          <DatePicker
+            className="w-full gap-1.5"
+            isDisabled={isPending}
+            maxValue={parseDate(today)}
+            value={parseDate(joinedAt)}
+            onChange={(date) => setJoinedAt(date ? date.toString() : today)}
+          >
+            <Label className="text-[13px] font-semibold text-heading">
+              {t("joinedAtLabel")}
+            </Label>
+            <DateField.Group fullWidth className="h-10">
+              <DateField.Input>
+                {(segment) => <DateField.Segment segment={segment} />}
+              </DateField.Input>
+              <DateField.Suffix>
+                <DatePicker.Trigger>
+                  <DatePicker.TriggerIndicator />
+                </DatePicker.Trigger>
+              </DateField.Suffix>
+            </DateField.Group>
+            <p className="text-[13px] text-muted">{t("joinedAtNote")}</p>
+            <DatePicker.Popover>
+              <Calendar
+                aria-label={t("joinedAtLabel")}
+                maxValue={parseDate(today)}
+              >
+                <Calendar.Header>
+                  <Calendar.YearPickerTrigger>
+                    <Calendar.YearPickerTriggerHeading />
+                    <Calendar.YearPickerTriggerIndicator />
+                  </Calendar.YearPickerTrigger>
+                  <Calendar.NavButton slot="previous" />
+                  <Calendar.NavButton slot="next" />
+                </Calendar.Header>
+                <Calendar.Grid>
+                  <Calendar.GridHeader>
+                    {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
+                  </Calendar.GridHeader>
+                  <Calendar.GridBody>
+                    {(date) => <Calendar.Cell date={date} />}
+                  </Calendar.GridBody>
+                </Calendar.Grid>
+                <Calendar.YearPickerGrid>
+                  <Calendar.YearPickerGridBody>
+                    {({ year }) => <Calendar.YearPickerCell year={year} />}
+                  </Calendar.YearPickerGridBody>
+                </Calendar.YearPickerGrid>
+              </Calendar>
+            </DatePicker.Popover>
+          </DatePicker>
+        )}
+
         {(error ?? (members !== null && loadError)) && (
           <div
             className="flex items-start gap-2.5 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger-soft-foreground"
@@ -259,6 +332,7 @@ export function AddMemberDialog({
   roles = ALL_ROLES,
   members,
   loadError,
+  today,
   onAdded,
 }: {
   isOpen: boolean;
@@ -268,6 +342,8 @@ export function AddMemberDialog({
   roles?: SmallGroupRole[];
   members: MemberOption[] | null;
   loadError: string | null;
+  /** Today at the church ("YYYY-MM-DD"): the join date's default and latest value. */
+  today: string;
   onAdded: (name: string) => void;
 }) {
   return (
@@ -279,6 +355,7 @@ export function AddMemberDialog({
             loadError={loadError}
             members={members}
             roles={roles}
+            today={today}
             onAdded={onAdded}
             onClose={() => onOpenChange(false)}
           />
