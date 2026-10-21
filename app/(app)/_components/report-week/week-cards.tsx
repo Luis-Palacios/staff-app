@@ -1,6 +1,7 @@
+import type { WeekLabels } from "./week-table";
+
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import NextLink from "next/link";
-import { getTranslations } from "next-intl/server";
 
 import {
   type WeekRowView,
@@ -13,9 +14,7 @@ import {
 import { card } from "@/components/primitives";
 
 /** The week as cards, below `xl`. */
-export async function WeekCards({ rows }: { rows: WeekRowView[] }) {
-  const t = await getTranslations("GroupsDashboard");
-
+export function WeekCards({ rows, t }: { rows: WeekRowView[]; t: WeekLabels }) {
   return (
     <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-3 xl:hidden">
       {rows.map((item) => (
@@ -25,13 +24,13 @@ export async function WeekCards({ rows }: { rows: WeekRowView[] }) {
         >
           <div className="flex flex-1 flex-col gap-3 px-[18px] py-4">
             <div className="flex items-start justify-between gap-2.5">
-              <WeekGroupCell noLeader={t("noLeader")} row={item} />
+              <WeekGroupCell noLeader={t.noLeader} row={item} />
               <WeekStatusCell wrapReason row={item} />
             </div>
             <dl className="grid grid-cols-2 gap-3 text-sm tabular-nums">
               <div className="flex flex-col gap-1">
                 <dt className="text-[12.5px] font-semibold text-muted">
-                  {t("colAttendance")}
+                  {t.colAttendance}
                 </dt>
                 <dd className="m-0">
                   <WeekAttendance row={item} />
@@ -39,7 +38,7 @@ export async function WeekCards({ rows }: { rows: WeekRowView[] }) {
               </div>
               <div className="flex flex-col gap-1">
                 <dt className="text-[12.5px] font-semibold text-muted">
-                  {t("colObservations")}
+                  {t.colObservations}
                 </dt>
                 <dd className="m-0">
                   <WeekObservations row={item} />

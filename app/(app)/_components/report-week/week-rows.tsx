@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
-import type { ReportWeek, ReportWeekGroup } from "@/api/small-groups-api/types";
+import type {
+  ReportWeek,
+  ReportWeekGroup,
+  ReportWeekStatus,
+} from "@/api/small-groups-api/types";
 import type { Locale } from "@/lib/locale-shared";
 import type { WeekBadgeStyle } from "./week-status";
 
@@ -28,6 +32,7 @@ export function notFiledMeetingsHref(groupId: number, today: string): string {
 
 export interface WeekRowView {
   id: number;
+  status: ReportWeekStatus;
   name: string;
   groupHref: string;
   leaders: string | null;
@@ -103,6 +108,7 @@ export async function buildWeekRows(week: ReportWeek): Promise<WeekRowView[]> {
 
     return {
       id: smallGroup.id,
+      status,
       name: smallGroup.name,
       groupHref: `/groups/${smallGroup.id}`,
       leaders:

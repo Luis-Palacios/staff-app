@@ -8,10 +8,9 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { NoGroupsCard } from "../no-groups-card";
 
 import { buildWeekRows } from "./week-rows";
-import { WeekCards } from "./week-cards";
-import { WeekCounts } from "./week-counts";
+import { WeekBrowser } from "./week-browser";
+import { buildWeekPills } from "./week-counts";
 import { WeekStepper } from "./week-stepper";
-import { WeekTable } from "./week-table";
 
 import { addDays } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import { textLink, title } from "@/components/primitives";
@@ -61,7 +60,12 @@ export async function ReportWeekSection({
       : t("weekOf", {
           date: formatCalendarShortDate(weekStart, locale as Locale),
         });
-  const rows = result.ok ? await buildWeekRows(result.value) : [];
+  const [rows, pills] = result.ok
+    ? await Promise.all([
+        buildWeekRows(result.value),
+        buildWeekPills(result.value),
+      ])
+    : [[], []];
 
   return (
     <section aria-labelledby="week" className="flex flex-col gap-4">
@@ -90,9 +94,23 @@ export async function ReportWeekSection({
 
       {result.ok ? (
         <>
-          <WeekCounts week={result.value} />
-          <WeekTable rows={rows} />
-          <WeekCards rows={rows} />
+          <WeekBrowser
+            labels={{
+              weekSummary: t("weekSummary"),
+              colGroup: t("colGroup"),
+              colStatus: t("colStatus"),
+              colAttendance: t("colAttendance"),
+              colObservations: t("colObservations"),
+              colActions: t("colActions"),
+              noLeader: t("noLeader"),
+            }}
+            noMatches={t("searchNoMatches")}
+            pills={pills}
+            pillsLabel={t("weekSummary")}
+            rows={rows}
+            searchLabel={t("searchLabel")}
+            searchPlaceholder={t("searchPlaceholder")}
+          />
         </>
       ) : (
         <p className="text-sm text-muted">{t("weekLoadFailed")}</p>

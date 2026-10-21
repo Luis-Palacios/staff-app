@@ -1,7 +1,6 @@
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { buttonVariants } from "@heroui/react";
 import NextLink from "next/link";
-import { getTranslations } from "next-intl/server";
 
 import {
   type WeekRowView,
@@ -13,9 +12,18 @@ import {
 
 import { dataTable, smallOutlineButton } from "@/components/data-table";
 
+export interface WeekLabels {
+  weekSummary: string;
+  colGroup: string;
+  colStatus: string;
+  colAttendance: string;
+  colObservations: string;
+  colActions: string;
+  noLeader: string;
+}
+
 /** The week as a table, from `xl` up (five columns plus the sidebar don't fit at 1024). */
-export async function WeekTable({ rows }: { rows: WeekRowView[] }) {
-  const t = await getTranslations("GroupsDashboard");
+export function WeekTable({ rows, t }: { rows: WeekRowView[]; t: WeekLabels }) {
   const { root, column, row, cell } = dataTable();
 
   const th = column({ className: "px-4 text-left" });
@@ -27,25 +35,25 @@ export async function WeekTable({ rows }: { rows: WeekRowView[] }) {
     <div className={root({ className: "hidden xl:block" })}>
       <div className="overflow-x-auto">
         <table
-          aria-label={t("weekSummary")}
+          aria-label={t.weekSummary}
           className="w-full min-w-[820px] border-collapse text-sm"
         >
           <thead>
             <tr>
               <th className={th} scope="col">
-                {t("colGroup")}
+                {t.colGroup}
               </th>
               <th className={th} scope="col">
-                {t("colStatus")}
+                {t.colStatus}
               </th>
               <th className={th} scope="col">
-                {t("colAttendance")}
+                {t.colAttendance}
               </th>
               <th className={th} scope="col">
-                {t("colObservations")}
+                {t.colObservations}
               </th>
               <th className={th} scope="col">
-                <span className="sr-only">{t("colActions")}</span>
+                <span className="sr-only">{t.colActions}</span>
               </th>
             </tr>
           </thead>
@@ -53,7 +61,7 @@ export async function WeekTable({ rows }: { rows: WeekRowView[] }) {
             {rows.map((item) => (
               <tr key={item.id} className={row()}>
                 <td className={td}>
-                  <WeekGroupCell noLeader={t("noLeader")} row={item} />
+                  <WeekGroupCell noLeader={t.noLeader} row={item} />
                 </td>
                 <td className={td}>
                   <WeekStatusCell row={item} />

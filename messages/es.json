@@ -561,6 +561,9 @@
     "previousWeek": "Semana anterior",
     "nextWeek": "Semana siguiente",
     "weekSummary": "Resumen de la semana",
+    "searchLabel": "Buscar grupos",
+    "searchPlaceholder": "Grupo o líder",
+    "searchNoMatches": "Ningún grupo coincide con tu búsqueda.",
     "weekLoadFailed": "Los reportes de la semana no se pudieron cargar. Inténtalo de nuevo en un momento.",
     "status": {
       "due": "Pendiente",

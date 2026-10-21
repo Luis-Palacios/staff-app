@@ -564,6 +564,9 @@ declare const messages: {
     "previousWeek": "Previous week",
     "nextWeek": "Next week",
     "weekSummary": "Week summary",
+    "searchLabel": "Search groups",
+    "searchPlaceholder": "Group or leader",
+    "searchNoMatches": "No groups match your search.",
     "weekLoadFailed": "This week’s reports couldn’t load. Try again in a moment.",
     "status": {
       "due": "Due",
