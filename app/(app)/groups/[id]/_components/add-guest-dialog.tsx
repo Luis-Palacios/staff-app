@@ -56,7 +56,7 @@ interface AddGuestProps {
 }
 
 // What a search result says about where the guest is, to recognise them.
-function GuestMeta({ guest }: { guest: GuestSearchItem }) {
+export function GuestMeta({ guest }: { guest: GuestSearchItem }) {
   const t = useTranslations("AddGuestDialog");
   const locale = useLocale() as Locale;
   const parts: string[] = [];
@@ -111,7 +111,7 @@ function ErrorAlert({ children }: { children: string }) {
 }
 
 // Debounced church-wide search. `null` until the query is long enough; a newer query wins.
-function useGuestSearch(query: string) {
+export function useGuestSearch(query: string) {
   const [state, setState] = useState<{
     query: string;
     guests: GuestSearchItem[];

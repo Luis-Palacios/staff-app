@@ -1453,6 +1453,156 @@ declare const messages: {
       "generic": "Something went wrong. Try again.",
       "overlap": "Their earlier time in this group overlaps this date."
     }
+  },
+  "GuestsPage": {
+    "title": "Guests",
+    "description": "People who visit or are going through the process but aren't members yet. They're never mixed into Members."
+  },
+  "GuestsEmpty": {
+    "title": "No guests yet",
+    "description": "Guests appear here when they are added to a guest group or on their own."
+  },
+  "AddGuestLink": {
+    "label": "Add guest",
+    "first": "Add the first guest"
+  },
+  "GuestsBrowser": {
+    "filterByStatus": "Filter guests",
+    "tabActive": "In a group",
+    "tabInactive": "Not in a group",
+    "tabAll": "All",
+    "filterLabel": "Search guests",
+    "filterPlaceholder": "Name or phone",
+    "count": "<num>{count, number}</num> {count, plural, one {guest} other {guests}}",
+    "noMatches": "No guest matches your search.",
+    "tableLabel": "Guests",
+    "columnGuest": "Guest",
+    "columnPhone": "Phone",
+    "columnGroup": "Guest group",
+    "columnLastSeen": "Last at a meeting",
+    "columnActions": "Actions",
+    "firstVisit": "First visit {date}",
+    "notProvided": "Not provided",
+    "openGuest": "Open {name}",
+    "since": "Since {date}",
+    "noGroup": "Not in a group",
+    "left": "Left {date}",
+    "leftWithReason": "Left {date} · {reason}",
+    "leftReason": {
+      "stopped_coming": "Stopped coming",
+      "moved_group": "Moved group",
+      "other": "Other reason"
+    },
+    "neverSeen": "Not yet",
+    "missed": "Missed the last {count, plural, one {meeting} other {# meetings}}"
+  },
+  "GuestDetailHeader": {
+    "badge": "Guest",
+    "firstVisit": "First visit <strong>{date}</strong>",
+    "inGroup": "In <strong>{group}</strong>",
+    "noGroup": "Not in a group",
+    "allGuests": "All guests",
+    "backToGroup": "Back to {group}",
+    "edit": "Edit guest"
+  },
+  "GuestContactCard": {
+    "eyebrow": "Contact & personal",
+    "title": "How to reach them",
+    "edit": "Edit",
+    "editLabel": "Edit this guest's details",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "sex": "Sex",
+    "sexMale": "Male",
+    "sexFemale": "Female",
+    "notProvided": "Not provided"
+  },
+  "GuestOriginCard": {
+    "eyebrow": "Origin",
+    "title": "How they came",
+    "firstVisit": "First visit",
+    "invitedBy": "Invited by",
+    "addedBy": "Added by",
+    "addedByOn": "<name></name> on {date}",
+    "notProvided": "Not provided"
+  },
+  "GuestGroupsCard": {
+    "eyebrow": "Guest groups",
+    "title": "Groups so far",
+    "empty": "They haven't been in a group yet.",
+    "since": "Since {date}",
+    "range": "{from} – {to}",
+    "current": "Current",
+    "leftReason": {
+      "stopped_coming": "Stopped coming",
+      "moved_group": "Moved group",
+      "other": "Other reason"
+    }
+  },
+  "GuestMeetingsCard": {
+    "eyebrow": "Attendance",
+    "title": "Recent meetings",
+    "empty": "No meetings recorded yet.",
+    "cameGroup": "Came to the group",
+    "missedGroup": "Didn't come to the group",
+    "cameChurch": "Came to church",
+    "missedChurch": "Didn't come to church"
+  },
+  "GuestSavedToast": {
+    "created": "Guest added",
+    "updated": "Changes saved"
+  },
+  "GuestFormPage": {
+    "newTitle": "Add a guest",
+    "newDescription": "Someone who visits or is going through the process. Only the name is required.",
+    "editTitle": "Edit guest",
+    "editDescription": "Update {firstName}'s details.",
+    "editCrumb": "Edit"
+  },
+  "GuestForm": {
+    "contactEyebrow": "Contact",
+    "contactTitle": "How to reach them",
+    "personalEyebrow": "Personal",
+    "personalTitle": "Address and sex",
+    "originEyebrow": "Origin",
+    "originTitle": "How they came",
+    "name": "Full name",
+    "email": "Email",
+    "emailHelp": "Optional. A family can share one.",
+    "address": "Address",
+    "addressPlaceholder": "Neighborhood, directions, city",
+    "firstVisit": "First visit",
+    "invitedBy": "Invited by",
+    "invitedByPlaceholder": "Search for a member",
+    "loading": "Loading members…",
+    "noMembers": "No members match.",
+    "group": "Guest group",
+    "noGroup": "Not in a group",
+    "groupHelp": "Optional. They join the group today.",
+    "groupEditNote": "To change their group, use the group's page.",
+    "required": "Required",
+    "cancel": "Cancel",
+    "add": "Add guest",
+    "save": "Save changes",
+    "alertTitle": "This guest wasn't saved",
+    "alertBody": "Fix the {count, plural, one {field} other {# fields}} marked below and try again.",
+    "errors": {
+      "nameRequired": "Enter the guest's name.",
+      "emailInvalid": "Enter a valid email address.",
+      "phoneTooLong": "Enter a shorter phone number.",
+      "phoneDigitsOnly": "Use only numbers.",
+      "addressTooLong": "Keep the address under 255 characters.",
+      "sexInvalid": "Pick Male or Female.",
+      "firstVisitInvalid": "Enter a valid date.",
+      "off": "Guest groups are turned off for this church.",
+      "closed": "This group is closed, so it can’t be changed."
+    }
+  },
+  "SimilarGuests": {
+    "title": "Is this the same person?",
+    "open": "Open",
+    "openGuest": "Open {name}"
   }
 };
 export default messages;

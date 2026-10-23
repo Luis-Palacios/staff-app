@@ -74,21 +74,22 @@ below.
 | 2. Menu, Groups badge, New group audience | ✅ | `316cc84` |
 | 3. Group detail for guest groups | ✅ | `89bf3fa`, `64f30f6` |
 | 4. Report form and report detail with guests | ✅ | `c98b0c8`, `2a73445` |
-| 5. Guests list, detail and form | ⬜ | |
+| 5. Guests list, detail and form | ✅ | (this commit) |
 | 6. Badges elsewhere and `person` everywhere | ⬜ | |
 | 7. Design review fixes | ⬜ | |
 
 ### Where to pick up
 
-Next: **stage 5** (Guests list, detail and form). Stages 1–4 are done on branch
+Next: **stage 6** (badges elsewhere and `person` everywhere). Stages 1–5 are done on branch
 `guest-small-groups`; the API and auth-server sides are done on their own `guest-small-groups`
 branches (API stages 1–6) and the setting is on in the dev API.
 
 Still open from stages 2–4: the 390 / 1024, English and light-mode passes, the leader view, and the cases
 that need older guests (move note, close matches, stopped-coming panel on Group detail and in the
 report form, New → Participant). The dev data has no guest with a streak of 3+.
-Dev data left behind: guest group *Test guests* (id 7) with Ana, Beto, Carla and Diego Prueba (the last
-two added from the report form); no reports (the test one was deleted).
+Dev data left behind: guest group *Test guests* (id 7) with Beto, Carla, Diego and Elena Prueba (Elena,
+id 5, was created from `/guests/new` and given a phone through the edit form); Ana Prueba is in no group;
+no reports (the test one was deleted).
 
 ### Decisions and deviations
 
@@ -167,6 +168,27 @@ two added from the report form); no reports (the test one was deleted).
   code: `audience` is `members` so no block or controls render).
 - Checked with `pnpm lint` (one existing warning in `member-form.tsx`, not touched) and
   `pnpm exec tsc --noEmit`. Nothing visible changes, so no browser pass.
+
+- **Stage 5:** `/guests` is server-driven: `?status=active|inactive|all&q=&page=` goes to
+  `GET /guests` (25 per page), so tabs, search (300 ms debounce, `router.replace` in a transition that dims
+  the list) and the footer's Previous/Next are navigations; counts come from the API. Every guest page
+  calls `requireGuests()` (`_lib/require-guests.ts`): `notFound()` when `features.guestGroups` is off or
+  the permission is missing; scope (leaders) is the API's 404. Detail: a viewer without the list gets
+  Groups › group › guest and a *Back to {group}* button (only if they can open the group); group history
+  links and report links follow access. Observations show only when the API sends them. Form
+  (`GuestForm`): similar guests (name, and phone once a number is typed) via `searchGuestsAction` and
+  the dialog's exported `useGuestSearch`/`GuestMeta`, with *Open* only for `guests: all`; the group select
+  (new only) lists open guest groups and needs `smallGroups: manageMembers`; edit sends only changed
+  fields, never invents a first visit that was empty, and sends `invitedByMemberId` only if changed (if the
+  member picker is refused for the caller, the field is disabled and not sent). `GuestsBadge` takes a
+  `label` ("Guest" on detail). New guest/edit toasts use `GuestSavedToast`.
+- **Browser pass (stage 5), admin:** list in dark + Spanish and light + English (tabs, counts, search,
+  group cell, *Not in a group* with when and why), detail (all cards), `/guests/new` with the similar-guest
+  panel for "Ana", creating *Elena Prueba* into *Test guests* (redirect to detail), editing her phone
+  (saved, shown). **Not checked:** 390 and 1024 (window minimum is 1152, so the card list, the sheet
+  layout and the table's horizontal scroll below `md` are unverified), the leader view and its
+  breadcrumb/back button, the warning pill (no guest with a missed streak of 2+), pagination (4 guests),
+  invited by, the form's validation errors, a 404 with the setting off, light mode on detail/form.
 
 ## Token changes
 
