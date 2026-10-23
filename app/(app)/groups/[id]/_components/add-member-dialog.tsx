@@ -61,10 +61,14 @@ function AddMemberForm({
   const [role, setRole] = useState<SmallGroupRole>("member");
   const [joinedAt, setJoinedAt] = useState(today);
   const [error, setError] = useState<string | null>(null);
-  const leader = group.members.find((member) => member.role === "leader");
-  const inGroup = useMemo(
-    () => new Set(group.members.map((member) => String(member.memberId))),
+  const people = useMemo(
+    () => group.members.filter((row) => row.person.type === "member"),
     [group.members],
+  );
+  const leader = people.find((member) => member.role === "leader");
+  const inGroup = useMemo(
+    () => new Set(people.map((member) => String(member.person.id))),
+    [people],
   );
 
   const results = useMemo(() => {

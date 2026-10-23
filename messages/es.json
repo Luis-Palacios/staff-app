@@ -198,7 +198,9 @@
     "members": "{count, plural, one {<strong>#</strong> miembro} other {<strong>#</strong> miembros}}",
     "membersClosed": "<strong>0</strong> miembros ahora",
     "allGroups": "Todos los grupos",
-    "edit": "Editar datos"
+    "edit": "Editar datos",
+    "guestsClosed": "<strong>0</strong> invitados ahora",
+    "guestsAndMembers": "{guests, plural, one {<strong>#</strong> invitado} other {<strong>#</strong> invitados}} · {members, plural, one {<strong>#</strong> miembro} other {<strong>#</strong> miembros}}"
   },
   "GroupMembersCard": {
     "eyebrow": "Personas",
@@ -207,7 +209,9 @@
     "emptyTitle": "Aún no hay miembros",
     "emptyBody": "Agrega al líder y a los miembros con Agregar miembro.",
     "closedTitle": "Este grupo se cerró el {date}",
-    "closedBody": "Ese día todos salieron del grupo. El tiempo de cada persona en él queda en su historial."
+    "closedBody": "Ese día todos salieron del grupo. El tiempo de cada persona en él queda en su historial.",
+    "titleGuestGroup": "Líderes y miembros",
+    "guestGroupHelp": "Miembros de la iglesia que dirigen o ayudan en este grupo. Los invitados no pueden dirigir."
   },
   "GroupDetailsCard": {
     "eyebrow": "Detalles",
@@ -1333,5 +1337,101 @@
   },
   "GuestsBadge": {
     "label": "Invitados"
+  },
+  "GroupGuestsCard": {
+    "eyebrow": "Personas",
+    "title": "Invitados",
+    "add": "Agregar invitado",
+    "joined": "Entró el {date}",
+    "lastSeen": "última reunión: {date}",
+    "neverSeen": "aún no ha ido a una reunión",
+    "new": "Nuevo",
+    "participant": "Participante",
+    "emptyTitle": "Aún no hay invitados",
+    "emptyBody": "Agrega uno con Agregar invitado. También puedes agregarlo desde un reporte cuando llega alguien nuevo.",
+    "closedTitle": "No hay invitados en este grupo",
+    "closedBody": "Este grupo está cerrado. El tiempo de cada invitado en él queda en su historial.",
+    "suggestion": "<strong>No ha venido a las últimas {count, number} reuniones.</strong> ¿Sigue viniendo?",
+    "markStopped": "Marcar que dejó de venir",
+    "toasts": {
+      "added": "{name} agregado",
+      "removed": "{name} salió del grupo"
+    },
+    "errors": {
+      "off": "Los grupos de invitados están desactivados para esta iglesia.",
+      "inAnotherGroup": "{name} está en otro grupo. Busca de nuevo para cambiarlo.",
+      "alreadyInGroup": "{name} ya está en este grupo.",
+      "closed": "Este grupo está cerrado, así que no se puede modificar.",
+      "laterReport": "Está en un reporte posterior; quítalo primero de ahí.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
+  },
+  "GuestRowMenu": {
+    "actionsFor": "Acciones para {name}",
+    "view": "Ver invitado",
+    "edit": "Editar datos",
+    "remove": "Quitar del grupo…"
+  },
+  "RemoveGuestDialog": {
+    "title": "¿Quitar a {name} del grupo?",
+    "reasonLegend": "¿Por qué sale?",
+    "reasons": {
+      "stopped_coming": "Dejó de venir",
+      "other": "Otro motivo"
+    },
+    "note": "Sale del grupo hoy; su tiempo en él queda en su historial.",
+    "cancel": "Cancelar",
+    "confirm": "Quitar"
+  },
+  "AddGuestDialog": {
+    "title": "Agregar invitado",
+    "subtitle": "A {group}. Entra hoy.",
+    "reportTitle": "Vino alguien nuevo",
+    "reportSubtitle": "A {group}. Entra desde esta reunión.",
+    "reportHint": "Búscalo o agrega un invitado nuevo. Entra al grupo desde esta reunión, marcado como que vino.",
+    "searchLabel": "Buscar invitado",
+    "searchPlaceholder": "Nombre o teléfono",
+    "results": "Invitados encontrados",
+    "searching": "Buscando…",
+    "newOption": "Agregar “{q}” como invitado nuevo",
+    "newOptionEmpty": "Agregar un invitado nuevo",
+    "newHint": "Primera vez, o no aparece arriba",
+    "alreadyIn": "Ya está en este grupo",
+    "phoneLast4": "···· {digits}",
+    "currentGroup": "En {group} desde el {date}",
+    "lastGroup": "Estuvo en {group}, salió el {date}",
+    "noGroup": "Sin grupo",
+    "lastSeen": "última reunión: {date}",
+    "neverSeen": "nunca ha ido a una reunión",
+    "moveNote": "{name} está en {group} desde el {date}. Si lo agregas aquí, se cambia de grupo: su tiempo en {group} termina hoy. Un invitado está en un solo grupo a la vez.",
+    "add": "Agregar al grupo",
+    "move": "Cambiar a este grupo",
+    "addReport": "Agregar y marcar que vino",
+    "moveReport": "Cambiar aquí y marcar que vino",
+    "cancel": "Cancelar",
+    "back": "Atrás",
+    "newTitle": "Nuevo invitado",
+    "newSubtitle": "Entra hoy a {group}.",
+    "newReportSubtitle": "Entra a {group} desde esta reunión.",
+    "matchesTitle": "¿Es la misma persona?",
+    "useGuest": "Usar este invitado",
+    "nameLabel": "Nombre",
+    "nameRequired": "Escribe un nombre.",
+    "phoneLabel": "Teléfono",
+    "firstVisitLabel": "Primera visita",
+    "invitedByLabel": "Invitado por",
+    "invitedByPlaceholder": "Busca un miembro (opcional)",
+    "loading": "Cargando miembros…",
+    "noMembers": "Ningún miembro coincide.",
+    "addNew": "Agregar invitado nuevo",
+    "addNewReport": "Agregar y marcar que vino",
+    "errors": {
+      "off": "Los grupos de invitados están desactivados para esta iglesia.",
+      "inAnotherGroup": "{name} está en otro grupo.",
+      "alreadyInGroup": "{name} ya está en este grupo.",
+      "closed": "Este grupo está cerrado, así que no se puede modificar.",
+      "laterReport": "Está en un reporte posterior; quítalo primero de ahí.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
   }
 }
