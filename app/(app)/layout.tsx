@@ -1,3 +1,4 @@
+import { getFeatures } from "@/api/members-api/client";
 import { getConversationCounts } from "@/api/conversations-api/client";
 import { requireStaffSession } from "@/api/auth-api/helpers/require-staff-session";
 import { AppShell } from "@/components/app-shell";
@@ -23,8 +24,15 @@ export default async function AppLayout({
         .catch(() => 0)
     : 0;
 
+  // A failed read hides the guest controls rather than the app.
+  const features = await getFeatures().catch(() => ({ guestGroups: false }));
+
   return (
-    <UserProvider permissions={session.permissions} user={session.user}>
+    <UserProvider
+      features={features}
+      permissions={session.permissions}
+      user={session.user}
+    >
       <AppShell
         context={context}
         conversationsWaiting={conversationsWaiting}

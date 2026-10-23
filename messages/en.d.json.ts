@@ -19,7 +19,8 @@ declare const messages: {
     "access": "Access",
     "users": "Users",
     "invites": "Invites",
-    "conversations": "Conversations"
+    "conversations": "Conversations",
+    "guests": "Guests"
   },
   "Sidebar": {
     "home": "ekklesiaio home",
@@ -119,6 +120,18 @@ declare const messages: {
     "errors": {
       "nameRequired": "Enter a name for the group.",
       "addressTooLong": "Keep the address under 255 characters."
+    },
+    "audience": "Who is this group for?",
+    "audienceLock": "This can't be changed after the group is created.",
+    "audienceOptions": {
+      "members": {
+        "label": "Members",
+        "help": "Church members. The usual small group."
+      },
+      "guests": {
+        "label": "Guests",
+        "help": "People who aren't members yet: visitors and people going through the process. Led by members."
+      }
     }
   },
   "GroupSavedToast": {
@@ -234,7 +247,9 @@ declare const messages: {
     "noAddress": "No meeting address",
     "members": "{count, plural, one {<strong>#</strong> member} other {<strong>#</strong> members}}",
     "membersClosed": "— members now",
-    "open": "Open"
+    "open": "Open",
+    "guestsAndMembers": "{guests, plural, one {<strong>#</strong> guest} other {<strong>#</strong> guests}} · {members, plural, one {<strong>#</strong> member} other {<strong>#</strong> members}}",
+    "guestsClosed": "— guests now"
   },
   "ReportsPage": {
     "title": "Small group reports",
@@ -1318,6 +1333,9 @@ declare const messages: {
     "unbanBody": "They will be able to sign in again.",
     "unbanLabel": "Unban",
     "unbannedToast": "{name} was unbanned"
+  },
+  "GuestsBadge": {
+    "label": "Guests"
   }
 };
 export default messages;

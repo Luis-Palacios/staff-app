@@ -1,5 +1,6 @@
 import type { ComponentType, SVGProps } from "react";
 import type { Messages } from "next-intl";
+import type { MeFeatures } from "@/api/members-api/types";
 import type { PermissionCheck, Permissions } from "@/lib/auth/permissions";
 
 import { can, canSeeConversationsInbox } from "@/lib/auth/permissions";
@@ -13,6 +14,7 @@ export type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
 export type NavIconName =
   | "dashboard"
   | "members"
+  | "guests"
   | "groups"
   | "applications"
   | "conversations"
@@ -38,6 +40,8 @@ export type NavItem = {
   /** Permissions needed to see this item; omit to show it to everyone. It must match the check
    *  the page itself makes (`notFound()`), so a hidden page is also unreachable by URL. */
   requires?: PermissionCheck;
+  /** Shown only when this church setting is on (`/me` features). */
+  feature?: keyof MeFeatures;
   /** A nav item whose visibility is a helper rather than a plain permission check, and which
    *  carries the sidebar's needs-my-reply badge. */
   conversations?: true;
@@ -145,6 +149,13 @@ export const siteConfig = {
       requires: { members: ["view", "all"] },
     },
     {
+      labelKey: "guests",
+      icon: "guests",
+      href: "/guests",
+      requires: { guests: ["view", "all"] },
+      feature: "guestGroups",
+    },
+    {
       labelKey: "groups",
       icon: "groups",
       items: [
@@ -186,15 +197,20 @@ export const siteConfig = {
 };
 
 /**
- * The nav the caller sees: items and links whose `requires` pass and whose `unless` doesn't, and
+ * The nav the caller sees: items for features that are on, items and links whose `requires` pass and whose `unless` doesn't, and
  * groups left with no link dropped. The pages make the same checks (`notFound()`).
  */
-export function getVisibleNavItems(permissions: Permissions): NavItem[] {
+export function getVisibleNavItems(
+  permissions: Permissions,
+  features: MeFeatures,
+): NavItem[] {
   const visible = (entry: {
     requires?: PermissionCheck;
     unless?: PermissionCheck;
     conversations?: true;
+    feature?: keyof MeFeatures;
   }) =>
+    (!entry.feature || features[entry.feature]) &&
     (!entry.conversations || canSeeConversationsInbox(permissions)) &&
     (!entry.requires || can(permissions, entry.requires)) &&
     (!entry.unless || !can(permissions, entry.unless));

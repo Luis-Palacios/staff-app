@@ -71,7 +71,7 @@ below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Permissions, types, API client, the setting | ✅ | this commit |
-| 2. Menu, Groups badge, New group audience | ⬜ | |
+| 2. Menu, Groups badge, New group audience | ✅ | this commit |
 | 3. Group detail for guest groups | ⬜ | |
 | 4. Report form and report detail with guests | ⬜ | |
 | 5. Guests list, detail and form | ⬜ | |
@@ -89,6 +89,15 @@ below.
   `ReportAttendance` so nothing else changes in this stage, though the API sends null on guest rows.
   Guest rows can't exist until the setting is on, and stage 6 moves every reader to `person` and
   drops those keys from the types.
+- **Stage 2:** `features` travels in `UserProvider` (read once in the `(app)` layout; a failed read
+  means "off"), with `useFeatures()`. `NavItem.feature` hides an item when its setting is off;
+  `getVisibleNavItems(permissions, features)`. The Guests nav item links to `/guests`, which stage 5
+  builds: until then it 404s, but only with the setting on. `GuestsBadge` borders with
+  `border-field-border` (already `field-line-on-dark` in dark), so no token change. The New group
+  page reads `getFeatures()` on the server and passes `askAudience` to `GroupForm`.
+- Stage 2 was checked with lint and `tsc` only. Not yet looked at in a browser: it needs the API
+  running with `GUEST_GROUPS_ENABLED` on, so do the light/dark, 390 and Spanish pass for stages 2–3
+  together once Group detail exists.
 - Checked with `pnpm lint` (one existing warning in `member-form.tsx`, not touched) and
   `pnpm exec tsc --noEmit`. Nothing visible changes, so no browser pass.
 
