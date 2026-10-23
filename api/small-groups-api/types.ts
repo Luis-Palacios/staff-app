@@ -1,3 +1,4 @@
+import type { ConversationStatus } from "@/api/conversations-api/types";
 import type { SmallGroupRole } from "@/api/members-api/types";
 
 export type { SmallGroupRole };
@@ -171,6 +172,53 @@ export interface ReportWeek {
   isCurrentWeek: boolean;
   /** Open groups, by name. */
   groups: ReportWeekGroup[];
+}
+
+/** The report texts a thread can be about, in the page's order. */
+export type ReportSectionKey = "prayer" | "praise" | "followUp";
+
+/** A section thread's indicator on a shared entry; `unread` and `needsMyReply` are the caller's. */
+export interface ReportSharedConversation {
+  id: number;
+  status: ConversationStatus;
+  commentCount: number;
+  unread: boolean;
+  needsMyReply: boolean;
+}
+
+/** One held report in the week, with its three texts. */
+export interface ReportSharedEntry {
+  reportId: number;
+  meetingDate: string;
+  smallGroup: { id: number; name: string };
+  /** Active today: the leader, then co-leaders by name. */
+  leaders: ReportWeekGroup["leaders"];
+  /** Null when empty after trimming; line breaks kept. */
+  prayer: string | null;
+  praise: string | null;
+  followUp: string | null;
+  /** Section threads only; a key is absent when that section has no thread. */
+  conversations: Partial<Record<ReportSectionKey, ReportSharedConversation>>;
+}
+
+/** An open group that may still add texts this week, or (past weeks) didn't file. */
+export interface ReportStillToReport {
+  smallGroup: { id: number; name: string };
+  status: Extract<ReportWeekStatus, "notFiled" | "today" | "upcoming">;
+  meetingDate: string;
+}
+
+export interface ReportShared {
+  /** The week's Sunday and Saturday, "YYYY-MM-DD". */
+  weekStart: string;
+  weekEnd: string;
+  /** The church's today. */
+  today: string;
+  isCurrentWeek: boolean;
+  /** Meeting date, oldest first, then group name. */
+  entries: ReportSharedEntry[];
+  /** `notFiled`, `today`, `upcoming`, then by name. */
+  stillToReport: ReportStillToReport[];
 }
 
 export interface ReportRosterPerson {

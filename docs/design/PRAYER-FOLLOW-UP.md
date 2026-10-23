@@ -67,8 +67,8 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Menu renames and the route | ✅ | this commit |
-| 2. API types and client (shared endpoint, anchor union) | ⬜ | |
+| 1. Menu renames and the route | ✅ | `19ee68f` |
+| 2. API types and client (shared endpoint, anchor union) | ✅ | this commit |
 | 3. The page: week, chips, still to report, sections | ⬜ | |
 | 4. Copy for WhatsApp | ⬜ | |
 | 5. Section threads: page control, Report detail, panel | ⬜ | |
@@ -86,7 +86,20 @@ progress log below.
   `/dashboard/staff` gets *Applications & access*. Only `title`, `subtitle` and `subtitleLeader`
   of `PrayerDashboard` were added; the other keys come with the stages that use them.
   `/dashboard/prayer` is a static route, so `[...slug]` never takes it; `isActivePath` matches
-  `/` exactly, so only one child is marked on each URL. Not yet checked in the browser.
+  `/` exactly, so only one child is marked on each URL.
+- **Stage 2:** the shared types sit next to the week ones in `api/small-groups-api/types.ts`
+  (`ReportSectionKey` too, since the conversation types import it); `ReportStillToReport.status` is
+  `Extract<ReportWeekStatus, …>` and `conversations` is a `Partial<Record<…>>`, both as the API
+  sends them. Besides inbox rows, `ConversationThread.member` is nullable too (the API made it so for
+  section threads); Report detail's panel name reads `thread?.member?.name`. Inbox rows narrow
+  through `isPersonInboxItem` (`lib/conversation-format.ts`), and `ConversationRow` /
+  `conversationHref` take a `PersonInboxItem`, so stage 6 is where the type stops them. The
+  Conversations list keeps every row it fetched (so *Show more* asks from the right offset) and
+  renders only person rows. Until stage 6 the inbox tab counts and the *Waiting for your reply*
+  pill still include section threads, since they come from the API. The attendance card's indicators
+  and its summary (count and *needs your reply*) are derived from person summaries, the same way
+  the API derives `counts`. `getSectionConversation` / `addSectionComment` land in stage 5 with
+  their server actions. Checked: `tsc`, and the local API's OpenAPI has the three new routes.
 
 ## Token changes
 

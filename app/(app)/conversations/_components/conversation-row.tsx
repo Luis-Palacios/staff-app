@@ -1,4 +1,4 @@
-import type { ConversationInboxItem } from "@/api/conversations-api/types";
+import type { PersonInboxItem } from "@/lib/conversation-format";
 import type { Locale } from "@/lib/locale-shared";
 
 import clsx from "clsx";
@@ -22,7 +22,7 @@ export function ConversationRow({
   timeZone,
   compact = false,
 }: {
-  item: ConversationInboxItem;
+  item: PersonInboxItem;
   timeZone: string;
   /** The dashboard block: no status pill, no comment count, a one-line excerpt. */
   compact?: boolean;

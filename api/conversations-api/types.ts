@@ -1,6 +1,8 @@
 // Shapes of membership-management's report conversation routes (camelCase, as sent).
 // Comment bodies are plain text; a deleted comment has `body: null`.
 
+import type { ReportSectionKey } from "@/api/small-groups-api/types";
+
 export type ConversationStatus = "open" | "resolved";
 
 /** Elders' side = the author had `smallGroups: all` when writing; leaders' side otherwise. */
@@ -8,11 +10,11 @@ export type ConversationSide = "elders" | "leaders";
 
 export type ConversationInboxTab = "reply" | "open" | "resolved";
 
-/** What a thread is about. Only attendance rows in v1; sections can come without a client change. */
-export interface ConversationAnchor {
-  type: "attendance";
-  memberId: number;
-}
+/** What a thread is about: a person's attendance row or one of the report's texts. Narrow on
+ *  `type` before reading `memberId` or `key`. */
+export type ConversationAnchor =
+  | { type: "attendance"; memberId: number }
+  | { type: "section"; key: ReportSectionKey };
 
 /** One row indicator on Report detail. */
 export interface ConversationSummary {
@@ -49,8 +51,9 @@ export interface ConversationComment {
 export interface ConversationThread {
   id: number;
   anchor: ConversationAnchor;
-  /** The person the thread is about: there even when their attendance row is gone. */
-  member: { id: number; name: string };
+  /** The person the thread is about: there even when their attendance row is gone. Null for a
+   *  section thread. */
+  member: { id: number; name: string } | null;
   status: ConversationStatus;
   resolvedBy: ConversationPerson | null;
   resolvedAt: string | null;
@@ -65,7 +68,9 @@ export interface ConversationInboxItem {
   status: ConversationStatus;
   needsMyReply: boolean;
   unread: boolean;
-  member: { id: number; name: string };
+  anchor: ConversationAnchor;
+  /** Null for a section thread. */
+  member: { id: number; name: string } | null;
   group: { id: number; name: string; closed: boolean };
   report: { id: number; meetingDate: string };
   /** Always present; `deleted` with a null `excerpt` when every comment was deleted. */

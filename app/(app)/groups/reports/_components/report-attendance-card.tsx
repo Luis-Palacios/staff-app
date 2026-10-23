@@ -102,12 +102,22 @@ export async function ReportAttendanceCard({
   };
 
   const showConversations = conversations !== null;
-  const summaryByMember = new Map(
-    (conversations?.conversations ?? []).map((summary) => [
-      summary.anchor.memberId,
-      summary,
-    ]),
+  // Person threads only: section threads belong to the shared texts card, and the counts here
+  // are this card's, not the report's.
+  const personSummaries = (conversations?.conversations ?? []).flatMap(
+    (summary) =>
+      summary.anchor.type === "attendance"
+        ? [{ memberId: summary.anchor.memberId, summary }]
+        : [],
   );
+  const summaryByMember = new Map(
+    personSummaries.map(({ memberId, summary }) => [memberId, summary]),
+  );
+  const personCounts = {
+    total: personSummaries.length,
+    needsMyReply: personSummaries.filter(({ summary }) => summary.needsMyReply)
+      .length,
+  };
   const conversationFor = (
     person: ReportAttendance,
     size: "table" | "card",
@@ -164,14 +174,14 @@ export async function ReportAttendanceCard({
           </h2>
         </div>
         <div className="flex flex-col items-end gap-2">
-          {conversations !== null && conversations.counts.total > 0 && (
+          {conversations !== null && personCounts.total > 0 && (
             <ConversationSummary
-              needsReply={conversations.counts.needsMyReply > 0}
+              needsReply={personCounts.needsMyReply > 0}
               reply={tConv("summaryReply", {
-                count: String(conversations.counts.needsMyReply),
+                count: String(personCounts.needsMyReply),
               })}
               total={tConv("summaryTotal", {
-                count: conversations.counts.total,
+                count: personCounts.total,
               })}
             />
           )}
@@ -230,7 +240,7 @@ export async function ReportAttendanceCard({
           )}
           {conversations !== null && (
             <dd className="font-normal text-muted sm:ml-auto">
-              {tConv("summaryTotal", { count: conversations.counts.total })}
+              {tConv("summaryTotal", { count: personCounts.total })}
             </dd>
           )}
         </dl>

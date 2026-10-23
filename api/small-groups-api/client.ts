@@ -5,6 +5,7 @@ import type {
   ReportList,
   ReportListParams,
   ReportRoster,
+  ReportShared,
   ReportSummaryGroup,
   ReportWeek,
   SmallGroupDetail,
@@ -176,6 +177,23 @@ export function getSmallGroupReportWeek(date?: string): Promise<ReportWeek> {
   return authenticatedFetch<ReportWeek>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     `/small-group-reports/week${query}`,
+    { cache: "no-store" },
+  );
+}
+
+/**
+ * The prayer, praise and follow-up texts of the held reports in the Sunday–Saturday week containing
+ * `date` (default: the church's today), and the groups still to report. Scoped to the caller's
+ * groups; 422 for a later week.
+ */
+export function getSmallGroupReportShared(
+  date?: string,
+): Promise<ReportShared> {
+  const query = date ? `?date=${encodeURIComponent(date)}` : "";
+
+  return authenticatedFetch<ReportShared>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `/small-group-reports/shared${query}`,
     { cache: "no-store" },
   );
 }
