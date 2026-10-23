@@ -73,7 +73,7 @@ progress log below.
 | 4. Copy for WhatsApp | ✅ | `63c7509` |
 | 5. Section threads: page control, Report detail, panel | ✅ | `ad04644` |
 | 6. Section threads in Conversations and *Waiting for your reply* | ✅ | `1ed01ca` |
-| 7. Docs | ⬜ | |
+| 7. Docs | ✅ | (hash added with stage 8) |
 | 8. Design review fixes (after the variant boards exist) | ⬜ | |
 
 ### Open checks (carry into stage 8)
@@ -202,6 +202,9 @@ Not yet seen in the browser; everything else is noted per stage below.
   `/groups/reports/14?section=followUp`. The test comment is still in the dev database. Not
   checked: the amber *needs your reply* state and the unread dot from a leader's side (needs a leader
   account).
+- **Stage 7:** a note under the title of `REPORT-CONVERSATIONS.md` (section threads, stages 5–6
+  here) and of `GROUPS-DASHBOARD.md` (the two renames, labels only), in the blockquote style
+  `REPORT-CONVERSATIONS-EMAIL.md` already uses.
 
 ## Token changes
 

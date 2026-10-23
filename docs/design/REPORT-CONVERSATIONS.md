@@ -1,5 +1,8 @@
 # Report conversations: panel on Report detail, Conversations inbox, dashboard blocks
 
+> **Section threads (added Oct 2026):** conversations about a report section (prayer, praise,
+> follow-up), not only a person, were added by `docs/design/PRAYER-FOLLOW-UP.md` (stages 5–6).
+
 Implementation spec for **report conversations** (Report detail `/groups/reports/[id]`, a new
 **Conversations** nav item `/conversations`, and both dashboards), which is **new** today:
 
