@@ -16,7 +16,8 @@
     "access": "Acceso",
     "users": "Usuarios",
     "invites": "Invitaciones",
-    "conversations": "Conversaciones"
+    "conversations": "Conversaciones",
+    "guests": "Invitados"
   },
   "Sidebar": {
     "home": "Inicio de ekklesiaio",
@@ -116,6 +117,18 @@
     "errors": {
       "nameRequired": "Escribe un nombre para el grupo.",
       "addressTooLong": "Usa menos de 255 caracteres en la dirección."
+    },
+    "audience": "¿Para quién es este grupo?",
+    "audienceLock": "Esto no se puede cambiar después de crear el grupo.",
+    "audienceOptions": {
+      "members": {
+        "label": "Miembros",
+        "help": "Miembros de la iglesia. El grupo pequeño habitual."
+      },
+      "guests": {
+        "label": "Invitados",
+        "help": "Personas que aún no son miembros: visitantes y personas en el proceso. Dirigido por miembros."
+      }
     }
   },
   "GroupSavedToast": {
@@ -231,7 +244,9 @@
     "noAddress": "Sin dirección de reunión",
     "members": "{count, plural, one {<strong>#</strong> miembro} other {<strong>#</strong> miembros}}",
     "membersClosed": "— miembros ahora",
-    "open": "Abrir"
+    "open": "Abrir",
+    "guestsAndMembers": "{guests, plural, one {<strong>#</strong> invitado} other {<strong>#</strong> invitados}} · {members, plural, one {<strong>#</strong> miembro} other {<strong>#</strong> miembros}}",
+    "guestsClosed": "— invitados ahora"
   },
   "ReportsPage": {
     "title": "Reportes de grupos pequeños",
@@ -1315,5 +1330,8 @@
     "unbanBody": "Podrá iniciar sesión de nuevo.",
     "unbanLabel": "Desbloquear",
     "unbannedToast": "Se desbloqueó a {name}"
+  },
+  "GuestsBadge": {
+    "label": "Invitados"
   }
 }

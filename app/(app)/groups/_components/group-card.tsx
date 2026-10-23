@@ -12,6 +12,7 @@ import clsx from "clsx";
 import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
+import { GuestsBadge } from "@/components/guests-badge";
 import { card } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCalendarDate } from "@/lib/format-date";
@@ -97,6 +98,7 @@ export function GroupCard({ group }: { group: SmallGroupSummary }) {
           >
             {group.name}
           </span>
+          {group.audience === "guests" && <GuestsBadge />}
           {group.closedAt && (
             <StatusBadge tone="neutral">
               {t("closedOn", {
@@ -133,15 +135,27 @@ export function GroupCard({ group }: { group: SmallGroupSummary }) {
       <span className="mt-auto flex items-center justify-between gap-3 border-t border-separator pt-3.5 text-[13px] text-muted">
         <span>
           {closed
-            ? t("membersClosed")
-            : t.rich("members", {
-                count: group.activeMemberCount,
-                strong: (chunks) => (
-                  <strong className="font-semibold text-heading">
-                    {chunks}
-                  </strong>
-                ),
-              })}
+            ? group.audience === "guests"
+              ? t("guestsClosed")
+              : t("membersClosed")
+            : group.audience === "guests"
+              ? t.rich("guestsAndMembers", {
+                  guests: group.activeGuestCount,
+                  members: group.activeMemberCount,
+                  strong: (chunks) => (
+                    <strong className="font-semibold text-heading">
+                      {chunks}
+                    </strong>
+                  ),
+                })
+              : t.rich("members", {
+                  count: group.activeMemberCount,
+                  strong: (chunks) => (
+                    <strong className="font-semibold text-heading">
+                      {chunks}
+                    </strong>
+                  ),
+                })}
         </span>
         <span className="inline-flex items-center gap-1 font-semibold text-link">
           {t("open")}

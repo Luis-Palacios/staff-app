@@ -1,7 +1,10 @@
 "use server";
 
 import type { MemberOption, SmallGroupRole } from "@/api/members-api/types";
-import type { SmallGroupInput } from "@/api/small-groups-api/types";
+import type {
+  GroupAudience,
+  SmallGroupInput,
+} from "@/api/small-groups-api/types";
 import type {
   GroupFieldErrors,
   GroupFormValues,
@@ -57,9 +60,13 @@ async function toForbidden(error: unknown): Promise<GroupActionResult> {
   return { ok: false, message: await getApiErrorMessage(error) };
 }
 
-/** POST: an empty address and an unset day are omitted. */
+/**
+ * POST: an empty address and an unset day are omitted. `audience` is sent only for a guest group;
+ * the API answers 409 when the setting is off.
+ */
 export async function createGroupAction(
   values: GroupFormValues,
+  audience: GroupAudience = "members",
 ): Promise<GroupFormFailure> {
   const forbidden = await forbiddenUnless({ smallGroups: ["create"] });
 
@@ -74,6 +81,7 @@ export async function createGroupAction(
   const { name, meetingDay, meetingAddress } = parsed.data;
   const input: SmallGroupInput = {
     name,
+    ...(audience === "guests" && { audience }),
     ...(meetingDay !== null && { meetingDay }),
     ...(meetingAddress && { meetingAddress }),
   };

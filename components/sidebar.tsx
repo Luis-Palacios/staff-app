@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 import {
   ChatBubbleLeftRightIcon,
   DocumentTextIcon,
+  HandRaisedIcon,
   ShieldCheckIcon,
   Squares2X2Icon,
   UserGroupIcon,
@@ -26,12 +27,13 @@ import { CloseIcon } from "@/components/icons";
 import { EkklesiaioLogo } from "@/components/brand/ekklesiaio-logo";
 import { ChurchContextCard } from "@/components/brand/church-context";
 import { getVisibleNavItems } from "@/config/site";
-import { usePermissions } from "@/lib/contexts/user-context";
+import { useFeatures, usePermissions } from "@/lib/contexts/user-context";
 
 // Heroicons outline (24px grid), drawn at stroke 1.6 by `NavIcon` below.
 const iconRegistry: Record<NavIconName, HeroIcon> = {
   dashboard: Squares2X2Icon,
   members: UsersIcon,
+  guests: HandRaisedIcon,
   groups: UserGroupIcon,
   applications: DocumentTextIcon,
   conversations: ChatBubbleLeftRightIcon,
@@ -193,7 +195,7 @@ export const Sidebar = ({
 }: SidebarProps) => {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
-  const navItems = getVisibleNavItems(usePermissions());
+  const navItems = getVisibleNavItems(usePermissions(), useFeatures());
 
   return (
     <>

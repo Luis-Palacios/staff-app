@@ -1,6 +1,7 @@
 "use client";
 
 import type { AuthSessionUser } from "@/api/auth-api/types";
+import type { MeFeatures } from "@/api/members-api/types";
 import type { Permissions } from "@/lib/auth/permissions";
 
 import { createContext, useContext } from "react";
@@ -8,6 +9,7 @@ import { createContext, useContext } from "react";
 interface CurrentUser {
   user: AuthSessionUser;
   permissions: Permissions;
+  features: MeFeatures;
 }
 
 const UserContext = createContext<CurrentUser | null>(null);
@@ -15,12 +17,13 @@ const UserContext = createContext<CurrentUser | null>(null);
 export function UserProvider({
   user,
   permissions,
+  features,
   children,
 }: CurrentUser & {
   children: React.ReactNode;
 }) {
   return (
-    <UserContext.Provider value={{ user, permissions }}>
+    <UserContext.Provider value={{ user, permissions, features }}>
       {children}
     </UserContext.Provider>
   );
@@ -43,4 +46,9 @@ export function useCurrentUser(): AuthSessionUser {
 /** The signed-in user's permissions, to hide what they can't use. The API still guards it. */
 export function usePermissions(): Permissions {
   return useUserContext().permissions;
+}
+
+/** The church's settings (`/me` features), to hide controls for a feature that is off. */
+export function useFeatures(): MeFeatures {
+  return useUserContext().features;
 }
