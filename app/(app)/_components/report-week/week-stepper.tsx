@@ -10,13 +10,18 @@ import { formatCalendarRange } from "@/lib/format-date";
 const buttonClass =
   "flex size-10 items-center justify-center rounded-[9px] text-heading transition-colors hover:bg-default";
 
-/** Previous / range / next for the week in the URL (`?week=` is a Sunday; none = this week). */
+/**
+ * Previous / range / next for the week in the URL (`?week=` is a Sunday; none = this week), on the
+ * page at `basePath`.
+ */
 export async function WeekStepper({
+  basePath,
   weekStart,
   weekEnd,
   currentSunday,
   isCurrentWeek,
 }: {
+  basePath: string;
   weekStart: string;
   weekEnd: string;
   currentSunday: string;
@@ -37,7 +42,7 @@ export async function WeekStepper({
       <NextLink
         aria-label={t("previousWeek")}
         className={buttonClass}
-        href={`/?week=${addDays(weekStart, -7)}`}
+        href={`${basePath}?week=${addDays(weekStart, -7)}`}
         scroll={false}
       >
         <ChevronLeftIcon
@@ -66,7 +71,7 @@ export async function WeekStepper({
         <NextLink
           aria-label={t("nextWeek")}
           className={buttonClass}
-          href={next === currentSunday ? "/" : `/?week=${next}`}
+          href={next === currentSunday ? basePath : `${basePath}?week=${next}`}
           scroll={false}
         >
           <ChevronRightIcon
