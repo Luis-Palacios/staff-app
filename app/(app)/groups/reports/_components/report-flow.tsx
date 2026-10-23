@@ -368,11 +368,8 @@ export function ReportFlow({
     closed: ready?.roster.smallGroup.closedAt != null,
     date,
     today,
-    people,
     reload: refreshRoster,
     onAdded: (next, key) => {
-      if (!key) return;
-
       // They came: the first question is answered, the church one is still theirs to answer.
       answer(key, { attendedGroup: true });
 

@@ -203,11 +203,10 @@ export function EditReportForm({
     closed: report.smallGroup.closedAt !== null,
     date,
     today,
-    people,
     reload: refreshRoster,
     // They came: the first question is answered; the church one is still theirs to answer.
     onAdded: (_next, key) => {
-      if (key) answer(key, { attendedGroup: true });
+      answer(key, { attendedGroup: true });
     },
   });
   // The report's own date is "taken" by this very report (rule 1 ignores it).

@@ -51,7 +51,7 @@ interface AddGuestProps {
   /** Today at the church: the latest first-visit date. */
   today: string;
   /** Called after the guest was added or moved; `name` is for the toast. */
-  onAdded: (guest: { id: number | null; name: string }) => void;
+  onAdded: (guest: { id: number; name: string }) => void;
   onClose: () => void;
 }
 
@@ -221,7 +221,7 @@ function SearchStep({
       });
 
       if (result.ok) {
-        onAdded({ id: guest.id, name: guest.name });
+        onAdded({ id: result.guestId, name: guest.name });
 
         return;
       }
@@ -455,8 +455,7 @@ function NewGuestStep({
       });
 
       if (result.ok) {
-        // The new guest's id isn't in the response (it is the whole group); the page reloads it.
-        onAdded({ id: null, name: name.trim() });
+        onAdded({ id: result.guestId, name: name.trim() });
 
         return;
       }

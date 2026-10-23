@@ -4,7 +4,6 @@ import type {
   GroupAudience,
   Person,
   ReportRoster,
-  ReportRosterPerson,
 } from "@/api/small-groups-api/types";
 import type { ReactNode } from "react";
 
@@ -76,7 +75,6 @@ export function useReportGuests({
   closed,
   date,
   today,
-  people,
   reload,
   onAdded,
 }: {
@@ -86,11 +84,9 @@ export function useReportGuests({
   closed: boolean;
   date: string;
   today: string;
-  /** The roster as the form shows it now, to find the row a new guest got. */
-  people: ReportRosterPerson[];
   reload: () => Promise<ReportRoster | null>;
-  /** The roster after the add, and the new row's `personKey` (null if it couldn't be found). */
-  onAdded: (roster: ReportRoster, key: string | null) => void;
+  /** The roster after the add, and the new guest's `personKey`. */
+  onAdded: (roster: ReportRoster, key: string) => void;
 }): { controls: ReportGuestControls | null; dialogs: ReactNode } {
   const t = useTranslations("ReportForm");
   const tCard = useTranslations("GroupGuestsCard");
@@ -126,7 +122,7 @@ export function useReportGuests({
     });
   }
 
-  function handleAdded(guest: { id: number | null; name: string }) {
+  function handleAdded(guest: { id: number; name: string }) {
     setAdding(false);
 
     void reload().then((next) => {
@@ -136,24 +132,9 @@ export function useReportGuests({
         return;
       }
 
-      const before = new Set(people.map((row) => personKey(row.person)));
-      let key = guest.id === null ? null : `guest:${guest.id}`;
+      const key = personKey({ type: "guest", id: guest.id });
 
-      // A new guest's id isn't in the add response: it is the guest that wasn't on the roster before.
-      if (key === null) {
-        const fresh = next.people.filter(
-          (row) =>
-            row.person.type === "guest" && !before.has(personKey(row.person)),
-        );
-        const match =
-          fresh.find((row) => row.person.name === guest.name) ??
-          (fresh.length === 1 ? fresh[0] : undefined);
-
-        key = match ? personKey(match.person) : null;
-      }
-
-      if (key) mark("added", key);
-
+      mark("added", key);
       showToast(t("guestAdded", { name: guest.name }));
       onAdded(next, key);
     });

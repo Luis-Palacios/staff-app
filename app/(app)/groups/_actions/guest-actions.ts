@@ -19,17 +19,20 @@ import { getApiErrorMessage } from "@/lib/api-error-message";
 import { forbiddenUnless } from "@/lib/auth/get-permissions";
 import { getGuestErrorKind, getOtherGroup } from "@/lib/guest-errors";
 
-export type GuestActionResult =
-  | { ok: true }
-  | {
-      ok: false;
-      error?: GuestErrorKind;
-      /** With `inAnotherGroup`: where the guest is now, so the UI can ask to move them. */
-      otherGroup?: OtherGroup;
-      message?: string;
-    };
+export interface GuestActionFailure {
+  ok: false;
+  error?: GuestErrorKind;
+  /** With `inAnotherGroup`: where the guest is now, so the UI can ask to move them. */
+  otherGroup?: OtherGroup;
+  message?: string;
+}
 
-async function toFailure(error: unknown): Promise<GuestActionResult> {
+export type GuestActionResult = { ok: true } | GuestActionFailure;
+
+/** `guestId` is the added guest, new or existing. */
+export type AddGuestResult = { ok: true; guestId: number } | GuestActionFailure;
+
+async function toFailure(error: unknown): Promise<GuestActionFailure> {
   const kind = getGuestErrorKind(error);
 
   if (kind) {
@@ -75,7 +78,7 @@ export async function searchGuestsAction(
 export async function addGuestAction(
   groupId: string,
   input: AddGuestInput,
-): Promise<GuestActionResult> {
+): Promise<AddGuestResult> {
   const forbidden = await forbiddenUnless({
     smallGroups: ["manageMembers"],
     ...(input.newGuest && { guests: ["create"] }),
@@ -85,15 +88,17 @@ export async function addGuestAction(
     return { ok: false, message: await getApiErrorMessage(forbidden) };
   }
 
+  let guestId: number;
+
   try {
-    await addSmallGroupGuest(groupId, input);
+    ({ guestId } = await addSmallGroupGuest(groupId, input));
   } catch (error) {
     return toFailure(error);
   }
 
   revalidateGroup(groupId);
 
-  return { ok: true };
+  return { ok: true, guestId };
 }
 
 /** Ends the guest's period, today unless `leftAt` is given. */
