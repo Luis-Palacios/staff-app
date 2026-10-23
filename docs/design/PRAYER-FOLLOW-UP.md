@@ -70,8 +70,8 @@ progress log below.
 | 1. Menu renames and the route | ✅ | `19ee68f` |
 | 2. API types and client (shared endpoint, anchor union) | ✅ | `6b5e61c` |
 | 3. The page: week, chips, still to report, sections | ✅ | `ca93bfa` |
-| 4. Copy for WhatsApp | ✅ | this commit |
-| 5. Section threads: page control, Report detail, panel | ⬜ | |
+| 4. Copy for WhatsApp | ✅ | `63c7509` |
+| 5. Section threads: page control, Report detail, panel | ✅ | this commit |
 | 6. Section threads in Conversations and *Waiting for your reply* | ⬜ | |
 | 7. Docs | ⬜ | |
 | 8. Design review fixes (after the variant boards exist) | ⬜ | |
@@ -135,6 +135,42 @@ progress log below.
   text; focus stayed on the button; the success toast had both lines; a rejected `writeText` showed
   the danger toast; follow-up had 0 buttons. Not checked: *Copy all* at 390 (the browser window
   wouldn't resize this time), and a real paste into WhatsApp (design review checklist).
+- **Stage 5:** `getSectionConversation` / `addSectionComment` landed here (not stage 2).
+  `addCommentAction(reportId, anchor, body)` takes a `ConversationAnchor` and calls the person or
+  section route; every write also revalidates `/dashboard/prayer`. A 422 *section is empty* maps to
+  the generic error (stale page), as the error table says. **Panel:** `person` became `anchor`
+  (`ConversationPanelAnchor`, attendance with the old person fields, or section with its key and
+  text); new props `returnFocusSelector` and `viewFullReportHref`; `labels` (attendance pills) is
+  optional. The draft key is `conversation-draft:{reportId}:{memberId}` for a person (unchanged, so
+  saved drafts survive) and `…:section:{key}` for a section. A section thread whose text was cleared
+  opens with *This section of the report is empty now.* in the context box. **Indicator:**
+  `ConversationIndicator` takes an `anchor` instead of `memberId` (href `?person=` or `?section=`,
+  `data-conversation-member` or `data-conversation-section`). **Report detail:** `?section=` is
+  validated by `parseSectionParam` (`lib/report-sections.ts`), person wins over section, and a
+  section with no text and no thread opens nothing. *What the group shared* follows the board now:
+  a row per section with a top border, the indicator right of the title, the focused row's gold
+  edge, and the prayer icon is the board's heart (was a raised hand). One choice beyond the spec:
+  a section with **no text but an existing thread** still shows its control (rule 14 says the
+  thread stays and opens; without the control it'd be reachable only from the inbox). **Prayer
+  page:** `SectionConversationLink` uses the row indicator's tones (open accent-soft, *needs your
+  reply* amber, resolved green, gold dot when unread) rather than the board's always-amber pill.
+  The control shows only to the conversations' audience (`canSeeConversations`, leading the group
+  for scoped roles). `prayerPanel()` (`prayer/prayer-panel.tsx`) loads the thread and the report
+  (for *Shared by* and the leaders' roles) only when `?report=` names an entry of the week; the
+  week block gets the same right padding as Report detail when it's open. New keys beyond the copy
+  table: `Conversations.sectionTitle` / `sectionAbout` (ICU `select`, also for stage 6),
+  `sharedBy`, `sectionNowEmpty`, `panelEmptyBodySection`, `placeholderNewSection`,
+  `sectionStartAria`, `sectionRowAria`, and `PrayerDashboard.conversationAria`. `viewFullReport`
+  is in `Conversations` (the panel's client namespace) instead of `ReportConversations`, which
+  doesn't exist. Shared: `ReportSectionTile` (`components/report-section-tile.tsx`) for the icon
+  tile in its tone, used by the prayer page and the panel. Checked in the browser (admin, 400 px,
+  the window wouldn't go wider): *Start a conversation* on a follow-up entry opened the bottom sheet
+  (flag tile, title, *View full report*, *Shared by* and the text, composer); closing dropped
+  `report` and `section`, kept `?week=`, returned focus to that control and kept the Follow-up chip;
+  Report detail `?section=followUp` opened the same panel without *View full report*; an empty
+  praise had no control; `?section=bogus` and `?person=` + `?section=` behaved as specified; the
+  person panel is unchanged. Not checked: an existing thread's count, amber and dot states (the dev
+  database has no section threads), sending a comment, and the desktop side panel on this page.
 
 ## Token changes
 

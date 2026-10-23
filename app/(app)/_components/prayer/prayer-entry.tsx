@@ -1,10 +1,15 @@
-import type { ReportSharedEntry } from "@/api/small-groups-api/types";
+import type {
+  ReportSectionKey,
+  ReportSharedEntry,
+} from "@/api/small-groups-api/types";
 import type { Locale } from "@/lib/locale-shared";
 
+import clsx from "clsx";
 import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
 import { CopyForWhatsApp } from "./copy-for-whatsapp";
+import { SectionConversationLink } from "./section-conversation-link";
 import { whatsappEntryText } from "./whatsapp-text";
 
 import { textLink } from "@/components/primitives";
@@ -16,21 +21,39 @@ import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
  */
 export function PrayerEntry({
   entry,
+  section,
+  sectionTitle,
   text,
   copyTitle,
+  conversationHref,
+  focused,
 }: {
   entry: ReportSharedEntry;
+  section: ReportSectionKey;
+  sectionTitle: string;
   /** This section's text of the entry, never empty. */
   text: string;
   /** The section title for *Copy for WhatsApp*; none on follow-up, which is never copied. */
   copyTitle?: string;
+  /** Opens this entry's section thread on the page; none outside the conversations' audience. */
+  conversationHref?: string;
+  /** Its panel is open: the gold edge. */
+  focused: boolean;
 }) {
   const t = useTranslations("PrayerDashboard");
+  const tConv = useTranslations("Conversations");
+  const conversation = entry.conversations[section];
+  const group = entry.smallGroup.name;
   const locale = useLocale() as Locale;
   const date = formatCalendarShortWeekdayDate(entry.meetingDate, locale);
 
   return (
-    <li className="flex flex-col gap-x-7 gap-y-2.5 border-t border-separator p-4 md:flex-row md:px-[22px] md:py-[18px]">
+    <li
+      className={clsx(
+        "flex flex-col gap-x-7 gap-y-2.5 border-t border-separator p-4 md:flex-row md:px-[22px] md:py-[18px]",
+        focused && "bg-focus-row shadow-[inset_3px_0_0_var(--color-gold-500)]",
+      )}
+    >
       <div className="flex flex-col gap-[3px] md:w-60 md:shrink-0">
         <span className="text-[15px] font-semibold text-heading">
           {entry.smallGroup.name}
@@ -59,6 +82,34 @@ export function PrayerEntry({
                 date,
                 text,
               })}
+            />
+          )}
+          {conversationHref && (
+            <SectionConversationLink
+              ariaLabel={
+                conversation
+                  ? t("conversationAria", {
+                      section: sectionTitle,
+                      group,
+                      n: conversation.commentCount,
+                      state:
+                        conversation.status === "resolved"
+                          ? tConv("statusResolved")
+                          : conversation.needsMyReply
+                            ? tConv("statusReply")
+                            : tConv("statusOpen"),
+                    })
+                  : t("startAria", { section: sectionTitle, group })
+              }
+              conversation={conversation}
+              href={conversationHref}
+              label={
+                conversation
+                  ? t("commentCount", { n: conversation.commentCount })
+                  : t("startConversation")
+              }
+              reportId={entry.reportId}
+              section={section}
             />
           )}
           <NextLink

@@ -440,7 +440,16 @@ declare const messages: {
     "waitingTitle": "Waiting for your reply",
     "waitingElder": "Leaders answered these conversations about people in their groups.",
     "waitingLeader": "Elders asked about people in your groups.",
-    "all": "All conversations"
+    "all": "All conversations",
+    "sectionTitle": "{section, select, prayer {Prayer requests} praise {Praise} other {For the elders to follow up}}",
+    "sectionAbout": "{section, select, prayer {the prayer requests} praise {the praise} other {the follow-up items}}",
+    "sharedBy": "Shared by {name} in the report",
+    "sectionNowEmpty": "This section of the report is empty now.",
+    "panelEmptyBodySection": "Ask a question or leave a note about {about}. Admins, elders and the group’s leaders can read and reply.",
+    "placeholderNewSection": "Write a question or note about {about}…",
+    "viewFullReport": "View full report",
+    "sectionStartAria": "Start a conversation about {about}",
+    "sectionRowAria": "Conversation about {about}: {count, plural, one {# comment} other {# comments}}, {state}"
   },
   "ReportForm": {
     "newTitle": "New report",
@@ -662,7 +671,11 @@ declare const messages: {
     "copied": "Copied for WhatsApp",
     "copiedAll": "Prayer requests copied for WhatsApp",
     "copiedNote": "Check names and details before you share it.",
-    "copyFailed": "Couldn’t copy. Select the text and copy it instead."
+    "copyFailed": "Couldn’t copy. Select the text and copy it instead.",
+    "startConversation": "Start a conversation",
+    "startAria": "Start a conversation: {section}, {group}",
+    "commentCount": "{n, plural, one {# comment} other {# comments}}",
+    "conversationAria": "Conversation: {section}, {group}: {n, plural, one {# comment} other {# comments}}, {state}"
   },
   "LeaderDashboard": {
     "description": "Your small groups this week.",

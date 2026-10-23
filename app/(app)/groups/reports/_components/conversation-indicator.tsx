@@ -1,4 +1,7 @@
-import type { ConversationSummary } from "@/api/conversations-api/types";
+import type {
+  ConversationAnchor,
+  ConversationSummary,
+} from "@/api/conversations-api/types";
 
 import { CheckIcon, ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
 import NextLink from "next/link";
@@ -51,28 +54,36 @@ function StartBubbleIcon({ className }: { className?: string }) {
   );
 }
 
-// The Conversation cell of one attendance row: none / open / needs your reply (`needsMyReply`
-// drives the color, `unread` the gold dot) / resolved. Always a link to `?person=` that keeps the
-// scroll position, which opens the panel. No hooks, so the table and the cards both render it.
+// The conversation control of an attendance row or a report section: none / open / needs your
+// reply (`needsMyReply` drives the color, `unread` the gold dot) / resolved. Always a link to
+// `?person=` or `?section=` that keeps the scroll position, which opens the panel. The data
+// attribute is where the panel returns the focus. No hooks, so the table and the cards both render it.
 export function ConversationIndicator({
-  memberId,
+  anchor,
   summary,
   labels,
   size = "table",
 }: {
-  memberId: number;
+  anchor: ConversationAnchor;
   summary: ConversationSummary | undefined;
   labels: ConversationIndicatorLabels;
   size?: "table" | "card";
 }) {
-  const href = `?person=${memberId}`;
+  const href =
+    anchor.type === "attendance"
+      ? `?person=${anchor.memberId}`
+      : `?section=${anchor.key}`;
+  const data =
+    anchor.type === "attendance"
+      ? { "data-conversation-member": anchor.memberId }
+      : { "data-conversation-section": anchor.key };
 
   if (!summary) {
     return (
       <NextLink
         aria-label={labels.start}
         className={startLink({ size })}
-        data-conversation-member={memberId}
+        {...data}
         href={href}
         scroll={false}
         title={labels.start}
@@ -94,7 +105,7 @@ export function ConversationIndicator({
         size,
         tone: resolved ? "resolved" : summary.needsMyReply ? "reply" : "open",
       })}
-      data-conversation-member={memberId}
+      {...data}
       href={href}
       scroll={false}
     >

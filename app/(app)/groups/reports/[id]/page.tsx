@@ -23,6 +23,7 @@ import { loadReport } from "../_lib/load-report";
 
 import {
   getConversation,
+  getSectionConversation,
   listReportConversations,
 } from "@/api/conversations-api/client";
 import { getMe } from "@/api/members-api/client";
@@ -45,19 +46,24 @@ import {
   formatCalendarShortWeekdayDate,
 } from "@/lib/format-date";
 import { getEnv } from "@/lib/env/server";
+import { parseSectionParam, reportSectionText } from "@/lib/report-sections";
 
 export default async function ReportDetailPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string; person?: string }>;
+  searchParams: Promise<{
+    saved?: string;
+    person?: string;
+    section?: string | string[];
+  }>;
 }) {
   const access = await getCurrentSmallGroupAccess();
 
   if (access === "none") notFound();
 
-  const [{ id }, { saved, person }, t, locale] = await Promise.all([
+  const [{ id }, { saved, person, section }, t, locale] = await Promise.all([
     params,
     searchParams,
     getTranslations("ReportDetail"),
@@ -105,10 +111,27 @@ export default async function ReportDetailPage({
     }
   }
 
-  // `?person=`: the panel. A person with a thread but no row (edited off the report) still opens.
+  // `?person=` or `?section=`: the panel. A person wins when both are there. A person with a thread
+  // but no row (edited off the report), or a section whose text was cleared, still opens.
   const personId = /^[1-9]\d*$/.test(person ?? "") ? Number(person) : null;
   const personRow = report.attendances.find((a) => a.memberId === personId);
+  const sectionKey = personId === null ? parseSectionParam(section) : null;
+  const sectionText = sectionKey ? reportSectionText(report, sectionKey) : null;
   let panel: ReactNode = null;
+  const panelProps = {
+    closeHref: `/groups/reports/${report.id}`,
+    groupName: smallGroup.name,
+    linked: me.member !== null,
+    meetingDate: formatCalendarShortWeekdayDate(meetingDate, typedLocale),
+    reportId: report.id,
+    roleByMember: Object.fromEntries(
+      report.attendances
+        .filter((a) => a.role !== "member")
+        .map((a) => [a.memberId, a.role as "leader" | "co_leader"]),
+    ),
+    submittedBy: report.submittedBy.name,
+    timeZone: getEnv().CHURCH_TIMEZONE,
+  };
 
   if (conversations !== null && personId !== null) {
     const thread = await getConversation(report.id, personId).catch(
@@ -120,18 +143,9 @@ export default async function ReportDetailPage({
       panel = (
         <ConversationPanel
           key={personId}
-          closeHref={`/groups/reports/${report.id}`}
-          groupName={smallGroup.name}
-          initialThread={thread}
-          labels={{
-            attended: t("attended"),
-            absent: t("absent"),
-            atChurch: t("atChurch"),
-            notAtChurch: t("notAtChurch"),
-          }}
-          linked={me.member !== null}
-          meetingDate={formatCalendarShortWeekdayDate(meetingDate, typedLocale)}
-          person={{
+          {...panelProps}
+          anchor={{
+            type: "attendance",
             memberId: personId,
             // The thread carries the name even when the attendance row is gone; with no thread yet the
             // guard above means there is a row.
@@ -144,14 +158,33 @@ export default async function ReportDetailPage({
                 }
               : null,
           }}
-          reportId={report.id}
-          roleByMember={Object.fromEntries(
-            report.attendances
-              .filter((a) => a.role !== "member")
-              .map((a) => [a.memberId, a.role as "leader" | "co_leader"]),
-          )}
-          submittedBy={report.submittedBy.name}
-          timeZone={getEnv().CHURCH_TIMEZONE}
+          initialThread={thread}
+          labels={{
+            attended: t("attended"),
+            absent: t("absent"),
+            atChurch: t("atChurch"),
+            notAtChurch: t("notAtChurch"),
+          }}
+          returnFocusSelector={`[data-conversation-member="${personId}"]`}
+        />
+      );
+    }
+  }
+
+  if (conversations !== null && sectionKey !== null) {
+    const thread = await getSectionConversation(report.id, sectionKey).catch(
+      () => undefined,
+    );
+
+    // An empty section with no thread can't start one (rule 14): a stale link, so no panel.
+    if (thread !== undefined && (sectionText || thread)) {
+      panel = (
+        <ConversationPanel
+          key={sectionKey}
+          {...panelProps}
+          anchor={{ type: "section", key: sectionKey, text: sectionText }}
+          initialThread={thread}
+          returnFocusSelector={`[data-conversation-section="${sectionKey}"]`}
         />
       );
     }
@@ -274,7 +307,11 @@ export default async function ReportDetailPage({
       )}
 
       <ReportSummaryTiles report={report} />
-      <ReportSharedCard report={report} />
+      <ReportSharedCard
+        activeSection={panel ? (sectionKey ?? undefined) : undefined}
+        conversations={conversations}
+        report={report}
+      />
       <ReportAttendanceCard
         activePersonId={panel ? (personId ?? undefined) : undefined}
         conversations={conversations}
