@@ -85,7 +85,7 @@ export async function ReportSharedCard({
                   "bg-focus-row shadow-[inset_3px_0_0_var(--color-gold-500)]",
               )}
             >
-              <span className="flex min-h-10 items-center gap-2.5">
+              <div className="flex min-h-10 items-center gap-2.5">
                 <span className="flex size-[30px] shrink-0 items-center justify-center rounded-[9px] bg-accent-soft text-accent-soft-foreground">
                   <Icon
                     aria-hidden="true"
@@ -114,7 +114,7 @@ export async function ReportSharedCard({
                     />
                   </span>
                 )}
-              </span>
+              </div>
               {text ? (
                 <p className={testimony({ className: "whitespace-pre-line" })}>
                   {text}
