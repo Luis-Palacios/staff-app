@@ -135,7 +135,7 @@ export default async function ReportDetailPage({
             memberId: personId,
             // The thread carries the name even when the attendance row is gone; with no thread yet the
             // guard above means there is a row.
-            name: thread?.member.name ?? personRow?.name ?? "",
+            name: thread?.member?.name ?? personRow?.name ?? "",
             observation: personRow?.observation ?? null,
             onReport: personRow
               ? {

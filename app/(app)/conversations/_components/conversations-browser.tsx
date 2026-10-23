@@ -17,6 +17,7 @@ import { ConversationRow } from "./conversation-row";
 import { listConversationsAction } from "@/app/(app)/groups/reports/_actions/conversation-actions";
 import { card } from "@/components/primitives";
 import { EmptyState } from "@/components/empty-state";
+import { isPersonInboxItem } from "@/lib/conversation-format";
 import { StatusTabs } from "@/components/status-tabs";
 
 const PAGE_SIZE = 25;
@@ -67,7 +68,10 @@ function ConversationList({
     });
   }
 
-  if (items.length === 0) {
+  // `items` keeps every row so "Show more" asks from the right offset; only person rows render.
+  const rows = items.filter(isPersonInboxItem);
+
+  if (rows.length === 0 && items.length >= data.total) {
     if (tab === "reply") {
       return (
         <EmptyState
@@ -97,7 +101,7 @@ function ConversationList({
           className: "divide-y divide-separator overflow-hidden",
         })}
       >
-        {items.map((item) => (
+        {rows.map((item) => (
           <li key={item.id}>
             <ConversationRow item={item} timeZone={timeZone} />
           </li>
