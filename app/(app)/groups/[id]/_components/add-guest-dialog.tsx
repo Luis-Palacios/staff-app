@@ -154,6 +154,8 @@ function SearchStep({
   groupName,
   variant,
   joinedAt,
+  today,
+  setJoinedAt,
   query,
   setQuery,
   picked,
@@ -161,7 +163,8 @@ function SearchStep({
   onNew,
   onAdded,
   onClose,
-}: Omit<AddGuestProps, "today"> & {
+}: AddGuestProps & {
+  setJoinedAt: (joinedAt: string) => void;
   query: string;
   setQuery: (query: string) => void;
   picked: GuestSearchItem | null;
@@ -344,6 +347,15 @@ function SearchStep({
             })}
           </div>
         )}
+        {variant === "group" && (
+          <GuestDatePicker
+            isDisabled={isPending}
+            label={t("joinedAtLabel")}
+            max={today}
+            value={joinedAt}
+            onChange={setJoinedAt}
+          />
+        )}
         {variant === "report" && (
           <p className="text-[13px] text-muted">{t("reportHint")}</p>
         )}
@@ -378,12 +390,14 @@ function NewGuestStep({
   variant,
   joinedAt,
   today,
+  setJoinedAt,
   initialName,
   onUse,
   onBack,
   onAdded,
   onClose,
 }: AddGuestProps & {
+  setJoinedAt: (joinedAt: string) => void;
   initialName: string;
   /** "Use this guest": back to the search with them picked. */
   onUse: (guest: GuestSearchItem) => void;
@@ -552,6 +566,15 @@ function NewGuestStep({
           value={firstVisit}
           onChange={setFirstVisit}
         />
+        {variant === "group" && (
+          <GuestDatePicker
+            isDisabled={isPending}
+            label={t("joinedAtLabel")}
+            max={today}
+            value={joinedAt}
+            onChange={setJoinedAt}
+          />
+        )}
         <ComboBox
           allowsEmptyCollection
           fullWidth
@@ -636,6 +659,7 @@ function NewGuestStep({
 // The two steps share one state holder, so going back to the search keeps the query. Mounted only
 // while open, so it always starts empty.
 function AddGuestFlow(props: AddGuestProps) {
+  const [joinedAt, setJoinedAt] = useState(props.joinedAt);
   const [step, setStep] = useState<"search" | "new">("search");
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<GuestSearchItem | null>(null);
@@ -645,6 +669,8 @@ function AddGuestFlow(props: AddGuestProps) {
       <NewGuestStep
         {...props}
         initialName={query.trim()}
+        joinedAt={joinedAt}
+        setJoinedAt={setJoinedAt}
         onBack={() => setStep("search")}
         onUse={(guest) => {
           setPicked(guest);
@@ -658,8 +684,10 @@ function AddGuestFlow(props: AddGuestProps) {
   return (
     <SearchStep
       {...props}
+      joinedAt={joinedAt}
       picked={picked}
       query={query}
+      setJoinedAt={setJoinedAt}
       setPicked={setPicked}
       setQuery={setQuery}
       onNew={() => setStep("new")}
