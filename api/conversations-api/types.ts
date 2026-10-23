@@ -1,7 +1,11 @@
 // Shapes of membership-management's report conversation routes (camelCase, as sent).
 // Comment bodies are plain text; a deleted comment has `body: null`.
 
-import type { Person, ReportSectionKey } from "@/api/small-groups-api/types";
+import type {
+  GroupAudience,
+  Person,
+  ReportSectionKey,
+} from "@/api/small-groups-api/types";
 
 export type ConversationStatus = "open" | "resolved";
 
@@ -75,7 +79,12 @@ export interface ConversationInboxItem {
   anchor: ConversationAnchor;
   /** Null for a section thread. */
   person: Person | null;
-  group: { id: number; name: string; closed: boolean };
+  group: {
+    id: number;
+    name: string;
+    closed: boolean;
+    audience: GroupAudience;
+  };
   report: { id: number; meetingDate: string };
   /** Always present; `deleted` with a null `excerpt` when every comment was deleted. */
   lastComment: {
