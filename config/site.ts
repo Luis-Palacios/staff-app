@@ -92,14 +92,37 @@ export const siteConfig = {
       icon: "dashboard",
       items: [
         {
-          labelKey: "dashboardGroups",
+          labelKey: "dashboardReportStatus",
           href: "/",
           requires: { smallGroups: ["all"] },
         },
         {
-          labelKey: "dashboardStaff",
+          labelKey: "dashboardPrayer",
+          href: "/dashboard/prayer",
+          requires: { smallGroups: ["all"] },
+        },
+        {
+          labelKey: "dashboardApplicationsAccess",
           href: "/dashboard/staff",
           requires: { smallGroups: ["all"] },
+        },
+      ],
+    },
+    // Leaders and deacons: their own groups, then the prayer page scoped to them.
+    {
+      labelKey: "dashboard",
+      icon: "dashboard",
+      unless: { smallGroups: ["all"] },
+      items: [
+        {
+          labelKey: "dashboardMyGroups",
+          href: "/",
+          requires: { smallGroups: ["view"] },
+        },
+        {
+          labelKey: "dashboardPrayer",
+          href: "/dashboard/prayer",
+          requires: { smallGroups: ["view"] },
         },
       ],
     },
@@ -107,7 +130,7 @@ export const siteConfig = {
       labelKey: "dashboard",
       icon: "dashboard",
       href: "/",
-      unless: { smallGroups: ["all"] },
+      unless: { smallGroups: ["view"] },
     },
     {
       labelKey: "conversations",

@@ -7,8 +7,10 @@ declare const messages: {
   },
   "Nav": {
     "dashboard": "Dashboard",
-    "dashboardGroups": "Groups",
-    "dashboardStaff": "Staff",
+    "dashboardReportStatus": "Report status",
+    "dashboardPrayer": "Prayer & follow-up",
+    "dashboardApplicationsAccess": "Applications & access",
+    "dashboardMyGroups": "My groups",
     "members": "Members",
     "groups": "Groups",
     "groupsList": "List",
@@ -614,6 +616,11 @@ declare const messages: {
     "view": "View",
     "legendNoMeeting": "No meeting",
     "meetingNoMeeting": "{date} no meeting"
+  },
+  "PrayerDashboard": {
+    "title": "Prayer & follow-up",
+    "subtitle": "What the small groups shared in this week’s reports, to pray over and follow up.",
+    "subtitleLeader": "What your groups shared in this week’s reports, to pray over and follow up."
   },
   "LeaderDashboard": {
     "description": "Your small groups this week.",

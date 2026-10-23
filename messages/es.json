@@ -4,8 +4,10 @@
   },
   "Nav": {
     "dashboard": "Panel",
-    "dashboardGroups": "Grupos",
-    "dashboardStaff": "Personal",
+    "dashboardReportStatus": "Estado de reportes",
+    "dashboardPrayer": "Oración y seguimiento",
+    "dashboardApplicationsAccess": "Solicitudes y acceso",
+    "dashboardMyGroups": "Mis grupos",
     "members": "Miembros",
     "groups": "Grupos",
     "groupsList": "Lista",
@@ -611,6 +613,11 @@
     "view": "Ver",
     "legendNoMeeting": "Sin reunión",
     "meetingNoMeeting": "{date} sin reunión"
+  },
+  "PrayerDashboard": {
+    "title": "Oración y seguimiento",
+    "subtitle": "Lo que compartieron los grupos pequeños en sus reportes de la semana, para orar y dar seguimiento.",
+    "subtitleLeader": "Lo que compartieron tus grupos en sus reportes de la semana, para orar y dar seguimiento."
   },
   "LeaderDashboard": {
     "description": "Tus grupos pequeños esta semana.",
