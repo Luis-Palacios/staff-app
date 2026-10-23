@@ -73,24 +73,13 @@ progress log below.
 | 4. Copy for WhatsApp | ✅ | `63c7509` |
 | 5. Section threads: page control, Report detail, panel | ✅ | `ad04644` |
 | 6. Section threads in Conversations and *Waiting for your reply* | ✅ | `1ed01ca` |
-| 7. Docs | ✅ | (hash added with stage 8) |
-| 8. Design review fixes (after the variant boards exist) | ⬜ | |
+| 7. Docs | ✅ | `b1833a6` |
+| 8. Design review fixes (after the variant boards exist) | ✅ | (this commit; no code changes) |
 
-### Open checks (carry into stage 8)
+### Open checks
 
-Not yet seen in the browser; everything else is noted per stage below.
-
-- **Leader view** (sign in as a `smallGroupLeader`): the page's leader copy (subtitle, Prayer and
-  Follow-up descriptions, *My groups* links, *of your groups* note), only their groups, the
-  conversation control on their groups' entries, and Dashboard ▸ My groups / Prayer & follow-up in
-  the sidebar.
-- **Thread states from the other side:** amber *needs your reply* and the gold unread dot on the
-  prayer page, Report detail's section indicator and the inbox row. The dev database has one section
-  thread for this: report 14, follow-up, a test comment by the admin (*"Test comment (prayer &
-  follow-up stage 6 check). Safe to delete."*), so a leader of GP - #2 should see it as needing a
-  reply. Delete the comment when done.
-- *Copy all* at 390 (the Chrome window wouldn't resize then), and one real paste into WhatsApp in
-  each language (design review checklist).
+None. The three carried into stage 8 (leader view, thread states from the other side, *Copy all* at
+390 and the WhatsApp paste) were checked there; see stage 8 below.
 
 ### Decisions and deviations
 
@@ -205,6 +194,35 @@ Not yet seen in the browser; everything else is noted per stage below.
 - **Stage 7:** a note under the title of `REPORT-CONVERSATIONS.md` (section threads, stages 5–6
   here) and of `GROUPS-DASHBOARD.md` (the two renames, labels only), in the blockquote style
   `REPORT-CONVERSATIONS-EMAIL.md` already uses.
+- **Stage 8:** ran the design review checklist against the boards. Every width was checked in a
+  same-origin frame at exactly 1440 / 1024 / 390, since the Chrome window stops at 1152. Nothing
+  differed enough to change code, so this stage only updates this log.
+  - **As admin:** 1440 light English, last week: section and entry padding, title and pill sizes,
+    the 240 px group column and 72ch text match `PrayerFollowUp-LastWeek`. The side panel matches
+    `PrayerFollowUp-SectionNew`: gold edge on the entry, composer focused. Dark Spanish this week
+    matches `PrayerFollowUp-Dark-ES`. At 1024, two columns; *Copiar todas* drops under the title and
+    the actions wrap, as the board's widths would. At 390 entries stack group → text → actions,
+    buttons are 44 px and wrap, *Copy all* is 44 px under the title, and nothing scrolls sideways.
+    The dark Spanish sheet matches `PrayerFollowUp-Phone-Sheet-Dark-ES`. Chips show the focus ring,
+    toggle with Enter and update `aria-pressed`. The Spanish clipboard text matches rule 13 for one
+    entry and for *Copy all*, and follow-up has no button. A real paste into WhatsApp worked in both
+    languages (checked by the user).
+  - **As a leader of GP - #2:** the leader subtitle, Prayer and Follow-up descriptions, *My groups*
+    link, *of your groups* note and *See my groups* show; only their group is listed; the sidebar
+    shows My groups / Prayer & follow-up; 390 dark Spanish fits. Report 14's follow-up thread from
+    their side: amber *1 comment* with the gold dot on this page, the same on Report detail (empty
+    Praise has no control), and the section row in Conversations ▸ Needs my reply and in *Waiting
+    for your reply*. The test comment stays in the dev database (no need to delete it).
+  - **Deviation kept:** below `md` the section header's side padding is 16 px, not the board's
+    22 px, so it lines up with the entries (16 px on the board too).
+  - **Left as on the canvas:** the Conversations subtitles and *Waiting for your reply* lines still
+    say *about people*, though threads can now be about a section too. The board has the same text,
+    so the app keeps it; change both together if it's reworded.
+  - **Not this page:** the h1 size, the top padding and the stepper's range spacing come from the
+    shared page header and `WeekStepper`, the same on every page.
+  - Static checks: no color literals or new `dark:` in the changed files, no
+    `react/jsx-no-literals` warnings, no token changes, `pnpm lint` and `pnpm exec tsc --noEmit`
+    pass.
 
 ## Token changes
 
@@ -483,15 +501,15 @@ The WhatsApp text reuses `prayerTitle` / `praiseTitle` and the entry's short dat
 
 Run after implementation, against the boards listed above. Record findings in the progress log.
 
-- [ ] Every board matches in light and dark: layout, spacing, type, states.
-- [ ] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways; entries stack below `md`.
-- [ ] No color, font, radius or shadow literals in the changed files
+- [x] Every board matches in light and dark: layout, spacing, type, states.
+- [x] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways; entries stack below `md`.
+- [x] No color, font, radius or shadow literals in the changed files
       (`git diff main --name-only | xargs grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\('`), and no new
       `dark:` overrides a token could replace.
-- [ ] Token changes (if any) are in `tokens/`, `pnpm tokens --check` passes.
-- [ ] Gold never carries text on a light ground; status shows a dot and a word.
-- [ ] Focus ring visible on every control; chips announce pressed state; focus stays on the copy
+- [x] Token changes (if any) are in `tokens/`, `pnpm tokens --check` passes.
+- [x] Gold never carries text on a light ground; status shows a dot and a word.
+- [x] Focus ring visible on every control; chips announce pressed state; focus stays on the copy
       button after copying.
-- [ ] Copied text matches rule 13 exactly in both languages (paste it into WhatsApp once).
-- [ ] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
-- [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+- [x] Copied text matches rule 13 exactly in both languages (paste it into WhatsApp once).
+- [x] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
+- [x] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
