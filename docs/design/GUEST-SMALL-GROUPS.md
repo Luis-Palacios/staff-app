@@ -81,7 +81,7 @@ below.
 ### Where to pick up
 
 All seven stages are done on branch `guest-small-groups` (review log under *Stage 7* below). What is
-left is the items under *Not checked*. membership-management's stage 7 (`c1a1d80`) is in and read here.
+left is nothing from the *Not checked* lists that matters for release. membership-management's stage 7 (`c1a1d80`) is in and read here.
 
 Dev data (reseeded 2026-10-23 with `--reset`, so it is the seed's): guest groups *Primeros Pasos*
 (id 6) and *Nuevos Comienzos* (id 7), 12 guests (Walter streak 4, Mayra streak 6, Tatiana moved
@@ -211,9 +211,12 @@ work: the admin user (lrpalaciosdev@gmail.com) to member #1 Lesbia Cruz, and *Lu
   the thread (1 comment, Open) and focus returns to it; a member's panel (`?person=`) works as before. Dark
   checked on the inbox and the guest panel. No console errors. Test data is gone: report deleted (took the
   thread), meeting day back to not set, leader removed (their closed period stays in the group's history).
-  **Not checked:** Spanish on the badge rows (the cookie I set didn't take), English/Spanish on the panel,
-  My groups (needs a leader of a guest group), the report table at 1024+, 1024 and a real 390 layout of
-  the inbox.
+  **Checked later (2026-10-23, leader Luis Leader, dev data, one test thread on Tatiana Ruiz in report 51,
+  after the `group.audience` change):** Spanish (picked in the account menu) on the Conversations row, the
+  dashboard block, My groups (a guest group leader: *Invitados* badge) and the guest's conversation panel;
+  English on the panel; the Reports table at 1024 and 1280 in same-origin iframes (badge in the group
+  cell, no page or table overflow); the inbox at 390 in an iframe (badge and row fit, no page overflow;
+  the tab strip scrolls sideways). No console errors.
 - The report roster of 23 Oct listed Ana Prueba, who left *Test guests* that same day; that is the API's
   rule (a guest who leaves today is still in today's roster), not a staff-app change.
 
