@@ -146,10 +146,8 @@ Dev data left behind: guest group *Test guests* (id 7) with Ana Prueba, Beto Pru
   roster reload, marks), `SomeoneNewButton` and `StoppedComingPanel`; `ReportListStep` and
   `PersonStep` get `guests` (null for member groups) and `audience`.
 - *Someone new came* adds immediately, reloads the roster, and marks the new row *came* only (the church
-  question stays theirs to answer); one person at a time jumps to the new guest. A new guest's id isn't
-  in the add response, so the row is found as the guest that wasn't on the roster before. **Optional API
-  change (membership-management):** return the new guest's id from `POST /small-groups/{id}/guests` and
-  the diff goes away.
+  question stays theirs to answer); one person at a time jumps to the new guest. The add response now
+  carries `guestId` (membership-management `0e270fd`), so `onAdded` always gets the id.
 - *Remove after this report* is on the stopped-coming panel (streak 3+), opens the stage 3 dialog with
   *Stopped coming* picked and the report note, calls `removeGuestAction` with `leftAt` = meeting date,
   and turns the panel into *Leaves the group after this report.* (kept only until the page reloads; the
