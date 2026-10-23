@@ -10,6 +10,7 @@ import NextLink from "next/link";
 
 import { notFiledMeetingsHref } from "./report-week/week-rows";
 
+import { GuestsBadge } from "@/components/guests-badge";
 import { card, textLink, title } from "@/components/primitives";
 import { getChurchToday } from "@/lib/church-time";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
@@ -180,12 +181,15 @@ export async function NeedsFollowUpCard({
                 className="flex list-none flex-col gap-3 rounded-xl border border-separator bg-surface-secondary px-4 py-3.5"
               >
                 <span className="flex flex-col gap-0.5">
-                  <NextLink
-                    className="text-[15.5px] font-semibold text-heading hover:underline"
-                    href={`/groups/${smallGroup.id}`}
-                  >
-                    {smallGroup.name}
-                  </NextLink>
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <NextLink
+                      className="text-[15.5px] font-semibold text-heading hover:underline"
+                      href={`/groups/${smallGroup.id}`}
+                    >
+                      {smallGroup.name}
+                    </NextLink>
+                    {smallGroup.audience === "guests" && <GuestsBadge />}
+                  </span>
                   {names && (
                     <span className="text-[13px] text-muted">{names}</span>
                   )}

@@ -18,6 +18,7 @@ import {
 } from "./week-status";
 
 import { addDays } from "@/app/(app)/groups/reports/_lib/meeting-dates";
+import { GuestsBadge } from "@/components/guests-badge";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
 import { WEEKDAY_KEYS } from "@/lib/weekdays";
@@ -34,6 +35,8 @@ export interface WeekRowView {
   id: number;
   status: ReportWeekStatus;
   name: string;
+  /** A guest group gets the Guests badge beside its name (rule 19). */
+  guests: boolean;
   groupHref: string;
   leaders: string | null;
   badge: WeekBadgeStyle & { label: string };
@@ -110,6 +113,7 @@ export async function buildWeekRows(week: ReportWeek): Promise<WeekRowView[]> {
       id: smallGroup.id,
       status,
       name: smallGroup.name,
+      guests: smallGroup.audience === "guests",
       groupHref: `/groups/${smallGroup.id}`,
       leaders:
         group.leaders.length > 0
@@ -162,12 +166,15 @@ export function WeekGroupCell({
 }) {
   return (
     <span className="flex min-w-0 flex-col gap-0.5">
-      <NextLink
-        className="text-[14.5px] font-semibold text-heading hover:underline"
-        href={row.groupHref}
-      >
-        {row.name}
-      </NextLink>
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <NextLink
+          className="text-[14.5px] font-semibold text-heading hover:underline"
+          href={row.groupHref}
+        >
+          {row.name}
+        </NextLink>
+        {row.guests && <GuestsBadge />}
+      </span>
       <span className="text-[13px] text-muted">{row.leaders ?? noLeader}</span>
     </span>
   );

@@ -26,6 +26,7 @@ import {
   getStaleConversation,
 } from "@/app/(app)/groups/reports/_lib/conversation-errors";
 import { forbiddenUnless } from "@/lib/auth/get-permissions";
+import { anchorTarget } from "@/lib/conversation-format";
 
 const MAX_BODY = 4000;
 
@@ -95,7 +96,7 @@ export async function addCommentAction(
   try {
     const conversation =
       anchor.type === "attendance"
-        ? await addComment(reportId, anchor.memberId, body.trim())
+        ? await addComment(reportId, anchorTarget(anchor), body.trim())
         : await addSectionComment(reportId, anchor.key, body.trim());
 
     revalidateConversations(reportId);

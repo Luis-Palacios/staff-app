@@ -84,7 +84,7 @@ export function GroupDetailsCard({ group }: { group: SmallGroupDetail }) {
         </Field>
         <Field icon={StarIcon} label={t("leader")}>
           {leader ? (
-            <MemberLink id={leader.memberId} name={leader.memberName} />
+            <MemberLink id={leader.person.id} name={leader.person.name} />
           ) : (
             <span className="text-subtle">
               {closedAt ? t("noActiveLeader") : t("noLeader")}
@@ -96,9 +96,9 @@ export function GroupDetailsCard({ group }: { group: SmallGroupDetail }) {
             <span className="text-subtle">{t("none")}</span>
           ) : (
             coLeaders.map((member, index) => (
-              <span key={member.memberId}>
+              <span key={member.person.id}>
                 {index > 0 && ", "}
-                <MemberLink id={member.memberId} name={member.memberName} />
+                <MemberLink id={member.person.id} name={member.person.name} />
               </span>
             ))
           )}

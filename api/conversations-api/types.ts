@@ -1,7 +1,7 @@
 // Shapes of membership-management's report conversation routes (camelCase, as sent).
 // Comment bodies are plain text; a deleted comment has `body: null`.
 
-import type { ReportSectionKey } from "@/api/small-groups-api/types";
+import type { Person, ReportSectionKey } from "@/api/small-groups-api/types";
 
 export type ConversationStatus = "open" | "resolved";
 
@@ -10,16 +10,20 @@ export type ConversationSide = "elders" | "leaders";
 
 export type ConversationInboxTab = "reply" | "open" | "resolved";
 
-/** What a thread is about: a person's attendance row or one of the report's texts. Narrow on
- *  `type` before reading `memberId` or `key`. */
+/** What a thread is about: a member's or a guest's attendance row, or one of the report's texts.
+ *  Both persons are `type: "attendance"`; read `person` on the row, or check
+ *  which id key is there. */
 export type ConversationAnchor =
-  | { type: "attendance"; memberId: number }
+  | { type: "attendance"; memberId: number; guestId?: never }
+  | { type: "attendance"; guestId: number; memberId?: never }
   | { type: "section"; key: ReportSectionKey };
 
 /** One row indicator on Report detail. */
 export interface ConversationSummary {
   id: number;
   anchor: ConversationAnchor;
+  /** Who the thread is about; null for a section thread. */
+  person: Person | null;
   status: ConversationStatus;
   commentCount: number;
   unread: boolean;
@@ -53,7 +57,7 @@ export interface ConversationThread {
   anchor: ConversationAnchor;
   /** The person the thread is about: there even when their attendance row is gone. Null for a
    *  section thread. */
-  member: { id: number; name: string } | null;
+  person: Person | null;
   status: ConversationStatus;
   resolvedBy: ConversationPerson | null;
   resolvedAt: string | null;
@@ -70,7 +74,7 @@ export interface ConversationInboxItem {
   unread: boolean;
   anchor: ConversationAnchor;
   /** Null for a section thread. */
-  member: { id: number; name: string } | null;
+  person: Person | null;
   group: { id: number; name: string; closed: boolean };
   report: { id: number; meetingDate: string };
   /** Always present; `deleted` with a null `excerpt` when every comment was deleted. */

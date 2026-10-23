@@ -17,6 +17,7 @@ import {
   DataTableOpenLink,
   dataTable,
 } from "@/components/data-table";
+import { GuestsBadge } from "@/components/guests-badge";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCalendarMediumDate } from "@/lib/format-date";
 
@@ -113,6 +114,9 @@ export default function ReportsTable({
                         <span className="text-[14.5px]">
                           {item.smallGroup.name}
                         </span>
+                        {item.smallGroup.audience === "guests" && (
+                          <GuestsBadge />
+                        )}
                         {item.smallGroup.closedAt && (
                           <StatusBadge tone="neutral" variant="ring-dot">
                             {t("closed")}

@@ -56,7 +56,7 @@ function sortMembers(members: SmallGroupMember[]): SmallGroupMember[] {
   return [...members].sort(
     (a, b) =>
       ROLE_ORDER[a.role] - ROLE_ORDER[b.role] ||
-      a.memberName.localeCompare(b.memberName),
+      a.person.name.localeCompare(b.person.name),
   );
 }
 
@@ -166,14 +166,14 @@ export function GroupMembersCard({
 
   function changeRole(member: SmallGroupMember, role: SmallGroupRole) {
     // Leader while someone else leads is a swap, so it asks first.
-    if (role === "leader" && leader && leader.memberId !== member.memberId) {
+    if (role === "leader" && leader && leader.person.id !== member.person.id) {
       setSwapTarget(member);
 
       return;
     }
 
     run(
-      () => changeGroupMemberRoleAction(groupId, member.memberId, role),
+      () => changeGroupMemberRoleAction(groupId, member.person.id, role),
       tm("toasts.roleChanged"),
     );
   }
@@ -227,21 +227,21 @@ export function GroupMembersCard({
         <ul className="flex flex-col divide-y divide-separator">
           {members.map((member) => (
             <li
-              key={member.memberId}
+              key={member.person.id}
               className="flex flex-wrap items-center gap-3.5 py-3"
             >
-              <InitialsAvatar name={member.memberName} />
+              <InitialsAvatar name={member.person.name} />
               <div className="flex min-w-0 flex-[1_1_160px] flex-col">
                 {canOpenProfile ? (
                   <NextLink
                     className="break-words text-[15px] font-semibold text-heading hover:underline"
-                    href={`/members/${member.memberId}`}
+                    href={`/members/${member.person.id}`}
                   >
-                    {member.memberName}
+                    {member.person.name}
                   </NextLink>
                 ) : (
                   <span className="break-words text-[15px] font-semibold text-heading">
-                    {member.memberName}
+                    {member.person.name}
                   </span>
                 )}
                 <span className="text-[13px] text-muted">
@@ -257,7 +257,7 @@ export function GroupMembersCard({
                 </StatusBadge>
                 {!canManage ||
                 (!canSetLeader && member.role === "leader") ||
-                (!isFull && member.memberId === currentMemberId) ? (
+                (!isFull && member.person.id === currentMemberId) ? (
                   // Same size as the ⋯ button, so rows line up.
                   <span aria-hidden="true" className="size-9 shrink-0" />
                 ) : (
@@ -295,11 +295,11 @@ export function GroupMembersCard({
         confirmLabel={tm("swap.confirm")}
         icon={<StarIcon aria-hidden="true" className="size-5" />}
         isOpen={swapTarget !== null}
-        title={tm("swap.title", { name: swapTarget?.memberName ?? "" })}
+        title={tm("swap.title", { name: swapTarget?.person.name ?? "" })}
         onConfirm={() => {
           if (!swapTarget) return;
 
-          const { memberId, memberName } = swapTarget;
+          const { id: memberId, name: memberName } = swapTarget.person;
 
           run(
             () => setGroupLeaderAction(groupId, memberId),
@@ -311,8 +311,8 @@ export function GroupMembersCard({
         }}
       >
         {tm("swap.body", {
-          current: leader?.memberName ?? "",
-          name: swapTarget?.memberName ?? "",
+          current: leader?.person.name ?? "",
+          name: swapTarget?.person.name ?? "",
         })}
       </ConfirmDialog>
 
@@ -320,13 +320,13 @@ export function GroupMembersCard({
         confirmLabel={tm("removeDialog.confirm")}
         isOpen={removeTarget !== null}
         title={tm("removeDialog.title", {
-          name: removeTarget?.memberName ?? "",
+          name: removeTarget?.person.name ?? "",
         })}
         tone="danger"
         onConfirm={() => {
           if (!removeTarget) return;
 
-          const { memberId, memberName } = removeTarget;
+          const { id: memberId, name: memberName } = removeTarget.person;
 
           run(
             () => removeGroupMemberAction(groupId, memberId),

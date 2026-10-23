@@ -4,7 +4,7 @@ import type {
   ConversationAnchor,
   ConversationThread,
 } from "@/api/conversations-api/types";
-import type { ReportSectionKey } from "@/api/small-groups-api/types";
+import type { Person, ReportSectionKey } from "@/api/small-groups-api/types";
 import type { ConversationResult } from "@/app/(app)/groups/reports/_actions/conversation-actions";
 
 import {
@@ -40,13 +40,14 @@ import {
   resolveConversationAction,
 } from "@/app/(app)/groups/reports/_actions/conversation-actions";
 import { initialsOf } from "@/components/initials-avatar";
+import { personAnchor } from "@/lib/conversation-format";
 import { textLink } from "@/components/primitives";
 import { ReportSectionTile } from "@/components/report-section-tile";
 import { StatusBadge } from "@/components/status-badge";
 
 export interface ConversationPanelPerson {
-  memberId: number;
-  name: string;
+  /** A member or a guest; its name is the panel's heading. */
+  person: Person;
   /** Null when the person has no attendance row on this report any more. */
   onReport: { attendedGroup: boolean; attendedChurch: boolean } | null;
   /** Null when there is none or the caller can't see observations. */
@@ -93,9 +94,12 @@ function useIsDesktop() {
 // Per report and anchor, so a draft started on one page is there on the other. A person's key keeps
 // its original shape, so drafts saved before section threads still load.
 function anchorId(anchor: ConversationPanelAnchor): string {
-  return anchor.type === "attendance"
-    ? String(anchor.memberId)
-    : `section:${anchor.key}`;
+  if (anchor.type === "section") return `section:${anchor.key}`;
+
+  // A member's key keeps its original shape, so drafts saved before guests still load.
+  return anchor.person.type === "guest"
+    ? `guest:${anchor.person.id}`
+    : String(anchor.person.id);
 }
 
 function draftKey(reportId: number, id: string) {
@@ -216,16 +220,17 @@ export function ConversationPanel({
   const key = draftKey(reportId, id);
   const apiAnchor: ConversationAnchor =
     anchor.type === "attendance"
-      ? { type: "attendance", memberId: anchor.memberId }
+      ? personAnchor(anchor.person)
       : { type: "section", key: anchor.key };
+  const name = anchor.type === "attendance" ? anchor.person.name : "";
   const heading =
     anchor.type === "attendance"
-      ? anchor.name
+      ? name
       : t("sectionTitle", { section: anchor.key });
   // Who or what the empty state and the placeholder talk about: "María", "the prayer requests".
   const about =
     anchor.type === "attendance"
-      ? anchor.name.split(/\s+/)[0]
+      ? name.split(/\s+/)[0]
       : t("sectionAbout", { section: anchor.key });
 
   // Draft from this tab's sessionStorage; read after mount so the server render matches.
@@ -440,7 +445,7 @@ export function ConversationPanel({
               aria-hidden="true"
               className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13.5px] font-bold text-accent-soft-foreground"
             >
-              {initialsOf(anchor.name)}
+              {initialsOf(name)}
             </span>
           ) : (
             <ReportSectionTile

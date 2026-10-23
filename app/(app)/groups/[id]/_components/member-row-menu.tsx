@@ -69,7 +69,7 @@ export function MemberRowMenu({
   return (
     <Dropdown.Root>
       <Dropdown.Trigger
-        aria-label={t("actionsFor", { name: member.memberName })}
+        aria-label={t("actionsFor", { name: member.person.name })}
         className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted hover:bg-surface-secondary hover:text-heading aria-expanded:bg-surface-secondary data-pressed:transform-none"
         isDisabled={isDisabled}
       >
@@ -85,7 +85,7 @@ export function MemberRowMenu({
         placement="bottom end"
       >
         <Dropdown.Menu
-          aria-label={t("actionsFor", { name: member.memberName })}
+          aria-label={t("actionsFor", { name: member.person.name })}
           className="gap-0 p-0"
         >
           <Dropdown.Section
@@ -141,7 +141,7 @@ export function MemberRowMenu({
             <Dropdown.Item
               className={item()}
               textValue={t("viewMember")}
-              onAction={() => router.push(`/members/${member.memberId}`)}
+              onAction={() => router.push(`/members/${member.person.id}`)}
             >
               <UserCircleIcon
                 aria-hidden="true"

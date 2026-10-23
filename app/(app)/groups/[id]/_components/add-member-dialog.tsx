@@ -232,7 +232,7 @@ function AddMemberForm({
           </div>
           {role === "leader" && leader && (
             <p className="text-[13px] text-muted">
-              {t("leaderHint", { leader: leader.memberName })}
+              {t("leaderHint", { leader: leader.person.name })}
             </p>
           )}
         </fieldset>

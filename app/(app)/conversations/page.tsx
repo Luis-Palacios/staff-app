@@ -10,6 +10,7 @@ import { listSmallGroups } from "@/api/small-groups-api/client";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { getEnv } from "@/lib/env/server";
 import { getPermissions } from "@/lib/auth/get-permissions";
+import { getGuestGroupIds } from "@/lib/guest-groups";
 import {
   canSeeConversationsInbox,
   getSmallGroupAccess,
@@ -39,7 +40,10 @@ export default async function ConversationsPage({
   const requestedTab = first(params.tab);
   const tab = TABS.find((candidate) => candidate === requestedTab) ?? "reply";
   const requestedGroup = Number(first(params.group));
-  const groups = await listSmallGroups();
+  const [groups, guestGroupIds] = await Promise.all([
+    listSmallGroups(),
+    getGuestGroupIds(),
+  ]);
   // A group that isn't in the list (a stale link) is no filter, so the select never goes blank.
   const groupId = groups.some(({ id }) => id === requestedGroup)
     ? requestedGroup
@@ -67,6 +71,7 @@ export default async function ConversationsPage({
           name,
           closed: closedAt !== null,
         }))}
+        guestGroupIds={guestGroupIds}
         tab={tab}
         timeZone={getEnv().CHURCH_TIMEZONE}
       />

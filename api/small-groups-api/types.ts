@@ -35,9 +35,6 @@ export interface SmallGroupSummary {
 
 export interface SmallGroupMember {
   person: Person;
-  /** Null on guest rows; read `person` instead (stage 6 of GUEST-SMALL-GROUPS.md). */
-  memberId: number;
-  memberName: string;
   role: SmallGroupRole;
   /** Date only, "YYYY-MM-DD". */
   joinedAt: string;
@@ -93,7 +90,12 @@ export interface ReportListParams {
 export interface FiledReportItem {
   kind: "report";
   id: number;
-  smallGroup: { id: number; name: string; closedAt: string | null };
+  smallGroup: {
+    id: number;
+    name: string;
+    audience: GroupAudience;
+    closedAt: string | null;
+  };
   meetingDate: string;
   submittedBy: ReportPerson;
   /** ISO timestamp with offset. */
@@ -108,7 +110,12 @@ export interface FiledReportItem {
 
 export interface NotFiledItem {
   kind: "notFiled";
-  smallGroup: { id: number; name: string; closedAt: string | null };
+  smallGroup: {
+    id: number;
+    name: string;
+    audience: GroupAudience;
+    closedAt: string | null;
+  };
   meetingDate: string;
 }
 
@@ -127,6 +134,7 @@ export interface ReportSummaryGroup {
   smallGroup: {
     id: number;
     name: string;
+    audience: GroupAudience;
     meetingDay: Weekday | null;
     closedAt: string | null;
   };
@@ -179,7 +187,12 @@ export interface ReportWeekReport {
 }
 
 export interface ReportWeekGroup {
-  smallGroup: { id: number; name: string; meetingDay: Weekday | null };
+  smallGroup: {
+    id: number;
+    name: string;
+    audience: GroupAudience;
+    meetingDay: Weekday | null;
+  };
   /** Active today: the leader, then co-leaders by name. */
   leaders: { memberId: number; name: string; role: SmallGroupRole }[];
   status: ReportWeekStatus;
@@ -216,7 +229,7 @@ export interface ReportSharedConversation {
 export interface ReportSharedEntry {
   reportId: number;
   meetingDate: string;
-  smallGroup: { id: number; name: string };
+  smallGroup: { id: number; name: string; audience: GroupAudience };
   /** Active today: the leader, then co-leaders by name. */
   leaders: ReportWeekGroup["leaders"];
   /** Null when empty after trimming; line breaks kept. */
@@ -229,7 +242,7 @@ export interface ReportSharedEntry {
 
 /** An open group that may still add texts this week, or (past weeks) didn't file. */
 export interface ReportStillToReport {
-  smallGroup: { id: number; name: string };
+  smallGroup: { id: number; name: string; audience: GroupAudience };
   status: Extract<ReportWeekStatus, "notFiled" | "today" | "upcoming">;
   meetingDate: string;
 }
@@ -249,8 +262,6 @@ export interface ReportShared {
 
 export interface ReportRosterPerson {
   person: Person;
-  /** Null on guest rows; read `person` instead (stage 6). */
-  memberId: number;
   name: string;
   role: SmallGroupRole;
   /** Date only, "YYYY-MM-DD". */
@@ -279,8 +290,6 @@ export interface ReportRoster {
 
 export interface ReportAttendance {
   person: Person;
-  /** Null on guest rows; read `person` instead (stage 6). */
-  memberId: number;
   name: string;
   role: SmallGroupRole;
   attendedGroup: boolean;

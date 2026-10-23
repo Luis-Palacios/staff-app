@@ -5,7 +5,7 @@ import type {
   ConversationThread,
   ReportConversations,
 } from "@/api/conversations-api/types";
-import type { ReportSectionKey } from "@/api/small-groups-api/types";
+import type { Person, ReportSectionKey } from "@/api/small-groups-api/types";
 
 import { cache } from "react";
 
@@ -28,6 +28,11 @@ function reportPath(reportId: number | string, suffix = ""): string {
   return `/small-group-reports/${encodeURIComponent(String(reportId))}/conversations${suffix}`;
 }
 
+/** A member's thread lives at `/{memberId}`, a guest's at `/guests/{guestId}`. */
+function personPath(person: Pick<Person, "type" | "id">): string {
+  return person.type === "guest" ? `/guests/${person.id}` : `/${person.id}`;
+}
+
 /** The report's threads with the row indicators. */
 export function listReportConversations(
   reportId: number | string,
@@ -35,14 +40,14 @@ export function listReportConversations(
   return request<ReportConversations>(reportPath(reportId));
 }
 
-/** One person's thread; `null` on 404 `No conversation yet`. */
+/** One person's thread (a member's or a guest's); `null` on 404 `No conversation yet`. */
 export async function getConversation(
   reportId: number | string,
-  memberId: number,
+  person: Pick<Person, "type" | "id">,
 ): Promise<ConversationThread | null> {
   try {
     return await request<ConversationThread>(
-      reportPath(reportId, `/${memberId}`),
+      reportPath(reportId, personPath(person)),
     );
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
@@ -54,11 +59,11 @@ export async function getConversation(
 /** Creates the thread when there is none and reopens a resolved one. */
 export function addComment(
   reportId: number | string,
-  memberId: number,
+  person: Pick<Person, "type" | "id">,
   body: string,
 ): Promise<ConversationThread> {
   return request<ConversationThread>(
-    reportPath(reportId, `/${memberId}/comments`),
+    reportPath(reportId, `${personPath(person)}/comments`),
     { method: "POST", body: { body } },
   );
 }

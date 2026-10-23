@@ -12,6 +12,7 @@ import { CopyForWhatsApp } from "./copy-for-whatsapp";
 import { SectionConversationLink } from "./section-conversation-link";
 import { whatsappEntryText } from "./whatsapp-text";
 
+import { GuestsBadge } from "@/components/guests-badge";
 import { textLink } from "@/components/primitives";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
 
@@ -56,8 +57,11 @@ export function PrayerEntry({
       )}
     >
       <div className="flex flex-col gap-[3px] @2xl:w-60 @2xl:shrink-0">
-        <span className="text-[15px] font-semibold text-heading">
-          {entry.smallGroup.name}
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="text-[15px] font-semibold text-heading">
+            {entry.smallGroup.name}
+          </span>
+          {entry.smallGroup.audience === "guests" && <GuestsBadge />}
         </span>
         {entry.leaders.length > 0 && (
           <span className="text-[13px] text-muted">

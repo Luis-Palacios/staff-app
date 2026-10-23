@@ -58,8 +58,8 @@ export async function prayerPanel({
       returnFocusSelector={`[data-conversation-report="${entry.reportId}"][data-conversation-section="${section}"]`}
       roleByMember={Object.fromEntries(
         report.attendances
-          .filter((a) => a.role !== "member")
-          .map((a) => [a.memberId, a.role as "leader" | "co_leader"]),
+          .filter((a) => a.person.type === "member" && a.role !== "member")
+          .map((a) => [a.person.id, a.role as "leader" | "co_leader"]),
       )}
       submittedBy={report.submittedBy.name}
       timeZone={getEnv().CHURCH_TIMEZONE}

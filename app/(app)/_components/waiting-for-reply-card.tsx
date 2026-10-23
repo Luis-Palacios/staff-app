@@ -5,6 +5,7 @@ import { listConversations } from "@/api/conversations-api/client";
 import { ConversationRow } from "@/app/(app)/conversations/_components/conversation-row";
 import { card, textLink, title } from "@/components/primitives";
 import { getPermissions } from "@/lib/auth/get-permissions";
+import { getGuestGroupIds } from "@/lib/guest-groups";
 import {
   canSeeConversationsInbox,
   getSmallGroupAccess,
@@ -24,9 +25,10 @@ export async function WaitingForReplyCard() {
 
   if (!canSeeConversationsInbox(permissions)) return null;
 
-  const [t, inbox] = await Promise.all([
+  const [t, inbox, guestGroupIds] = await Promise.all([
     getTranslations("Conversations"),
     settle(listConversations({ tab: "reply", limit: ROWS })),
+    getGuestGroupIds(),
   ]);
 
   if (!inbox.ok || inbox.value.items.length === 0) return null;
@@ -66,6 +68,7 @@ export async function WaitingForReplyCard() {
           <li key={item.id}>
             <ConversationRow
               compact
+              guests={guestGroupIds.includes(item.group.id)}
               item={item}
               timeZone={getEnv().CHURCH_TIMEZONE}
             />

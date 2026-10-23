@@ -75,12 +75,12 @@ below.
 | 3. Group detail for guest groups | ✅ | `89bf3fa`, `64f30f6` |
 | 4. Report form and report detail with guests | ✅ | `c98b0c8`, `2a73445` |
 | 5. Guests list, detail and form | ✅ | `eaeb7f0` |
-| 6. Badges elsewhere and `person` everywhere | ⬜ | |
+| 6. Badges elsewhere and `person` everywhere | ✅ | this commit |
 | 7. Design review fixes | ⬜ | |
 
 ### Where to pick up
 
-Next: **stage 6** (badges elsewhere and `person` everywhere). Stages 1–5 are done on branch
+Next: **stage 7** (design review fixes). Stages 1–6 are done on branch
 `guest-small-groups`; the API and auth-server sides are done on their own `guest-small-groups`
 branches (API stages 1–6) and the setting is on in the dev API.
 
@@ -189,6 +189,35 @@ no reports (the test one was deleted).
   layout and the table's horizontal scroll below `md` are unverified), the leader view and its
   breadcrumb/back button, the warning pill (no guest with a missed streak of 2+), pagination (4 guests),
   invited by, the form's validation errors, a 404 with the setting off, light mode on detail/form.
+
+- **Stage 6:** `memberId`/`memberName` are gone from `SmallGroupMember`, `ReportRosterPerson`,
+  `ReportAttendance` and the conversation types; every reader uses `person` (`member` stays where it is
+  the member: submitter, leaders, comment authors). `audience` is typed on the report list items, summary,
+  week and shared shapes, and `GuestsBadge` sits beside the group name on Report status (table, cards and
+  *Needs follow-up*), Prayer & follow-up entries, Reports (table and cards), My groups and Conversations
+  rows (inbox and the dashboard block). Not on the report detail header.
+- Conversations: `ConversationAnchor` is a union (`memberId` or `guestId`); `getConversation` and
+  `addComment` take a person (`/{id}` or `/guests/{id}`); helpers in `lib/conversation-format.ts`
+  (`personAnchor`, `anchorTarget`, `personQuery`). The panel opens by `?person=<memberId>` (unchanged) or
+  `?guest=<guestId>`, and the row control carries `data-conversation-person="member:12"`. The panel's
+  person is `person: Person`; summaries are matched to rows by `personKey(summary.person)`, so a guest's
+  row now has its conversation control in report detail.
+- **Deviation:** the inbox row's `group` has no `audience` in the API, so Conversations rows get the badge
+  from `getGuestGroupIds()` (`lib/guest-groups.ts`: the groups list, empty when the setting is off). When
+  membership-management adds `audience` to the inbox `group`, read it and delete the helper.
+- **Browser pass (stage 6), admin, 400px viewport (the window wouldn't widen), light and dark:** on *Test guests*
+  (given a Friday meeting day and a leader, a quick-list report on it with a prayer text, one conversation on
+  Beto) the badge shows on Report status (table row and *Needs follow-up*), Reports (card), Prayer & follow-up,
+  and the Conversations inbox (the dashboard block uses the same row). A guest's conversation: the row control
+  links to `?guest=2`, the panel opens with the name from `person`, starting a thread works, the row then shows
+  the thread (1 comment, Open) and focus returns to it; a member's panel (`?person=`) works as before. Dark
+  checked on the inbox and the guest panel. No console errors. Test data is gone: report deleted (took the
+  thread), meeting day back to not set, leader removed (their closed period stays in the group's history).
+  **Not checked:** Spanish on the badge rows (the cookie I set didn't take), English/Spanish on the panel,
+  My groups (needs a leader of a guest group), the report table at 1024+, 1024 and a real 390 layout of
+  the inbox.
+- The report roster of 23 Oct listed Ana Prueba, who left *Test guests* that same day; that is the API's
+  rule (a guest who leaves today is still in today's roster), not a staff-app change.
 
 ## Token changes
 
