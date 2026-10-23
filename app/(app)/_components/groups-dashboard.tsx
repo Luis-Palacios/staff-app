@@ -19,7 +19,7 @@ import { getChurchToday } from "@/lib/church-time";
 import { settle } from "@/lib/settle";
 
 /**
- * Dashboard ▸ Groups for admins and elders: the greeting, then the week and My groups. Each
+ * Dashboard ▸ Report status for admins and elders: the greeting, then the week and My groups. Each
  * block awaits its own promise in its own Suspense boundary, so one failing call doesn't take
  * the rest of the page down.
  */

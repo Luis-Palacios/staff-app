@@ -67,7 +67,7 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Menu renames and the route | ⬜ | |
+| 1. Menu renames and the route | ✅ | this commit |
 | 2. API types and client (shared endpoint, anchor union) | ⬜ | |
 | 3. The page: week, chips, still to report, sections | ⬜ | |
 | 4. Copy for WhatsApp | ⬜ | |
@@ -78,7 +78,15 @@ progress log below.
 
 ### Decisions and deviations
 
-- (fill in per stage)
+- **Stage 1:** the `scoped` Dashboard item is a group (`unless: smallGroups all`, children
+  `requires: smallGroups view`), and the single `none` item is now `unless: smallGroups view`
+  (admin and elder carry `view` too, so it stays hidden for them). Neither renamed page had a
+  title (both headers are the greeting), so *page titles* means the tab title: `/` gets
+  `generateMetadata` with *Report status* / *My groups* / *Dashboard* by access, and
+  `/dashboard/staff` gets *Applications & access*. Only `title`, `subtitle` and `subtitleLeader`
+  of `PrayerDashboard` were added; the other keys come with the stages that use them.
+  `/dashboard/prayer` is a static route, so `[...slug]` never takes it; `isActivePath` matches
+  `/` exactly, so only one child is marked on each URL. Not yet checked in the browser.
 
 ## Token changes
 

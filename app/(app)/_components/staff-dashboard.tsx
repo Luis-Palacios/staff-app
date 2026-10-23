@@ -32,8 +32,9 @@ import { AuthRole } from "@/lib/auth/roles";
 import { mapSettled, settle } from "@/lib/settle";
 
 /**
- * The staff dashboard: applications, users and invites. Dashboard ▸ Staff for full roles
- * (`/dashboard/staff`) and the only dashboard for roles with no small group access (`/`).
+ * The staff dashboard: applications, users and invites. Dashboard ▸ Applications & access for
+ * full roles (`/dashboard/staff`) and the only dashboard for roles with no small group access
+ * (`/`).
  */
 export async function StaffDashboard({ firstName }: { firstName: string }) {
   const t = await getTranslations("DashboardPage");
