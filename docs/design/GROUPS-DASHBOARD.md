@@ -1,5 +1,8 @@
 # Groups dashboard: nested Dashboard menu, weekly reports and follow-up
 
+> **Renamed (Oct 2026):** Dashboard ▸ Groups is now *Report status* and Staff is *Applications &
+> access* (labels only; `/` and `/dashboard/staff` are unchanged), by `docs/design/PRAYER-FOLLOW-UP.md`.
+
 Implementation spec for the **groups dashboard** (Dashboard ▸ Groups and Dashboard ▸ Staff in the
 sidebar, `/` and `/dashboard/staff`). Today `/` is the admin/elder dashboard (applications, users,
 invites, plus *My groups* for those who lead), or the leader dashboard for scoped roles. Read the
