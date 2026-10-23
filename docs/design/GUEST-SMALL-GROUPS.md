@@ -74,7 +74,7 @@ below.
 | 2. Menu, Groups badge, New group audience | ✅ | `316cc84` |
 | 3. Group detail for guest groups | ✅ | `89bf3fa`, `64f30f6` |
 | 4. Report form and report detail with guests | ✅ | `c98b0c8`, `2a73445` |
-| 5. Guests list, detail and form | ✅ | (this commit) |
+| 5. Guests list, detail and form | ✅ | `eaeb7f0` |
 | 6. Badges elsewhere and `person` everywhere | ⬜ | |
 | 7. Design review fixes | ⬜ | |
 
