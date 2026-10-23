@@ -1,9 +1,8 @@
 import type { ReportWeek } from "@/api/small-groups-api/types";
 import type { Settled } from "@/lib/settle";
-import type { Locale } from "@/lib/locale-shared";
 
 import NextLink from "next/link";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 import { NoGroupsCard } from "../no-groups-card";
 
@@ -11,11 +10,11 @@ import { buildWeekRows } from "./week-rows";
 import { WeekBrowser } from "./week-browser";
 import { buildWeekPills } from "./week-counts";
 import { WeekStepper } from "./week-stepper";
+import { weekTitle } from "./week-title";
 
 import { addDays } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import { textLink, title } from "@/components/primitives";
 import { weekAround } from "@/lib/calendar-week";
-import { formatCalendarShortDate } from "@/lib/format-date";
 
 /**
  * **The week**: every open group's report status for a Sunday–Saturday week, with a stepper to
@@ -34,10 +33,9 @@ export async function ReportWeekSection({
   /** The church's today ("YYYY-MM-DD"). */
   today: string;
 }) {
-  const [result, t, locale] = await Promise.all([
+  const [result, t] = await Promise.all([
     week,
     getTranslations("GroupsDashboard"),
-    getLocale(),
   ]);
 
   if (result.ok && result.value.groups.length === 0) return <NoGroupsCard />;
@@ -53,13 +51,7 @@ export async function ReportWeekSection({
   const isCurrentWeek = result.ok
     ? result.value.isCurrentWeek
     : weekStart === currentSunday;
-  const heading = isCurrentWeek
-    ? t("thisWeek")
-    : weekStart === addDays(currentSunday, -7)
-      ? t("lastWeek")
-      : t("weekOf", {
-          date: formatCalendarShortDate(weekStart, locale as Locale),
-        });
+  const heading = await weekTitle({ weekStart, currentSunday, isCurrentWeek });
   const [rows, pills] = result.ok
     ? await Promise.all([
         buildWeekRows(result.value),
@@ -84,6 +76,7 @@ export async function ReportWeekSection({
             {t("allReports")}
           </NextLink>
           <WeekStepper
+            basePath="/"
             currentSunday={currentSunday}
             isCurrentWeek={isCurrentWeek}
             weekEnd={weekEnd}

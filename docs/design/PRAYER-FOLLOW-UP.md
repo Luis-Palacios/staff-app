@@ -68,8 +68,8 @@ progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Menu renames and the route | ✅ | `19ee68f` |
-| 2. API types and client (shared endpoint, anchor union) | ✅ | this commit |
-| 3. The page: week, chips, still to report, sections | ⬜ | |
+| 2. API types and client (shared endpoint, anchor union) | ✅ | `6b5e61c` |
+| 3. The page: week, chips, still to report, sections | ✅ | this commit |
 | 4. Copy for WhatsApp | ⬜ | |
 | 5. Section threads: page control, Report detail, panel | ⬜ | |
 | 6. Section threads in Conversations and *Waiting for your reply* | ⬜ | |
@@ -100,6 +100,26 @@ progress log below.
   and its summary (count and *needs your reply*) are derived from person summaries, the same way
   the API derives `counts`. `getSectionConversation` / `addSectionComment` land in stage 5 with
   their server actions. Checked: `tsc`, and the local API's OpenAPI has the three new routes.
+- **Stage 3:** the week title moved to `report-week/week-title.ts` (`weekTitle()`), used by Report
+  status and this page, with the `GroupsDashboard` keys (*This week* / *Last week* / *Week of*)
+  rather than copies. `WeekStepper` takes `basePath`. *No open groups* is read from
+  `getSmallGroupReportSummary()` (cached; it lists the open groups in scope), since the shared
+  texts can't tell an empty week from no groups: full roles get `NoGroupsCard`, scoped roles the
+  *You don't lead a small group yet* state. A scoped account with no member gets the *not linked*
+  state without calling the API. A failed read throws to `(app)/error.tsx` (the shared
+  `ErrorState`). `PrayerFilter` (client) takes the translated chip labels, the note and the three
+  server-rendered sections as props, and hides sections with `hidden`. The week block is in a
+  `Suspense` keyed by week (skeleton while stepping), and `loading.tsx` adds the header skeleton.
+  **Still to report:** groups next to each other with the same status (and, for upcoming, the same
+  day) share it, names joined with `Intl.ListFormat` (*A and B (due)*), as on the board; a past
+  week joins the names the same way (the board uses commas there). Two keys not in the copy table:
+  `stillGroups` (`{names} ({status})`) and `stillList` (`{list}.`). `stillDue`, `stillToday` and
+  `stillUpcoming` take `n`, so *A and B (pendientes)* / *(meet today)* agree with the count. New
+  `formatCalendarWeekday()` for *meets Friday* / *se reúne el viernes*. Each entry shows only
+  *View report* for now (copy is stage 4, the conversation control stage 5). Checked in the browser
+  as admin: this week and last week, dark and light, the Follow-up chip, English and Spanish at 1024,
+  and 390 (entries stack, no horizontal scroll). The leader view isn't checked yet (needs a leader
+  account).
 
 ## Token changes
 

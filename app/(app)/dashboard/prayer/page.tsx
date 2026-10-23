@@ -14,12 +14,21 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title") };
 }
 
-export default async function PrayerDashboardPage() {
+export default async function PrayerDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ week?: string | string[] }>;
+}) {
   // Full roles see every group, scoped roles their own; with no small group access there's no
   // nav item, so the URL goes back to their dashboard.
   const access = getSmallGroupAccess(await getPermissions());
 
   if (access === "none") redirect("/");
 
-  return <PrayerDashboard scoped={access === "scoped"} />;
+  return (
+    <PrayerDashboard
+      scoped={access === "scoped"}
+      week={(await searchParams).week}
+    />
+  );
 }
