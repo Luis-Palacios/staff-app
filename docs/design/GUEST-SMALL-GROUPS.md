@@ -70,7 +70,7 @@ below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Permissions, types, API client, the setting | ⬜ | |
+| 1. Permissions, types, API client, the setting | ✅ | this commit |
 | 2. Menu, Groups badge, New group audience | ⬜ | |
 | 3. Group detail for guest groups | ⬜ | |
 | 4. Report form and report detail with guests | ⬜ | |
@@ -80,7 +80,17 @@ below.
 
 ### Decisions and deviations
 
-- (fill in while implementing)
+- **Stage 1:** the setting is `Me.features.guestGroups`, read through `getFeatures()`
+  (`api/members-api/client.ts`), which reuses the `cache()`d `getMe()`: one `/me` call per request.
+  Guest routes live in a new `api/guests-api/` (client + types); add/remove guest are in
+  `small-groups-api` beside the member ones. `Person` is a discriminated union; `audience` is on
+  group summary, detail and the create input (not on `updateSmallGroup`, which omits it).
+- `memberId`/`memberName` stay typed as non-null on `SmallGroupMember`, `ReportRosterPerson` and
+  `ReportAttendance` so nothing else changes in this stage, though the API sends null on guest rows.
+  Guest rows can't exist until the setting is on, and stage 6 moves every reader to `person` and
+  drops those keys from the types.
+- Checked with `pnpm lint` (one existing warning in `member-form.tsx`, not touched) and
+  `pnpm exec tsc --noEmit`. Nothing visible changes, so no browser pass.
 
 ## Token changes
 

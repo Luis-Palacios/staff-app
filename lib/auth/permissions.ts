@@ -4,6 +4,7 @@
 // is no permission.
 export interface PermissionStatements {
   members: "all" | "view" | "search" | "create" | "update" | "link";
+  guests: "all" | "view" | "search" | "create" | "update";
   membershipApplications: "view" | "approve" | "reject";
   smallGroups:
     | "all"

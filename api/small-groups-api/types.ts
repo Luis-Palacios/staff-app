@@ -3,38 +3,62 @@ import type { SmallGroupRole } from "@/api/members-api/types";
 
 export type { SmallGroupRole };
 
+/** Who a group is for, fixed when it is created. */
+export type GroupAudience = "members" | "guests";
+
+/** Who a participant, attendance row or conversation is about: a member or a guest. */
+export type Person =
+  | { type: "member"; id: number; name: string }
+  | { type: "guest"; id: number; name: string };
+
+/** Why a period in a group ended. Null for role changes, group closes and older history. */
+export type LeftReason = "stopped_coming" | "moved_group" | "other";
+
 /** ISO weekday: 1 = Monday … 7 = Sunday. */
 export type Weekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 export interface SmallGroupSummary {
   id: number;
   name: string;
+  audience: GroupAudience;
   meetingAddress: string | null;
   meetingDay: Weekday | null;
   /** Date only, "YYYY-MM-DD". */
   closedAt: string | null;
+  /** Members only; a guest group's guests are in `activeGuestCount`. */
   activeMemberCount: number;
+  activeGuestCount: number;
   /** Null when there is no active leader, and for closed groups. */
   leaderMemberId: number | null;
   leaderName: string | null;
 }
 
 export interface SmallGroupMember {
+  person: Person;
+  /** Null on guest rows; read `person` instead (stage 6 of GUEST-SMALL-GROUPS.md). */
   memberId: number;
   memberName: string;
   role: SmallGroupRole;
   /** Date only, "YYYY-MM-DD". */
   joinedAt: string;
+  /** Guest rows of a guest group only: reports missed in a row as of today. */
+  missedStreak?: number | null;
+  /** Guest rows of a guest group only: last meeting they attended, null if never. */
+  lastAttendedDate?: string | null;
 }
 
 export interface SmallGroupDetail {
   id: number;
   name: string;
+  audience: GroupAudience;
   meetingAddress: string | null;
   meetingDay: Weekday | null;
   /** Date only, "YYYY-MM-DD". */
   closedAt: string | null;
-  /** Active members only. */
+  /** The two counts are never added together. */
+  memberCount: number;
+  guestCount: number;
+  /** Active participants: members, then (guest groups) guests. */
   members: SmallGroupMember[];
 }
 
@@ -42,6 +66,8 @@ export interface SmallGroupInput {
   name: string;
   meetingAddress?: string | null;
   meetingDay?: Weekday | null;
+  /** Create only; `guests` needs the setting on (409 `guest groups are off`). Never changes. */
+  audience?: GroupAudience;
 }
 
 /** A person in a report. The API sends one `name`, not first and last. */
@@ -222,6 +248,8 @@ export interface ReportShared {
 }
 
 export interface ReportRosterPerson {
+  person: Person;
+  /** Null on guest rows; read `person` instead (stage 6). */
   memberId: number;
   name: string;
   role: SmallGroupRole;
@@ -249,6 +277,8 @@ export interface ReportRoster {
 }
 
 export interface ReportAttendance {
+  person: Person;
+  /** Null on guest rows; read `person` instead (stage 6). */
   memberId: number;
   name: string;
   role: SmallGroupRole;
@@ -292,13 +322,19 @@ export interface ReportDetail {
   permissions: { canEdit: boolean; canDelete: boolean };
 }
 
-export interface ReportAttendanceInput {
-  memberId: number;
+interface ReportAttendanceFields {
   attendedGroup: boolean;
   attendedChurch: boolean;
   /** Leave out when the caller can't see observations (the API keeps them). */
   observation?: string | null;
 }
+
+/** One row per participant: a member's `memberId` or a guest's `guestId`, never both. */
+export type ReportAttendanceInput = ReportAttendanceFields &
+  (
+    | { memberId: number; guestId?: never }
+    | { guestId: number; memberId?: never }
+  );
 
 /** Create body; PATCH replaces the whole report with the same shape. */
 export interface ReportInput {
@@ -319,4 +355,41 @@ export interface NoMeetingInput {
   meetingDate: string;
   /** At most 255; leave out or null for none. */
   notHeldReason?: string | null;
+}
+
+/** The fields of a new guest; everything but the name is optional. */
+export interface NewGuestInput {
+  name: string;
+  phone?: string | null;
+  email?: string | null;
+  sex?: "male" | "female" | null;
+  address?: string | null;
+  /** Date only; defaults to the day they join a group, or today. */
+  firstVisitDate?: string | null;
+  invitedByMemberId?: number | null;
+}
+
+/** Exactly one of `guestId` and `newGuest`. */
+export type AddGuestInput = {
+  /** Date only; defaults to today. The report form sends the meeting date. */
+  joinedAt?: string;
+  moveFromOtherGroup?: boolean;
+} & (
+  | { guestId: number; newGuest?: never }
+  | { newGuest: NewGuestInput; guestId?: never }
+);
+
+export interface RemoveGuestInput {
+  /** `moved_group` is only ever set by a move, so it isn't accepted. */
+  leftReason?: Exclude<LeftReason, "moved_group">;
+  /** Date only; defaults to today, never before they joined or a report that has them. */
+  leftAt?: string;
+}
+
+/** The body of a 409 `in another group`: the guest's current group (name and date only). */
+export interface OtherGroup {
+  id: number;
+  name: string;
+  /** Date only, "YYYY-MM-DD". */
+  joinedAt: string;
 }

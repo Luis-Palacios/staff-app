@@ -1,5 +1,7 @@
 import type {
+  AddGuestInput,
   NoMeetingInput,
+  RemoveGuestInput,
   ReportDetail,
   ReportInput,
   ReportList,
@@ -55,7 +57,7 @@ export function createSmallGroup(
 /** Send only the fields that changed; `null` clears an optional one. 409 when the group is closed. */
 export function updateSmallGroup(
   id: string,
-  changes: Partial<SmallGroupInput>,
+  changes: Partial<Omit<SmallGroupInput, "audience">>,
 ): Promise<SmallGroupDetail> {
   return authenticatedFetch<SmallGroupDetail>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
@@ -119,15 +121,45 @@ export function setSmallGroupLeader(
   );
 }
 
-/** Ends the membership today (kept as history). 204. */
+/** Ends the membership today (kept as history), optionally with a reason. 204. */
 export function removeSmallGroupMember(
   groupId: string,
   memberId: number,
+  input?: Pick<RemoveGuestInput, "leftReason">,
 ): Promise<void> {
   return authenticatedFetch<void>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     memberPath(groupId, memberId),
-    { method: "DELETE" },
+    { method: "DELETE", ...(input ? { body: input } : {}) },
+  );
+}
+
+/**
+ * Adds a guest to a guest group: an existing one (`guestId`) or a new one (`newGuest`, needs
+ * `guests: create`). 409 `in another group` carries `otherGroup`; send `moveFromOtherGroup: true`
+ * once the user confirmed. Returns the group with the guest in it.
+ */
+export function addSmallGroupGuest(
+  groupId: string,
+  input: AddGuestInput,
+): Promise<SmallGroupDetail> {
+  return authenticatedFetch<SmallGroupDetail>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    groupPath(groupId, "/guests"),
+    { method: "POST", body: input },
+  );
+}
+
+/** Ends the guest's period (today, or `leftAt`); the row is kept as history. 204. */
+export function removeSmallGroupGuest(
+  groupId: string,
+  guestId: number,
+  input?: RemoveGuestInput,
+): Promise<void> {
+  return authenticatedFetch<void>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    groupPath(groupId, `/guests/${guestId}`),
+    { method: "DELETE", ...(input ? { body: input } : {}) },
   );
 }
 

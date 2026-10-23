@@ -52,10 +52,16 @@ export interface MeLead {
   role: "leader" | "co_leader";
 }
 
+/** Per-church settings the API owns; the app keeps no copy (guest-small-groups rule 1). */
+export interface MeFeatures {
+  guestGroups: boolean;
+}
+
 /** The signed-in user's member (if linked) and the groups they actively lead. */
 export interface Me {
   userId: string;
   role: string;
   member: { id: number; name: string } | null;
   leads: MeLead[];
+  features: MeFeatures;
 }
