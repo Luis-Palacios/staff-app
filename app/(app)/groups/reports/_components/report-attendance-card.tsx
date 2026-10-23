@@ -19,6 +19,7 @@ import { personKey } from "@/app/(app)/groups/reports/_lib/person";
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { card, title } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
+import { personAnchor } from "@/lib/conversation-format";
 import { formatCalendarDate } from "@/lib/format-date";
 
 // A streak shows from 2 up (rule 11); a recent joiner gets "In the group since" instead.
@@ -65,7 +66,7 @@ export async function ReportAttendanceCard({
   linkMembers,
   linkGuests,
   conversations,
-  activePersonId,
+  activePersonKey,
 }: {
   report: ReportDetail;
   /** Active membership start dates by `personKey`, to say "In the group since" for new people. */
@@ -76,8 +77,8 @@ export async function ReportAttendanceCard({
   linkGuests: boolean;
   /** The report's threads; `null` when the caller can't see conversations. */
   conversations: ReportConversations | null;
-  /** `?person=`: the row whose panel is open. */
-  activePersonId?: number;
+  /** `?person=` / `?guest=`: the `personKey` of the row whose panel is open. */
+  activePersonKey?: string;
 }) {
   const [t, tRole, tConv, locale] = await Promise.all([
     getTranslations("ReportDetail"),
@@ -120,12 +121,10 @@ export async function ReportAttendanceCard({
   // are this card's, not the report's.
   const personSummaries = (conversations?.conversations ?? []).flatMap(
     (summary) =>
-      summary.anchor.type === "attendance"
-        ? [{ memberId: summary.anchor.memberId, summary }]
-        : [],
+      summary.person ? [{ key: personKey(summary.person), summary }] : [],
   );
-  const summaryByMember = new Map(
-    personSummaries.map(({ memberId, summary }) => [memberId, summary]),
+  const summaryByPerson = new Map(
+    personSummaries.map(({ key, summary }) => [key, summary]),
   );
   const personCounts = {
     total: personSummaries.length,
@@ -136,8 +135,8 @@ export async function ReportAttendanceCard({
     person: ReportAttendance,
     size: "table" | "card",
   ) => {
-    const summary = summaryByMember.get(person.person.id);
-    const first = person.name.split(/\s+/)[0];
+    const summary = summaryByPerson.get(personKey(person.person));
+    const first = person.person.name.split(/\s+/)[0];
     const state = summary
       ? summary.status === "resolved"
         ? tConv("statusResolved")
@@ -148,7 +147,7 @@ export async function ReportAttendanceCard({
 
     return (
       <ConversationIndicator
-        anchor={{ type: "attendance", memberId: person.person.id }}
+        anchor={personAnchor(person.person)}
         labels={{
           start: tConv("startAria", { first }),
           row: summary
@@ -161,9 +160,8 @@ export async function ReportAttendanceCard({
     );
   };
 
-  // Conversation threads are by member for now; a guest's row has none (stage 6 of the guests spec).
   const isActive = (person: ReportAttendance) =>
-    person.person.type === "member" && person.person.id === activePersonId;
+    personKey(person.person) === activePersonKey;
   const hrefFor = (person: ReportAttendance) => {
     if (person.person.type === "guest") {
       return linkGuests ? `/guests/${person.person.id}` : undefined;
@@ -243,10 +241,9 @@ export async function ReportAttendanceCard({
             attendedGroup: person.attendedGroup,
             attendedChurch: person.attendedChurch,
             observation: person.observation,
-            conversation:
-              showConversations && person.person.type === "member"
-                ? conversationFor(person, "table")
-                : undefined,
+            conversation: showConversations
+              ? conversationFor(person, "table")
+              : undefined,
             focused: isActive(person),
           }))}
           showConversations={showConversations}
@@ -285,25 +282,23 @@ export async function ReportAttendanceCard({
               )}
             >
               <div className="flex items-center gap-3">
-                <InitialsAvatar name={person.name} />
+                <InitialsAvatar name={person.person.name} />
                 <div className="flex min-w-0 flex-1 flex-col">
                   {href ? (
                     <NextLink
                       className={`${nameClass} hover:underline`}
                       href={href}
                     >
-                      {person.name}
+                      {person.person.name}
                     </NextLink>
                   ) : (
-                    <span className={nameClass}>{person.name}</span>
+                    <span className={nameClass}>{person.person.name}</span>
                   )}
                   <span className="text-[12.5px] text-muted">
                     {subLine(person)}
                   </span>
                 </div>
-                {showConversations &&
-                  person.person.type === "member" &&
-                  conversationFor(person, "card")}
+                {showConversations && conversationFor(person, "card")}
               </div>
               <div className="flex flex-wrap gap-x-5 gap-y-2">
                 <div className="flex flex-col items-start gap-1">

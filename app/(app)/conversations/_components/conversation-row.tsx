@@ -11,6 +11,7 @@ import {
   formatActivity,
 } from "@/lib/conversation-format";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
+import { GuestsBadge } from "@/components/guests-badge";
 import { initialsOf } from "@/components/initials-avatar";
 import { ReportSectionTile } from "@/components/report-section-tile";
 import { StatusBadge } from "@/components/status-badge";
@@ -20,10 +21,13 @@ import { StatusBadge } from "@/components/status-badge";
 // list both render it.
 export function ConversationRow({
   item,
+  guests,
   timeZone,
   compact = false,
 }: {
   item: ConversationInboxItem;
+  /** The row's group is a guest group (rule 19). */
+  guests: boolean;
   timeZone: string;
   /** The dashboard block: no status pill, no comment count, a one-line excerpt. */
   compact?: boolean;
@@ -36,7 +40,7 @@ export function ConversationRow({
   const name =
     anchor.type === "section"
       ? t("sectionTitle", { section: anchor.key })
-      : (item.member?.name ?? "");
+      : (item.person?.name ?? "");
   const unreadDot = item.unread && (
     <span className="absolute -right-0.5 -top-0.5 size-[11px] rounded-full border-2 border-surface bg-gold-500" />
   );
@@ -102,6 +106,7 @@ export function ConversationRow({
               ),
             })}
           </span>
+          {guests && <GuestsBadge />}
           {item.group.closed && (
             <StatusBadge tone="neutral" variant="ring-dot">
               {t("closed")}

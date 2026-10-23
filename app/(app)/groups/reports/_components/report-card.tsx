@@ -12,6 +12,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { NoMeetingButton } from "./no-meeting-button";
 
 import { fileReportHref } from "@/app/(app)/groups/reports/_lib/report-links";
+import { GuestsBadge } from "@/components/guests-badge";
 import { card } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCalendarMediumDate } from "@/lib/format-date";
@@ -69,6 +70,7 @@ export default function ReportCard({
           <h3 className="text-[15px] font-semibold text-heading">{date}</h3>
           <p className="flex flex-wrap items-center gap-x-2 text-[13.5px] text-muted">
             {item.smallGroup.name}
+            {item.smallGroup.audience === "guests" && <GuestsBadge />}
             {item.smallGroup.closedAt && (
               <StatusBadge tone="neutral" variant="ring-dot">
                 {t("closed")}

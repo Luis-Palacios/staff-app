@@ -21,6 +21,7 @@ import { getSmallGroupReportSummary } from "@/api/small-groups-api/client";
 import { NoMeetingButton } from "@/app/(app)/groups/reports/_components/no-meeting-button";
 import { weekdayOf } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import { EmptyState } from "@/components/empty-state";
+import { GuestsBadge } from "@/components/guests-badge";
 import { card, textLink, title } from "@/components/primitives";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { StatusBadge } from "@/components/status-badge";
@@ -74,6 +75,7 @@ async function GroupCard({
               {tRole(role)}
             </StatusBadge>
           )}
+          {smallGroup.audience === "guests" && <GuestsBadge />}
           {smallGroup.meetingDay !== null && (
             <span>
               {t("meets", {

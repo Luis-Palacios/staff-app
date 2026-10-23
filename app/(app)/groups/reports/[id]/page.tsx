@@ -1,6 +1,7 @@
 import type { ReportConversations } from "@/api/conversations-api/types";
 import type { Locale } from "@/lib/locale-shared";
 import type { ReactNode } from "react";
+import type { ConversationTarget } from "@/lib/conversation-format";
 
 import { notFound } from "next/navigation";
 import {
@@ -46,6 +47,7 @@ import {
   formatCalendarShortDate,
   formatCalendarShortWeekdayDate,
 } from "@/lib/format-date";
+import { personFocusKey } from "@/lib/conversation-format";
 import { getEnv } from "@/lib/env/server";
 import { parseSectionParam, reportSectionText } from "@/lib/report-sections";
 
@@ -57,6 +59,7 @@ export default async function ReportDetailPage({
   searchParams: Promise<{
     saved?: string;
     person?: string;
+    guest?: string;
     section?: string | string[];
   }>;
 }) {
@@ -64,12 +67,13 @@ export default async function ReportDetailPage({
 
   if (access === "none") notFound();
 
-  const [{ id }, { saved, person, section }, t, locale] = await Promise.all([
-    params,
-    searchParams,
-    getTranslations("ReportDetail"),
-    getLocale(),
-  ]);
+  const [{ id }, { saved, person, guest, section }, t, locale] =
+    await Promise.all([
+      params,
+      searchParams,
+      getTranslations("ReportDetail"),
+      getLocale(),
+    ]);
   const report = await loadReport(id);
 
   if (!report.held) {
@@ -112,13 +116,18 @@ export default async function ReportDetailPage({
     }
   }
 
-  // `?person=` or `?section=`: the panel. A person wins when both are there. A person with a thread
-  // but no row (edited off the report), or a section whose text was cleared, still opens.
-  const personId = /^[1-9]\d*$/.test(person ?? "") ? Number(person) : null;
+  // `?person=` (a member), `?guest=` or `?section=`: the panel. A person wins over a section, and a
+  // member over a guest. A person with a thread but no row (edited off the report), or a section
+  // whose text was cleared, still opens.
+  const target: ConversationTarget | null = /^[1-9]\d*$/.test(person ?? "")
+    ? { type: "member", id: Number(person) }
+    : /^[1-9]\d*$/.test(guest ?? "")
+      ? { type: "guest", id: Number(guest) }
+      : null;
   const personRow = report.attendances.find(
-    (a) => a.person.type === "member" && a.person.id === personId,
+    (a) => target && personKey(a.person) === personFocusKey(target),
   );
-  const sectionKey = personId === null ? parseSectionParam(section) : null;
+  const sectionKey = target === null ? parseSectionParam(section) : null;
   const sectionText = sectionKey ? reportSectionText(report, sectionKey) : null;
   let panel: ReactNode = null;
   const panelProps = {
@@ -136,8 +145,8 @@ export default async function ReportDetailPage({
     timeZone: getEnv().CHURCH_TIMEZONE,
   };
 
-  if (conversations !== null && personId !== null) {
-    const thread = await getConversation(report.id, personId).catch(
+  if (conversations !== null && target !== null) {
+    const thread = await getConversation(report.id, target).catch(
       () => undefined,
     );
 
@@ -145,14 +154,17 @@ export default async function ReportDetailPage({
     if (thread !== undefined && (personRow || thread)) {
       panel = (
         <ConversationPanel
-          key={personId}
+          key={personFocusKey(target)}
           {...panelProps}
           anchor={{
             type: "attendance",
-            memberId: personId,
-            // The thread carries the name even when the attendance row is gone; with no thread yet the
-            // guard above means there is a row.
-            name: thread?.member?.name ?? personRow?.name ?? "",
+            // The thread carries the person even when the attendance row is gone; with no thread yet
+            // the guard above means there is a row.
+            person: thread?.person ??
+              personRow?.person ?? {
+                ...target,
+                name: "",
+              },
             observation: personRow?.observation ?? null,
             onReport: personRow
               ? {
@@ -168,7 +180,7 @@ export default async function ReportDetailPage({
             atChurch: t("atChurch"),
             notAtChurch: t("notAtChurch"),
           }}
-          returnFocusSelector={`[data-conversation-member="${personId}"]`}
+          returnFocusSelector={`[data-conversation-person="${personFocusKey(target)}"]`}
         />
       );
     }
@@ -316,7 +328,7 @@ export default async function ReportDetailPage({
         report={report}
       />
       <ReportAttendanceCard
-        activePersonId={panel ? (personId ?? undefined) : undefined}
+        activePersonKey={panel && target ? personFocusKey(target) : undefined}
         conversations={conversations}
         joinedByPerson={joinedByPerson}
         linkGuests={can(userPermissions, { guests: ["view"] })}

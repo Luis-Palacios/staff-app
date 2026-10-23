@@ -178,7 +178,10 @@ async function toActionFailure(
 
     if (
       call === "add" &&
-      group?.members.some((member) => member.memberId === memberId)
+      group?.members.some(
+        (member) =>
+          member.person.type === "member" && member.person.id === memberId,
+      )
     ) {
       return { ok: false, error: "alreadyInGroup" };
     }

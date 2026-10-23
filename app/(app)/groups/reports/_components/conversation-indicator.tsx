@@ -7,6 +7,12 @@ import { CheckIcon, ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
 import NextLink from "next/link";
 import { tv } from "tailwind-variants";
 
+import {
+  anchorTarget,
+  personFocusKey,
+  personQuery,
+} from "@/lib/conversation-format";
+
 export interface ConversationIndicatorLabels {
   /** "Start a conversation about {first}", already filled in. */
   start: string;
@@ -56,7 +62,7 @@ function StartBubbleIcon({ className }: { className?: string }) {
 
 // The conversation control of an attendance row or a report section: none / open / needs your
 // reply (`needsMyReply` drives the color, `unread` the gold dot) / resolved. Always a link to
-// `?person=` or `?section=` that keeps the scroll position, which opens the panel. The data
+// `?person=` / `?guest=` or `?section=` that keeps the scroll position, which opens the panel. The data
 // attribute is where the panel returns the focus. No hooks, so the table and the cards both render it.
 export function ConversationIndicator({
   anchor,
@@ -69,14 +75,18 @@ export function ConversationIndicator({
   labels: ConversationIndicatorLabels;
   size?: "table" | "card";
 }) {
-  const href =
+  const { href, data } =
     anchor.type === "attendance"
-      ? `?person=${anchor.memberId}`
-      : `?section=${anchor.key}`;
-  const data =
-    anchor.type === "attendance"
-      ? { "data-conversation-member": anchor.memberId }
-      : { "data-conversation-section": anchor.key };
+      ? {
+          href: `?${personQuery(anchorTarget(anchor))}`,
+          data: {
+            "data-conversation-person": personFocusKey(anchorTarget(anchor)),
+          },
+        }
+      : {
+          href: `?section=${anchor.key}`,
+          data: { "data-conversation-section": anchor.key },
+        };
 
   if (!summary) {
     return (
