@@ -1366,7 +1366,8 @@ declare const messages: {
       "alreadyInGroup": "{name} is already in this group.",
       "closed": "This group is closed, so it can’t be changed.",
       "laterReport": "They’re in a later report; remove them from there first.",
-      "generic": "Something went wrong. Try again."
+      "generic": "Something went wrong. Try again.",
+      "overlap": "Their earlier time in this group overlaps this date."
     }
   },
   "GuestRowMenu": {
@@ -1434,7 +1435,8 @@ declare const messages: {
       "alreadyInGroup": "{name} is already in this group.",
       "closed": "This group is closed, so it can’t be changed.",
       "laterReport": "They’re in a later report; remove them from there first.",
-      "generic": "Something went wrong. Try again."
+      "generic": "Something went wrong. Try again.",
+      "overlap": "Their earlier time in this group overlaps this date."
     }
   }
 };

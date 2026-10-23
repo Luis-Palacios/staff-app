@@ -72,7 +72,7 @@ below.
 | --- | --- | --- |
 | 1. Permissions, types, API client, the setting | ✅ | this commit |
 | 2. Menu, Groups badge, New group audience | ✅ | this commit |
-| 3. Group detail for guest groups | ✅ (code; browser pass open) | this commit |
+| 3. Group detail for guest groups | ✅ | `89bf3fa` + browser-pass fix |
 | 4. Report form and report detail with guests | ⬜ | |
 | 5. Guests list, detail and form | ⬜ | |
 | 6. Badges elsewhere and `person` everywhere | ⬜ | |
@@ -118,8 +118,17 @@ below.
   `update`. With the setting off the add button is hidden but the card and *Remove* still work.
 - Close group's confirmation now counts `memberCount` (members only), so a guest group's dialog
   doesn't call guests "members"; its text still doesn't mention guests.
-- **Not verified in a browser:** no local stack was running (no Postgres, API or auth). Lint and
-  `tsc` pass. The light/dark, 1440/1024/390 and Spanish pass for stages 2–3 is still open.
+- **Browser pass (stages 2–3), admin, setting on:** checked at 1440 in dark + Spanish and light:
+  the Invitados menu item, New group audience cards and lock note, the Groups detail of a new guest
+  group (badge, counts, both cards), Add a guest (search, existing result, already-in-group
+  disabled, new-guest step), Remove with the reason dialog (button off until a reason is picked),
+  and the toasts. Found and fixed: re-adding a guest the same day they left is a 409 `overlaps an
+  earlier period`, which showed the generic error; it now has its own message.
+  **Not checked:** 390 and 1024 (the browser window wouldn't go narrower than its minimum), English,
+  the *Move to this group* note, close matches on the new-guest step, the stopped-coming panel and
+  the *New* → *Participant* switch (no guest group with reports/older guests in dev data), and the
+  leader view. Left in the dev data: a guest group *Test guests* (id 7) and two test guests (Ana
+  Prueba, Beto Prueba).
 - Checked with `pnpm lint` (one existing warning in `member-form.tsx`, not touched) and
   `pnpm exec tsc --noEmit`. Nothing visible changes, so no browser pass.
 

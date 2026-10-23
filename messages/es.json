@@ -1363,7 +1363,8 @@
       "alreadyInGroup": "{name} ya está en este grupo.",
       "closed": "Este grupo está cerrado, así que no se puede modificar.",
       "laterReport": "Está en un reporte posterior; quítalo primero de ahí.",
-      "generic": "Algo salió mal. Inténtalo de nuevo."
+      "generic": "Algo salió mal. Inténtalo de nuevo.",
+      "overlap": "Su tiempo anterior en este grupo se cruza con esta fecha."
     }
   },
   "GuestRowMenu": {
@@ -1431,7 +1432,8 @@
       "alreadyInGroup": "{name} ya está en este grupo.",
       "closed": "Este grupo está cerrado, así que no se puede modificar.",
       "laterReport": "Está en un reporte posterior; quítalo primero de ahí.",
-      "generic": "Algo salió mal. Inténtalo de nuevo."
+      "generic": "Algo salió mal. Inténtalo de nuevo.",
+      "overlap": "Su tiempo anterior en este grupo se cruza con esta fecha."
     }
   }
 }
