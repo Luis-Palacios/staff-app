@@ -75,21 +75,22 @@ below.
 | 3. Group detail for guest groups | ✅ | `89bf3fa`, `64f30f6` |
 | 4. Report form and report detail with guests | ✅ | `c98b0c8`, `2a73445` |
 | 5. Guests list, detail and form | ✅ | `eaeb7f0` |
-| 6. Badges elsewhere and `person` everywhere | ✅ | this commit |
-| 7. Design review fixes | ⬜ | |
+| 6. Badges elsewhere and `person` everywhere | ✅ | `fd937c1` |
+| 7. Design review fixes | ✅ | this commit |
 
 ### Where to pick up
 
-Next: **stage 7** (design review fixes). Stages 1–6 are done on branch
-`guest-small-groups`; the API and auth-server sides are done on their own `guest-small-groups`
-branches (API stages 1–6) and the setting is on in the dev API.
+All seven stages are done on branch `guest-small-groups` (review log under *Stage 7* below). What is
+left is on other repos: membership-management's stage 7 (drop `memberId`/`memberName` from the API
+shapes, add `audience` to the conversation inbox row's `group`, then delete `lib/guest-groups.ts`
+here) and the items under *Not checked*.
 
-Still open from stages 2–4: the 390 / 1024, English and light-mode passes, the leader view, and the cases
-that need older guests (move note, close matches, stopped-coming panel on Group detail and in the
-report form, New → Participant). The dev data has no guest with a streak of 3+.
-Dev data left behind: guest group *Test guests* (id 7) with Beto, Carla, Diego and Elena Prueba (Elena,
-id 5, was created from `/guests/new` and given a phone through the edit form); Ana Prueba is in no group;
-no reports (the test one was deleted).
+Dev data (reseeded 2026-10-23 with `--reset`, so it is the seed's): guest groups *Primeros Pasos*
+(id 6) and *Nuevos Comienzos* (id 7), 12 guests (Walter streak 4, Mayra streak 6, Tatiana moved
+groups, near-duplicate Carolinas). Added by hand: guest *Prueba Nueva* in Primeros Pasos (joined
+2026-10-23, shows *New*). Links the reseed wiped and I re-made so the report form and leader view
+work: the admin user (lrpalaciosdev@gmail.com) to member #1 Lesbia Cruz, and *Luis Leader*
+(lrpalaciosdev+1) to member #32 Manuel Silva Vargas, leader of Nuevos Comienzos.
 
 ### Decisions and deviations
 
@@ -218,6 +219,42 @@ no reports (the test one was deleted).
   the inbox.
 - The report roster of 23 Oct listed Ana Prueba, who left *Test guests* that same day; that is the API's
   rule (a guest who leaves today is still in today's roster), not a staff-app change.
+
+- **Stage 7 (design review), admin and leader, ES and EN, light and dark.** Widths: the window won't go
+  below 1024, so 390 was checked in a same-origin 390px `<iframe>` (its media queries follow its own
+  width), 1024 in the window, 1440 in a 1440px iframe (programmatic overflow check only, no screenshot).
+  Audit of Guests (list, detail, new, edit), Groups, New group, Group detail, Reports, report form,
+  report detail and Conversations at 390 / 1024 / 1440 in both themes: no page scrolls sideways.
+  Found and fixed: **(1)** close matches on the new-guest step truncated the name at 390 (the button took
+  the room): the row stacks below `sm` and the name wraps; **(2)** the search results truncated names and the
+  Spanish *Add “{q}” as a new guest* label at 390: they wrap; **(3)** the picked guest in the Add a guest
+  list had no visible selection (only `aria-selected`): the list shows the check indicator like the other
+  pickers; **(4)** `/guests?page=N` past the last page showed *No guests match your search* with no way back:
+  it redirects to the last page.
+- **Review results.** Move note (group dialog and report dialog), close matches, *Remove after this report*
+  dialog (opens with *Stopped coming* picked, Cancel returns focus), stopped-coming panel on Group detail
+  and in the report form (Mayra 6, Walter 4), *New* pill (Prueba Nueva) and Participant on older guests,
+  form validation on `/guests/new` (ES), My groups and the leader's dashboard block with the badge, the
+  Guests badge on every row in Spanish (Groups, Reports, Prayer & follow-up, dashboard). Leader view
+  (Luis Leader): no Guests menu, only their group in the list (others 404), Group detail with *Add a guest*,
+  report form with *Someone new came*, `/guests/{id}` of their guest shows Groups › group › guest and
+  *Back to {group}*, a guest of another group 404s. **Setting off** (`GUEST_GROUPS_ENABLED=False` in
+  membership-management's `.env`, API reloaded; turned back on): no Guests menu, `/guests`, `/guests/1` and
+  `/guests/new` are 404, New group has no audience choice, member groups and member group reports have no
+  guest text. Existing guest groups keep their badge and pages (spec rule 1: existing data is never
+  touched). Grep: no color/font literals in the changed files, no new `dark:` overrides, no reads of
+  `memberId`/`memberName` on attendance, roster or conversation rows (the two left are the conversation
+  anchor union and a comment author, which are members).
+- **Deviations accepted.** The Guests table keeps `min-w-[860px]` (the board has 820 and also scrolls inside
+  its box); at 1024 with the sidebar it scrolls inside the card, as the Members table does (940). Dialogs
+  become bottom sheets below `sm` (640px), HeroUI's breakpoint, not `md` (see stage 3).
+- **Not checked.** The page-2 state of the Guests footer (25 per page, 12 guests in dev data; only the
+  past-the-end redirect was); *Leaves the group after this report* after *Remove* (it removes a seeded
+  guest, so only the dialog was opened); a Spanish Conversations row for a guest group (the seed has no
+  guest-group conversation; English was checked in stage 6); the warning pill on `/guests` was seen only
+  as *Missed the last 6 meetings* (list) not the 2-streak variant; a 1440 screenshot (stages 2–5 saw 1440).
+- Seed oddity, not ours: *Elmer Jarquín Báez* is marked Sexo *Mujer*/*Hombre* by the seed's random pick, and
+  the report form asks *Church, Sun, Oct 18* for a guest who joined on 23 Oct (the API's roster rule).
 
 ## Token changes
 
@@ -384,17 +421,19 @@ masculine otherwise, as the rest of the app does.
 
 Run after implementation, against the boards listed above. Record findings in the progress log.
 
-- [ ] Every board matches in light and dark: layout, spacing, type, states.
-- [ ] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways; the Guests table switches to
+- [ ] Every board matches in light and dark: layout, spacing, type, states. (Compared the Guests and
+      Guest form board sources with the app and spot-checked the rest on screen; I did not diff every
+      board, so this stays open for a visual pass against the canvas.)
+- [x] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways; the Guests table switches to
       cards below `md`; dialogs become bottom sheets below `md`.
-- [ ] No color, font, radius or shadow literals in the changed files
+- [x] No color, font, radius or shadow literals in the changed files
       (`git diff main --name-only | xargs grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\('`), and no new
       `dark:` overrides a token could replace.
-- [ ] Gold never carries text on a light ground; status shows a dot and a word; the Guests badge is
+- [x] Gold never carries text on a light ground; status shows a dot and a word; the Guests badge is
       an outline, never filled.
-- [ ] Focus ring visible on every control; focus after the add and remove dialogs returns to the
+- [x] Focus ring visible on every control; focus after the add and remove dialogs returns to the
       button that opened them; the search result list is a proper listbox.
-- [ ] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
-- [ ] With the setting off: no Guests menu, no audience choice, no guest UI anywhere, and member
+- [x] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
+- [x] With the setting off: no Guests menu, no audience choice, no guest UI anywhere, and member
       groups look exactly as before.
-- [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+- [x] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
