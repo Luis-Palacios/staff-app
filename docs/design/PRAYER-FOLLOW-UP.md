@@ -69,8 +69,8 @@ progress log below.
 | --- | --- | --- |
 | 1. Menu renames and the route | ✅ | `19ee68f` |
 | 2. API types and client (shared endpoint, anchor union) | ✅ | `6b5e61c` |
-| 3. The page: week, chips, still to report, sections | ✅ | this commit |
-| 4. Copy for WhatsApp | ⬜ | |
+| 3. The page: week, chips, still to report, sections | ✅ | `ca93bfa` |
+| 4. Copy for WhatsApp | ✅ | this commit |
 | 5. Section threads: page control, Report detail, panel | ⬜ | |
 | 6. Section threads in Conversations and *Waiting for your reply* | ⬜ | |
 | 7. Docs | ⬜ | |
@@ -120,6 +120,21 @@ progress log below.
   as admin: this week and last week, dark and light, the Follow-up chip, English and Spanish at 1024,
   and 390 (entries stack, no horizontal scroll). The leader view isn't checked yet (needs a leader
   account).
+- **Stage 4:** `whatsappEntryText(sectionTitle, entry)` and `whatsappAllText(sectionTitle,
+  weekRange, entries)` take the translated title and the formatted dates instead of `t` and
+  `locale`, so they stay pure (no next-intl in them); the server builds the text and passes the
+  finished string to the client button. Dates are the entry's own short date
+  (`formatCalendarShortWeekdayDate`), the range is the stepper's (`formatCalendarRange`).
+  `showToast` takes an optional third argument, `detail`, which `SavedToast` shows as a second line
+  (`text-on-dark`, 13.5px); existing callers are unchanged. Toast time stays `SavedToast`'s 4 s.
+  Follow-up has no copy button at all: `PrayerSection`'s config says `copy: "none"`, so
+  `PrayerEntry` gets no title and renders none. *Copy all* sits right of the section title and wraps
+  under it when narrow (`flex-wrap justify-between`). Checked in the browser (admin, last week,
+  `writeText` wrapped to capture the text): *Copy all* gave `*Prayer requests · Oct 11 – 17*` plus
+  four blocks separated by blank lines; an entry gave `*Praise · GP - #1* (Tue, Oct 13)` and its
+  text; focus stayed on the button; the success toast had both lines; a rejected `writeText` showed
+  the danger toast; follow-up had 0 buttons. Not checked: *Copy all* at 390 (the browser window
+  wouldn't resize this time), and a real paste into WhatsApp (design review checklist).
 
 ## Token changes
 

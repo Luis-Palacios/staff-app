@@ -136,6 +136,8 @@ async function PrayerWeek({
             isCurrentWeek={isCurrentWeek}
             scoped={scoped}
             section={key}
+            weekEnd={weekEnd}
+            weekStart={weekStart}
           />
         ))}
       />

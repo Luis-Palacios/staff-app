@@ -652,7 +652,14 @@
     "seeReportStatus": "Ver estado de reportes",
     "seeMyGroups": "Ver mis grupos",
     "viewReport": "Ver reporte",
-    "viewReportAria": "Ver reporte: {group}, {date}"
+    "viewReportAria": "Ver reporte: {group}, {date}",
+    "copy": "Copiar para WhatsApp",
+    "copyAria": "Copiar para WhatsApp: {group}",
+    "copyAll": "Copiar todas para WhatsApp",
+    "copied": "Copiada para WhatsApp",
+    "copiedAll": "Peticiones copiadas para WhatsApp",
+    "copiedNote": "Revisa los nombres y detalles antes de compartirla.",
+    "copyFailed": "No se pudo copiar. Selecciona el texto y cópialo."
   },
   "LeaderDashboard": {
     "description": "Tus grupos pequeños esta semana.",

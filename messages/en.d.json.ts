@@ -655,7 +655,14 @@ declare const messages: {
     "seeReportStatus": "See report status",
     "seeMyGroups": "See my groups",
     "viewReport": "View report",
-    "viewReportAria": "View report: {group}, {date}"
+    "viewReportAria": "View report: {group}, {date}",
+    "copy": "Copy for WhatsApp",
+    "copyAria": "Copy for WhatsApp: {group}",
+    "copyAll": "Copy all for WhatsApp",
+    "copied": "Copied for WhatsApp",
+    "copiedAll": "Prayer requests copied for WhatsApp",
+    "copiedNote": "Check names and details before you share it.",
+    "copyFailed": "Couldn’t copy. Select the text and copy it instead."
   },
   "LeaderDashboard": {
     "description": "Your small groups this week.",
