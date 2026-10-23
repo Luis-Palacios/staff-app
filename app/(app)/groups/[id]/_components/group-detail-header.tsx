@@ -11,6 +11,7 @@ import clsx from "clsx";
 import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
+import { GuestsBadge } from "@/components/guests-badge";
 import { title } from "@/components/primitives";
 import { StaffAppBreadcrumbs } from "@/components/staff-app-breadcrumbs";
 import { StatusBadge } from "@/components/status-badge";
@@ -25,7 +26,8 @@ export function GroupDetailHeader({ group }: { group: SmallGroupDetail }) {
   const t = useTranslations("GroupDetailHeader");
   const tDay = useTranslations("Weekdays");
   const locale = useLocale() as Locale;
-  const { id, name, meetingDay, closedAt, members } = group;
+  const { id, name, meetingDay, closedAt, audience, memberCount, guestCount } =
+    group;
   const strong = (chunks: React.ReactNode) => (
     <strong className="font-semibold text-heading">{chunks}</strong>
   );
@@ -55,6 +57,7 @@ export function GroupDetailHeader({ group }: { group: SmallGroupDetail }) {
             <h1 className={title({ size: "md", className: "break-words" })}>
               {name}
             </h1>
+            {audience === "guests" && <GuestsBadge />}
             {closedAt && (
               <StatusBadge tone="neutral">
                 {t("closedOn", { date: formatCalendarDate(closedAt, locale) })}
@@ -72,8 +75,17 @@ export function GroupDetailHeader({ group }: { group: SmallGroupDetail }) {
             )}
             <span>
               {closedAt
-                ? t.rich("membersClosed", { strong })
-                : t.rich("members", { count: members.length, strong })}
+                ? t.rich(
+                    audience === "guests" ? "guestsClosed" : "membersClosed",
+                    { strong },
+                  )
+                : audience === "guests"
+                  ? t.rich("guestsAndMembers", {
+                      guests: guestCount,
+                      members: memberCount,
+                      strong,
+                    })
+                  : t.rich("members", { count: memberCount, strong })}
             </span>
           </p>
         </div>

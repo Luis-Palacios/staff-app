@@ -74,7 +74,7 @@ export function CloseGroupCard({ group }: { group: SmallGroupDetail }) {
         onConfirm={close}
         onOpenChange={setConfirming}
       >
-        {t("dialogBody", { count: group.members.length })}
+        {t("dialogBody", { count: group.memberCount })}
       </ConfirmDialog>
 
       {failure && (

@@ -5,6 +5,7 @@ import { CloseGroupCard } from "./_components/close-group-card";
 import { GroupDetailHeader } from "./_components/group-detail-header";
 import { GroupDetailsCard } from "./_components/group-details-card";
 import { GroupReportsCard } from "./_components/group-reports-card";
+import { GroupGuestsCard } from "./_components/group-guests-card";
 import { GroupMembersCard } from "./_components/group-members-card";
 
 import { getMe } from "@/api/members-api/client";
@@ -43,12 +44,24 @@ export default async function GroupDetailPage({
     <>
       <GroupDetailHeader group={group} />
       <div className="flex flex-wrap items-start gap-5">
-        <GroupMembersCard
-          access={access}
-          currentMemberId={currentMemberId}
-          group={group}
-          today={getChurchToday()}
-        />
+        {group.audience === "guests" ? (
+          <div className="flex min-w-0 flex-[3_1_340px] flex-col gap-5">
+            <GroupGuestsCard group={group} today={getChurchToday()} />
+            <GroupMembersCard
+              access={access}
+              currentMemberId={currentMemberId}
+              group={group}
+              today={getChurchToday()}
+            />
+          </div>
+        ) : (
+          <GroupMembersCard
+            access={access}
+            currentMemberId={currentMemberId}
+            group={group}
+            today={getChurchToday()}
+          />
+        )}
         <div className="flex min-w-0 flex-[2_1_340px] flex-col gap-5">
           <GroupDetailsCard group={group} />
           <GroupReportsCard canSubmit={canSubmit} group={group} />

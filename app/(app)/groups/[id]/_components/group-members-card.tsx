@@ -12,6 +12,7 @@ import type { Locale } from "@/lib/locale-shared";
 import { useState, useTransition } from "react";
 import { StarIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { Button } from "@heroui/react";
+import clsx from "clsx";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -100,8 +101,11 @@ export function GroupMembersCard({
     null,
   );
   const [pickerError, setPickerError] = useState<string | null>(null);
-  const members = sortMembers(group.members);
-  const leader = group.members.find((member) => member.role === "leader");
+  // A guest group's guests have their own card; this one holds its leaders and members.
+  const people = group.members.filter((row) => row.person.type === "member");
+  const members = sortMembers(people);
+  const leader = people.find((member) => member.role === "leader");
+  const isGuestGroup = group.audience === "guests";
   const groupId = String(group.id);
   const isClosed = group.closedAt !== null;
   const permissions = usePermissions();
@@ -177,13 +181,15 @@ export function GroupMembersCard({
   return (
     <section
       className={card({
-        className:
-          "flex min-w-0 flex-[3_1_340px] flex-col gap-2 px-6 pb-4 pt-5",
+        className: clsx(
+          "flex min-w-0 flex-col gap-2 px-6 pb-4 pt-5",
+          !isGuestGroup && "flex-[3_1_340px]",
+        ),
       })}
     >
       <div className="flex items-start justify-between gap-4">
         <DetailCardHeading eyebrow={t("eyebrow")}>
-          {t("title")}
+          {isGuestGroup ? t("titleGuestGroup") : t("title")}
         </DetailCardHeading>
         {!isClosed && canManage && (
           <Button
@@ -201,6 +207,9 @@ export function GroupMembersCard({
           </Button>
         )}
       </div>
+      {isGuestGroup && !isClosed && (
+        <p className="text-sm text-muted">{t("guestGroupHelp")}</p>
+      )}
       {isClosed || members.length === 0 ? (
         <div className="flex flex-col gap-1 py-3">
           <p className="text-[15px] font-semibold text-heading">

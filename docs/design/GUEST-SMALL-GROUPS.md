@@ -72,7 +72,7 @@ below.
 | --- | --- | --- |
 | 1. Permissions, types, API client, the setting | ✅ | this commit |
 | 2. Menu, Groups badge, New group audience | ✅ | this commit |
-| 3. Group detail for guest groups | ⬜ | |
+| 3. Group detail for guest groups | ✅ (code; browser pass open) | this commit |
 | 4. Report form and report detail with guests | ⬜ | |
 | 5. Guests list, detail and form | ⬜ | |
 | 6. Badges elsewhere and `person` everywhere | ⬜ | |
@@ -98,6 +98,28 @@ below.
 - Stage 2 was checked with lint and `tsc` only. Not yet looked at in a browser: it needs the API
   running with `GUEST_GROUPS_ENABLED` on, so do the light/dark, 390 and Spanish pass for stages 2–3
   together once Group detail exists.
+- **Stage 3:** `/groups/[id]` branches on `audience`. Guest groups get `GroupGuestsCard` above
+  `GroupMembersCard`, which now filters to `person.type === "member"` and reads *Leaders and
+  members* with the help line. Server actions are in `_actions/guest-actions.ts`
+  (`searchGuestsAction`, `addGuestAction`, `removeGuestAction`); `lib/guest-errors.ts` maps the
+  409/422 phrases and reads `otherGroup`; `lib/guests.ts` holds
+  `GUEST_STOPPED_COMING_SUGGEST_AFTER` and the 14-day *New* window.
+- `AddGuestDialog` takes `variant: "group" | "report"` and `joinedAt`, so stage 4 reuses it as
+  *Someone new came*. It is a HeroUI `Modal` with `placement="auto"`: a bottom sheet **below `sm`
+  (640px)**, not `md`, because that is HeroUI's breakpoint. Results are a `ListBox` (listbox role)
+  with *Add “{q}” as a new guest* as the last option. Close matches (name and phone searches,
+  merged) show on the new-guest step with *Use this guest*, which returns to the search with them
+  picked. The invited-by picker reuses `listMembersForPickerAction`.
+- *Remove from group…* opens the reason dialog with nothing picked (the button stays off until one
+  is chosen); *Mark as stopped coming* opens it with *Stopped coming* picked. A new guest's id isn't
+  in the add response (it returns the group), so `onAdded` gets `id: null` for new guests; stage 4
+  must find the new row by name/diff or the API should return the id.
+- Add a guest also needs `guests: search`; *View guest* / *Edit details* follow `guests: view` /
+  `update`. With the setting off the add button is hidden but the card and *Remove* still work.
+- Close group's confirmation now counts `memberCount` (members only), so a guest group's dialog
+  doesn't call guests "members"; its text still doesn't mention guests.
+- **Not verified in a browser:** no local stack was running (no Postgres, API or auth). Lint and
+  `tsc` pass. The light/dark, 1440/1024/390 and Spanish pass for stages 2–3 is still open.
 - Checked with `pnpm lint` (one existing warning in `member-form.tsx`, not touched) and
   `pnpm exec tsc --noEmit`. Nothing visible changes, so no browser pass.
 

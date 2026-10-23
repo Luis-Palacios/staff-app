@@ -198,7 +198,9 @@
     "members": "{count, plural, one {<strong>#</strong> member} other {<strong>#</strong> members}}",
     "membersClosed": "<strong>0</strong> members now",
     "allGroups": "All groups",
-    "edit": "Edit details"
+    "edit": "Edit details",
+    "guestsClosed": "<strong>0</strong> guests now",
+    "guestsAndMembers": "{guests, plural, one {<strong>#</strong> guest} other {<strong>#</strong> guests}} · {members, plural, one {<strong>#</strong> member} other {<strong>#</strong> members}}"
   },
   "GroupMembersCard": {
     "eyebrow": "People",
@@ -207,7 +209,9 @@
     "emptyTitle": "No members yet",
     "emptyBody": "Add the leader and members with Add member.",
     "closedTitle": "This group closed on {date}",
-    "closedBody": "Everyone left the group that day. Each person's time in it stays in their history."
+    "closedBody": "Everyone left the group that day. Each person's time in it stays in their history.",
+    "titleGuestGroup": "Leaders and members",
+    "guestGroupHelp": "Church members who lead or help in this group. Guests can't lead."
   },
   "GroupDetailsCard": {
     "eyebrow": "Details",
@@ -1333,5 +1337,101 @@
   },
   "GuestsBadge": {
     "label": "Guests"
+  },
+  "GroupGuestsCard": {
+    "eyebrow": "People",
+    "title": "Guests",
+    "add": "Add a guest",
+    "joined": "Joined {date}",
+    "lastSeen": "last at a meeting {date}",
+    "neverSeen": "hasn’t been to a meeting yet",
+    "new": "New",
+    "participant": "Participant",
+    "emptyTitle": "No guests yet",
+    "emptyBody": "Add a guest with Add a guest. You can also add one from a report when someone new comes.",
+    "closedTitle": "No guests in this group",
+    "closedBody": "This group is closed. Each guest's time in it stays in their history.",
+    "suggestion": "<strong>Hasn’t come to the last {count, number} meetings.</strong> Still coming?",
+    "markStopped": "Mark as stopped coming",
+    "toasts": {
+      "added": "{name} added",
+      "removed": "{name} removed from the group"
+    },
+    "errors": {
+      "off": "Guest groups are turned off for this church.",
+      "inAnotherGroup": "{name} is in another group. Search again to move them.",
+      "alreadyInGroup": "{name} is already in this group.",
+      "closed": "This group is closed, so it can’t be changed.",
+      "laterReport": "They’re in a later report; remove them from there first.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
+  "GuestRowMenu": {
+    "actionsFor": "Actions for {name}",
+    "view": "View guest",
+    "edit": "Edit details",
+    "remove": "Remove from group…"
+  },
+  "RemoveGuestDialog": {
+    "title": "Remove {name} from the group?",
+    "reasonLegend": "Why are they leaving?",
+    "reasons": {
+      "stopped_coming": "Stopped coming",
+      "other": "Other reason"
+    },
+    "note": "They leave the group today; their time in it stays in their history.",
+    "cancel": "Cancel",
+    "confirm": "Remove"
+  },
+  "AddGuestDialog": {
+    "title": "Add a guest",
+    "subtitle": "To {group}. They join today.",
+    "reportTitle": "Someone new came",
+    "reportSubtitle": "To {group}. They join from this meeting.",
+    "reportHint": "Find them or add a new guest. They join the group from this meeting, marked as came.",
+    "searchLabel": "Find a guest",
+    "searchPlaceholder": "Name or phone",
+    "results": "Guests found",
+    "searching": "Searching…",
+    "newOption": "Add “{q}” as a new guest",
+    "newOptionEmpty": "Add a new guest",
+    "newHint": "First time with us, or not found above",
+    "alreadyIn": "Already in this group",
+    "phoneLast4": "···· {digits}",
+    "currentGroup": "In {group} since {date}",
+    "lastGroup": "Was in {group}, left {date}",
+    "noGroup": "Not in a group",
+    "lastSeen": "last at a meeting {date}",
+    "neverSeen": "never at a meeting",
+    "moveNote": "{name} is in {group} since {date}. Adding them here moves them: their time in {group} ends today. A guest is in one group at a time.",
+    "add": "Add to group",
+    "move": "Move to this group",
+    "addReport": "Add and mark as came",
+    "moveReport": "Move here and mark as came",
+    "cancel": "Cancel",
+    "back": "Back",
+    "newTitle": "New guest",
+    "newSubtitle": "Joins {group} today.",
+    "newReportSubtitle": "Joins {group} from this meeting.",
+    "matchesTitle": "Is this the same person?",
+    "useGuest": "Use this guest",
+    "nameLabel": "Name",
+    "nameRequired": "Enter a name.",
+    "phoneLabel": "Phone",
+    "firstVisitLabel": "First visit",
+    "invitedByLabel": "Invited by",
+    "invitedByPlaceholder": "Search a member (optional)",
+    "loading": "Loading members…",
+    "noMembers": "No members match.",
+    "addNew": "Add new guest",
+    "addNewReport": "Add and mark as came",
+    "errors": {
+      "off": "Guest groups are turned off for this church.",
+      "inAnotherGroup": "{name} is in another group.",
+      "alreadyInGroup": "{name} is already in this group.",
+      "closed": "This group is closed, so it can’t be changed.",
+      "laterReport": "They’re in a later report; remove them from there first.",
+      "generic": "Something went wrong. Try again."
+    }
   }
 }
