@@ -10,6 +10,7 @@ export type GuestErrorKind =
   | "inAnotherGroup"
   | "alreadyInGroup"
   | "closed"
+  | "overlap"
   | "laterReport";
 
 /** Matched on status and a phrase of `detail`, never shown. Null for any other error. */
@@ -22,6 +23,7 @@ export function getGuestErrorKind(error: unknown): GuestErrorKind | null {
     if (detail.includes("guest groups are off")) return "off";
     if (detail.includes("in another group")) return "inAnotherGroup";
     if (detail.includes("already in the small group")) return "alreadyInGroup";
+    if (detail.includes("overlaps an earlier period")) return "overlap";
     if (detail.includes("closed")) return "closed";
   }
 
