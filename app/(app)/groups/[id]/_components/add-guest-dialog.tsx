@@ -295,7 +295,7 @@ function SearchStep({
             >
               <InitialsAvatar name={guest.name} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold text-heading">
+                <span className="block text-sm font-semibold break-words text-heading">
                   {guest.name}
                 </span>
                 <GuestMeta guest={guest} />
@@ -305,6 +305,7 @@ function SearchStep({
                   {t("alreadyIn")}
                 </span>
               )}
+              <ListBox.ItemIndicator />
             </ListBox.Item>
           ))}
           <ListBox.Item
@@ -316,7 +317,7 @@ function SearchStep({
               <PlusIcon aria-hidden="true" className="size-4" strokeWidth={2} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold text-heading">
+              <span className="block text-sm font-semibold break-words text-heading">
                 {text ? t("newOption", { q: text }) : t("newOptionEmpty")}
               </span>
               <span className="block text-[13px] text-muted">
@@ -488,10 +489,10 @@ function NewGuestStep({
               {matches.map((guest) => (
                 <li
                   key={guest.id}
-                  className="flex items-center gap-3 rounded-[10px] bg-surface px-3 py-2 text-foreground"
+                  className="flex flex-col items-start gap-2 rounded-[10px] bg-surface px-3 py-2 text-foreground sm:flex-row sm:items-center sm:gap-3"
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-heading">
+                    <span className="block text-sm font-semibold break-words text-heading">
                       {guest.name}
                     </span>
                     <GuestMeta guest={guest} />
