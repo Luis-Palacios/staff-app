@@ -1,6 +1,7 @@
 "use server";
 
 import type {
+  ConversationAnchor,
   ConversationInbox,
   ConversationInboxParams,
   ConversationThread,
@@ -12,6 +13,7 @@ import { getTranslations } from "next-intl/server";
 
 import {
   addComment,
+  addSectionComment,
   deleteComment,
   editComment,
   listConversations,
@@ -67,6 +69,7 @@ function revalidateConversations(reportId: number) {
   revalidatePath(`/groups/reports/${reportId}`);
   revalidatePath("/conversations");
   revalidatePath("/");
+  revalidatePath("/dashboard/prayer");
 }
 
 /** Reading and writing conversations is "can see this report's observations"; the API checks the scope. */
@@ -80,16 +83,20 @@ function isValidBody(body: string): boolean {
   return trimmed.length > 0 && trimmed.length <= MAX_BODY;
 }
 
+/** Starts the thread about `anchor` when there is none, and reopens a resolved one. */
 export async function addCommentAction(
   reportId: number,
-  memberId: number,
+  anchor: ConversationAnchor,
   body: string,
 ): Promise<ConversationResult> {
   if (await forbidden()) return failure("generic");
   if (!isValidBody(body)) return failure("generic");
 
   try {
-    const conversation = await addComment(reportId, memberId, body.trim());
+    const conversation =
+      anchor.type === "attendance"
+        ? await addComment(reportId, anchor.memberId, body.trim())
+        : await addSectionComment(reportId, anchor.key, body.trim());
 
     revalidateConversations(reportId);
 

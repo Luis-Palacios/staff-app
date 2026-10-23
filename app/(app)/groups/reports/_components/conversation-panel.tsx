@@ -1,6 +1,10 @@
 "use client";
 
-import type { ConversationThread } from "@/api/conversations-api/types";
+import type {
+  ConversationAnchor,
+  ConversationThread,
+} from "@/api/conversations-api/types";
+import type { ReportSectionKey } from "@/api/small-groups-api/types";
 import type { ConversationResult } from "@/app/(app)/groups/reports/_actions/conversation-actions";
 
 import {
@@ -36,6 +40,8 @@ import {
   resolveConversationAction,
 } from "@/app/(app)/groups/reports/_actions/conversation-actions";
 import { initialsOf } from "@/components/initials-avatar";
+import { textLink } from "@/components/primitives";
+import { ReportSectionTile } from "@/components/report-section-tile";
 import { StatusBadge } from "@/components/status-badge";
 
 export interface ConversationPanelPerson {
@@ -46,6 +52,16 @@ export interface ConversationPanelPerson {
   /** Null when there is none or the caller can't see observations. */
   observation: string | null;
 }
+
+/** What the panel is about: a person's attendance row, or one of the report's texts. */
+export type ConversationPanelAnchor =
+  | ({ type: "attendance" } & ConversationPanelPerson)
+  | {
+      type: "section";
+      key: ReportSectionKey;
+      /** Null when the text was cleared after the thread started: it still opens. */
+      text: string | null;
+    };
 
 export interface ConversationPanelLabels {
   attended: string;
@@ -74,8 +90,16 @@ function useIsDesktop() {
   );
 }
 
-function draftKey(reportId: number, memberId: number) {
-  return `conversation-draft:${reportId}:${memberId}`;
+// Per report and anchor, so a draft started on one page is there on the other. A person's key keeps
+// its original shape, so drafts saved before section threads still load.
+function anchorId(anchor: ConversationPanelAnchor): string {
+  return anchor.type === "attendance"
+    ? String(anchor.memberId)
+    : `section:${anchor.key}`;
+}
+
+function draftKey(reportId: number, id: string) {
+  return `conversation-draft:${reportId}:${id}`;
 }
 
 function readDraft(key: string): string {
@@ -132,20 +156,24 @@ function AttendancePill({
   );
 }
 
-// The conversation about one person's attendance row, opened from `?person=`. At 1024 and up a
-// fixed, non-modal right-hand panel (the table stays usable); below, a modal bottom sheet. The same
-// body for 0 comments (opens on the composer) or N (thread, then reply).
+// The conversation about one person's attendance row (`?person=`) or one of the report's texts
+// (`?section=`). At 1024 and up a fixed, non-modal right-hand panel (the page stays usable); below,
+// a modal bottom sheet. The same body for 0 comments (opens on the composer) or N (thread, then
+// reply). Host-agnostic: Report detail and Prayer & follow-up both mount it and say where closing
+// goes, which control gets the focus back and whether to link to the full report.
 export function ConversationPanel({
   reportId,
   groupName,
   meetingDate,
   timeZone,
   submittedBy,
-  person,
+  anchor,
   initialThread,
   linked,
   roleByMember,
   closeHref,
+  returnFocusSelector,
+  viewFullReportHref,
   labels,
 }: {
   reportId: number;
@@ -154,14 +182,19 @@ export function ConversationPanel({
   meetingDate: string;
   timeZone: string;
   submittedBy: string;
-  person: ConversationPanelPerson;
+  anchor: ConversationPanelAnchor;
   initialThread: ConversationThread | null;
   /** False for an admin or elder with no linked member: they can read, not write (rule 5). */
   linked: boolean;
   /** Leader / co-leader of the group, by member id, to word the leaders' side. */
   roleByMember: Record<number, "leader" | "co_leader">;
   closeHref: string;
-  labels: ConversationPanelLabels;
+  /** The control that opened the panel, focused again once it closes (the page re-rendered). */
+  returnFocusSelector: string;
+  /** Set when the panel opens outside Report detail: a link to the report, panel open there too. */
+  viewFullReportHref?: string;
+  /** The attendance pills; only read for a person. */
+  labels?: ConversationPanelLabels;
 }) {
   const t = useTranslations("Conversations");
   const locale = useLocale();
@@ -179,8 +212,21 @@ export function ConversationPanel({
   const [isPending, startTransition] = useTransition();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
-  const key = draftKey(reportId, person.memberId);
-  const first = person.name.split(/\s+/)[0];
+  const id = anchorId(anchor);
+  const key = draftKey(reportId, id);
+  const apiAnchor: ConversationAnchor =
+    anchor.type === "attendance"
+      ? { type: "attendance", memberId: anchor.memberId }
+      : { type: "section", key: anchor.key };
+  const heading =
+    anchor.type === "attendance"
+      ? anchor.name
+      : t("sectionTitle", { section: anchor.key });
+  // Who or what the empty state and the placeholder talk about: "María", "the prayer requests".
+  const about =
+    anchor.type === "attendance"
+      ? anchor.name.split(/\s+/)[0]
+      : t("sectionAbout", { section: anchor.key });
 
   // Draft from this tab's sessionStorage; read after mount so the server render matches.
   useEffect(() => {
@@ -194,8 +240,8 @@ export function ConversationPanel({
       // The row's dot updates when the panel closes and the page renders again.
       void markConversationReadAction(initialThread.id);
     }
-    // Once per opened person.
-  }, [person.memberId]);
+    // Once per opened anchor.
+  }, [id]);
 
   // Focus: the heading when there's a thread to read, the composer when empty.
   useEffect(() => {
@@ -225,20 +271,18 @@ export function ConversationPanel({
   }
 
   useEffect(() => {
-    const memberId = person.memberId;
+    const selector = returnFocusSelector;
 
     return () => {
       if (!returnFocus.current) return;
 
-      // The table builds its cells again when the page re-renders, so keep trying for a moment
-      // until the control that now exists holds the focus.
+      // The page builds its controls again when it re-renders, so keep trying for a moment until
+      // the control that now exists holds the focus.
       let tries = 0;
       const timer = window.setInterval(() => {
         // The table (md and up) and the cards (below) both render a control; only one is shown.
         const control = [
-          ...document.querySelectorAll<HTMLElement>(
-            `[data-conversation-member="${memberId}"]`,
-          ),
+          ...document.querySelectorAll<HTMLElement>(selector),
         ].find((element) => element.getClientRects().length > 0);
 
         control?.focus();
@@ -249,7 +293,7 @@ export function ConversationPanel({
         }
       }, 50);
     };
-  }, [person.memberId]);
+  }, [id]);
 
   // Non-modal: Escape closes it from anywhere on the page (the sheet below has its own).
   useEffect(() => {
@@ -286,7 +330,7 @@ export function ConversationPanel({
     const body = draft;
 
     startTransition(async () => {
-      apply(await addCommentAction(reportId, person.memberId, body), () => {
+      apply(await addCommentAction(reportId, apiAnchor, body), () => {
         setDraft("");
         writeDraft(key, "");
       });
@@ -391,12 +435,20 @@ export function ConversationPanel({
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13.5px] font-bold text-accent-soft-foreground"
-          >
-            {initialsOf(person.name)}
-          </span>
+          {anchor.type === "attendance" ? (
+            <span
+              aria-hidden="true"
+              className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13.5px] font-bold text-accent-soft-foreground"
+            >
+              {initialsOf(anchor.name)}
+            </span>
+          ) : (
+            <ReportSectionTile
+              className="size-[42px] rounded-xl"
+              iconClassName="size-[21px]"
+              section={anchor.key}
+            />
+          )}
           <span className="flex min-w-0 flex-col gap-0.5">
             <h2
               ref={headingRef}
@@ -404,34 +456,60 @@ export function ConversationPanel({
               id="conversation-title"
               tabIndex={-1}
             >
-              {person.name}
+              {heading}
             </h2>
             <span className="text-[13px] text-muted">
               {groupName}
               {" · "}
               {t("reportFor", { date: meetingDate })}
             </span>
+            {viewFullReportHref && (
+              <NextLink
+                className={textLink({
+                  className:
+                    "mt-0.5 self-start text-[13px] underline-offset-[3px]",
+                })}
+                href={viewFullReportHref}
+              >
+                {t("viewFullReport")}
+              </NextLink>
+            )}
           </span>
         </div>
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <div className="mx-5 mb-1 mt-4 flex flex-col gap-2.5 rounded-xl bg-surface-secondary px-3.5 py-3">
-          {person.onReport ? (
+          {anchor.type === "section" ? (
+            anchor.text ? (
+              <span className="flex flex-col gap-[3px]">
+                <span className="text-xs font-semibold text-muted">
+                  {t("sharedBy", { name: submittedBy })}
+                </span>
+                <span className="whitespace-pre-line font-display text-base italic leading-normal text-foreground">
+                  {anchor.text}
+                </span>
+              </span>
+            ) : (
+              <span className="text-[13.5px] text-muted">
+                {t("sectionNowEmpty")}
+              </span>
+            )
+          ) : anchor.onReport ? (
             <>
               <span className="flex flex-wrap gap-1.5">
                 <AttendancePill
-                  noLabel={labels.absent}
-                  yes={person.onReport.attendedGroup}
-                  yesLabel={labels.attended}
+                  noLabel={labels?.absent ?? ""}
+                  yes={anchor.onReport.attendedGroup}
+                  yesLabel={labels?.attended ?? ""}
                 />
                 <AttendancePill
-                  noLabel={labels.notAtChurch}
-                  yes={person.onReport.attendedChurch}
-                  yesLabel={labels.atChurch}
+                  noLabel={labels?.notAtChurch ?? ""}
+                  yes={anchor.onReport.attendedChurch}
+                  yesLabel={labels?.atChurch ?? ""}
                 />
               </span>
-              {person.observation ? (
+              {anchor.observation ? (
                 <span className="flex flex-col gap-[3px]">
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted">
                     <LockClosedIcon
@@ -442,18 +520,18 @@ export function ConversationPanel({
                     {t("observationBy", { name: submittedBy })}
                   </span>
                   <span className="whitespace-pre-line font-display text-base italic leading-normal text-foreground">
-                    {person.observation}
+                    {anchor.observation}
                   </span>
                 </span>
               ) : (
                 <span className="text-[13.5px] text-muted">
-                  {t("noObservation", { first })}
+                  {t("noObservation", { first: about })}
                 </span>
               )}
             </>
           ) : (
             <span className="text-[13.5px] text-muted">
-              {t("notOnReportAnymore", { first })}
+              {t("notOnReportAnymore", { first: about })}
             </span>
           )}
         </div>
@@ -471,7 +549,9 @@ export function ConversationPanel({
               {t("panelEmptyTitle")}
             </h3>
             <p className="text-sm leading-relaxed text-muted">
-              {t("panelEmptyBody", { first })}
+              {anchor.type === "attendance"
+                ? t("panelEmptyBody", { first: about })
+                : t("panelEmptyBodySection", { about })}
             </p>
           </div>
         )}
@@ -569,7 +649,9 @@ export function ConversationPanel({
               ? t("placeholderResolved")
               : thread
                 ? t("placeholderReply")
-                : t("placeholderNew", { first })
+                : anchor.type === "attendance"
+                  ? t("placeholderNew", { first: about })
+                  : t("placeholderNewSection", { about })
           }
           submitLabel={thread ? t("send") : t("start")}
           textareaRef={composerRef}

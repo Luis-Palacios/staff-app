@@ -134,13 +134,13 @@ export async function ReportAttendanceCard({
 
     return (
       <ConversationIndicator
+        anchor={{ type: "attendance", memberId: person.memberId }}
         labels={{
           start: tConv("startAria", { first }),
           row: summary
             ? tConv("rowAria", { first, count: summary.commentCount, state })
             : "",
         }}
-        memberId={person.memberId}
         size={size}
         summary={summary}
       />

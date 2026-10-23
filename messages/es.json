@@ -437,7 +437,16 @@
     "waitingTitle": "Esperan tu respuesta",
     "waitingElder": "Los líderes respondieron estas conversaciones sobre personas de sus grupos.",
     "waitingLeader": "Los ancianos preguntaron por personas de tus grupos.",
-    "all": "Todas las conversaciones"
+    "all": "Todas las conversaciones",
+    "sectionTitle": "{section, select, prayer {Peticiones de oración} praise {Motivos de alabanza} other {Para seguimiento de los ancianos}}",
+    "sectionAbout": "{section, select, prayer {las peticiones de oración} praise {los motivos de alabanza} other {lo que pidieron dar seguimiento}}",
+    "sharedBy": "Compartido por {name} en el reporte",
+    "sectionNowEmpty": "Esta sección del reporte ahora está vacía.",
+    "panelEmptyBodySection": "Haz una pregunta o deja una nota sobre {about}. Administradores, ancianos y los líderes del grupo pueden leer y responder.",
+    "placeholderNewSection": "Escribe una pregunta o nota sobre {about}…",
+    "viewFullReport": "Ver el reporte completo",
+    "sectionStartAria": "Iniciar una conversación sobre {about}",
+    "sectionRowAria": "Conversación sobre {about}: {count, plural, one {# comentario} other {# comentarios}}, {state}"
   },
   "ReportForm": {
     "newTitle": "Nuevo reporte",
@@ -659,7 +668,11 @@
     "copied": "Copiada para WhatsApp",
     "copiedAll": "Peticiones copiadas para WhatsApp",
     "copiedNote": "Revisa los nombres y detalles antes de compartirla.",
-    "copyFailed": "No se pudo copiar. Selecciona el texto y cópialo."
+    "copyFailed": "No se pudo copiar. Selecciona el texto y cópialo.",
+    "startConversation": "Iniciar conversación",
+    "startAria": "Iniciar conversación: {section}, {group}",
+    "commentCount": "{n, plural, one {# comentario} other {# comentarios}}",
+    "conversationAria": "Conversación: {section}, {group}: {n, plural, one {# comentario} other {# comentarios}}, {state}"
   },
   "LeaderDashboard": {
     "description": "Tus grupos pequeños esta semana.",

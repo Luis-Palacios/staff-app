@@ -1,7 +1,11 @@
-import type { ReportSectionKey } from "@/api/small-groups-api/types";
+import type {
+  ReportSectionKey,
+  ReportSharedEntry,
+} from "@/api/small-groups-api/types";
 
 import { Suspense } from "react";
 import { LinkIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
 import NextLink from "next/link";
 import { getTranslations } from "next-intl/server";
 
@@ -10,6 +14,7 @@ import { parseWeekParam } from "../_lib/week-param";
 import { TodayDate } from "./dashboard-greeting";
 import { NoGroupsCard } from "./no-groups-card";
 import { PrayerFilter } from "./prayer/prayer-filter";
+import { prayerPanel } from "./prayer/prayer-panel";
 import { PrayerSection, sectionEntries } from "./prayer/prayer-section";
 import { PrayerSkeleton } from "./prayer/prayer-skeleton";
 import { StillToReportNote } from "./prayer/still-to-report-note";
@@ -24,8 +29,11 @@ import {
 import { EmptyState } from "@/components/empty-state";
 import { textLink, title } from "@/components/primitives";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
+import { getPermissions } from "@/lib/auth/get-permissions";
+import { canSeeConversations } from "@/lib/auth/permissions";
 import { weekAround } from "@/lib/calendar-week";
 import { getChurchToday } from "@/lib/church-time";
+import { parseSectionParam } from "@/lib/report-sections";
 
 const perSection = <T,>(
   value: (key: ReportSectionKey) => T,
@@ -43,21 +51,27 @@ const FILTER_LABELS = {
 
 /**
  * The week: its title and stepper, the filter chips, the still-to-report note and the three
- * sections. A failed read throws to the page's error boundary.
+ * sections, and the conversation panel when `?report=&section=` names one of its entries. A failed
+ * read throws to the page's error boundary.
  */
 async function PrayerWeek({
   requestedSunday,
   scoped,
+  open,
 }: {
   /** The Sunday the URL asked for; null for the current week. */
   requestedSunday: string | null;
   scoped: boolean;
+  /** `?report=&section=`: the thread to open, if the URL names one. */
+  open: { reportId: number; section: ReportSectionKey } | null;
 }) {
-  const [t, shared, groups] = await Promise.all([
+  const [t, shared, groups, permissions, me] = await Promise.all([
     getTranslations("PrayerDashboard"),
     getSmallGroupReportShared(requestedSunday ?? undefined),
     // Cached per render; it holds the open groups in scope, which the shared texts can't tell.
     getSmallGroupReportSummary(),
+    getPermissions(),
+    getMe(),
   ]);
 
   if (groups.length === 0) {
@@ -81,10 +95,43 @@ async function PrayerWeek({
   const heading = await weekTitle({ weekStart, currentSunday, isCurrentWeek });
   // Leaders go to My groups (no week there); everyone else to Report status for the same week.
   const statusHref = scoped || isCurrentWeek ? "/" : `/?week=${weekStart}`;
+  // This page with the week kept (none for the current week, as usual).
+  const pageHref = isCurrentWeek
+    ? "/dashboard/prayer"
+    : `/dashboard/prayer?week=${weekStart}`;
+  const ledIds = new Set(me.leads.map(({ smallGroupId }) => smallGroupId));
+  // The conversations' audience, as on Report detail: observations, or leading that group.
+  const canConverse = (entry: ReportSharedEntry) =>
+    canSeeConversations(permissions, ledIds.has(entry.smallGroup.id));
+  const conversationHref =
+    (section: ReportSectionKey) => (entry: ReportSharedEntry) =>
+      canConverse(entry)
+        ? `${pageHref}${isCurrentWeek ? "?" : "&"}report=${entry.reportId}&section=${section}`
+        : undefined;
+  const openEntry = open
+    ? entries.find(
+        (entry) => entry.reportId === open.reportId && canConverse(entry),
+      )
+    : undefined;
+  const panel =
+    open && openEntry
+      ? await prayerPanel({
+          entry: openEntry,
+          section: open.section,
+          linked: me.member !== null,
+          closeHref: pageHref,
+        })
+      : null;
   const bySection = perSection((key) => sectionEntries(entries, key));
 
   return (
-    <>
+    // Room for the panel at 1024 and up, as on Report detail.
+    <div
+      className={clsx(
+        "flex flex-col gap-6 transition-[padding] duration-200 ease-out motion-reduce:transition-none",
+        panel && "lg:pr-[444px] min-[1200px]:pr-[484px]",
+      )}
+    >
       <section
         aria-labelledby="prayer-week"
         className="flex flex-wrap items-end justify-between gap-x-5 gap-y-3"
@@ -132,6 +179,10 @@ async function PrayerWeek({
         }
         sections={perSection((key) => (
           <PrayerSection
+            activeReportId={
+              panel && open?.section === key ? open.reportId : undefined
+            }
+            conversationHref={conversationHref(key)}
             entries={bySection[key]}
             isCurrentWeek={isCurrentWeek}
             scoped={scoped}
@@ -141,7 +192,8 @@ async function PrayerWeek({
           />
         ))}
       />
-    </>
+      {panel}
+    </div>
   );
 }
 
@@ -152,10 +204,14 @@ async function PrayerWeek({
 export async function PrayerDashboard({
   scoped,
   week,
+  report,
+  section,
 }: {
   scoped: boolean;
-  /** The raw `?week=` value. */
+  /** The raw `?week=`, `?report=` and `?section=` values. */
   week: string | string[] | undefined;
+  report: string | string[] | undefined;
+  section: string | string[] | undefined;
 }) {
   const [t, tPage, me] = await Promise.all([
     getTranslations("PrayerDashboard"),
@@ -163,6 +219,12 @@ export async function PrayerDashboard({
     getMe(),
   ]);
   const requestedSunday = parseWeekParam(week, getChurchToday());
+  const reportParam = Array.isArray(report) ? report[0] : report;
+  const sectionKey = parseSectionParam(section);
+  const open =
+    reportParam && /^[1-9]\d*$/.test(reportParam) && sectionKey
+      ? { reportId: Number(reportParam), section: sectionKey }
+      : null;
 
   return (
     <>
@@ -186,7 +248,11 @@ export async function PrayerDashboard({
             key={requestedSunday ?? "current"}
             fallback={<PrayerSkeleton />}
           >
-            <PrayerWeek requestedSunday={requestedSunday} scoped={scoped} />
+            <PrayerWeek
+              open={open}
+              requestedSunday={requestedSunday}
+              scoped={scoped}
+            />
           </Suspense>
         )}
       </div>

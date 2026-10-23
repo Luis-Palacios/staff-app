@@ -5,6 +5,7 @@ import type {
   ConversationThread,
   ReportConversations,
 } from "@/api/conversations-api/types";
+import type { ReportSectionKey } from "@/api/small-groups-api/types";
 
 import { cache } from "react";
 
@@ -58,6 +59,34 @@ export function addComment(
 ): Promise<ConversationThread> {
   return request<ConversationThread>(
     reportPath(reportId, `/${memberId}/comments`),
+    { method: "POST", body: { body } },
+  );
+}
+
+/** One section's thread (prayer & follow-up rule 14); `null` on 404 `No conversation yet`. */
+export async function getSectionConversation(
+  reportId: number | string,
+  key: ReportSectionKey,
+): Promise<ConversationThread | null> {
+  try {
+    return await request<ConversationThread>(
+      reportPath(reportId, `/sections/${key}`),
+    );
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+
+    throw error;
+  }
+}
+
+/** Creates the section's thread when there is none (422 when the section is empty). */
+export function addSectionComment(
+  reportId: number | string,
+  key: ReportSectionKey,
+  body: string,
+): Promise<ConversationThread> {
+  return request<ConversationThread>(
+    reportPath(reportId, `/sections/${key}/comments`),
     { method: "POST", body: { body } },
   );
 }

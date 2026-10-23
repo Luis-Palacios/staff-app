@@ -4,7 +4,6 @@ import type {
 } from "@/api/small-groups-api/types";
 import type { Locale } from "@/lib/locale-shared";
 
-import { FlagIcon, HeartIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import { useLocale, useTranslations } from "next-intl";
 
 import { CopyForWhatsApp } from "./copy-for-whatsapp";
@@ -13,16 +12,16 @@ import { whatsappAllText } from "./whatsapp-text";
 
 import { card, title } from "@/components/primitives";
 import {
+  REPORT_SECTION_TONES,
+  ReportSectionTile,
+} from "@/components/report-section-tile";
+import {
   formatCalendarRange,
   formatCalendarShortWeekdayDate,
 } from "@/lib/format-date";
 
-// Follow-up asks for action, so it gets the warning tone; only on the tile and the pill, never
-// the text.
 const SECTIONS = {
   prayer: {
-    icon: HeartIcon,
-    tone: "bg-accent-soft text-accent-soft-foreground",
     title: "prayerTitle",
     sub: "prayerSub",
     subLeader: "prayerSubLeader",
@@ -31,8 +30,6 @@ const SECTIONS = {
     copy: "one-and-all",
   },
   praise: {
-    icon: SparklesIcon,
-    tone: "bg-success-soft text-success-soft-foreground",
     title: "praiseTitle",
     sub: "praiseSub",
     subLeader: "praiseSub",
@@ -41,8 +38,6 @@ const SECTIONS = {
     copy: "one",
   },
   followUp: {
-    icon: FlagIcon,
-    tone: "bg-warning-soft text-warning-soft-foreground",
     title: "followUpTitle",
     sub: "followUpSub",
     subLeader: "followUpSubLeader",
@@ -73,6 +68,8 @@ export function PrayerSection({
   weekEnd,
   isCurrentWeek,
   scoped,
+  conversationHref,
+  activeReportId,
 }: {
   section: ReportSectionKey;
   entries: { entry: ReportSharedEntry; text: string }[];
@@ -82,10 +79,13 @@ export function PrayerSection({
   isCurrentWeek: boolean;
   /** A leader's view: the description speaks of "your groups". */
   scoped: boolean;
+  /** The link that opens an entry's thread here, or none when the caller can't see it. */
+  conversationHref: (entry: ReportSharedEntry) => string | undefined;
+  /** The report whose panel is open on this section, if any. */
+  activeReportId?: number;
 }) {
   const t = useTranslations("PrayerDashboard");
   const config = SECTIONS[section];
-  const Icon = config.icon;
   const locale = useLocale() as Locale;
   const headingId = `prayer-section-${section}`;
   const sectionTitle = t(config.title);
@@ -99,11 +99,11 @@ export function PrayerSection({
     >
       <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3 px-4 pb-4 pt-5 md:px-[22px]">
         <div className="flex min-w-0 items-center gap-3.5">
-          <span
-            className={`flex size-10 shrink-0 items-center justify-center rounded-[11px] ${config.tone}`}
-          >
-            <Icon aria-hidden="true" className="size-5" strokeWidth={1.7} />
-          </span>
+          <ReportSectionTile
+            className="size-10 rounded-[11px]"
+            iconClassName="size-5"
+            section={section}
+          />
           <div className="flex min-w-0 flex-col gap-0.5">
             <h2
               className={title({
@@ -114,7 +114,7 @@ export function PrayerSection({
             >
               {sectionTitle}
               <span
-                className={`rounded-full px-[9px] py-0.5 font-sans text-[13px] font-semibold tracking-normal ${config.tone}`}
+                className={`rounded-full px-[9px] py-0.5 font-sans text-[13px] font-semibold tracking-normal ${REPORT_SECTION_TONES[section]}`}
               >
                 {t("groupCount", { n: entries.length })}
               </span>
@@ -152,8 +152,12 @@ export function PrayerSection({
           {entries.map(({ entry, text }) => (
             <PrayerEntry
               key={entry.reportId}
+              conversationHref={conversationHref(entry)}
               copyTitle={copyTitle}
               entry={entry}
+              focused={entry.reportId === activeReportId}
+              section={section}
+              sectionTitle={sectionTitle}
               text={text}
             />
           ))}
