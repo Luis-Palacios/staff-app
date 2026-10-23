@@ -87,8 +87,8 @@ branches (API stages 1–6) and the setting is on in the dev API.
 Still open from stages 2–4: the 390 / 1024, English and light-mode passes, the leader view, and the cases
 that need older guests (move note, close matches, stopped-coming panel on Group detail and in the
 report form, New → Participant). The dev data has no guest with a streak of 3+.
-Dev data left behind: guest group *Test guests* (id 7) with Ana Prueba, Beto Prueba and Carla Prueba
-(added from the report form), and one filed report (id 37, 23 Oct 2026) with all three.
+Dev data left behind: guest group *Test guests* (id 7) with Ana, Beto, Carla and Diego Prueba (the last
+two added from the report form); no reports (the test one was deleted).
 
 ### Decisions and deviations
 
