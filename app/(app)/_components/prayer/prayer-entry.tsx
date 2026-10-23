@@ -17,7 +17,8 @@ import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
 
 /**
  * One group's text in a section: the group block (name, leaders, meeting date) on the left, the
- * text and its actions on the right. They stack below `md`.
+ * text and its actions on the right. They stack when the card is narrow (a phone, or a tablet with
+ * the conversation panel open): a container query on the section, not the viewport.
  */
 export function PrayerEntry({
   entry,
@@ -50,11 +51,11 @@ export function PrayerEntry({
   return (
     <li
       className={clsx(
-        "flex flex-col gap-x-7 gap-y-2.5 border-t border-separator p-4 md:flex-row md:px-[22px] md:py-[18px]",
+        "flex flex-col gap-x-7 gap-y-2.5 border-t border-separator p-4 md:px-[22px] md:py-[18px] @2xl:flex-row",
         focused && "bg-focus-row shadow-[inset_3px_0_0_var(--color-gold-500)]",
       )}
     >
-      <div className="flex flex-col gap-[3px] md:w-60 md:shrink-0">
+      <div className="flex flex-col gap-[3px] @2xl:w-60 @2xl:shrink-0">
         <span className="text-[15px] font-semibold text-heading">
           {entry.smallGroup.name}
         </span>

@@ -71,8 +71,8 @@ progress log below.
 | 2. API types and client (shared endpoint, anchor union) | ✅ | `6b5e61c` |
 | 3. The page: week, chips, still to report, sections | ✅ | `ca93bfa` |
 | 4. Copy for WhatsApp | ✅ | `63c7509` |
-| 5. Section threads: page control, Report detail, panel | ✅ | this commit |
-| 6. Section threads in Conversations and *Waiting for your reply* | ⬜ | |
+| 5. Section threads: page control, Report detail, panel | ✅ | `ad04644` |
+| 6. Section threads in Conversations and *Waiting for your reply* | ✅ | this commit |
 | 7. Docs | ⬜ | |
 | 8. Design review fixes (after the variant boards exist) | ⬜ | |
 
@@ -171,6 +171,21 @@ progress log below.
   praise had no control; `?section=bogus` and `?person=` + `?section=` behaved as specified; the
   person panel is unchanged. Not checked: an existing thread's count, amber and dot states (the dev
   database has no section threads), sending a comment, and the desktop side panel on this page.
+- **Stage 6:** `conversation-row.tsx` reads the anchor: a section row shows
+  `Conversations.sectionTitle` where the name goes and `ReportSectionTile` (40px, `rounded-xl`, the
+  section's tone) instead of the initials, with the same unread dot; `conversationHref` links to
+  `?section=` or `?person=` from the anchor. Stage 2's `PersonInboxItem` / `isPersonInboxItem` and
+  the list filters are gone, so the Conversations list, *Waiting for your reply* and their counts
+  agree again. Also fixed here: with the panel open at 1024–1279 the entries' two columns left a
+  very narrow text column, so an entry now stacks by its card's width (`@container` on the section,
+  `@2xl:flex-row`) rather than the viewport's `md`. Checked in the browser (admin, 1152): posted a
+  test comment on report 14's follow-up from Report detail (desktop side panel); the prayer page
+  showed *1 comment* in the open tone with the right label, the panel opened over the page with
+  the page padded and the entry's gold edge, and the entries stacked beside it; Conversations ▸ Open
+  listed the section row (flag tile, *For the elders to follow up*, GP - #2, the excerpt) linking to
+  `/groups/reports/14?section=followUp`. The test comment is still in the dev database. Not
+  checked: the amber *needs your reply* state and the unread dot from a leader's side (needs a leader
+  account).
 
 ## Token changes
 

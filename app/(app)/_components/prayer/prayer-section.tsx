@@ -95,7 +95,7 @@ export function PrayerSection({
   return (
     <section
       aria-labelledby={headingId}
-      className={card({ className: "overflow-hidden" })}
+      className={card({ className: "@container overflow-hidden" })}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3 px-4 pb-4 pt-5 md:px-[22px]">
         <div className="flex min-w-0 items-center gap-3.5">

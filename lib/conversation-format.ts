@@ -27,21 +27,11 @@ export function formatActivity(
   ).format(date);
 }
 
-/** An inbox row about a person's attendance row, which always carries the member. */
-export type PersonInboxItem = ConversationInboxItem & {
-  anchor: { type: "attendance"; memberId: number };
-  member: NonNullable<ConversationInboxItem["member"]>;
-};
+/** Link to the report with this person's or section's panel open. */
+export function conversationHref(item: ConversationInboxItem): string {
+  const { anchor } = item;
 
-/** Section rows are left out of the inbox lists until they have their own row (stage 6 of
- *  `docs/design/PRAYER-FOLLOW-UP.md`). */
-export function isPersonInboxItem(
-  item: ConversationInboxItem,
-): item is PersonInboxItem {
-  return item.anchor.type === "attendance" && item.member !== null;
-}
-
-/** Link to the report with this person's panel open. */
-export function conversationHref(item: PersonInboxItem): string {
-  return `/groups/reports/${item.report.id}?person=${item.member.id}`;
+  return anchor.type === "attendance"
+    ? `/groups/reports/${item.report.id}?person=${anchor.memberId}`
+    : `/groups/reports/${item.report.id}?section=${anchor.key}`;
 }
