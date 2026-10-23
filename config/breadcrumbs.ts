@@ -5,6 +5,11 @@ export const membersBreadcrumb: StaffAppBreadcrumbItem = {
   href: "/members",
 };
 
+export const guestsBreadcrumb: StaffAppBreadcrumbItem = {
+  labelKey: "guests",
+  href: "/guests",
+};
+
 export const groupsBreadcrumb: StaffAppBreadcrumbItem = {
   labelKey: "groups",
   href: "/groups",

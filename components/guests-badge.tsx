@@ -3,7 +3,14 @@ import clsx from "clsx";
 import { useTranslations } from "next-intl";
 
 // Marks a guest group. An outline pill, never filled: it names a kind of group, not a status.
-export function GuestsBadge({ className }: { className?: string }) {
+export function GuestsBadge({
+  className,
+  label,
+}: {
+  className?: string;
+  /** Overrides the plural "Guests", e.g. "Guest" on one guest's page. */
+  label?: string;
+}) {
   const t = useTranslations("GuestsBadge");
 
   return (
@@ -18,7 +25,7 @@ export function GuestsBadge({ className }: { className?: string }) {
         className="size-3.5 text-eyebrow"
         strokeWidth={1.8}
       />
-      {t("label")}
+      {label ?? t("label")}
     </span>
   );
 }

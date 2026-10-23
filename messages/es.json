@@ -1450,5 +1450,155 @@
       "generic": "Algo salió mal. Inténtalo de nuevo.",
       "overlap": "Su tiempo anterior en este grupo se cruza con esta fecha."
     }
+  },
+  "GuestsPage": {
+    "title": "Invitados",
+    "description": "Personas que visitan o están en el proceso, pero aún no son miembros. Nunca se mezclan con Miembros."
+  },
+  "GuestsEmpty": {
+    "title": "Aún no hay invitados",
+    "description": "Los invitados aparecerán aquí cuando se agreguen a un grupo de invitados o por su cuenta."
+  },
+  "AddGuestLink": {
+    "label": "Agregar invitado",
+    "first": "Agrega el primer invitado"
+  },
+  "GuestsBrowser": {
+    "filterByStatus": "Filtrar invitados",
+    "tabActive": "En un grupo",
+    "tabInactive": "Sin grupo",
+    "tabAll": "Todos",
+    "filterLabel": "Buscar invitados",
+    "filterPlaceholder": "Nombre o teléfono",
+    "count": "<num>{count, number}</num> {count, plural, one {invitado} other {invitados}}",
+    "noMatches": "Ningún invitado coincide con tu búsqueda.",
+    "tableLabel": "Invitados",
+    "columnGuest": "Invitado",
+    "columnPhone": "Teléfono",
+    "columnGroup": "Grupo de invitados",
+    "columnLastSeen": "Última reunión",
+    "columnActions": "Acciones",
+    "firstVisit": "Primera visita: {date}",
+    "notProvided": "No registrado",
+    "openGuest": "Abrir {name}",
+    "since": "Desde el {date}",
+    "noGroup": "Sin grupo",
+    "left": "Salió el {date}",
+    "leftWithReason": "Salió el {date} · {reason}",
+    "leftReason": {
+      "stopped_coming": "Dejó de venir",
+      "moved_group": "Cambió de grupo",
+      "other": "Otro motivo"
+    },
+    "neverSeen": "Aún no",
+    "missed": "Faltó {count, plural, one {a la última reunión} other {a las últimas # reuniones}}"
+  },
+  "GuestDetailHeader": {
+    "badge": "Invitado",
+    "firstVisit": "Primera visita: <strong>{date}</strong>",
+    "inGroup": "En <strong>{group}</strong>",
+    "noGroup": "Sin grupo",
+    "allGuests": "Todos los invitados",
+    "backToGroup": "Volver a {group}",
+    "edit": "Editar invitado"
+  },
+  "GuestContactCard": {
+    "eyebrow": "Contacto y datos personales",
+    "title": "Cómo contactarlo",
+    "edit": "Editar",
+    "editLabel": "Editar los datos de este invitado",
+    "phone": "Teléfono",
+    "email": "Correo",
+    "address": "Dirección",
+    "sex": "Sexo",
+    "sexMale": "Hombre",
+    "sexFemale": "Mujer",
+    "notProvided": "No registrado"
+  },
+  "GuestOriginCard": {
+    "eyebrow": "Origen",
+    "title": "Cómo llegó",
+    "firstVisit": "Primera visita",
+    "invitedBy": "Invitado por",
+    "addedBy": "Agregado por",
+    "addedByOn": "<name></name> el {date}",
+    "notProvided": "No registrado"
+  },
+  "GuestGroupsCard": {
+    "eyebrow": "Grupos de invitados",
+    "title": "Grupos hasta ahora",
+    "empty": "Aún no ha estado en un grupo.",
+    "since": "Desde el {date}",
+    "range": "{from} – {to}",
+    "current": "Actual",
+    "leftReason": {
+      "stopped_coming": "Dejó de venir",
+      "moved_group": "Cambió de grupo",
+      "other": "Otro motivo"
+    }
+  },
+  "GuestMeetingsCard": {
+    "eyebrow": "Asistencia",
+    "title": "Reuniones recientes",
+    "empty": "Aún no hay reuniones registradas.",
+    "cameGroup": "Vino al grupo",
+    "missedGroup": "No vino al grupo",
+    "cameChurch": "Vino a la iglesia",
+    "missedChurch": "No vino a la iglesia"
+  },
+  "GuestSavedToast": {
+    "created": "Invitado agregado",
+    "updated": "Cambios guardados"
+  },
+  "GuestFormPage": {
+    "newTitle": "Agregar un invitado",
+    "newDescription": "Alguien que visita o está en el proceso. Solo el nombre es obligatorio.",
+    "editTitle": "Editar invitado",
+    "editDescription": "Actualiza los datos de {firstName}.",
+    "editCrumb": "Editar"
+  },
+  "GuestForm": {
+    "contactEyebrow": "Contacto",
+    "contactTitle": "Cómo contactarlo",
+    "personalEyebrow": "Personal",
+    "personalTitle": "Dirección y sexo",
+    "originEyebrow": "Origen",
+    "originTitle": "Cómo llegó",
+    "name": "Nombre completo",
+    "email": "Correo",
+    "emailHelp": "Opcional. Una familia puede compartir uno.",
+    "address": "Dirección",
+    "addressPlaceholder": "Barrio, referencias, ciudad",
+    "firstVisit": "Primera visita",
+    "invitedBy": "Invitado por",
+    "invitedByPlaceholder": "Buscar un miembro",
+    "loading": "Cargando miembros…",
+    "noMembers": "Ningún miembro coincide.",
+    "group": "Grupo de invitados",
+    "noGroup": "Sin grupo",
+    "groupHelp": "Opcional. Entra al grupo hoy.",
+    "groupEditNote": "Para cambiar su grupo, usa la página del grupo.",
+    "required": "Obligatorio",
+    "cancel": "Cancelar",
+    "add": "Agregar invitado",
+    "save": "Guardar cambios",
+    "alertTitle": "No se guardó este invitado",
+    "alertBody": "Corrige {count, plural, one {el campo marcado} other {los # campos marcados}} e inténtalo de nuevo.",
+    "errors": {
+      "nameRequired": "Escribe el nombre del invitado.",
+      "emailInvalid": "Escribe un correo válido.",
+      "phoneTooLong": "Escribe un teléfono más corto.",
+      "phoneDigitsOnly": "Usa solo números.",
+      "addressTooLong": "Mantén la dirección en menos de 255 caracteres.",
+      "sexInvalid": "Elige Hombre o Mujer.",
+      "firstVisitInvalid": "Escribe una fecha válida.",
+      "off": "Los grupos de invitados están desactivados para esta iglesia.",
+      "closed": "Este grupo está cerrado, así que no se puede cambiar."
+    }
+  },
+  "SimilarGuests": {
+    "title": "¿Es la misma persona?",
+    "open": "Abrir",
+    "openGuest": "Abrir {name}"
   }
 }
