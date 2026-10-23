@@ -48,6 +48,7 @@ export async function createGuestAction(
   const forbidden = await forbiddenUnless({
     guests: ["create", "all"],
     ...(smallGroupId !== null && { smallGroups: ["manageMembers"] }),
+    ...(invitedByMemberId !== null && { members: ["search"] }),
   });
 
   if (forbidden) return toFailure(forbidden);
@@ -92,7 +93,11 @@ export async function updateGuestAction(
   changes: Partial<GuestFormValues>,
   invitedByMemberId?: number | null,
 ): Promise<GuestActionFailure> {
-  const forbidden = await forbiddenUnless({ guests: ["update"] });
+  const forbidden = await forbiddenUnless({
+    guests: ["update"],
+    // Clearing the inviter (`null`) needs no lookup.
+    ...(invitedByMemberId != null && { members: ["search"] }),
+  });
 
   if (forbidden) return toFailure(forbidden);
 

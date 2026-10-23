@@ -13,7 +13,8 @@ export default async function NewGroupPage() {
   const [t, tLink, { guestGroups }] = await Promise.all([
     getTranslations("GroupFormPage"),
     getTranslations("NewGroupLink"),
-    getFeatures(),
+    // A failed read means guest groups are off, so a members group can still be created.
+    getFeatures().catch(() => ({ guestGroups: false })),
   ]);
 
   return (

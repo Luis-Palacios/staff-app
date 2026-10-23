@@ -35,6 +35,22 @@ export type GuestFieldErrors = Partial<Record<GuestField, GuestErrorKey>>;
 
 export type GuestFormValues = Record<GuestField, string>;
 
+/** "YYYY-MM-DD" naming a day that exists (not 2026-02-31). */
+function isRealDate(value: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+
+  if (!match) return false;
+
+  const [year, month, day] = match.slice(1).map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
+
 export const guestSchema = z.object({
   name: z
     .string()
@@ -61,7 +77,7 @@ export const guestSchema = z.object({
   firstVisitDate: z
     .string()
     .trim()
-    .refine((value) => value === "" || /^\d{4}-\d{2}-\d{2}$/.test(value), {
+    .refine((value) => value === "" || isRealDate(value), {
       error: "firstVisitInvalid" satisfies GuestErrorKey,
     }),
 });

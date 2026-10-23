@@ -23,13 +23,13 @@ export const reportBodySchema = z.object({
   // A member's `memberId` or a guest's `guestId`, never both.
   attendances: z.array(
     z.union([
-      z.object({
+      z.strictObject({
         memberId: z.number().int().positive(),
         attendedGroup: z.boolean(),
         attendedChurch: z.boolean(),
         observation: optionalText(TEXT_MAX),
       }),
-      z.object({
+      z.strictObject({
         guestId: z.number().int().positive(),
         attendedGroup: z.boolean(),
         attendedChurch: z.boolean(),

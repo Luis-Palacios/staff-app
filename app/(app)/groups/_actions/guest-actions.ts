@@ -81,7 +81,7 @@ export async function addGuestAction(
 ): Promise<AddGuestResult> {
   const forbidden = await forbiddenUnless({
     smallGroups: ["manageMembers"],
-    ...(input.newGuest && { guests: ["create"] }),
+    guests: input.newGuest ? ["search", "create"] : ["search"],
   });
 
   if (forbidden) {
