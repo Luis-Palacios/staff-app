@@ -81,9 +81,7 @@ below.
 ### Where to pick up
 
 All seven stages are done on branch `guest-small-groups` (review log under *Stage 7* below). What is
-left is on other repos: membership-management's stage 7 (drop `memberId`/`memberName` from the API
-shapes, add `audience` to the conversation inbox row's `group`, then delete `lib/guest-groups.ts`
-here) and the items under *Not checked*.
+left is the items under *Not checked*. membership-management's stage 7 (`c1a1d80`) is in and read here.
 
 Dev data (reseeded 2026-10-23 with `--reset`, so it is the seed's): guest groups *Primeros Pasos*
 (id 6) and *Nuevos Comienzos* (id 7), 12 guests (Walter streak 4, Mayra streak 6, Tatiana moved
@@ -203,9 +201,8 @@ work: the admin user (lrpalaciosdev@gmail.com) to member #1 Lesbia Cruz, and *Lu
   `?guest=<guestId>`, and the row control carries `data-conversation-person="member:12"`. The panel's
   person is `person: Person`; summaries are matched to rows by `personKey(summary.person)`, so a guest's
   row now has its conversation control in report detail.
-- **Deviation:** the inbox row's `group` has no `audience` in the API, so Conversations rows get the badge
-  from `getGuestGroupIds()` (`lib/guest-groups.ts`: the groups list, empty when the setting is off). When
-  membership-management adds `audience` to the inbox `group`, read it and delete the helper.
+- **Resolved:** the inbox row's `group` now carries `audience` (membership-management `c1a1d80`), so
+  Conversations rows and the dashboard block read `item.group.audience`; `lib/guest-groups.ts` is deleted.
 - **Browser pass (stage 6), admin, 400px viewport (the window wouldn't widen), light and dark:** on *Test guests*
   (given a Friday meeting day and a leader, a quick-list report on it with a prayer text, one conversation on
   Beto) the badge shows on Report status (table row and *Needs follow-up*), Reports (card), Prayer & follow-up,

@@ -35,14 +35,12 @@ function ConversationList({
   data,
   tab,
   groupId,
-  guestGroupIds,
   timeZone,
   elder,
 }: {
   data: ConversationInbox;
   tab: ConversationInboxTab;
   groupId: number | null;
-  guestGroupIds: number[];
   timeZone: string;
   elder: boolean;
 }) {
@@ -102,7 +100,7 @@ function ConversationList({
         {items.map((item) => (
           <li key={item.id}>
             <ConversationRow
-              guests={guestGroupIds.includes(item.group.id)}
+              guests={item.group.audience === "guests"}
               item={item}
               timeZone={timeZone}
             />
@@ -135,7 +133,6 @@ export function ConversationsBrowser({
   tab,
   groupId,
   groups,
-  guestGroupIds,
   timeZone,
   elder,
 }: {
@@ -143,8 +140,6 @@ export function ConversationsBrowser({
   tab: ConversationInboxTab;
   groupId: number | null;
   groups: ConversationGroupOption[];
-  /** The inbox rows carry no `audience`, so the page says which of their groups are guest groups. */
-  guestGroupIds: number[];
   timeZone: string;
   /** Full roles see every group; leaders their own. Words the copy. */
   elder: boolean;
@@ -242,7 +237,6 @@ export function ConversationsBrowser({
           data={data}
           elder={elder}
           groupId={groupId}
-          guestGroupIds={guestGroupIds}
           tab={tab}
           timeZone={timeZone}
         />
