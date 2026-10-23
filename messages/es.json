@@ -363,7 +363,8 @@
     "fileInstead": "Enviar un reporte para el {date}",
     "deleteNoMeetingTitle": "¿Eliminar esta marca de sin reunión?",
     "deleteNoMeetingBody": "El {date} volverá a aparecer como sin reporte si era día de reunión.",
-    "deleteConversations": "También se {count, plural, one {elimina # conversación} other {eliminan # conversaciones}}."
+    "deleteConversations": "También se {count, plural, one {elimina # conversación} other {eliminan # conversaciones}}.",
+    "participant": "Participante"
   },
   "NoMeetingDialog": {
     "title": "¿No hubo reunión el {date}?",
@@ -563,7 +564,21 @@
     "editTitle": "Editar reporte",
     "editMeta": "Enviado por {name} el {dateTime}. Tus cambios conservan a quien lo envió.",
     "save": "Guardar cambios",
-    "meetingDetails": "Detalles de la reunión"
+    "meetingDetails": "Detalles de la reunión",
+    "participant": "Participante",
+    "addedJustNow": "Agregado ahora · entra desde esta reunión",
+    "addedJustNowShort": "Agregado ahora",
+    "guestsBlock": "Invitados",
+    "membersBlock": "Líderes y miembros",
+    "noGuestsYet": "Todavía no hay invitados en este grupo.",
+    "someoneNew": "Vino alguien nuevo",
+    "someoneNewHint": "Búscalo o agrega un invitado nuevo. Entra al grupo desde esta reunión, marcado como que vino.",
+    "guestAdded": "{name} agregado y marcado como que vino",
+    "guestWillLeave": "{name} saldrá del grupo después de este reporte",
+    "leavesAfter": "Sale del grupo después de este reporte.",
+    "stoppedSuggestion": "<strong>No ha venido a las últimas {count, number} reuniones.</strong> ¿Sigue viniendo?",
+    "removeAfter": "Quitar después de este reporte",
+    "removeNote": "Se queda en este reporte y sale del grupo desde esta reunión."
   },
   "GroupReportsCard": {
     "eyebrow": "Reportes",

@@ -73,28 +73,22 @@ below.
 | 1. Permissions, types, API client, the setting | ✅ | `9014126` |
 | 2. Menu, Groups badge, New group audience | ✅ | `316cc84` |
 | 3. Group detail for guest groups | ✅ | `89bf3fa`, `64f30f6` |
-| 4. Report form and report detail with guests | ⬜ | |
+| 4. Report form and report detail with guests | ✅ | see `git log` ("Add guests to the report form and report detail") |
 | 5. Guests list, detail and form | ⬜ | |
 | 6. Badges elsewhere and `person` everywhere | ⬜ | |
 | 7. Design review fixes | ⬜ | |
 
 ### Where to pick up
 
-Next: **stage 4** (report form and report detail with guests). Stages 1–3 are done on branch
+Next: **stage 5** (Guests list, detail and form). Stages 1–4 are done on branch
 `guest-small-groups`; the API and auth-server sides are done on their own `guest-small-groups`
 branches (API stages 1–6) and the setting is on in the dev API.
 
-Reuse for stage 4: `AddGuestDialog` (`variant="report"`, `joinedAt` = meeting date),
-`RemoveGuestDialog` (pass `note` for *They stay in this report and leave the group from this meeting
-on.*), `addGuestAction` / `removeGuestAction` (`leftAt` = meeting date), `lib/guests.ts`,
-`lib/guest-errors.ts`, `GuestsBadge`. Open points for it: a new guest's id isn't in the add response
-(see below); the attendance input is `memberId` **or** `guestId`; key form answers by
-`person.type + id`; `app/(app)/groups/reports/[id]/page.tsx` still reads `group.members` by
-`memberId`.
-
-Still open from stages 2–3: the 390 / 1024 and English passes, the leader view, and the cases that
-need guests with reports (move note, close matches, stopped-coming panel, New → Participant).
-Dev data left behind: guest group *Test guests* (id 7) with Ana Prueba (left) and Beto Prueba.
+Still open from stages 2–4: the 390 / 1024, English and light-mode passes, the leader view, and the cases
+that need older guests (move note, close matches, stopped-coming panel on Group detail and in the
+report form, New → Participant). The dev data has no guest with a streak of 3+.
+Dev data left behind: guest group *Test guests* (id 7) with Ana Prueba, Beto Prueba and Carla Prueba
+(added from the report form), and one filed report (id 37, 23 Oct 2026) with all three.
 
 ### Decisions and deviations
 
@@ -144,6 +138,35 @@ Dev data left behind: guest group *Test guests* (id 7) with Ana Prueba (left) an
   the *New* → *Participant* switch (no guest group with reports/older guests in dev data), and the
   leader view. Left in the dev data: a guest group *Test guests* (id 7) and two test guests (Ana
   Prueba, Beto Prueba).
+- **Stage 4:** the form keys answers by `personKey` (`"member:12"` / `"guest:4"`, `_lib/person.ts`);
+  drafts saved with plain member ids are migrated on load. The attendance input sends `memberId` or
+  `guestId`. A guest group's roster is shown guests first (`guestsFirst`), in the quick list, review,
+  edit and one person at a time; the API also sends `audience` on the roster and detail `smallGroup`
+  (typed now). `_components/report-guests.tsx` holds `useReportGuests` (add/remove dialogs, toast,
+  roster reload, marks), `SomeoneNewButton` and `StoppedComingPanel`; `ReportListStep` and
+  `PersonStep` get `guests` (null for member groups) and `audience`.
+- *Someone new came* adds immediately, reloads the roster, and marks the new row *came* only (the church
+  question stays theirs to answer); one person at a time jumps to the new guest. A new guest's id isn't
+  in the add response, so the row is found as the guest that wasn't on the roster before. **Optional API
+  change (membership-management):** return the new guest's id from `POST /small-groups/{id}/guests` and
+  the diff goes away.
+- *Remove after this report* is on the stopped-coming panel (streak 3+), opens the stage 3 dialog with
+  *Stopped coming* picked and the report note, calls `removeGuestAction` with `leftAt` = meeting date,
+  and turns the panel into *Leaves the group after this report.* (kept only until the page reloads; the
+  suggestion shows again after a reload while the roster of that date still lists them). A guest at 3+
+  shows the panel instead of the "Missed the last N meetings" hint; at 2 the hint stays.
+- A guest group's *Leaders and members* block is hidden when it has no rows.
+- Report detail: rows read `person`; a guest's role reads *Participant*; the name links to `/guests/{id}`
+  when the caller has `guests: view` (404 until stage 5). **Conversations on a guest's row are not shown
+  yet:** the conversations client has no guest anchor, that is stage 6.
+- **Browser pass (stage 4), admin, dark + Spanish, 1152px window:** quick list of *Test guests* (two
+  blocks, counts, *Someone new came*), adding a new guest from it (dialog, toast, gold edge, *Agregado
+  ahora…*, *came* pressed, count 3), one person at a time (*Participante* badge, *Vino alguien nuevo*
+  under the card), submitting a report with three guests (200, redirect), report detail and the edit
+  form. No console errors. **Not checked:** light mode, English, 390 / 1024 (window minimum), the
+  stopped-coming panel and *Remove after this report* (no guest with a streak of 3+ in dev data), the
+  move note in the report dialog, the leader view, a member group report after the change (only by
+  code: `audience` is `members` so no block or controls render).
 - Checked with `pnpm lint` (one existing warning in `member-form.tsx`, not touched) and
   `pnpm exec tsc --noEmit`. Nothing visible changes, so no browser pass.
 

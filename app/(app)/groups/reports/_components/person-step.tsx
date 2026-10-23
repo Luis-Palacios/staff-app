@@ -16,12 +16,19 @@ import { Button, Label, TextArea, TextField } from "@heroui/react";
 import clsx from "clsx";
 import { useLocale, useTranslations } from "next-intl";
 
+import {
+  type ReportGuestControls,
+  SomeoneNewButton,
+  StoppedComingPanel,
+  suggestsStopped,
+} from "./report-guests";
 import { YesNoButtons } from "./yes-no-buttons";
 
 import {
   firstName,
   joinedRecently,
   MISSED_STREAK_MIN,
+  personKey,
 } from "@/app/(app)/groups/reports/_lib/person";
 import { TEXT_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
 import { InitialsAvatar } from "@/components/initials-avatar";
@@ -41,6 +48,7 @@ export function PersonStep({
   meetingDate,
   sundayLabel,
   answer,
+  guests,
   onChange,
   onBack,
   onNext,
@@ -52,6 +60,8 @@ export function PersonStep({
   meetingDate: string;
   sundayLabel: string;
   answer: ReportDraftAnswer | undefined;
+  /** The guest controls of a guest group; null for a member group. */
+  guests: ReportGuestControls | null;
   onChange: (patch: Partial<ReportDraftAnswer>) => void;
   onBack: () => void;
   onNext: () => void;
@@ -69,8 +79,13 @@ export function PersonStep({
   const observation = answer?.observation ?? "";
   const answered = attendedGroup !== null && attendedChurch !== null;
   const isLast = index === total - 1;
-  const missed = person.missedStreak >= MISSED_STREAK_MIN;
-  const joined = !missed && joinedRecently(person, meetingDate);
+  const isGuest = person.person.type === "guest";
+  const key = personKey(person.person);
+  const added = guests?.justAdded.has(key) ?? false;
+  // A guest at 3+ gets the suggestion in this area instead of the hint (rule 12).
+  const suggest = suggestsStopped(person.person, person.missedStreak);
+  const missed = person.missedStreak >= MISSED_STREAK_MIN && !suggest;
+  const joined = !missed && !added && joinedRecently(person, meetingDate);
 
   // A new person: focus the name, and show the note box only if there already is a note.
   useEffect(() => {
@@ -78,7 +93,7 @@ export function PersonStep({
     setNoteOpen(observation.length > 0);
     setFocusNote(false);
     // Only when the person changes, not on each keystroke in the note.
-  }, [person.memberId]);
+  }, [key]);
 
   return (
     <div className="flex max-w-[640px] flex-col gap-3">
@@ -132,8 +147,11 @@ export function PersonStep({
               tone={person.role === "member" ? "neutral" : "accent"}
               variant="ring-dot"
             >
-              {tRole(person.role)}
+              {isGuest ? t("participant") : tRole(person.role)}
             </StatusBadge>
+            {added && (
+              <StatusBadge tone="success">{t("addedJustNowShort")}</StatusBadge>
+            )}
             {missed && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-soft px-2.5 py-0.5 text-[12.5px] font-semibold text-warning-soft-foreground">
                 <ExclamationTriangleIcon
@@ -152,6 +170,14 @@ export function PersonStep({
               </span>
             )}
           </div>
+          {guests && suggest && (
+            <StoppedComingPanel
+              className="mt-2 w-full max-w-[480px] text-left"
+              controls={guests}
+              missedStreak={person.missedStreak}
+              person={person.person}
+            />
+          )}
         </div>
 
         <div className="flex flex-col gap-5 border-t border-separator px-5 py-5">
@@ -248,6 +274,7 @@ export function PersonStep({
       {!answered && (
         <p className="text-center text-[13px] text-muted">{t("answerBoth")}</p>
       )}
+      {guests && <SomeoneNewButton className="mt-2" controls={guests} />}
     </div>
   );
 }

@@ -21,6 +21,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { type DateProblem, DateProblemNote } from "./date-problem-note";
 import { MeetingDatePicker } from "./meeting-date-picker";
 import { ReportFooterStatus } from "./report-footer-status";
+import { useReportGuests } from "./report-guests";
 import { isMarked, ReportListStep } from "./report-list-step";
 
 import {
@@ -28,6 +29,7 @@ import {
   updateReportAction,
   type ReportFailure,
 } from "@/app/(app)/groups/reports/_actions/report-actions";
+import { guestsFirst, personKey } from "@/app/(app)/groups/reports/_lib/person";
 import { toReportInput } from "@/app/(app)/groups/reports/_lib/report-body";
 import { ADDRESS_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
 import { card } from "@/components/primitives";
@@ -39,11 +41,11 @@ const DATE_FAILURES: readonly (string | undefined)[] = [
   "notLeaderOnDate",
 ];
 
-/** The report's own rows as answers, keyed by member id. */
+/** The report's own rows as answers, keyed by `personKey`. */
 function answersOf(report: ReportDetail): ReportDraft["answers"] {
   return Object.fromEntries(
     report.attendances.map((row) => [
-      String(row.memberId),
+      personKey(row.person),
       {
         attendedGroup: row.attendedGroup,
         attendedChurch: row.attendedChurch,
@@ -105,11 +107,7 @@ export function EditReportForm({
     setDraft(latest.current);
   }
 
-  function answer(
-    memberId: number,
-    patch: Partial<ReportDraft["answers"][string]>,
-  ) {
-    const key = String(memberId);
+  function answer(key: string, patch: Partial<ReportDraft["answers"][string]>) {
     const { answers } = latest.current;
 
     edit({
@@ -180,8 +178,38 @@ export function EditReportForm({
     loadRoster(date, () => setReloading(false));
   }
 
+  // The roster for the date being edited, replacing the one shown; null when it can't be read.
+  async function refreshRoster(): Promise<ReportRoster | null> {
+    const result = await getReportRosterAction(report.smallGroup.id, date);
+
+    if (!result.ok) return null;
+
+    setRoster({
+      status: "ready",
+      roster: result.roster,
+      existsMessage: result.existsMessage,
+    });
+
+    return result.roster;
+  }
+
   const ready = roster.status === "ready" ? roster.roster : null;
-  const people = ready?.people ?? [];
+  const audience = ready?.smallGroup.audience ?? report.smallGroup.audience;
+  const people = guestsFirst(ready?.people ?? []);
+  const guestActions = useReportGuests({
+    groupId: report.smallGroup.id,
+    groupName: report.smallGroup.name,
+    audience,
+    closed: report.smallGroup.closedAt !== null,
+    date,
+    today,
+    people,
+    reload: refreshRoster,
+    // They came: the first question is answered; the church one is still theirs to answer.
+    onAdded: (_next, key) => {
+      if (key) answer(key, { attendedGroup: true });
+    },
+  });
   // The report's own date is "taken" by this very report (rule 1 ignores it).
   const takenBy = ready?.existingReportId ?? null;
   const dateProblem: DateProblem | null =
@@ -200,7 +228,7 @@ export function EditReportForm({
           ? { message: roster.message, existingReportId: null }
           : null;
   const remaining = people.filter(
-    (person) => !isMarked(draft.answers[person.memberId]),
+    (person) => !isMarked(draft.answers[personKey(person.person)]),
   ).length;
   const groupValues: Record<GroupTextField, string> = {
     prayer: draft.prayer,
@@ -254,6 +282,7 @@ export function EditReportForm({
       <ReportListStep
         tintUnanswered
         answers={draft.answers}
+        audience={audience}
         footer={
           <>
             <ReportFooterStatus
@@ -295,6 +324,7 @@ export function EditReportForm({
           </>
         }
         groupValues={groupValues}
+        guests={guestActions.controls}
         meetingDate={date}
         observationsVisible={report.observationsVisible}
         people={people}
@@ -306,6 +336,8 @@ export function EditReportForm({
         onAnswer={answer}
         onGroupText={(field, value) => edit({ [field]: value })}
       />
+
+      {guestActions.dialogs}
     </div>
   );
 }

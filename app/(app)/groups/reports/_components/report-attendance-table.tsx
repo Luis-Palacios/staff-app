@@ -8,7 +8,8 @@ import { DataTablePrimaryCell, dataTable } from "@/components/data-table";
 import { StatusBadge } from "@/components/status-badge";
 
 export interface AttendanceTableRow {
-  memberId: number;
+  /** The person's `personKey`: a member and a guest can share an id. */
+  key: string;
   name: string;
   href?: string;
   /** Role, "Missed the last N meetings" or "In the group since": already translated. */
@@ -100,7 +101,7 @@ export function ReportAttendanceTable({
           <Table.Body>
             {rows.map((person) => (
               <Table.Row
-                key={person.memberId}
+                key={person.key}
                 className={row({
                   className: person.focused
                     ? "bg-focus-row shadow-[inset_3px_0_0_var(--color-gold-500)]"

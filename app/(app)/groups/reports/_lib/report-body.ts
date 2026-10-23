@@ -1,6 +1,8 @@
 import type { ReportInput, ReportRoster } from "@/api/small-groups-api/types";
 import type { ReportDraft } from "./report-draft";
 
+import { personKey } from "./person";
+
 /**
  * The API body for a complete draft, people in roster order (rule 3); null while anyone is
  * unanswered. `includeObservations` false (rule 9: the caller can't see them) leaves the field out
@@ -15,7 +17,7 @@ export function toReportInput(
   const attendances: ReportInput["attendances"] = [];
 
   for (const person of roster.people) {
-    const answer = draft.answers[person.memberId];
+    const answer = draft.answers[personKey(person.person)];
 
     if (
       !answer ||
@@ -26,7 +28,9 @@ export function toReportInput(
     }
 
     attendances.push({
-      memberId: person.memberId,
+      ...(person.person.type === "guest"
+        ? { guestId: person.person.id }
+        : { memberId: person.person.id }),
       attendedGroup: answer.attendedGroup,
       attendedChurch: answer.attendedChurch,
       ...(includeObservations && {
