@@ -14,27 +14,28 @@ const EVENT = "ekk:toast";
 export function showToast(
   message: string,
   tone: "success" | "danger" = "success",
+  /** A second, quieter line ("Check names and details before you share it."). */
+  detail?: string,
 ) {
-  window.dispatchEvent(new CustomEvent(EVENT, { detail: { message, tone } }));
+  window.dispatchEvent(
+    new CustomEvent(EVENT, { detail: { message, tone, detail } }),
+  );
 }
 
+type Toast = {
+  message: string;
+  tone: "success" | "danger";
+  detail?: string;
+};
+
 export function ToastHost() {
-  const [toast, setToast] = useState<{
-    id: number;
-    message: string;
-    tone: "success" | "danger";
-  } | null>(null);
+  const [toast, setToast] = useState<(Toast & { id: number }) | null>(null);
 
   useEffect(() => {
     function onToast(event: Event) {
-      const { message, tone } = (
-        event as CustomEvent<{
-          message: string;
-          tone: "success" | "danger";
-        }>
-      ).detail;
+      const toast = (event as CustomEvent<Toast>).detail;
 
-      setToast((current) => ({ id: (current?.id ?? 0) + 1, message, tone }));
+      setToast((current) => ({ id: (current?.id ?? 0) + 1, ...toast }));
     }
 
     window.addEventListener(EVENT, onToast);
@@ -44,7 +45,12 @@ export function ToastHost() {
 
   return (
     toast && (
-      <SavedToast key={toast.id} message={toast.message} tone={toast.tone} />
+      <SavedToast
+        key={toast.id}
+        detail={toast.detail}
+        message={toast.message}
+        tone={toast.tone}
+      />
     )
   );
 }

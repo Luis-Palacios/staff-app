@@ -16,9 +16,12 @@ const VISIBLE_MS = 4000;
 // The text arrives as a prop, so no client namespace is needed.
 export function SavedToast({
   message,
+  detail,
   tone = "success",
 }: {
   message: string;
+  /** An optional second, quieter line under the message. */
+  detail?: string;
   /** `danger` is for an action that failed (same bar, red icon). */
   tone?: "success" | "danger";
 }) {
@@ -52,14 +55,23 @@ export function SavedToast({
 
   return (
     <div
-      className="fixed bottom-6 left-1/2 z-50 flex w-max max-w-[calc(100vw-3rem)] -translate-x-1/2 items-center gap-2.5 rounded-xl bg-navy-800 px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow-float)]"
+      className={`fixed bottom-6 left-1/2 z-50 flex w-max max-w-[calc(100vw-3rem)] -translate-x-1/2 ${detail ? "items-start" : "items-center"} gap-2.5 rounded-xl bg-navy-800 px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow-float)]`}
       role={tone === "danger" ? "alert" : "status"}
     >
       <Icon
         aria-hidden="true"
         className={`size-5 shrink-0 ${tone === "danger" ? "text-danger-on-dark" : "text-success-on-dark"}`}
       />
-      {message}
+      {detail ? (
+        <span className="flex flex-col gap-0.5">
+          {message}
+          <span className="text-[13.5px] font-normal leading-[1.45] text-on-dark">
+            {detail}
+          </span>
+        </span>
+      ) : (
+        message
+      )}
     </div>
   );
 }

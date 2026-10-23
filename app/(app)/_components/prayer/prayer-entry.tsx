@@ -4,6 +4,9 @@ import type { Locale } from "@/lib/locale-shared";
 import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
+import { CopyForWhatsApp } from "./copy-for-whatsapp";
+import { whatsappEntryText } from "./whatsapp-text";
+
 import { textLink } from "@/components/primitives";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
 
@@ -14,10 +17,13 @@ import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
 export function PrayerEntry({
   entry,
   text,
+  copyTitle,
 }: {
   entry: ReportSharedEntry;
   /** This section's text of the entry, never empty. */
   text: string;
+  /** The section title for *Copy for WhatsApp*; none on follow-up, which is never copied. */
+  copyTitle?: string;
 }) {
   const t = useTranslations("PrayerDashboard");
   const locale = useLocale() as Locale;
@@ -41,6 +47,20 @@ export function PrayerEntry({
           {text}
         </p>
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
+          {copyTitle && (
+            <CopyForWhatsApp
+              ariaLabel={t("copyAria", { group: entry.smallGroup.name })}
+              copied={t("copied")}
+              failed={t("copyFailed")}
+              label={t("copy")}
+              note={t("copiedNote")}
+              text={whatsappEntryText(copyTitle, {
+                group: entry.smallGroup.name,
+                date,
+                text,
+              })}
+            />
+          )}
           <NextLink
             aria-label={t("viewReportAria", {
               group: entry.smallGroup.name,
