@@ -73,7 +73,7 @@ below.
 | 1. Permissions, types, API client, the setting | ✅ | `9014126` |
 | 2. Menu, Groups badge, New group audience | ✅ | `316cc84` |
 | 3. Group detail for guest groups | ✅ | `89bf3fa`, `64f30f6` |
-| 4. Report form and report detail with guests | ✅ | see `git log` ("Add guests to the report form and report detail") |
+| 4. Report form and report detail with guests | ✅ | `c98b0c8`, `2a73445` |
 | 5. Guests list, detail and form | ⬜ | |
 | 6. Badges elsewhere and `person` everywhere | ⬜ | |
 | 7. Design review fixes | ⬜ | |
