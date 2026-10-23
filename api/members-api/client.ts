@@ -1,5 +1,6 @@
 import type {
   Me,
+  MeFeatures,
   MemberDetail,
   MemberInput,
   MemberOption,
@@ -107,3 +108,8 @@ export const getMe = cache(
       cache: "no-store",
     }),
 );
+
+/** The church's settings, from the same cached `/me` call. */
+export async function getFeatures(): Promise<MeFeatures> {
+  return (await getMe()).features;
+}
