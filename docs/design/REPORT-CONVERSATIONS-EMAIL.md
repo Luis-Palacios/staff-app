@@ -1,5 +1,11 @@
 # Report conversations, Part 2: email settings and landing (staff-app)
 
+> **Read first (added Oct 2026):** this Part 2 handoff was written before section threads.
+> **Prayer & follow-up** (`docs/specs/prayer-follow-up.md`) ships first and adds conversations about a
+> report section (prayer, praise, follow-up), not only about a person. Before starting Part 2, apply
+> that spec's *Changes for report conversations Part 2* here (stage 3: keep `?section=` through sign-in and open the phone panel for it). Part 2 still comes next,
+> slowly, one change at a time, as described below.
+
 Implementation spec for the staff-app side of **conversation emails** (My profile `/users/me`, the
 conversation panel, and links arriving from an email). The emails themselves are sent by
 auth-server and planned by membership-management:
