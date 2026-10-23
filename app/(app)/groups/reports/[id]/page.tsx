@@ -20,6 +20,7 @@ import { ReportAttendanceCard } from "../_components/report-attendance-card";
 import { ReportSharedCard } from "../_components/report-shared-card";
 import { ReportSummaryTiles } from "../_components/report-summary-tiles";
 import { loadReport } from "../_lib/load-report";
+import { personKey } from "../_lib/person";
 
 import {
   getConversation,
@@ -36,7 +37,7 @@ import {
   groupsReportsBreadcrumb,
 } from "@/config/breadcrumbs";
 import { getPermissions } from "@/lib/auth/get-permissions";
-import { canSeeConversations } from "@/lib/auth/permissions";
+import { can, canSeeConversations } from "@/lib/auth/permissions";
 import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
 import { formatChurchDateTime } from "@/lib/church-time";
 import {
@@ -78,14 +79,14 @@ export default async function ReportDetailPage({
   const { smallGroup, meetingDate, permissions } = report;
   // Start dates of the people still in the group, for "In the group since" (the report has none).
   // A closed group has no active members, and a failed read just drops the hint.
-  const joinedByMember: Record<number, string> = {};
+  const joinedByPerson: Record<string, string> = {};
 
   if (!smallGroup.closedAt) {
     try {
       const group = await getSmallGroup(String(smallGroup.id));
 
-      for (const member of group.members) {
-        joinedByMember[member.memberId] = member.joinedAt;
+      for (const row of group.members) {
+        joinedByPerson[personKey(row.person)] = row.joinedAt;
       }
     } catch {
       // The hint is optional.
@@ -114,7 +115,9 @@ export default async function ReportDetailPage({
   // `?person=` or `?section=`: the panel. A person wins when both are there. A person with a thread
   // but no row (edited off the report), or a section whose text was cleared, still opens.
   const personId = /^[1-9]\d*$/.test(person ?? "") ? Number(person) : null;
-  const personRow = report.attendances.find((a) => a.memberId === personId);
+  const personRow = report.attendances.find(
+    (a) => a.person.type === "member" && a.person.id === personId,
+  );
   const sectionKey = personId === null ? parseSectionParam(section) : null;
   const sectionText = sectionKey ? reportSectionText(report, sectionKey) : null;
   let panel: ReactNode = null;
@@ -126,8 +129,8 @@ export default async function ReportDetailPage({
     reportId: report.id,
     roleByMember: Object.fromEntries(
       report.attendances
-        .filter((a) => a.role !== "member")
-        .map((a) => [a.memberId, a.role as "leader" | "co_leader"]),
+        .filter((a) => a.person.type === "member" && a.role !== "member")
+        .map((a) => [a.person.id, a.role as "leader" | "co_leader"]),
     ),
     submittedBy: report.submittedBy.name,
     timeZone: getEnv().CHURCH_TIMEZONE,
@@ -315,7 +318,8 @@ export default async function ReportDetailPage({
       <ReportAttendanceCard
         activePersonId={panel ? (personId ?? undefined) : undefined}
         conversations={conversations}
-        joinedByMember={joinedByMember}
+        joinedByPerson={joinedByPerson}
+        linkGuests={can(userPermissions, { guests: ["view"] })}
         linkMembers={access === "full"}
         report={report}
       />

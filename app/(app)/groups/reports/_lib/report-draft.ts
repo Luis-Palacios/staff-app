@@ -21,7 +21,7 @@ export interface ReportDraft {
   reason: string;
   /** The date has a no-meeting mark and the leader chose to replace it on submit. */
   replacing: boolean;
-  /** Keyed by member id. */
+  /** Keyed by `personKey`: "member:12" or "guest:4". */
   answers: Record<string, ReportDraftAnswer>;
 }
 
@@ -44,12 +44,25 @@ function isDraft(value: unknown): value is ReportDraft {
   );
 }
 
+/** Drafts saved before guests were keyed by member id alone: "12" is "member:12". */
+function withPersonKeys(
+  answers: ReportDraft["answers"],
+): ReportDraft["answers"] {
+  return Object.fromEntries(
+    Object.entries(answers).map(([key, answer]) => [
+      /^\d+$/.test(key) ? `member:${key}` : key,
+      answer,
+    ]),
+  );
+}
+
 /** Drafts saved before no meeting existed lack these three; they mean "met, no reason". */
 function withMeetingDefaults(draft: ReportDraft): ReportDraft {
   const saved: Partial<ReportDraft> = draft;
 
   return {
     ...draft,
+    answers: withPersonKeys(draft.answers),
     met: typeof saved.met === "boolean" ? saved.met : true,
     reason: typeof saved.reason === "string" ? saved.reason : "",
     replacing: saved.replacing === true,

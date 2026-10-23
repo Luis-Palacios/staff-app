@@ -1,23 +1,38 @@
 "use client";
 
-import type { ReportRosterPerson } from "@/api/small-groups-api/types";
+import type {
+  GroupAudience,
+  ReportRosterPerson,
+} from "@/api/small-groups-api/types";
 import type { ReportDraftAnswer } from "@/app/(app)/groups/reports/_lib/report-draft";
 import type { ReactNode } from "react";
 import type { Locale } from "@/lib/locale-shared";
 
 import { useState } from "react";
-import { PencilSquareIcon, PlusIcon } from "@heroicons/react/24/outline";
+import {
+  HandRaisedIcon,
+  PencilSquareIcon,
+  PlusIcon,
+  UsersIcon,
+} from "@heroicons/react/24/outline";
 import { Label, TextArea, TextField } from "@heroui/react";
 import clsx from "clsx";
 import { useLocale, useTranslations } from "next-intl";
 
 import { GroupFields, type GroupTextField } from "./group-fields";
+import {
+  type ReportGuestControls,
+  SomeoneNewButton,
+  StoppedComingPanel,
+  suggestsStopped,
+} from "./report-guests";
 import { YesNoButtons } from "./yes-no-buttons";
 
 import {
   firstName,
   joinedRecently,
   MISSED_STREAK_MIN,
+  personKey,
 } from "@/app/(app)/groups/reports/_lib/person";
 import { TEXT_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
 import { InitialsAvatar } from "@/components/initials-avatar";
@@ -41,6 +56,34 @@ export function isMarked(answer: ReportDraftAnswer | undefined) {
   );
 }
 
+// The title strip of one block of a guest group's attendance: icon, name and how many.
+function BlockHeading({
+  id,
+  icon: Icon,
+  count,
+  children,
+}: {
+  id: string;
+  icon: typeof HandRaisedIcon;
+  count: number;
+  children: ReactNode;
+}) {
+  return (
+    <h3
+      className="flex items-center gap-2 border-y border-separator bg-surface-secondary/50 px-4 py-2.5 text-sm font-semibold text-heading first:border-t-0 sm:px-5"
+      id={id}
+    >
+      <Icon
+        aria-hidden="true"
+        className="size-4 text-eyebrow"
+        strokeWidth={1.8}
+      />
+      {children}
+      <span className="font-normal text-muted tabular-nums">{count}</span>
+    </h3>
+  );
+}
+
 function PersonRow({
   person,
   meetingDate,
@@ -50,6 +93,7 @@ function PersonRow({
   tintUnanswered,
   noteOpen,
   focusNote,
+  guests,
   onToggleNote,
   onChange,
 }: {
@@ -62,6 +106,8 @@ function PersonRow({
   noteOpen: boolean;
   /** True when the user just opened this note, so focus moves into it. */
   focusNote: boolean;
+  /** The guest controls of a guest group; null for a member group. */
+  guests: ReportGuestControls | null;
   onToggleNote: () => void;
   onChange: (patch: Partial<ReportDraftAnswer>) => void;
 }) {
@@ -70,7 +116,11 @@ function PersonRow({
   const locale = useLocale() as Locale;
   const first = firstName(person.name);
   const observation = answer?.observation ?? "";
-  const missed = person.missedStreak >= MISSED_STREAK_MIN;
+  const isGuest = person.person.type === "guest";
+  const added = guests?.justAdded.has(personKey(person.person)) ?? false;
+  // A guest at 3+ gets the suggestion panel instead of the hint (rule 12).
+  const suggest = suggestsStopped(person.person, person.missedStreak);
+  const missed = person.missedStreak >= MISSED_STREAK_MIN && !suggest;
   const joined = !missed && joinedRecently(person, meetingDate);
   const colChurch = t("colChurch", { sunday: shortSundayLabel });
   const noteLabel = noteOpen
@@ -84,7 +134,9 @@ function PersonRow({
       className={clsx(
         "flex flex-col gap-3 px-4 py-3.5 sm:px-5",
         rowGrid(observationsVisible),
-        tintUnanswered && !isMarked(answer) && "bg-warning-soft/60",
+        added
+          ? "bg-focus-row shadow-[inset_3px_0_0_var(--color-gold-500)]"
+          : tintUnanswered && !isMarked(answer) && "bg-warning-soft/60",
       )}
     >
       <div className="flex min-w-0 items-center gap-3">
@@ -101,13 +153,17 @@ function PersonRow({
                 : "text-muted",
             )}
           >
-            {missed
-              ? t("missedStreak", { count: person.missedStreak })
-              : joined
-                ? t("joinedSince", {
-                    date: formatCalendarShortDate(person.joinedAt, locale),
-                  })
-                : tRole(person.role)}
+            {added
+              ? t("addedJustNow")
+              : missed
+                ? t("missedStreak", { count: person.missedStreak })
+                : joined
+                  ? t("joinedSince", {
+                      date: formatCalendarShortDate(person.joinedAt, locale),
+                    })
+                  : isGuest
+                    ? t("participant")
+                    : tRole(person.role)}
           </span>
         </div>
       </div>
@@ -179,6 +235,15 @@ function PersonRow({
           <p className="text-[13px] text-muted">{t("notePrivacy")}</p>
         </TextField>
       )}
+
+      {guests && (
+        <StoppedComingPanel
+          className="md:col-span-full"
+          controls={guests}
+          missedStreak={person.missedStreak}
+          person={person.person}
+        />
+      )}
     </li>
   );
 }
@@ -196,10 +261,13 @@ export function ReportListStep({
   observationsVisible,
   tintUnanswered,
   groupValues,
+  audience,
+  guests,
   onAnswer,
   onGroupText,
   footer,
 }: {
+  /** In display order: a guest group lists its guests first. */
   people: ReportRosterPerson[];
   answers: Record<string, ReportDraftAnswer>;
   meetingDate: string;
@@ -208,36 +276,64 @@ export function ReportListStep({
   observationsVisible: boolean;
   tintUnanswered: boolean;
   groupValues: Record<GroupTextField, string>;
-  onAnswer: (memberId: number, patch: Partial<ReportDraftAnswer>) => void;
+  /** A guest group splits the list into Guests and Leaders and members. */
+  audience: GroupAudience;
+  guests: ReportGuestControls | null;
+  /** `key` is the person's `personKey`. */
+  onAnswer: (key: string, patch: Partial<ReportDraftAnswer>) => void;
   onGroupText: (field: GroupTextField, value: string) => void;
   footer: ReactNode;
 }) {
   const t = useTranslations("ReportForm");
-  const [openNotes, setOpenNotes] = useState<ReadonlySet<number>>(
+  const [openNotes, setOpenNotes] = useState<ReadonlySet<string>>(
     () =>
       new Set(
         people
-          .filter((person) => answers[person.memberId]?.observation)
-          .map((person) => person.memberId),
+          .map((person) => personKey(person.person))
+          .filter((key) => answers[key]?.observation),
       ),
   );
-  const [focused, setFocused] = useState<number | null>(null);
+  const [focused, setFocused] = useState<string | null>(null);
   const marked = people.filter((person) =>
-    isMarked(answers[person.memberId]),
+    isMarked(answers[personKey(person.person)]),
   ).length;
+  const guestRows = people.filter((person) => person.person.type === "guest");
+  const otherRows = people.filter((person) => person.person.type !== "guest");
 
-  function toggleNote(memberId: number) {
+  function toggleNote(key: string) {
     setOpenNotes((current) => {
       const next = new Set(current);
 
-      if (!next.delete(memberId)) {
-        next.add(memberId);
-        setFocused(memberId);
+      if (!next.delete(key)) {
+        next.add(key);
+        setFocused(key);
       }
 
       return next;
     });
   }
+
+  const rows = (list: ReportRosterPerson[]) =>
+    list.map((person) => {
+      const key = personKey(person.person);
+
+      return (
+        <PersonRow
+          key={key}
+          answer={answers[key]}
+          focusNote={focused === key}
+          guests={guests}
+          meetingDate={meetingDate}
+          noteOpen={openNotes.has(key)}
+          observationsVisible={observationsVisible}
+          person={person}
+          shortSundayLabel={shortSundayLabel}
+          tintUnanswered={tintUnanswered}
+          onChange={(patch) => onAnswer(key, patch)}
+          onToggleNote={() => toggleNote(key)}
+        />
+      );
+    });
 
   return (
     <div className="flex max-w-[1000px] flex-col gap-5">
@@ -275,23 +371,48 @@ export function ReportListStep({
           </span>
           <span>{observationsVisible ? t("colNote") : ""}</span>
         </div>
-        <ul className="divide-y divide-separator border-t border-separator md:border-t-0">
-          {people.map((person) => (
-            <PersonRow
-              key={person.memberId}
-              answer={answers[person.memberId]}
-              focusNote={focused === person.memberId}
-              meetingDate={meetingDate}
-              noteOpen={openNotes.has(person.memberId)}
-              observationsVisible={observationsVisible}
-              person={person}
-              shortSundayLabel={shortSundayLabel}
-              tintUnanswered={tintUnanswered}
-              onChange={(patch) => onAnswer(person.memberId, patch)}
-              onToggleNote={() => toggleNote(person.memberId)}
-            />
-          ))}
-        </ul>
+        {audience === "guests" ? (
+          <>
+            <section aria-labelledby="guests-block-title">
+              <BlockHeading
+                count={guestRows.length}
+                icon={HandRaisedIcon}
+                id="guests-block-title"
+              >
+                {t("guestsBlock")}
+              </BlockHeading>
+              {guestRows.length > 0 ? (
+                <ul className="divide-y divide-separator">{rows(guestRows)}</ul>
+              ) : (
+                <p className="px-4 py-3.5 text-sm text-muted sm:px-5">
+                  {t("noGuestsYet")}
+                </p>
+              )}
+              {guests && (
+                <SomeoneNewButton
+                  className="border-t border-separator px-4 py-4 sm:px-5"
+                  controls={guests}
+                />
+              )}
+            </section>
+            {otherRows.length > 0 && (
+              <section aria-labelledby="members-block-title">
+                <BlockHeading
+                  count={otherRows.length}
+                  icon={UsersIcon}
+                  id="members-block-title"
+                >
+                  {t("membersBlock")}
+                </BlockHeading>
+                <ul className="divide-y divide-separator">{rows(otherRows)}</ul>
+              </section>
+            )}
+          </>
+        ) : (
+          <ul className="divide-y divide-separator border-t border-separator md:border-t-0">
+            {rows(people)}
+          </ul>
+        )}
       </section>
 
       <section

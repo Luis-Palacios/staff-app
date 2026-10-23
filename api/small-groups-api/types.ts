@@ -263,6 +263,7 @@ export interface ReportRoster {
   smallGroup: {
     id: number;
     name: string;
+    audience: GroupAudience;
     meetingAddress: string | null;
     meetingDay: Weekday | null;
     closedAt: string | null;
@@ -294,6 +295,7 @@ export interface ReportDetail {
   smallGroup: {
     id: number;
     name: string;
+    audience: GroupAudience;
     meetingAddress: string | null;
     closedAt: string | null;
   };

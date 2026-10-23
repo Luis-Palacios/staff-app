@@ -366,7 +366,8 @@ declare const messages: {
     "fileInstead": "File a report for {date}",
     "deleteNoMeetingTitle": "Delete this no-meeting mark?",
     "deleteNoMeetingBody": "{date} will show as Not filed again if it was a meeting day.",
-    "deleteConversations": "This also deletes {count, plural, one {# conversation} other {# conversations}}."
+    "deleteConversations": "This also deletes {count, plural, one {# conversation} other {# conversations}}.",
+    "participant": "Participant"
   },
   "NoMeetingDialog": {
     "title": "No meeting on {date}?",
@@ -566,7 +567,21 @@ declare const messages: {
     "editTitle": "Edit report",
     "editMeta": "Submitted by {name} on {dateTime}. Your changes keep the original submitter.",
     "save": "Save changes",
-    "meetingDetails": "Meeting details"
+    "meetingDetails": "Meeting details",
+    "participant": "Participant",
+    "addedJustNow": "Added just now · joined from this meeting",
+    "addedJustNowShort": "Added just now",
+    "guestsBlock": "Guests",
+    "membersBlock": "Leaders and members",
+    "noGuestsYet": "No guests in this group yet.",
+    "someoneNew": "Someone new came",
+    "someoneNewHint": "Find them or add a new guest. They join the group from this meeting, marked as came.",
+    "guestAdded": "{name} added and marked as came",
+    "guestWillLeave": "{name} will leave the group after this report",
+    "leavesAfter": "Leaves the group after this report.",
+    "stoppedSuggestion": "<strong>Hasn’t come to the last {count, number} meetings.</strong> Still coming?",
+    "removeAfter": "Remove after this report",
+    "removeNote": "They stay in this report and leave the group from this meeting on."
   },
   "GroupReportsCard": {
     "eyebrow": "Reports",

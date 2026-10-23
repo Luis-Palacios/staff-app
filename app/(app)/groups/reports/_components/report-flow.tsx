@@ -26,8 +26,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { GroupStep } from "./group-step";
 import { MeetingStep } from "./meeting-step";
 import { PersonStep } from "./person-step";
-import { isMarked, ReportListStep } from "./report-list-step";
 import { ReportFooterStatus } from "./report-footer-status";
+import { useReportGuests } from "./report-guests";
+import { isMarked, ReportListStep } from "./report-list-step";
 import { ReportStepper } from "./report-stepper";
 
 import {
@@ -40,6 +41,7 @@ import {
 import { formatChurchSunday } from "@/app/(app)/groups/reports/_lib/format-church-sunday";
 import { toReportInput } from "@/app/(app)/groups/reports/_lib/report-body";
 import { defaultMeetingDate } from "@/app/(app)/groups/reports/_lib/meeting-dates";
+import { guestsFirst, personKey } from "@/app/(app)/groups/reports/_lib/person";
 import {
   clearDraft,
   loadDraft,
@@ -221,8 +223,7 @@ export function ReportFlow({
     saveDraft(groupId, date, next);
   }
 
-  function answer(memberId: number, patch: Partial<ReportDraftAnswer>) {
-    const key = String(memberId);
+  function answer(key: string, patch: Partial<ReportDraftAnswer>) {
     const { answers } = draftRef.current;
 
     edit({
@@ -269,8 +270,8 @@ export function ReportFlow({
     if (next === "quick" && roster.status === "ready") setStep("quick");
 
     if (next === "guided" && roster.status === "ready") {
-      const firstOpen = roster.roster.people.findIndex(
-        (person) => !isMarked(draft.answers[person.memberId]),
+      const firstOpen = guestsFirst(roster.roster.people).findIndex(
+        (person) => !isMarked(draft.answers[personKey(person.person)]),
       );
 
       setPersonIndex(firstOpen === -1 ? 0 : firstOpen);
@@ -340,8 +341,51 @@ export function ReportFlow({
     });
   }
 
+  // The roster for the chosen group and date, replacing the one shown; null when it can't be read.
+  async function refreshRoster(): Promise<ReportRoster | null> {
+    const result = await getReportRosterAction(groupId, date);
+
+    if (!result.ok) return null;
+
+    setRoster({
+      status: "ready",
+      roster: result.roster,
+      existsMessage: result.existsMessage,
+      noMeetingReason: result.noMeetingReason,
+    });
+
+    return result.roster;
+  }
+
   const ready = roster.status === "ready" ? roster : null;
-  const people = ready?.roster.people ?? [];
+  const audience = ready?.roster.smallGroup.audience ?? "members";
+  // A guest group lists its guests first, in the quick list, the review and one person at a time.
+  const people = guestsFirst(ready?.roster.people ?? []);
+  const guestActions = useReportGuests({
+    groupId,
+    groupName: group.name,
+    audience,
+    closed: ready?.roster.smallGroup.closedAt != null,
+    date,
+    today,
+    people,
+    reload: refreshRoster,
+    onAdded: (next, key) => {
+      if (!key) return;
+
+      // They came: the first question is answered, the church one is still theirs to answer.
+      answer(key, { attendedGroup: true });
+
+      // One person at a time: go to the new guest, who now needs the second answer.
+      if (step === "people") {
+        const index = guestsFirst(next.people).findIndex(
+          (row) => personKey(row.person) === key,
+        );
+
+        if (index !== -1) setPersonIndex(index);
+      }
+    },
+  });
   const existingId = ready?.roster.existingReportId ?? null;
   // A no meeting on the date can be replaced by a report; a held report there is a duplicate.
   const noMeetingId =
@@ -378,7 +422,7 @@ export function ReportFlow({
     ? formatCalendarShortWeekdayDate(ready.roster.churchSunday, locale)
     : "";
   const markedCount = people.filter((person) =>
-    isMarked(draft.answers[person.memberId]),
+    isMarked(draft.answers[personKey(person.person)]),
   ).length;
   const remaining = people.length - markedCount;
   const groupValues: Record<GroupTextField, string> = {
@@ -484,7 +528,8 @@ export function ReportFlow({
 
       {step === "people" && ready && person && (
         <PersonStep
-          answer={draft.answers[person.memberId]}
+          answer={draft.answers[personKey(person.person)]}
+          guests={guestActions.controls}
           index={personIndex}
           meetingDate={date}
           person={person}
@@ -495,7 +540,7 @@ export function ReportFlow({
               ? setStep("meeting")
               : setPersonIndex(personIndex - 1)
           }
-          onChange={(patch) => answer(person.memberId, patch)}
+          onChange={(patch) => answer(personKey(person.person), patch)}
           onNext={() => {
             if (personIndex === people.length - 1) {
               setReviewFrom("group");
@@ -549,6 +594,7 @@ export function ReportFlow({
           <ReportListStep
             observationsVisible
             answers={draft.answers}
+            audience={audience}
             footer={
               <>
                 <ReportFooterStatus
@@ -594,6 +640,7 @@ export function ReportFlow({
               </>
             }
             groupValues={groupValues}
+            guests={guestActions.controls}
             meetingDate={date}
             people={people}
             shortSundayLabel={shortSundayLabel}
@@ -603,6 +650,8 @@ export function ReportFlow({
           />
         </div>
       )}
+
+      {guestActions.dialogs}
     </>
   );
 }

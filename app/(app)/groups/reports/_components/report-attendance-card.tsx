@@ -15,6 +15,7 @@ import { ConversationSummary } from "./conversation-summary";
 import { ReportAttendanceTable } from "./report-attendance-table";
 
 import { formatChurchSunday } from "@/app/(app)/groups/reports/_lib/format-church-sunday";
+import { personKey } from "@/app/(app)/groups/reports/_lib/person";
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { card, title } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
@@ -60,16 +61,19 @@ function AttendedBadge({
 // column exists only when `observationsVisible`: the API leaves the field out otherwise (rule 9).
 export async function ReportAttendanceCard({
   report,
-  joinedByMember,
+  joinedByPerson,
   linkMembers,
+  linkGuests,
   conversations,
   activePersonId,
 }: {
   report: ReportDetail;
-  /** Active membership start dates, to say "In the group since" for new people. */
-  joinedByMember: Record<number, string>;
+  /** Active membership start dates by `personKey`, to say "In the group since" for new people. */
+  joinedByPerson: Record<string, string>;
   /** Member pages are for full roles only. */
   linkMembers: boolean;
+  /** A guest's page is for whoever may view guests (a leader only for their own group's). */
+  linkGuests: boolean;
   /** The report's threads; `null` when the caller can't see conversations. */
   conversations: ReportConversations | null;
   /** `?person=`: the row whose panel is open. */
@@ -94,10 +98,20 @@ export async function ReportAttendanceCard({
       );
     }
 
-    const joined = recentJoinDate(joinedByMember[person.memberId], meetingDate);
+    const joined = recentJoinDate(
+      joinedByPerson[personKey(person.person)],
+      meetingDate,
+    );
 
-    return joined
-      ? t("joinedSince", { date: formatCalendarDate(joined, typedLocale) })
+    if (joined) {
+      return t("joinedSince", {
+        date: formatCalendarDate(joined, typedLocale),
+      });
+    }
+
+    // A guest's role is always "member" in the API, shown as Participant.
+    return person.person.type === "guest"
+      ? t("participant")
       : tRole(person.role);
   };
 
@@ -122,7 +136,7 @@ export async function ReportAttendanceCard({
     person: ReportAttendance,
     size: "table" | "card",
   ) => {
-    const summary = summaryByMember.get(person.memberId);
+    const summary = summaryByMember.get(person.person.id);
     const first = person.name.split(/\s+/)[0];
     const state = summary
       ? summary.status === "resolved"
@@ -134,7 +148,7 @@ export async function ReportAttendanceCard({
 
     return (
       <ConversationIndicator
-        anchor={{ type: "attendance", memberId: person.memberId }}
+        anchor={{ type: "attendance", memberId: person.person.id }}
         labels={{
           start: tConv("startAria", { first }),
           row: summary
@@ -147,8 +161,16 @@ export async function ReportAttendanceCard({
     );
   };
 
-  const hrefFor = (person: ReportAttendance) =>
-    linkMembers ? `/members/${person.memberId}` : undefined;
+  // Conversation threads are by member for now; a guest's row has none (stage 6 of the guests spec).
+  const isActive = (person: ReportAttendance) =>
+    person.person.type === "member" && person.person.id === activePersonId;
+  const hrefFor = (person: ReportAttendance) => {
+    if (person.person.type === "guest") {
+      return linkGuests ? `/guests/${person.person.id}` : undefined;
+    }
+
+    return linkMembers ? `/members/${person.person.id}` : undefined;
+  };
   const totalsObservations =
     observationsVisible && totals.observations !== undefined
       ? t("obsCount", { count: totals.observations })
@@ -214,17 +236,18 @@ export async function ReportAttendanceCard({
             notAtChurch: t("notAtChurch"),
           }}
           rows={attendances.map((person) => ({
-            memberId: person.memberId,
-            name: person.name,
+            key: personKey(person.person),
+            name: person.person.name,
             href: hrefFor(person),
             sub: subLine(person),
             attendedGroup: person.attendedGroup,
             attendedChurch: person.attendedChurch,
             observation: person.observation,
-            conversation: showConversations
-              ? conversationFor(person, "table")
-              : undefined,
-            focused: person.memberId === activePersonId,
+            conversation:
+              showConversations && person.person.type === "member"
+                ? conversationFor(person, "table")
+                : undefined,
+            focused: isActive(person),
           }))}
           showConversations={showConversations}
           showObservations={observationsVisible}
@@ -254,10 +277,10 @@ export async function ReportAttendanceCard({
 
           return (
             <li
-              key={person.memberId}
+              key={personKey(person.person)}
               className={clsx(
                 "flex flex-col gap-2.5 border-t border-separator px-[18px] py-3.5",
-                person.memberId === activePersonId &&
+                isActive(person) &&
                   "bg-focus-row shadow-[inset_3px_0_0_var(--color-gold-500)]",
               )}
             >
@@ -278,7 +301,9 @@ export async function ReportAttendanceCard({
                     {subLine(person)}
                   </span>
                 </div>
-                {showConversations && conversationFor(person, "card")}
+                {showConversations &&
+                  person.person.type === "member" &&
+                  conversationFor(person, "card")}
               </div>
               <div className="flex flex-wrap gap-x-5 gap-y-2">
                 <div className="flex flex-col items-start gap-1">

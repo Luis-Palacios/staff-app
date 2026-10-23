@@ -20,13 +20,22 @@ export const reportBodySchema = z.object({
   groupPraiseReport: optionalText(TEXT_MAX),
   groupRelevantDiscussion: optionalText(TEXT_MAX),
   replacesNoMeeting: z.boolean().optional(),
+  // A member's `memberId` or a guest's `guestId`, never both.
   attendances: z.array(
-    z.object({
-      memberId: z.number().int().positive(),
-      attendedGroup: z.boolean(),
-      attendedChurch: z.boolean(),
-      observation: optionalText(TEXT_MAX),
-    }),
+    z.union([
+      z.object({
+        memberId: z.number().int().positive(),
+        attendedGroup: z.boolean(),
+        attendedChurch: z.boolean(),
+        observation: optionalText(TEXT_MAX),
+      }),
+      z.object({
+        guestId: z.number().int().positive(),
+        attendedGroup: z.boolean(),
+        attendedChurch: z.boolean(),
+        observation: optionalText(TEXT_MAX),
+      }),
+    ]),
   ),
 });
 
