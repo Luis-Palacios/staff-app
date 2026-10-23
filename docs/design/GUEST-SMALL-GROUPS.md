@@ -70,13 +70,31 @@ below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Permissions, types, API client, the setting | ✅ | this commit |
-| 2. Menu, Groups badge, New group audience | ✅ | this commit |
-| 3. Group detail for guest groups | ✅ | `89bf3fa` + browser-pass fix |
+| 1. Permissions, types, API client, the setting | ✅ | `9014126` |
+| 2. Menu, Groups badge, New group audience | ✅ | `316cc84` |
+| 3. Group detail for guest groups | ✅ | `89bf3fa`, `64f30f6` |
 | 4. Report form and report detail with guests | ⬜ | |
 | 5. Guests list, detail and form | ⬜ | |
 | 6. Badges elsewhere and `person` everywhere | ⬜ | |
 | 7. Design review fixes | ⬜ | |
+
+### Where to pick up
+
+Next: **stage 4** (report form and report detail with guests). Stages 1–3 are done on branch
+`guest-small-groups`; the API and auth-server sides are done on their own `guest-small-groups`
+branches (API stages 1–6) and the setting is on in the dev API.
+
+Reuse for stage 4: `AddGuestDialog` (`variant="report"`, `joinedAt` = meeting date),
+`RemoveGuestDialog` (pass `note` for *They stay in this report and leave the group from this meeting
+on.*), `addGuestAction` / `removeGuestAction` (`leftAt` = meeting date), `lib/guests.ts`,
+`lib/guest-errors.ts`, `GuestsBadge`. Open points for it: a new guest's id isn't in the add response
+(see below); the attendance input is `memberId` **or** `guestId`; key form answers by
+`person.type + id`; `app/(app)/groups/reports/[id]/page.tsx` still reads `group.members` by
+`memberId`.
+
+Still open from stages 2–3: the 390 / 1024 and English passes, the leader view, and the cases that
+need guests with reports (move note, close matches, stopped-coming panel, New → Participant).
+Dev data left behind: guest group *Test guests* (id 7) with Ana Prueba (left) and Beto Prueba.
 
 ### Decisions and deviations
 
@@ -95,9 +113,6 @@ below.
   builds: until then it 404s, but only with the setting on. `GuestsBadge` borders with
   `border-field-border` (already `field-line-on-dark` in dark), so no token change. The New group
   page reads `getFeatures()` on the server and passes `askAudience` to `GroupForm`.
-- Stage 2 was checked with lint and `tsc` only. Not yet looked at in a browser: it needs the API
-  running with `GUEST_GROUPS_ENABLED` on, so do the light/dark, 390 and Spanish pass for stages 2–3
-  together once Group detail exists.
 - **Stage 3:** `/groups/[id]` branches on `audience`. Guest groups get `GroupGuestsCard` above
   `GroupMembersCard`, which now filters to `person.type === "member"` and reads *Leaders and
   members* with the help line. Server actions are in `_actions/guest-actions.ts`
