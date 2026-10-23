@@ -72,9 +72,25 @@ progress log below.
 | 3. The page: week, chips, still to report, sections | ✅ | `ca93bfa` |
 | 4. Copy for WhatsApp | ✅ | `63c7509` |
 | 5. Section threads: page control, Report detail, panel | ✅ | `ad04644` |
-| 6. Section threads in Conversations and *Waiting for your reply* | ✅ | this commit |
+| 6. Section threads in Conversations and *Waiting for your reply* | ✅ | `1ed01ca` |
 | 7. Docs | ⬜ | |
 | 8. Design review fixes (after the variant boards exist) | ⬜ | |
+
+### Open checks (carry into stage 8)
+
+Not yet seen in the browser; everything else is noted per stage below.
+
+- **Leader view** (sign in as a `smallGroupLeader`): the page's leader copy (subtitle, Prayer and
+  Follow-up descriptions, *My groups* links, *of your groups* note), only their groups, the
+  conversation control on their groups' entries, and Dashboard ▸ My groups / Prayer & follow-up in
+  the sidebar.
+- **Thread states from the other side:** amber *needs your reply* and the gold unread dot on the
+  prayer page, Report detail's section indicator and the inbox row. The dev database has one section
+  thread for this: report 14, follow-up, a test comment by the admin (*"Test comment (prayer &
+  follow-up stage 6 check). Safe to delete."*), so a leader of GP - #2 should see it as needing a
+  reply. Delete the comment when done.
+- *Copy all* at 390 (the Chrome window wouldn't resize then), and one real paste into WhatsApp in
+  each language (design review checklist).
 
 ### Decisions and deviations
 
