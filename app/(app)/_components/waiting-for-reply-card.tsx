@@ -9,7 +9,6 @@ import {
   canSeeConversationsInbox,
   getSmallGroupAccess,
 } from "@/lib/auth/permissions";
-import { isPersonInboxItem } from "@/lib/conversation-format";
 import { getEnv } from "@/lib/env/server";
 import { settle } from "@/lib/settle";
 
@@ -30,13 +29,9 @@ export async function WaitingForReplyCard() {
     settle(listConversations({ tab: "reply", limit: ROWS })),
   ]);
 
-  if (!inbox.ok) return null;
+  if (!inbox.ok || inbox.value.items.length === 0) return null;
 
-  const { counts } = inbox.value;
-  const items = inbox.value.items.filter(isPersonInboxItem);
-
-  if (items.length === 0) return null;
-
+  const { items, counts } = inbox.value;
   const elder = getSmallGroupAccess(permissions) === "full";
 
   return (

@@ -1,4 +1,4 @@
-import type { PersonInboxItem } from "@/lib/conversation-format";
+import type { ConversationInboxItem } from "@/api/conversations-api/types";
 import type { Locale } from "@/lib/locale-shared";
 
 import clsx from "clsx";
@@ -12,6 +12,7 @@ import {
 } from "@/lib/conversation-format";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
 import { initialsOf } from "@/components/initials-avatar";
+import { ReportSectionTile } from "@/components/report-section-tile";
 import { StatusBadge } from "@/components/status-badge";
 
 // One conversation in the inbox (and, compact, in the dashboard block). A single link to the report
@@ -22,7 +23,7 @@ export function ConversationRow({
   timeZone,
   compact = false,
 }: {
-  item: PersonInboxItem;
+  item: ConversationInboxItem;
   timeZone: string;
   /** The dashboard block: no status pill, no comment count, a one-line excerpt. */
   compact?: boolean;
@@ -30,7 +31,15 @@ export function ConversationRow({
   const t = useTranslations("Conversations");
   const locale = useLocale();
   const resolved = item.status === "resolved";
-  const { lastComment } = item;
+  const { lastComment, anchor } = item;
+  // A section thread shows the section's title where a person's name goes (rule 17).
+  const name =
+    anchor.type === "section"
+      ? t("sectionTitle", { section: anchor.key })
+      : (item.member?.name ?? "");
+  const unreadDot = item.unread && (
+    <span className="absolute -right-0.5 -top-0.5 size-[11px] rounded-full border-2 border-surface bg-gold-500" />
+  );
   const who = lastComment.mine ? t("you") : `${lastComment.authorName}:`;
   const excerpt =
     lastComment.deleted || lastComment.excerpt === null
@@ -50,15 +59,24 @@ export function ConversationRow({
       )}
       href={conversationHref(item)}
     >
-      <span
-        aria-hidden="true"
-        className="relative flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] font-bold text-accent-soft-foreground"
-      >
-        {initialsOf(item.member.name)}
-        {item.unread && (
-          <span className="absolute -right-0.5 -top-0.5 size-[11px] rounded-full border-2 border-surface bg-gold-500" />
-        )}
-      </span>
+      {anchor.type === "section" ? (
+        <span aria-hidden="true" className="relative shrink-0">
+          <ReportSectionTile
+            className="size-10 rounded-xl"
+            iconClassName="size-5"
+            section={anchor.key}
+          />
+          {unreadDot}
+        </span>
+      ) : (
+        <span
+          aria-hidden="true"
+          className="relative flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] font-bold text-accent-soft-foreground"
+        >
+          {initialsOf(name)}
+          {unreadDot}
+        </span>
+      )}
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
           <span
@@ -67,7 +85,7 @@ export function ConversationRow({
               item.unread ? "font-bold" : "font-semibold",
             )}
           >
-            {item.member.name}
+            {name}
           </span>
           {!compact && (
             <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
