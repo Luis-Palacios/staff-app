@@ -274,8 +274,8 @@ New keys; reuse existing ones where noted. ICU plural and rich text as the other
 
 | Namespace.key | English | Español |
 | --- | --- | --- |
-| `Nav.dashboardGroups` | Groups | Grupos |
-| `Nav.dashboardStaff` | Staff | Personal |
+| `Nav.dashboardReportStatus` | Report status | Estado de reportes |
+| `Nav.dashboardApplicationsAccess` | Applications & access | Solicitudes y acceso |
 | `GroupsDashboard.description` | How every small group is doing this week. | Cómo van todos los grupos pequeños esta semana. |
 | `GroupsDashboard.followUpTitle` | Needs follow-up | Necesitan seguimiento |
 | `GroupsDashboard.followUpDescription` | Behind on reports in the last 4 weeks, or without a leader. | Atrasados con sus reportes en las últimas 4 semanas, o sin líder. |
