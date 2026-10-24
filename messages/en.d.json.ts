@@ -942,7 +942,7 @@ declare const messages: {
   },
   "MembersPage": {
     "title": "Members",
-    "description": "Everyone who is a member of this church. Open one to see their details and small groups."
+    "description": "Everyone who is or has been a member of this church. Inactive members are kept apart: they're left out of small groups and messages, but their history stays."
   },
   "MembersBrowser": {
     "filterLabel": "Filter members",
@@ -962,7 +962,16 @@ declare const messages: {
     "filterAll": "All",
     "filterLinked": "Linked",
     "filterInvited": "Invited",
-    "filterNone": "No account"
+    "filterNone": "No account",
+    "filterByStatus": "Filter by status",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "statusAll": "All",
+    "columnLeft": "Left",
+    "leftOn": "Left {date}",
+    "memberNumberLeft": "Member #{id} · Left {date}",
+    "noActive": "No active members.",
+    "noInactive": "No inactive members."
   },
   "AddMemberLink": {
     "label": "Add member",
@@ -1239,7 +1248,8 @@ declare const messages: {
   "AccountStatus": {
     "linked": "Linked",
     "invited": "Invited",
-    "none": "No account"
+    "none": "No account",
+    "signInOff": "Sign-in off"
   },
   "MemberAccountActions": {
     "invite": "Invite as user…",
@@ -1605,6 +1615,18 @@ declare const messages: {
     "title": "Is this the same person?",
     "open": "Open",
     "openGuest": "Open {name}"
+  },
+  "MemberStatus": {
+    "inactive": "Inactive",
+    "inactiveSince": "Inactive since {date}",
+    "reason": {
+      "moved_away": "Moved away",
+      "transferred": "Transferred to another church",
+      "stopped_attending": "Stopped attending",
+      "church_discipline": "Church discipline",
+      "deceased": "Deceased",
+      "other": "Other"
+    }
   }
 };
 export default messages;

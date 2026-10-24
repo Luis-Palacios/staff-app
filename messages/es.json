@@ -939,7 +939,7 @@
   },
   "MembersPage": {
     "title": "Miembros",
-    "description": "Todas las personas que son miembros de esta iglesia. Abre uno para ver sus datos y sus grupos pequeños."
+    "description": "Todos los que son o han sido miembros de esta iglesia. Los miembros inactivos se mantienen aparte: quedan fuera de los grupos pequeños y de los mensajes, pero su historial se conserva."
   },
   "MembersBrowser": {
     "filterLabel": "Filtrar miembros",
@@ -959,7 +959,16 @@
     "filterAll": "Todos",
     "filterLinked": "Vinculados",
     "filterInvited": "Invitados",
-    "filterNone": "Sin cuenta"
+    "filterNone": "Sin cuenta",
+    "filterByStatus": "Filtrar por estado",
+    "statusActive": "Activos",
+    "statusInactive": "Inactivos",
+    "statusAll": "Todos",
+    "columnLeft": "Salió",
+    "leftOn": "Salió el {date}",
+    "memberNumberLeft": "Miembro #{id} · Salió el {date}",
+    "noActive": "No hay miembros activos.",
+    "noInactive": "No hay miembros inactivos."
   },
   "AddMemberLink": {
     "label": "Agregar miembro",
@@ -1236,7 +1245,8 @@
   "AccountStatus": {
     "linked": "Vinculado",
     "invited": "Invitado",
-    "none": "Sin cuenta"
+    "none": "Sin cuenta",
+    "signInOff": "Sin acceso"
   },
   "MemberAccountActions": {
     "invite": "Invitar como usuario…",
@@ -1602,5 +1612,17 @@
     "title": "¿Es la misma persona?",
     "open": "Abrir",
     "openGuest": "Abrir {name}"
+  },
+  "MemberStatus": {
+    "inactive": "Inactivo",
+    "inactiveSince": "Inactivo desde el {date}",
+    "reason": {
+      "moved_away": "Se mudó",
+      "transferred": "Se trasladó a otra iglesia",
+      "stopped_attending": "Dejó de asistir",
+      "church_discipline": "Disciplina eclesiástica",
+      "deceased": "Falleció",
+      "other": "Otro"
+    }
   }
 }
