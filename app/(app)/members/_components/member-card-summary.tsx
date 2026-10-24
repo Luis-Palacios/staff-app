@@ -44,11 +44,15 @@ export default function MemberCardSummary({
       <span className="flex items-center gap-3">
         <InitialsAvatar muted={inactive} name={member.name} />
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="flex items-center gap-2">
+          <span className="flex min-w-0 items-center gap-2">
             <span className="truncate text-[15px] font-semibold text-heading">
               {member.name}
             </span>
-            {tab === "all" && inactive && <InactiveBadge />}
+            {tab === "all" && inactive && (
+              <span className="shrink-0">
+                <InactiveBadge />
+              </span>
+            )}
           </span>
           <span className="text-[13px] text-muted">
             {t("memberNumber", { id: String(member.id) })}
