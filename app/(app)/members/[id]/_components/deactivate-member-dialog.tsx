@@ -23,7 +23,10 @@ import {
 import { useTranslations } from "next-intl";
 
 import { GuestDatePicker } from "@/app/(app)/groups/[id]/_components/guest-date-picker";
-import { deactivateMemberAction } from "@/app/(app)/members/_actions/status-actions";
+import {
+  deactivateMemberAction,
+  refreshMemberStatusPagesAction,
+} from "@/app/(app)/members/_actions/status-actions";
 import { authClient } from "@/lib/auth/auth-client";
 import { MEMBER_INACTIVE_BAN_REASON } from "@/lib/members/inactive";
 
@@ -120,6 +123,8 @@ function DeactivateForm({
       banFailed = !!banError;
     }
 
+    // Only now: the user is banned, so the re-render this triggers shows the final state.
+    await refreshMemberStatusPagesAction(String(member.id));
     onDone({ banFailed });
   }
 

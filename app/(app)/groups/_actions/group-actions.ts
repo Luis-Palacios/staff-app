@@ -164,6 +164,15 @@ async function readGroupSafely(groupId: string) {
  * A 409 from add or role change is one of: closed, already in the group (add
  * only), or already has a leader (when the role asked for was leader).
  */
+/** The 409 an inactive member gets on add, role change or leader swap (inactive-members rule 11). */
+function isMemberInactiveConflict(error: unknown): boolean {
+  return (
+    error instanceof ApiError &&
+    error.status === 409 &&
+    (error.body as { code?: unknown } | null)?.code === "member_inactive"
+  );
+}
+
 async function toActionFailure(
   error: unknown,
   groupId: string,
@@ -171,7 +180,11 @@ async function toActionFailure(
   call: "add" | "role",
   role: SmallGroupRole,
 ): Promise<GroupActionResult> {
-  if (error instanceof ApiError && error.status === 409) {
+  if (
+    error instanceof ApiError &&
+    error.status === 409 &&
+    !isMemberInactiveConflict(error)
+  ) {
     const group = await readGroupSafely(groupId);
 
     if (group?.closedAt) return { ok: false, error: "closed" };
@@ -252,7 +265,11 @@ export async function setGroupLeaderAction(
   try {
     await setSmallGroupLeader(groupId, memberId);
   } catch (error) {
-    if (error instanceof ApiError && error.status === 409) {
+    if (
+      error instanceof ApiError &&
+      error.status === 409 &&
+      !isMemberInactiveConflict(error)
+    ) {
       return { ok: false, error: "closed" };
     }
 

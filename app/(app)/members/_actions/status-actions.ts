@@ -57,7 +57,13 @@ async function failure(error: unknown): Promise<MemberStatusActionResult> {
   };
 }
 
-function revalidateMember(id: string) {
+/**
+ * Revalidates the pages a status change touches. The dialogs call it **after** turning sign-in off
+ * or on in auth-server, not inside the two actions below: a server action that revalidates
+ * re-renders the open page in its response, which would show the member as inactive while their
+ * user is still unbanned (and unmount the dialog mid-ban).
+ */
+export async function refreshMemberStatusPagesAction(id: string) {
   revalidatePath("/members");
   revalidatePath(`/members/${id}`);
   // Deactivating ends their group periods, so the group pages change too.
@@ -81,8 +87,6 @@ export async function deactivateMemberAction(
   try {
     const member = await deactivateMember(id, input);
 
-    revalidateMember(id);
-
     return { ok: true, member };
   } catch (error) {
     return failure(error);
@@ -99,8 +103,6 @@ export async function reactivateMemberAction(
 
   try {
     const member = await reactivateMember(id, note);
-
-    revalidateMember(id);
 
     return { ok: true, member };
   } catch (error) {

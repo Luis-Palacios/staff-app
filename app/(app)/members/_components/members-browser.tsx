@@ -148,11 +148,12 @@ export default function MembersBrowser({
     showAccounts && account !== "all"
       ? inTab.filter((member) => (accounts[member.id] ?? "none") === account)
       : inTab;
-  const emptyLine = query
-    ? t("noMatches")
-    : tab === "inactive"
-      ? t("noInactive")
-      : t("noActive");
+  const emptyLine =
+    query || account !== "all"
+      ? t("noMatches")
+      : tab === "inactive"
+        ? t("noInactive")
+        : t("noActive");
 
   return (
     <>

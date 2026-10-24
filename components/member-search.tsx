@@ -10,6 +10,7 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import { InactiveBadge } from "@/app/(app)/members/_components/inactive-badge";
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { searchMembersAction } from "@/app/(app)/_actions/search-members";
 
@@ -198,8 +199,17 @@ export const MemberSearch = ({
                   onClick={() => open(member)}
                   onMouseDown={(event) => event.preventDefault()}
                 >
-                  <InitialsAvatar name={member.name} size="sm" />
+                  <InitialsAvatar
+                    muted={member.status === "inactive"}
+                    name={member.name}
+                    size="sm"
+                  />
                   <span className="truncate">{member.name}</span>
+                  {member.status === "inactive" && (
+                    <span className="shrink-0">
+                      <InactiveBadge />
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
