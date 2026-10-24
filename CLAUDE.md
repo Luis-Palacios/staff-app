@@ -11,6 +11,9 @@ detail and add/edit UI (see `docs/design/MEMBERS-LIST.md` and
 `docs/design/MEMBER-DETAIL-AND-FORM.md`). `groups` has the list, a detail page with
 member management (add, role, leader swap, remove, close) and add/edit (see
 `docs/design/SMALL-GROUPS.md`); only group reports are still a stub.
+Members can be marked inactive and reactivated (status tabs on the list, banner, dialogs and
+history on the detail page): see `docs/design/INACTIVE-MEMBERS.md`. Turning sign-in off and on is
+done here, by banning the linked user, not by the API.
 
 See `docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring this app together
 with the sibling `auth-server` (better-auth) and `membership-management` (FastAPI) repos —

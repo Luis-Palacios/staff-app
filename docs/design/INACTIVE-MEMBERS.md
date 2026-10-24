@@ -1,5 +1,7 @@
 # Inactive members: status tabs, mark as inactive, reactivate
 
+**Status: implemented**, all six stages merged (see the progress log below).
+
 Implementation spec for **inactive members** (Members, `/members` and `/members/[id]`; Group detail,
 `/groups/[id]`), which is new:
 
@@ -112,9 +114,14 @@ in the progress log below.
   `members: view` + `all` but no `setStatus` (a leader never sees an inactive member: rule 12), and
   focus returning to the banner's *Reactivate…* after deactivating (the page reloads, so it is
   not done). The 1024px check used an iframe, since the browser window couldn't be resized.
-- **For membership-management:** `pastSmallGroups` takes the member's latest `member_inactive`
-  `left_at`, so a second deactivation that ended no groups still lists the periods from an earlier
-  one. It should come from the latest deactivation itself (e.g. its `member_status_changes` row).
+- **For membership-management (done):** `pastSmallGroups` listed an earlier deactivation's groups
+  after a second one that ended none. Fixed there in `88eb92b` (the period must end on or after the
+  latest deactivation's day); only a same-day leave, return and leave still repeats it.
+- **After the review on the PR:** the topbar search shows the Inactive badge (rule 11), a
+  `member_inactive` 409 on a group add, role change or leader swap shows its own message instead
+  of "already has a leader" or "closed", the status actions no longer revalidate before the ban or
+  unban (`refreshMemberStatusPagesAction` runs after), and an empty account filter says "No members
+  match your search".
 - `MemberOption.status` is optional: only `/members/search` sends it.
 
 ## Token changes
