@@ -119,6 +119,12 @@ export async function getApiErrorMessage(
       // which side the detail names; it is only matched, never shown.
       const detail = JSON.stringify(error.body ?? "").toLowerCase();
 
+      if (
+        (error.body as { code?: unknown } | null)?.code === "member_inactive"
+      ) {
+        return t("memberInactive");
+      }
+
       if (detail.includes("this member is already linked")) {
         return t("memberAlreadyLinked");
       }

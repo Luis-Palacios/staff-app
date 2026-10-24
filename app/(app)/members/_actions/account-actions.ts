@@ -84,7 +84,7 @@ export async function listLinkableUsersAction(
     const cookie = (await headers()).get("cookie") ?? "";
     const [{ users }, members] = await Promise.all([
       listUsers(cookie),
-      listMembers(),
+      listMembers("all"),
     ]);
     const member = members.find((candidate) => candidate.id === memberId);
     const linked = getLinkedUserIds(members);
@@ -127,10 +127,13 @@ export async function listLinkableMembersAction(
     const cookie = (await headers()).get("cookie") ?? "";
     const [{ users }, members] = await Promise.all([
       listUsers(cookie),
-      listMembers(),
+      listMembers("all"),
     ]);
     const user = users.find((candidate) => candidate.id === userId);
-    const free = members.filter((member) => !member.userId);
+    // An inactive member can't be linked (inactive-members rule 11); the API answers 409.
+    const free = members.filter(
+      (member) => !member.userId && member.status === "active",
+    );
 
     return {
       ok: true,

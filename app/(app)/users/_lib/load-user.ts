@@ -44,7 +44,9 @@ export const loadUser = cache(async (id: string): Promise<UserAccount> => {
     throw error;
   }
 
-  const linked = (await listMembers()).find((member) => member.userId === id);
+  const linked = (await listMembers("all")).find(
+    (member) => member.userId === id,
+  );
 
   return {
     user,

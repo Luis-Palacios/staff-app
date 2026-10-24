@@ -3,7 +3,14 @@
 // the app checks (a typo fails `tsc`); it never says which role has what. Rule 10: anything missing
 // is no permission.
 export interface PermissionStatements {
-  members: "all" | "view" | "search" | "create" | "update" | "link";
+  members:
+    | "all"
+    | "view"
+    | "search"
+    | "create"
+    | "update"
+    | "link"
+    | "setStatus";
   guests: "all" | "view" | "search" | "create" | "update";
   membershipApplications: "view" | "approve" | "reject";
   smallGroups:

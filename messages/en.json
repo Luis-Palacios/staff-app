@@ -918,6 +918,7 @@
     "leadershipAdminsOnly": "Only admins and elders can change who leads a group.",
     "ownGroupRole": "Ask an admin or elder to change your own role in this group.",
     "memberEmailLinked": "This member is linked to a user, so only an admin or elder can change their email.",
+    "memberInactive": "This member is inactive. Reactivate them first.",
     "memberAlreadyLinked": "This member is already linked to another user.",
     "userAlreadyLinked": "This user is already linked to another member.",
     "notFound": "We couldn't find what you were looking for.",

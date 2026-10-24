@@ -28,6 +28,9 @@ export interface MemberAccount {
   inviteToken: string | null;
   inviterName: string | null;
   invitedAt: string | null;
+  /** The linked user's ban, for the sign-in-off state of an inactive member. */
+  banned: boolean;
+  banReason: string | null;
   /** A user, not linked to any member, who signs in with the member's email (No account only). */
   suggestedUser: { id: string; name: string; email: string } | null;
 }
@@ -43,6 +46,8 @@ export async function loadMemberAccount(
   const canManage = canManageLinks(session?.permissions);
   const cookie = (await headers()).get("cookie") ?? "";
   const none = {
+    banned: false,
+    banReason: null,
     user: null,
     invitedEmail: null,
     inviteToken: null,
@@ -57,11 +62,15 @@ export async function loadMemberAccount(
 
   if (member.userId) {
     try {
+      const user = await getUser(cookie, member.userId);
+
       return {
         ...none,
         status: "linked",
         canManage,
-        user: await getUser(cookie, member.userId),
+        user,
+        banned: user.banned === true,
+        banReason: user.banReason,
       };
     } catch (error) {
       if (
@@ -83,7 +92,7 @@ export async function loadMemberAccount(
   if (status === "none" && member.email) {
     const [{ users }, members] = await Promise.all([
       listUsers(cookie),
-      listMembers(),
+      listMembers("all"),
     ]);
     const [match] = getSuggestedUsers(member, users, getLinkedUserIds(members));
 

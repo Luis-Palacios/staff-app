@@ -53,7 +53,7 @@ in the progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Permission, API client, types, actions | ⬜ | |
+| 1. Permission, API client, types, actions | ✅ | see `git log` |
 | 2. Members list | ⬜ | |
 | 3. Member detail: inactive state | ⬜ | |
 | 4. Dialogs: mark as inactive, leader block, reactivate | ⬜ | |
@@ -62,8 +62,14 @@ in the progress log below.
 
 ### Decisions and deviations
 
-- [Anything decided during implementation, or where the build intentionally differs from the
-  canvas, and why.]
+- **Stage 1.** `listMembers(status = "active")` now always sends `?status=`. The callers that
+  resolve who a user is linked to (Users list, user detail, the member account loader, the
+  link pickers) pass `"all"`, since an inactive member keeps their `userId`. The "members to link
+  to this user" picker drops inactive members (rule 11; the API would answer 409).
+- The actions return `{ ok: false, code?, groups?, error }`: `error` is the translated message, as
+  the account actions do, so a dialog can show it without mapping. `member_inactive` is mapped in
+  `getApiErrorMessage` by the 409 `code`, as the spec asks.
+- `MemberOption.status` is optional: only `/members/search` sends it.
 
 ## Token changes
 
