@@ -40,6 +40,7 @@ export const CLIENT_NAMESPACES = [
   "MemberAccountActions",
   "MemberForm",
   "MembersBrowser",
+  "MemberStatus",
   "Nav",
   "NeedsRolePage",
   "NewInviteForm",

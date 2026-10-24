@@ -40,24 +40,32 @@ export function DataTablePrimaryCell({
   name,
   href,
   secondary,
+  badge,
+  mutedAvatar,
 }: {
   name: string;
   href?: string;
   secondary?: ReactNode;
+  /** Sits after the name, e.g. the *Inactive* badge. */
+  badge?: ReactNode;
+  mutedAvatar?: boolean;
 }) {
   const nameClass = "text-[14.5px] font-semibold text-heading";
 
   return (
     <span className="flex items-center gap-3">
-      <InitialsAvatar name={name} />
+      <InitialsAvatar muted={mutedAvatar} name={name} />
       <span className="flex min-w-0 flex-col whitespace-nowrap">
-        {href ? (
-          <NextLink className={`${nameClass} hover:underline`} href={href}>
-            {name}
-          </NextLink>
-        ) : (
-          <span className={nameClass}>{name}</span>
-        )}
+        <span className="flex items-center gap-2">
+          {href ? (
+            <NextLink className={`${nameClass} hover:underline`} href={href}>
+              {name}
+            </NextLink>
+          ) : (
+            <span className={nameClass}>{name}</span>
+          )}
+          {badge}
+        </span>
         {secondary && (
           <span className="text-[12.5px] text-muted">{secondary}</span>
         )}

@@ -54,7 +54,7 @@ in the progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Permission, API client, types, actions | ✅ | see `git log` |
-| 2. Members list | ⬜ | |
+| 2. Members list | ✅ (visual checks pending) | see `git log` |
 | 3. Member detail: inactive state | ⬜ | |
 | 4. Dialogs: mark as inactive, leader block, reactivate | ⬜ | |
 | 5. Group detail picker hint | ⬜ | |
@@ -69,6 +69,16 @@ in the progress log below.
 - The actions return `{ ok: false, code?, groups?, error }`: `error` is the translated message, as
   the account actions do, so a dialog can show it without mapping. `member_inactive` is mapped in
   `getApiErrorMessage` by the 409 `code`, as the spec asks.
+- **Stage 2.** The list fetches `status=all`; tab, account filter and search all run in the
+  browser. Status counts follow the search; account counts follow the search *and* the status tab.
+  *Sign-in off* in the Account column comes from one `listUsers` call, made only for admins and
+  elders and only when an inactive member has a linked user. The reason chip is empty (not
+  rendered) without `members: setStatus`, since the API sends no reason. Dates use
+  `formatCalendarDate` (date-only, no time-zone shift), not `LocalDate`. `InitialsAvatar` got a
+  `muted` prop and `DataTablePrimaryCell` got `badge` / `mutedAvatar`.
+- **Not verified visually yet:** membership-management and auth-server weren't running in the
+  session, so light/dark, 1440 / 1024 / 390 and English/Spanish checks of stages 2 onward are still
+  to do (design review, stage 6). `pnpm lint` and `tsc` pass.
 - `MemberOption.status` is optional: only `/members/search` sends it.
 
 ## Token changes

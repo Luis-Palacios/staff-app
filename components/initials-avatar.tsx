@@ -13,8 +13,13 @@ export function initialsOf(name: string): string {
 }
 
 const avatar = tv({
-  base: "flex shrink-0 items-center justify-center rounded-full bg-accent-soft font-bold text-accent-soft-foreground",
+  base: "flex shrink-0 items-center justify-center rounded-full font-bold",
   variants: {
+    // `muted` is the inactive-member look: the neutral badge's surface instead of the accent.
+    muted: {
+      false: "bg-accent-soft text-accent-soft-foreground",
+      true: "bg-default text-muted",
+    },
     size: {
       sm: "size-9 text-[12.5px]",
       md: "size-[38px] text-[13px]",
@@ -23,6 +28,7 @@ const avatar = tv({
     },
   },
   defaultVariants: {
+    muted: false,
     size: "sm",
   },
 });
@@ -32,14 +38,16 @@ const avatar = tv({
 export function InitialsAvatar({
   name,
   size,
+  muted,
   className,
 }: {
   name: string;
   size?: "sm" | "md" | "lg" | "xl";
+  muted?: boolean;
   className?: string;
 }) {
   return (
-    <span aria-hidden="true" className={avatar({ size, className })}>
+    <span aria-hidden="true" className={avatar({ size, muted, className })}>
       {initialsOf(name)}
     </span>
   );
