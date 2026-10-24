@@ -1,9 +1,12 @@
 import type {
   Me,
   MeFeatures,
+  MemberDeactivateInput,
   MemberDetail,
   MemberInput,
   MemberOption,
+  MemberStatusChange,
+  MemberStatusFilter,
   MemberSummary,
   OwnMemberInput,
 } from "@/api/members-api/types";
@@ -13,10 +16,16 @@ import { cache } from "react";
 import { authenticatedFetch } from "@/api/authenticated-fetch";
 import { getEnv } from "@/lib/env/server";
 
-export function listMembers(): Promise<MemberSummary[]> {
+/**
+ * `status` defaults to `active`, like the API. Pass `all` when resolving who a user or invite is
+ * linked to: an inactive member keeps their `userId`.
+ */
+export function listMembers(
+  status: MemberStatusFilter = "active",
+): Promise<MemberSummary[]> {
   return authenticatedFetch<MemberSummary[]>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
-    "/members",
+    `/members?status=${status}`,
   );
 }
 
@@ -98,6 +107,41 @@ export function unlinkMemberUser(id: string): Promise<void> {
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     `/members/${encodeURIComponent(id)}/user`,
     { method: "DELETE" },
+  );
+}
+
+/** `members: setStatus`. 409 bodies carry `code` (and `groups` for `leads_group`). */
+export function deactivateMember(
+  id: string,
+  input: MemberDeactivateInput,
+): Promise<MemberDetail> {
+  return authenticatedFetch<MemberDetail>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `/members/${encodeURIComponent(id)}/deactivate`,
+    { method: "POST", body: input },
+  );
+}
+
+/** `members: setStatus`. Active again from today; groups are not restored. */
+export function reactivateMember(
+  id: string,
+  note?: string | null,
+): Promise<MemberDetail> {
+  return authenticatedFetch<MemberDetail>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `/members/${encodeURIComponent(id)}/reactivate`,
+    { method: "POST", body: { note: note ?? null } },
+  );
+}
+
+/** `members: setStatus`, newest first. */
+export function getMemberStatusHistory(
+  id: string,
+): Promise<MemberStatusChange[]> {
+  return authenticatedFetch<MemberStatusChange[]>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `/members/${encodeURIComponent(id)}/status-history`,
+    { cache: "no-store" },
   );
 }
 

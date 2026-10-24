@@ -9,7 +9,7 @@ export default async function UsersList() {
   const cookie = (await headers()).get("cookie") ?? "";
   const [{ users }, memberList] = await Promise.all([
     listUsers(cookie),
-    listMembers(),
+    listMembers("all"),
   ]);
   // One call for the whole list, matched on `userId`.
   const members: LinkedMembers = Object.fromEntries(
