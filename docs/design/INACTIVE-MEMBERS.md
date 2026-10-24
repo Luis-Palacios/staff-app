@@ -57,7 +57,7 @@ in the progress log below.
 | 2. Members list | ✅ (visual checks pending) | see `git log` |
 | 3. Member detail: inactive state | ✅ (visual checks pending) | see `git log` |
 | 4. Dialogs: mark as inactive, leader block, reactivate | ✅ (visual checks pending) | see `git log` |
-| 5. Group detail picker hint | ⬜ | |
+| 5. Group detail picker hint | ✅ | see `git log` |
 | 6. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
@@ -97,6 +97,8 @@ in the progress log below.
   checkbox only appears when the caller may ban users and the user is banned; a ban with another
   reason shows it unchecked and disabled. **Not done:** returning focus to the banner's
   *Reactivate…* after deactivating (the page reloads, so focus resets to the document).
+- **Stage 5.** The hint sits under the results inside the combo box popover. *Show N past members*
+  is left out, as the spec says (needs group history from the API).
 - **Not verified visually yet:** membership-management and auth-server weren't running in the
   session, so light/dark, 1440 / 1024 / 390 and English/Spanish checks of stages 2 onward are still
   to do (design review, stage 6). `pnpm lint` and `tsc` pass.

@@ -190,7 +190,8 @@
       "hasLeader": "Este grupo ya tiene un líder. Actualiza la página e inténtalo de nuevo.",
       "alreadyInGroup": "{name} ya está en este grupo.",
       "generic": "Algo salió mal. Inténtalo de nuevo."
-    }
+    },
+    "onlyActive": "Solo se muestran los miembros activos."
   },
   "GroupDetailHeader": {
     "closedOn": "Cerrado el {date}",
