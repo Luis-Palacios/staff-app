@@ -4,14 +4,22 @@ import { MemberAccountCard } from "./_components/member-account-card";
 import { MemberContactCard } from "./_components/member-contact-card";
 import { MemberDetailHeader } from "./_components/member-detail-header";
 import { MemberGroupsCard } from "./_components/member-groups-card";
+import { MemberInactiveBanner } from "./_components/member-inactive-banner";
+import { MemberStatusHistoryCard } from "./_components/member-status-card";
 
 import { getMe } from "@/api/members-api/client";
 import { listSmallGroups } from "@/api/small-groups-api/client";
 import { loadMember } from "@/app/(app)/members/_lib/load-member";
 import { loadMemberAccount } from "@/app/(app)/members/_lib/load-member-account";
+import { loadStatusHistory } from "@/app/(app)/members/_lib/load-status-history";
 import { SavedToast } from "@/components/saved-toast";
 import { getPermissions, requirePermission } from "@/lib/auth/get-permissions";
-import { can, getSmallGroupAccess } from "@/lib/auth/permissions";
+import {
+  can,
+  getSmallGroupAccess,
+  userAccountAccess,
+} from "@/lib/auth/permissions";
+import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 
 export default async function MemberDetailPage({
   params,
@@ -32,6 +40,15 @@ export default async function MemberDetailPage({
   ]);
   const member = await loadMember(id);
   const account = await loadMemberAccount(member);
+  const inactive = member.status === "inactive";
+  // Reasons, notes and history are private: only callers with `setStatus` get them (rule 5).
+  const canSetStatus = can(permissions, { members: ["setStatus"] });
+  const history = inactive && canSetStatus ? await loadStatusHistory(id) : null;
+  const session = await getServerSession();
+  const canTurnOffSignIn =
+    !!account.user &&
+    !!session &&
+    userAccountAccess(permissions, session.user.id, account.user.id).ban;
   // Leader names come from the groups list; if it can't be read the card just omits them.
   const groups = await listSmallGroups().catch(() => []);
   const leaders = Object.fromEntries(
@@ -55,6 +72,7 @@ export default async function MemberDetailPage({
         member={member}
         status={account.status}
       />
+      {inactive && <MemberInactiveBanner member={member} />}
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <MemberContactCard
           canEdit={can(permissions, { members: ["update"] })}
@@ -64,11 +82,17 @@ export default async function MemberDetailPage({
           <MemberGroupsCard
             canOpen={canOpenGroup}
             leaders={leaders}
+            pastGroups={inactive ? member.pastSmallGroups : undefined}
             smallGroups={member.smallGroups}
           />
           {account.canManage && (
-            <MemberAccountCard account={account} member={member} />
+            <MemberAccountCard
+              account={account}
+              canTurnOffSignIn={canTurnOffSignIn}
+              member={member}
+            />
           )}
+          {history && <MemberStatusHistoryCard history={history} />}
         </div>
       </div>
       {(saved === "created" ||

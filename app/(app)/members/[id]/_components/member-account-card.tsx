@@ -1,7 +1,10 @@
 import type { MemberAccount } from "@/app/(app)/members/_lib/load-member-account";
 import type { Locale } from "@/lib/locale-shared";
 
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import {
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 import { useLocale, useTranslations } from "next-intl";
 import NextLink from "next/link";
 
@@ -12,19 +15,34 @@ import { RoleBadge } from "@/app/(app)/users/_components/role-badge";
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { card, textLink } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
-import { formatLocalDate } from "@/lib/format-date";
+import { formatCalendarDate, formatLocalDate } from "@/lib/format-date";
+import { MEMBER_INACTIVE_BAN_REASON } from "@/lib/members/inactive";
 
 // Only rendered for roles that can manage links.
 export function MemberAccountCard({
   account,
   member,
+  canTurnOffSignIn = false,
 }: {
   account: MemberAccount;
-  member: { id: number; name: string; email: string | null };
+  member: {
+    id: number;
+    name: string;
+    email: string | null;
+    status: "active" | "inactive";
+    inactiveSince: string | null;
+  };
+  /** The caller may ban users (`user: ban`) and the user isn't themselves. */
+  canTurnOffSignIn?: boolean;
 }) {
   const t = useTranslations("MemberAccountCard");
+  const tStatus = useTranslations("AccountStatus");
   const locale = useLocale() as Locale;
   const { status, user } = account;
+  const inactive = member.status === "inactive";
+  // Inactive and banned = sign-in off; inactive and not banned = the ban failed (rule 9).
+  const signInOff = inactive && account.banned;
+  const signInStillOn = inactive && !!user && !account.banned;
 
   return (
     <section
@@ -37,7 +55,11 @@ export function MemberAccountCard({
         {t("title")}
       </DetailCardHeading>
 
-      {status === "none" && (
+      {status === "none" && inactive && (
+        <p className="text-sm text-muted">{t("inactiveNoAccount")}</p>
+      )}
+
+      {status === "none" && !inactive && (
         <div className="flex flex-col gap-1 py-1">
           <p className="text-[15px] font-semibold text-heading">
             {t("noneTitle")}
@@ -46,7 +68,7 @@ export function MemberAccountCard({
         </div>
       )}
 
-      {status === "none" && account.suggestedUser && (
+      {status === "none" && !inactive && account.suggestedUser && (
         <div className="flex items-start gap-2.5 rounded-xl bg-accent-soft px-4 py-3 text-sm text-accent-soft-foreground">
           <InformationCircleIcon
             aria-hidden="true"
@@ -107,13 +129,41 @@ export function MemberAccountCard({
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <RoleBadge role={user.role} />
-            <StatusBadge
-              tone={user.emailVerified ? "success" : "warning"}
-              variant={user.emailVerified ? "solid-dot" : "ring-dot"}
-            >
-              {user.emailVerified ? t("verified") : t("notVerified")}
-            </StatusBadge>
+            {signInOff ? (
+              <StatusBadge tone="danger" variant="ring-dot">
+                {tStatus("signInOff")}
+              </StatusBadge>
+            ) : (
+              <StatusBadge
+                tone={user.emailVerified ? "success" : "warning"}
+                variant={user.emailVerified ? "solid-dot" : "ring-dot"}
+              >
+                {user.emailVerified ? t("verified") : t("notVerified")}
+              </StatusBadge>
+            )}
           </div>
+          {signInOff && (
+            <p className="text-sm leading-[1.55] text-muted">
+              {account.banReason === MEMBER_INACTIVE_BAN_REASON
+                ? t("signInOffBody", {
+                    date: member.inactiveSince
+                      ? formatCalendarDate(member.inactiveSince, locale)
+                      : "",
+                    name: member.name,
+                  })
+                : t("signInOffOther")}
+            </p>
+          )}
+          {signInStillOn && (
+            <p className="flex items-start gap-2 text-sm leading-[1.55] text-warning-soft-foreground">
+              <ExclamationTriangleIcon
+                aria-hidden="true"
+                className="mt-0.5 size-4 shrink-0"
+                strokeWidth={2}
+              />
+              {t("signInStillOn")}
+            </p>
+          )}
           <p className="text-[13px] text-muted">
             {t("signedUp", { date: formatLocalDate(user.createdAt, locale) })}
           </p>
@@ -125,16 +175,21 @@ export function MemberAccountCard({
           </NextLink>
         </div>
       )}
-      <MemberAccountActions
-        account={{
-          status,
-          inviteToken: account.inviteToken,
-          invitedEmail: account.invitedEmail,
-          userName: user?.name ?? null,
-          hasSuggestedUser: !!account.suggestedUser,
-        }}
-        member={member}
-      />
+      {!(inactive && status === "none") && (
+        <MemberAccountActions
+          account={{
+            inactive,
+            status,
+            userId: user?.id ?? null,
+            signInStillOn: signInStillOn && canTurnOffSignIn,
+            inviteToken: account.inviteToken,
+            invitedEmail: account.invitedEmail,
+            userName: user?.name ?? null,
+            hasSuggestedUser: !!account.suggestedUser,
+          }}
+          member={member}
+        />
+      )}
     </section>
   );
 }

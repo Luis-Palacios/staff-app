@@ -4,13 +4,15 @@ import type { AccountStatus } from "@/lib/members/account";
 import { ArrowLeftIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { buttonVariants } from "@heroui/react";
 import NextLink from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
+import { InactiveBadge } from "@/app/(app)/members/_components/inactive-badge";
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { title } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
 import { StaffAppBreadcrumbs } from "@/components/staff-app-breadcrumbs";
 import { membersBreadcrumb } from "@/config/breadcrumbs";
+import { formatCalendarDate } from "@/lib/format-date";
 
 // The person is the page, as on the application detail: avatar, name as the
 // <h1>, a meta line and the actions on the right.
@@ -38,7 +40,10 @@ export function MemberDetailHeader({
 }) {
   const t = useTranslations("MemberDetailHeader");
   const tStatus = useTranslations("AccountStatus");
+  const tMember = useTranslations("MemberStatus");
+  const locale = useLocale();
   const { id, name, smallGroups } = member;
+  const inactive = member.status === "inactive";
 
   return (
     <header className="mb-6 flex flex-col gap-6">
@@ -50,7 +55,12 @@ export function MemberDetailHeader({
       />
       <div className="flex flex-wrap items-center gap-5">
         <InitialsAvatar
-          className="bg-accent text-[22px] text-accent-foreground"
+          className={
+            inactive
+              ? "text-[22px]"
+              : "bg-accent text-[22px] text-accent-foreground"
+          }
+          muted={inactive}
           name={name}
           size="xl"
         />
@@ -71,6 +81,7 @@ export function MemberDetailHeader({
                 {tStatus(status)}
               </StatusBadge>
             )}
+            {inactive && <InactiveBadge />}
           </div>
           <p className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-muted">
             <span>
@@ -78,14 +89,18 @@ export function MemberDetailHeader({
               <strong className="font-semibold text-heading">#{id}</strong>
             </span>
             <span>
-              {t.rich("groupCount", {
-                count: smallGroups.length,
-                strong: (chunks) => (
-                  <strong className="font-semibold text-heading">
-                    {chunks}
-                  </strong>
-                ),
-              })}
+              {inactive && member.inactiveSince
+                ? tMember("inactiveSince", {
+                    date: formatCalendarDate(member.inactiveSince, locale),
+                  })
+                : t.rich("groupCount", {
+                    count: smallGroups.length,
+                    strong: (chunks) => (
+                      <strong className="font-semibold text-heading">
+                        {chunks}
+                      </strong>
+                    ),
+                  })}
             </span>
           </p>
         </div>

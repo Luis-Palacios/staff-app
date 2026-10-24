@@ -1155,7 +1155,11 @@
     "joined": "Se unió el {date}",
     "leader": "Líder: {name}",
     "emptyTitle": "Aún no está en un grupo pequeño",
-    "emptyBody": "Los grupos y roles aparecerán aquí cuando se una a uno."
+    "emptyBody": "Los grupos y roles aparecerán aquí cuando se una a uno.",
+    "pastTitle": "Grupos anteriores",
+    "endedInactive": "{from} – {to} · Terminó al marcarse inactivo",
+    "pastEmptyTitle": "Sin grupos anteriores",
+    "pastEmptyBody": "No estaba en ningún grupo pequeño cuando se marcó como inactivo."
   },
   "SmallGroupRole": {
     "leader": "Líder",
@@ -1240,7 +1244,11 @@
     "verified": "Correo verificado",
     "notVerified": "Correo sin verificar",
     "signedUp": "Cuenta creada el {date}",
-    "goToAccess": "Ir al acceso de inicio de sesión"
+    "goToAccess": "Ir al acceso de inicio de sesión",
+    "signInOffBody": "El acceso se quitó el {date}, cuando {name} se marcó como inactivo. Al reactivarlo se puede volver a dar.",
+    "signInOffOther": "Esta cuenta fue bloqueada por otro motivo. Adminístrala desde Usuarios.",
+    "signInStillOn": "El acceso sigue activo. Quítalo para que no pueda iniciar sesión.",
+    "inactiveNoAccount": "A los miembros inactivos no se les puede invitar ni vincular. Reactívalo primero para darle acceso."
   },
   "AccountStatus": {
     "linked": "Vinculado",
@@ -1287,7 +1295,9 @@
     "unlinkBody": "{user} dejará de estar vinculado a {member}. Conserva su cuenta y su rol, y {member} conserva su perfil y sus grupos pequeños. Un Líder de grupo pequeño o Diácono dejará de ver los grupos de este miembro.",
     "unlinkConfirm": "Desvincular",
     "unlinkToast": "Desvinculado de {name}",
-    "unknownUser": "Esta cuenta"
+    "unknownUser": "Esta cuenta",
+    "turnOffSignIn": "Quitar acceso",
+    "turnOffToast": "Acceso quitado a {name}"
   },
   "UserDetail": {
     "eyebrow": "Usuario",
@@ -1624,5 +1634,19 @@
       "deceased": "Falleció",
       "other": "Otro"
     }
+  },
+  "MemberInactiveBanner": {
+    "title": "{name} es un miembro inactivo",
+    "body": "Salió el {date} · <strong>{reason}</strong>. No está en ningún grupo pequeño, no puede iniciar sesión y queda fuera de las listas de miembros y de los mensajes. Su historial se conserva abajo.",
+    "bodyNoReason": "Salió el {date}. No está en ningún grupo pequeño, no puede iniciar sesión y queda fuera de las listas de miembros y de los mensajes. Su historial se conserva abajo."
+  },
+  "MemberStatusCard": {
+    "historyEyebrow": "Membresía",
+    "historyTitle": "Historial de estado",
+    "markedInactive": "Marcado como inactivo",
+    "reactivated": "Reactivado",
+    "by": "{date} · por {name}",
+    "someone": "Alguien",
+    "privateHint": "Solo los administradores y ancianos ven los motivos y las notas."
   }
 }
