@@ -1,4 +1,5 @@
 import type { MemberDetail } from "@/api/members-api/types";
+import type { ReactNode } from "react";
 
 import { NoSymbolIcon } from "@heroicons/react/24/outline";
 import { useLocale, useTranslations } from "next-intl";
@@ -7,7 +8,14 @@ import { formatCalendarDate } from "@/lib/format-date";
 
 // Under the header of an inactive member. The reason is private (rule 5): the API sends it only to
 // callers with `members: setStatus`, so without one the banner says when they left and no more.
-export function MemberInactiveBanner({ member }: { member: MemberDetail }) {
+export function MemberInactiveBanner({
+  member,
+  action,
+}: {
+  member: MemberDetail;
+  /** *Reactivate…*, for callers with `members: setStatus`. */
+  action?: ReactNode;
+}) {
   const t = useTranslations("MemberInactiveBanner");
   const tReason = useTranslations("MemberStatus.reason");
   const locale = useLocale();
@@ -46,6 +54,7 @@ export function MemberInactiveBanner({ member }: { member: MemberDetail }) {
             : t("bodyNoReason", { date })}
         </p>
       </div>
+      {action}
     </section>
   );
 }

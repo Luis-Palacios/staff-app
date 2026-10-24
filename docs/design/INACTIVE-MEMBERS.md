@@ -56,7 +56,7 @@ in the progress log below.
 | 1. Permission, API client, types, actions | ✅ | see `git log` |
 | 2. Members list | ✅ (visual checks pending) | see `git log` |
 | 3. Member detail: inactive state | ✅ (visual checks pending) | see `git log` |
-| 4. Dialogs: mark as inactive, leader block, reactivate | ⬜ | |
+| 4. Dialogs: mark as inactive, leader block, reactivate | ✅ (visual checks pending) | see `git log` |
 | 5. Group detail picker hint | ⬜ | |
 | 6. Design review fixes | ⬜ | |
 
@@ -85,6 +85,18 @@ in the progress log below.
   line (`signInOffOther`) instead of claiming we did it. History falls back to the changing
   user's name from the user list when no member is linked to them (`loadStatusHistory`).
   An invited-but-inactive member keeps *Cancel invite* but loses *Link*.
+- **Stage 4.** The danger section lives in `mark-inactive-section.tsx` and the banner button in
+  `reactivate-member-button.tsx` (client), not in `member-status-card.tsx`, which stays a server
+  component for the history. Both dialogs finish by `router.replace("/members/{id}?saved=…")`
+  (`inactive`, `inactiveBanFailed`, `reactivated`, `reactivatedUnbanFailed`) and the page renders
+  the toast, since the section and banner that opened the dialog are gone once the status flips.
+  `SavedToast` got a `warning` tone (gold icon on the navy bar; no new token). The leader block
+  shows as soon as the page's own groups say they lead; the API's `leads_group` 409 opens the same
+  dialog. Extra `ApiErrors` messages for the other 409 `code`s (`self`, `already_*`) and the 422
+  future date, so the dialog never shows the generic line for them. The *Turn sign-in back on*
+  checkbox only appears when the caller may ban users and the user is banned; a ban with another
+  reason shows it unchecked and disabled. **Not done:** returning focus to the banner's
+  *Reactivate…* after deactivating (the page reloads, so focus resets to the document).
 - **Not verified visually yet:** membership-management and auth-server weren't running in the
   session, so light/dark, 1440 / 1024 / 390 and English/Spanish checks of stages 2 onward are still
   to do (design review, stage 6). `pnpm lint` and `tsc` pass.

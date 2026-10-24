@@ -4,7 +4,9 @@ import { MemberAccountCard } from "./_components/member-account-card";
 import { MemberContactCard } from "./_components/member-contact-card";
 import { MemberDetailHeader } from "./_components/member-detail-header";
 import { MemberGroupsCard } from "./_components/member-groups-card";
+import { MarkInactiveSection } from "./_components/mark-inactive-section";
 import { MemberInactiveBanner } from "./_components/member-inactive-banner";
+import { ReactivateMemberButton } from "./_components/reactivate-member-button";
 import { MemberStatusHistoryCard } from "./_components/member-status-card";
 
 import { getMe } from "@/api/members-api/client";
@@ -14,6 +16,8 @@ import { loadMemberAccount } from "@/app/(app)/members/_lib/load-member-account"
 import { loadStatusHistory } from "@/app/(app)/members/_lib/load-status-history";
 import { SavedToast } from "@/components/saved-toast";
 import { getPermissions, requirePermission } from "@/lib/auth/get-permissions";
+import { AuthRole } from "@/lib/auth/roles";
+import { getChurchToday } from "@/lib/church-time";
 import {
   can,
   getSmallGroupAccess,
@@ -32,11 +36,13 @@ export default async function MemberDetailPage({
 
   const [permissions, me] = await Promise.all([getPermissions(), getMe()]);
 
-  const [{ id }, { saved }, t, tForm] = await Promise.all([
+  const [{ id }, { saved }, t, tForm, tStatus, tBanner] = await Promise.all([
     params,
     searchParams,
     getTranslations("SavedToast"),
     getTranslations("MemberForm"),
+    getTranslations("MemberStatusToast"),
+    getTranslations("MemberInactiveBanner"),
   ]);
   const member = await loadMember(id);
   const account = await loadMemberAccount(member);
@@ -72,7 +78,29 @@ export default async function MemberDetailPage({
         member={member}
         status={account.status}
       />
-      {inactive && <MemberInactiveBanner member={member} />}
+      {inactive && (
+        <MemberInactiveBanner
+          action={
+            canSetStatus ? (
+              <ReactivateMemberButton
+                label={tBanner("reactivate")}
+                member={{ id: member.id, name: member.name }}
+                signIn={
+                  account.user && account.banned && canTurnOffSignIn
+                    ? {
+                        userId: account.user.id,
+                        email: account.user.email,
+                        role: account.user.role ?? AuthRole.Pending,
+                        banReason: account.banReason,
+                      }
+                    : null
+                }
+              />
+            ) : undefined
+          }
+          member={member}
+        />
+      )}
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <MemberContactCard
           canEdit={can(permissions, { members: ["update"] })}
@@ -93,11 +121,38 @@ export default async function MemberDetailPage({
             />
           )}
           {history && <MemberStatusHistoryCard history={history} />}
+          {!inactive && canSetStatus && (
+            <MarkInactiveSection
+              groups={member.smallGroups}
+              member={{
+                id: member.id,
+                name: member.name,
+                userId: member.userId,
+              }}
+              signInEmail={account.user?.email ?? null}
+              today={getChurchToday()}
+            />
+          )}
         </div>
       </div>
       {(saved === "created" ||
         saved === "updated" ||
         saved === "createdInvited") && <SavedToast message={t(saved)} />}
+      {saved === "inactive" && (
+        <SavedToast message={tStatus("inactive", { name: member.name })} />
+      )}
+      {saved === "inactiveBanFailed" && (
+        <SavedToast message={tStatus("inactiveBanFailed")} tone="warning" />
+      )}
+      {saved === "reactivated" && (
+        <SavedToast message={tStatus("reactivated", { name: member.name })} />
+      )}
+      {saved === "reactivatedUnbanFailed" && (
+        <SavedToast
+          message={tStatus("reactivatedUnbanFailed")}
+          tone="warning"
+        />
+      )}
       {saved === "inviteFailed" && (
         <SavedToast message={tForm("inviteFailed")} tone="danger" />
       )}
