@@ -54,11 +54,11 @@ in the progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Permission, API client, types, actions | ✅ | see `git log` |
-| 2. Members list | ✅ (visual checks pending) | see `git log` |
-| 3. Member detail: inactive state | ✅ (visual checks pending) | see `git log` |
-| 4. Dialogs: mark as inactive, leader block, reactivate | ✅ (visual checks pending) | see `git log` |
+| 2. Members list | ✅ | see `git log` |
+| 3. Member detail: inactive state | ✅ | see `git log` |
+| 4. Dialogs: mark as inactive, leader block, reactivate | ✅ | see `git log` |
 | 5. Group detail picker hint | ✅ | see `git log` |
-| 6. Design review fixes | ⬜ | |
+| 6. Design review fixes | 🟡 partly (1024px and a non-admin view left) | see `git log` |
 
 ### Decisions and deviations
 
@@ -99,9 +99,15 @@ in the progress log below.
   *Reactivate…* after deactivating (the page reloads, so focus resets to the document).
 - **Stage 5.** The hint sits under the results inside the combo box popover. *Show N past members*
   is left out, as the spec says (needs group history from the API).
-- **Not verified visually yet:** membership-management and auth-server weren't running in the
-  session, so light/dark, 1440 / 1024 / 390 and English/Spanish checks of stages 2 onward are still
-  to do (design review, stage 6). `pnpm lint` and `tsc` pass.
+- **Stage 6 (checked in the browser against the real API and auth-server).**
+  Verified: deactivate (member with and without a linked user), the leader block, reactivate with
+  and without the unban, the ban reason stored as `Member marked inactive`, the *Sign-in still on*
+  retry, all three list tabs, past groups, status history. 1440 (light, Spanish) and 400 (dark,
+  Spanish; light, English). Fixes: the dialogs scroll on short screens (the `<form>` wrapper
+  stopped the body shrinking), and inactive cards no longer overflow on mobile.
+- **Still to check:** 1024px, and the view without `members: setStatus` (needs a sign-in as an
+  elder-less role: no danger section, banner action, reason, history). Focus returning to the
+  banner's *Reactivate…* after deactivating is not done (the page reloads).
 - `MemberOption.status` is optional: only `/members/search` sends it.
 
 ## Token changes
