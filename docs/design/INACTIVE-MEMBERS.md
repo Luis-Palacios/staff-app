@@ -58,7 +58,7 @@ in the progress log below.
 | 3. Member detail: inactive state | ✅ | see `git log` |
 | 4. Dialogs: mark as inactive, leader block, reactivate | ✅ | see `git log` |
 | 5. Group detail picker hint | ✅ | see `git log` |
-| 6. Design review fixes | 🟡 partly (1024px and a non-admin view left) | see `git log` |
+| 6. Design review fixes | ✅ | see `git log` |
 
 ### Decisions and deviations
 
@@ -102,12 +102,19 @@ in the progress log below.
 - **Stage 6 (checked in the browser against the real API and auth-server).**
   Verified: deactivate (member with and without a linked user), the leader block, reactivate with
   and without the unban, the ban reason stored as `Member marked inactive`, the *Sign-in still on*
-  retry, all three list tabs, past groups, status history. 1440 (light, Spanish) and 400 (dark,
-  Spanish; light, English). Fixes: the dialogs scroll on short screens (the `<form>` wrapper
-  stopped the body shrinking), and inactive cards no longer overflow on mobile.
-- **Still to check:** 1024px, and the view without `members: setStatus` (needs a sign-in as an
-  elder-less role: no danger section, banner action, reason, history). Focus returning to the
-  banner's *Reactivate…* after deactivating is not done (the page reloads).
+  retry, all three list tabs, past groups, status history. 1440 (light, Spanish), 1024 (dark,
+  Spanish, in a 1024px frame) and 400 (dark, Spanish; light, English). Without `members:
+  setStatus` (signed in as a small group leader): no danger section and no Account card on a
+  member page, and `/members` is the 404 page. Fixes made: the dialogs scroll on short screens
+  (the `<form>` wrapper stopped the body shrinking), inactive cards no longer overflow on mobile,
+  and the *What happens* box has a border so it shows in dark mode.
+- **Not checked:** the inactive banner, reason and history as seen by a caller with
+  `members: view` + `all` but no `setStatus` (a leader never sees an inactive member: rule 12), and
+  focus returning to the banner's *Reactivate…* after deactivating (the page reloads, so it is
+  not done). The 1024px check used an iframe, since the browser window couldn't be resized.
+- **For membership-management:** `pastSmallGroups` takes the member's latest `member_inactive`
+  `left_at`, so a second deactivation that ended no groups still lists the periods from an earlier
+  one. It should come from the latest deactivation itself (e.g. its `member_status_changes` row).
 - `MemberOption.status` is optional: only `/members/search` sends it.
 
 ## Token changes
