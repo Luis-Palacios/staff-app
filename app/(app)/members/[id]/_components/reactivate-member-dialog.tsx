@@ -93,7 +93,7 @@ function ReactivateForm({
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
       <Modal.Header className="flex-col items-start gap-1">
         <Modal.Heading className="font-display text-2xl font-medium text-heading">
           {t("title", { name: member.name })}
@@ -207,7 +207,7 @@ export function ReactivateMemberDialog({
         if (!isPending) onOpenChange(open);
       }}
     >
-      <Modal.Container placement="auto" size="md">
+      <Modal.Container placement="auto" scroll="inside" size="md">
         <Modal.Dialog className="sm:max-w-[480px]">
           <ReactivateForm
             {...form}
