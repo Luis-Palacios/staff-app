@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/solid";
 
 const VISIBLE_MS = 4000;
@@ -22,10 +23,14 @@ export function SavedToast({
   message: string;
   /** An optional second, quieter line under the message. */
   detail?: string;
-  /** `danger` is for an action that failed (same bar, red icon). */
-  tone?: "success" | "danger";
+  /** `danger` is for an action that failed (same bar, red icon); `warning` for one that half worked. */
+  tone?: "success" | "danger" | "warning";
 }) {
-  const Icon = tone === "danger" ? ExclamationCircleIcon : CheckCircleIcon;
+  const Icon = {
+    danger: ExclamationCircleIcon,
+    warning: ExclamationTriangleIcon,
+    success: CheckCircleIcon,
+  }[tone];
 
   const [visible, setVisible] = useState(true);
 
@@ -56,11 +61,18 @@ export function SavedToast({
   return (
     <div
       className={`fixed bottom-6 left-1/2 z-50 flex w-max max-w-[calc(100vw-3rem)] -translate-x-1/2 ${detail ? "items-start" : "items-center"} gap-2.5 rounded-xl bg-navy-800 px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow-float)]`}
-      role={tone === "danger" ? "alert" : "status"}
+      role={tone === "success" ? "status" : "alert"}
     >
       <Icon
         aria-hidden="true"
-        className={`size-5 shrink-0 ${tone === "danger" ? "text-danger-on-dark" : "text-success-on-dark"}`}
+        className={`size-5 shrink-0 ${
+          {
+            danger: "text-danger-on-dark",
+            // The toast is navy in both themes, so the brand gold reads on it.
+            warning: "text-gold-500",
+            success: "text-success-on-dark",
+          }[tone]
+        }`}
       />
       {detail ? (
         <span className="flex flex-col gap-0.5">

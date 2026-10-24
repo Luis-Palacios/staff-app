@@ -934,7 +934,11 @@ declare const messages: {
     "reportRosterChanged": "The group’s members changed. Reload the list to continue.",
     "reportNotLeaderOnDate": "You didn’t lead this group on that date.",
     "reloadPeople": "Reload people",
-    "groupClosed": "This group is closed, so its reports can’t be changed."
+    "groupClosed": "This group is closed, so its reports can’t be changed.",
+    "memberSelfInactive": "You can't mark your own member as inactive.",
+    "memberAlreadyInactive": "This member is already inactive.",
+    "memberAlreadyActive": "This member is already active.",
+    "memberFutureDate": "The date they left can't be in the future."
   },
   "ApplicationStatus": {
     "pending": "Pending",
@@ -1641,7 +1645,8 @@ declare const messages: {
   "MemberInactiveBanner": {
     "title": "{name} is an inactive member",
     "body": "Left {date} · <strong>{reason}</strong>. They're not in any small group, can't sign in, and are left out of member lists and messages. Their history stays below.",
-    "bodyNoReason": "Left {date}. They're not in any small group, can't sign in, and are left out of member lists and messages. Their history stays below."
+    "bodyNoReason": "Left {date}. They're not in any small group, can't sign in, and are left out of member lists and messages. Their history stays below.",
+    "reactivate": "Reactivate…"
   },
   "MemberStatusCard": {
     "historyEyebrow": "Membership",
@@ -1650,7 +1655,57 @@ declare const messages: {
     "reactivated": "Reactivated",
     "by": "{date} · by {name}",
     "someone": "Someone",
-    "privateHint": "Only admins and elders see reasons and notes."
+    "privateHint": "Only admins and elders see reasons and notes.",
+    "dangerTitle": "Mark as inactive",
+    "dangerBody": "For someone who has left the church. They leave their small groups today and their sign-in is turned off. Nothing is deleted, and you can reactivate them later.",
+    "dangerButton": "Mark as inactive…"
+  },
+  "DeactivateMemberDialog": {
+    "title": "Mark {name} as inactive",
+    "description": "For someone who has left the church. Nothing is deleted.",
+    "reason": "Reason",
+    "reasonPlaceholder": "Choose a reason",
+    "date": "Date they left",
+    "dateHint": "Today or earlier.",
+    "note": "Note (optional)",
+    "noteHint": "Only admins and elders can see the reason and note.",
+    "whatHappens": "What happens",
+    "leavesGroups": "Leaves {count, plural, one {# small group} other {# small groups}} today",
+    "leavesGroupsBody": "{groups}. Their time in each stays in their history.",
+    "signInOff": "Sign-in is turned off",
+    "signInOffBody": "{email} can't sign in until they're reactivated.",
+    "signInOffBodyNoEmail": "They can't sign in until they're reactivated.",
+    "movesToInactive": "Moves to Inactive",
+    "movesToInactiveBody": "Left out of the member list, group pickers and messages to members. Their reports, notes and history stay.",
+    "cancel": "Cancel",
+    "submit": "Mark as inactive"
+  },
+  "LeaderBlockDialog": {
+    "title": "Choose a new leader first",
+    "body": "{name} leads the group below. A group can't be left without its leader, so make someone else the leader, then come back to mark them inactive.",
+    "bodyMany": "{name} leads the groups below. A group can't be left without its leader, so make someone else the leader of each, then come back to mark them inactive.",
+    "changeLeader": "Change leader",
+    "changeLeaderLabel": "Change leader of {group}",
+    "otherRoles": "Co-leader and member roles don't block this. They just leave those groups.",
+    "close": "Close"
+  },
+  "ReactivateMemberDialog": {
+    "title": "Reactivate {name}",
+    "description": "They're back in Members as active from today.",
+    "note": "Note (optional)",
+    "notePlaceholder": "For example: moved back and started coming again",
+    "signInBack": "Turn sign-in back on",
+    "signInBackBody": "{email} can sign in again with the role they had ({role}).",
+    "bannedOther": "This account was banned for another reason. Manage it from Users.",
+    "groupsNotRestored": "They don't go back into their old small groups. Add them to a group from the group's page when they're ready.",
+    "cancel": "Cancel",
+    "submit": "Reactivate"
+  },
+  "MemberStatusToast": {
+    "inactive": "{name} marked inactive",
+    "inactiveBanFailed": "Marked inactive, but sign-in couldn't be turned off",
+    "reactivated": "{name} reactivated",
+    "reactivatedUnbanFailed": "Reactivated, but sign-in couldn't be turned back on"
   }
 };
 export default messages;

@@ -931,7 +931,11 @@
     "reportRosterChanged": "Cambiaron los miembros del grupo. Vuelve a cargar la lista para continuar.",
     "reportNotLeaderOnDate": "No liderabas este grupo en esa fecha.",
     "reloadPeople": "Volver a cargar personas",
-    "groupClosed": "Este grupo está cerrado, así que sus reportes no se pueden cambiar."
+    "groupClosed": "Este grupo está cerrado, así que sus reportes no se pueden cambiar.",
+    "memberSelfInactive": "No puedes marcar a tu propio miembro como inactivo.",
+    "memberAlreadyInactive": "Este miembro ya está inactivo.",
+    "memberAlreadyActive": "Este miembro ya está activo.",
+    "memberFutureDate": "La fecha en que salió no puede ser futura."
   },
   "ApplicationStatus": {
     "pending": "Pendiente",
@@ -1638,7 +1642,8 @@
   "MemberInactiveBanner": {
     "title": "{name} es un miembro inactivo",
     "body": "Salió el {date} · <strong>{reason}</strong>. No está en ningún grupo pequeño, no puede iniciar sesión y queda fuera de las listas de miembros y de los mensajes. Su historial se conserva abajo.",
-    "bodyNoReason": "Salió el {date}. No está en ningún grupo pequeño, no puede iniciar sesión y queda fuera de las listas de miembros y de los mensajes. Su historial se conserva abajo."
+    "bodyNoReason": "Salió el {date}. No está en ningún grupo pequeño, no puede iniciar sesión y queda fuera de las listas de miembros y de los mensajes. Su historial se conserva abajo.",
+    "reactivate": "Reactivar…"
   },
   "MemberStatusCard": {
     "historyEyebrow": "Membresía",
@@ -1647,6 +1652,56 @@
     "reactivated": "Reactivado",
     "by": "{date} · por {name}",
     "someone": "Alguien",
-    "privateHint": "Solo los administradores y ancianos ven los motivos y las notas."
+    "privateHint": "Solo los administradores y ancianos ven los motivos y las notas.",
+    "dangerTitle": "Marcar como inactivo",
+    "dangerBody": "Para alguien que ya no es parte de la iglesia. Sale de sus grupos pequeños hoy y se le quita el acceso. No se borra nada, y puedes reactivarlo después.",
+    "dangerButton": "Marcar como inactivo…"
+  },
+  "DeactivateMemberDialog": {
+    "title": "Marcar a {name} como inactivo",
+    "description": "Para alguien que ya no es parte de la iglesia. No se borra nada.",
+    "reason": "Motivo",
+    "reasonPlaceholder": "Elige un motivo",
+    "date": "Fecha en que salió",
+    "dateHint": "Hoy o antes.",
+    "note": "Nota (opcional)",
+    "noteHint": "Solo los administradores y ancianos pueden ver el motivo y la nota.",
+    "whatHappens": "Qué pasará",
+    "leavesGroups": "Sale de {count, plural, one {# grupo pequeño} other {# grupos pequeños}} hoy",
+    "leavesGroupsBody": "{groups}. Su tiempo en cada uno queda en su historial.",
+    "signInOff": "Se quita el acceso",
+    "signInOffBody": "{email} no podrá iniciar sesión hasta que se reactive.",
+    "signInOffBodyNoEmail": "No podrá iniciar sesión hasta que se reactive.",
+    "movesToInactive": "Pasa a Inactivos",
+    "movesToInactiveBody": "Queda fuera de la lista de miembros, de los selectores de grupos y de los mensajes a miembros. Sus reportes, notas e historial se conservan.",
+    "cancel": "Cancelar",
+    "submit": "Marcar como inactivo"
+  },
+  "LeaderBlockDialog": {
+    "title": "Primero elige un nuevo líder",
+    "body": "{name} dirige el grupo de abajo. Un grupo no puede quedarse sin líder, así que nombra a otra persona como líder y luego vuelve para marcarlo como inactivo.",
+    "bodyMany": "{name} dirige los grupos de abajo. Un grupo no puede quedarse sin líder, así que nombra a otra persona como líder de cada uno y luego vuelve para marcarlo como inactivo.",
+    "changeLeader": "Cambiar líder",
+    "changeLeaderLabel": "Cambiar el líder de {group}",
+    "otherRoles": "Los roles de colíder y miembro no lo impiden. Simplemente sale de esos grupos.",
+    "close": "Cerrar"
+  },
+  "ReactivateMemberDialog": {
+    "title": "Reactivar a {name}",
+    "description": "Vuelve a Miembros como activo desde hoy.",
+    "note": "Nota (opcional)",
+    "notePlaceholder": "Por ejemplo: regresó y volvió a asistir",
+    "signInBack": "Volver a dar acceso",
+    "signInBackBody": "{email} podrá iniciar sesión de nuevo con el rol que tenía ({role}).",
+    "bannedOther": "Esta cuenta fue bloqueada por otro motivo. Adminístrala desde Usuarios.",
+    "groupsNotRestored": "No vuelve a sus grupos pequeños anteriores. Agrégalo a un grupo desde la página del grupo cuando esté listo.",
+    "cancel": "Cancelar",
+    "submit": "Reactivar"
+  },
+  "MemberStatusToast": {
+    "inactive": "{name} marcado como inactivo",
+    "inactiveBanFailed": "Marcado como inactivo, pero no se pudo quitar el acceso",
+    "reactivated": "{name} reactivado",
+    "reactivatedUnbanFailed": "Reactivado, pero no se pudo volver a dar el acceso"
   }
 }

@@ -119,10 +119,16 @@ export async function getApiErrorMessage(
       // which side the detail names; it is only matched, never shown.
       const detail = JSON.stringify(error.body ?? "").toLowerCase();
 
-      if (
-        (error.body as { code?: unknown } | null)?.code === "member_inactive"
-      ) {
-        return t("memberInactive");
+      // The inactive-members 409s carry a machine-readable `code`.
+      switch ((error.body as { code?: unknown } | null)?.code) {
+        case "member_inactive":
+          return t("memberInactive");
+        case "self":
+          return t("memberSelfInactive");
+        case "already_inactive":
+          return t("memberAlreadyInactive");
+        case "already_active":
+          return t("memberAlreadyActive");
       }
 
       if (detail.includes("this member is already linked")) {
@@ -132,6 +138,11 @@ export async function getApiErrorMessage(
       if (detail.includes("this user is already linked")) {
         return t("userAlreadyLinked");
       }
+    }
+
+    // Only the deactivate route has a date a person types (cross-repo spec: 422 for a future date).
+    if (error.status === 422 && error.url.endsWith("/deactivate")) {
+      return t("memberFutureDate");
     }
 
     if (error.status === 404) return t("notFound");
