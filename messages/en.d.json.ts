@@ -193,7 +193,8 @@ declare const messages: {
       "hasLeader": "This group already has a leader. Refresh the page and try again.",
       "alreadyInGroup": "{name} is already in this group.",
       "generic": "Something went wrong. Try again."
-    }
+    },
+    "onlyActive": "Only active members are listed."
   },
   "GroupDetailHeader": {
     "closedOn": "Closed {date}",

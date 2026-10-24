@@ -199,6 +199,9 @@ function AddMemberForm({
                 </ListBox.Item>
               )}
             </ListBox>
+            <p className="border-t border-separator px-3 py-2 text-[13px] text-muted">
+              {t("onlyActive")}
+            </p>
           </ComboBox.Popover>
         </ComboBox>
 
