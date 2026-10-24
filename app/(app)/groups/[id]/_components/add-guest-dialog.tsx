@@ -3,6 +3,7 @@
 import type { GuestSearchItem } from "@/api/guests-api/types";
 import type { MemberOption } from "@/api/members-api/types";
 import type { OtherGroup } from "@/api/small-groups-api/types";
+import type { PhoneParts } from "@/app/(app)/members/_lib/phone-countries";
 import type { Locale } from "@/lib/locale-shared";
 import type { Key, SubmitEvent } from "react";
 
@@ -30,6 +31,11 @@ import {
   searchGuestsAction,
 } from "@/app/(app)/groups/_actions/guest-actions";
 import { listMembersForPickerAction } from "@/app/(app)/groups/_actions/group-actions";
+import { PhoneField } from "@/app/(app)/members/_components/phone-field";
+import {
+  composePhone,
+  DEFAULT_COUNTRY,
+} from "@/app/(app)/members/_lib/phone-countries";
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { formatCalendarDate } from "@/lib/format-date";
 import { normalizeText } from "@/lib/normalize-text";
@@ -407,7 +413,10 @@ function NewGuestStep({
   const [isPending, startTransition] = useTransition();
   const nameRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState(initialName);
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState<PhoneParts>({
+    country: DEFAULT_COUNTRY,
+    number: "",
+  });
   const [firstVisit, setFirstVisit] = useState(joinedAt);
   const [invitedBy, setInvitedBy] = useState<MemberOption | null>(null);
   const [memberInput, setMemberInput] = useState("");
@@ -416,7 +425,7 @@ function NewGuestStep({
   const [nameError, setNameError] = useState(false);
   // Close matches by name and by phone, shown before saving.
   const byName = useGuestSearch(name);
-  const byPhone = useGuestSearch(phone);
+  const byPhone = useGuestSearch(phone.number);
   const matches = useMemo(() => {
     const seen = new Set<number>();
 
@@ -462,7 +471,7 @@ function NewGuestStep({
       const result = await addGuestAction(String(groupId), {
         newGuest: {
           name: name.trim(),
-          ...(phone.trim() && { phone: phone.trim() }),
+          ...(composePhone(phone) && { phone: composePhone(phone) }),
           firstVisitDate: firstVisit,
           ...(invitedBy && { invitedByMemberId: invitedBy.id }),
         },
@@ -546,19 +555,12 @@ function NewGuestStep({
             <p className="text-[13px] text-danger">{t("nameRequired")}</p>
           )}
         </TextField>
-        <TextField
-          fullWidth
-          className="gap-1.5"
+        <PhoneField
+          hasOther={false}
           isDisabled={isPending}
-          type="tel"
           value={phone}
           onChange={setPhone}
-        >
-          <Label className="text-[13px] font-semibold text-heading">
-            {t("phoneLabel")}
-          </Label>
-          <Input autoComplete="off" />
-        </TextField>
+        />
         <GuestDatePicker
           isDisabled={isPending}
           label={t("firstVisitLabel")}
