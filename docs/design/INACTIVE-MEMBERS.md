@@ -55,7 +55,7 @@ in the progress log below.
 | --- | --- | --- |
 | 1. Permission, API client, types, actions | ✅ | see `git log` |
 | 2. Members list | ✅ (visual checks pending) | see `git log` |
-| 3. Member detail: inactive state | ⬜ | |
+| 3. Member detail: inactive state | ✅ (visual checks pending) | see `git log` |
 | 4. Dialogs: mark as inactive, leader block, reactivate | ⬜ | |
 | 5. Group detail picker hint | ⬜ | |
 | 6. Design review fixes | ⬜ | |
@@ -76,6 +76,15 @@ in the progress log below.
   rendered) without `members: setStatus`, since the API sends no reason. Dates use
   `formatCalendarDate` (date-only, no time-zone shift), not `LocalDate`. `InitialsAvatar` got a
   `muted` prop and `DataTablePrimaryCell` got `badge` / `mutedAvatar`.
+- **Stage 3.** Left for stage 4 so nothing ships as a dead button: the banner's *Reactivate…*,
+  and the *Mark as inactive* danger section (both open the stage 4 dialogs). The banner already
+  hides the reason without `setStatus`. *Turn off sign-in* is live now (it is the same `banUser`
+  call the dialog will make) and shows only when the caller has `user: ban` and isn't the user.
+  The *Sign-in off* explanation says "turned off on {date}" using the member's *left* date, since
+  auth-server doesn't expose when the ban happened; a ban with another reason gets a different
+  line (`signInOffOther`) instead of claiming we did it. History falls back to the changing
+  user's name from the user list when no member is linked to them (`loadStatusHistory`).
+  An invited-but-inactive member keeps *Cancel invite* but loses *Link*.
 - **Not verified visually yet:** membership-management and auth-server weren't running in the
   session, so light/dark, 1440 / 1024 / 390 and English/Spanish checks of stages 2 onward are still
   to do (design review, stage 6). `pnpm lint` and `tsc` pass.

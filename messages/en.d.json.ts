@@ -1158,7 +1158,11 @@ declare const messages: {
     "joined": "Joined {date}",
     "leader": "Led by {name}",
     "emptyTitle": "Not in a small group yet",
-    "emptyBody": "Groups and roles show up here when they join one."
+    "emptyBody": "Groups and roles show up here when they join one.",
+    "pastTitle": "Past groups",
+    "endedInactive": "{from} – {to} · Ended when marked inactive",
+    "pastEmptyTitle": "No past groups",
+    "pastEmptyBody": "They weren't in a small group when they were marked inactive."
   },
   "SmallGroupRole": {
     "leader": "Leader",
@@ -1243,7 +1247,11 @@ declare const messages: {
     "verified": "Email verified",
     "notVerified": "Email not verified",
     "signedUp": "Account created {date}",
-    "goToAccess": "Go to sign-in access"
+    "goToAccess": "Go to sign-in access",
+    "signInOffBody": "Sign-in was turned off on {date}, when {name} was marked inactive. Reactivating can turn it back on.",
+    "signInOffOther": "This account was banned for another reason. Manage it from Users.",
+    "signInStillOn": "Sign-in is still on. Turn it off so they can't sign in.",
+    "inactiveNoAccount": "Inactive members can't be invited or linked. Reactivate them first to give them sign-in access."
   },
   "AccountStatus": {
     "linked": "Linked",
@@ -1290,7 +1298,9 @@ declare const messages: {
     "unlinkBody": "{user} will no longer be linked to {member}. They keep their account and role, and {member} keeps their profile and small groups. A Small Group Leader or Deacon will no longer see any of this member's groups.",
     "unlinkConfirm": "Unlink",
     "unlinkToast": "Unlinked from {name}",
-    "unknownUser": "This account"
+    "unknownUser": "This account",
+    "turnOffSignIn": "Turn off sign-in",
+    "turnOffToast": "Sign-in turned off for {name}"
   },
   "UserDetail": {
     "eyebrow": "User",
@@ -1627,6 +1637,20 @@ declare const messages: {
       "deceased": "Deceased",
       "other": "Other"
     }
+  },
+  "MemberInactiveBanner": {
+    "title": "{name} is an inactive member",
+    "body": "Left {date} · <strong>{reason}</strong>. They're not in any small group, can't sign in, and are left out of member lists and messages. Their history stays below.",
+    "bodyNoReason": "Left {date}. They're not in any small group, can't sign in, and are left out of member lists and messages. Their history stays below."
+  },
+  "MemberStatusCard": {
+    "historyEyebrow": "Membership",
+    "historyTitle": "Status history",
+    "markedInactive": "Marked inactive",
+    "reactivated": "Reactivated",
+    "by": "{date} · by {name}",
+    "someone": "Someone",
+    "privateHint": "Only admins and elders see reasons and notes."
   }
 };
 export default messages;
