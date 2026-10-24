@@ -219,7 +219,7 @@ export default function MembersBrowser({
         />
       </div>
 
-      <div className="grid gap-3 md:hidden">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:hidden">
         {visible.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted">{emptyLine}</p>
         ) : (
