@@ -89,7 +89,8 @@ export async function loadMemberAccount(
   const status = getAccountStatus(member, invites);
   let suggestedUser: MemberAccount["suggestedUser"] = null;
 
-  if (status === "none" && member.email) {
+  // An inactive member can't be linked, so the card shows no suggestion: skip the two calls.
+  if (status === "none" && member.email && member.status === "active") {
     const [{ users }, members] = await Promise.all([
       listUsers(cookie),
       listMembers("all"),

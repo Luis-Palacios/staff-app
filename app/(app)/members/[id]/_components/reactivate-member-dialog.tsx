@@ -16,7 +16,10 @@ import {
 } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
-import { reactivateMemberAction } from "@/app/(app)/members/_actions/status-actions";
+import {
+  reactivateMemberAction,
+  refreshMemberStatusPagesAction,
+} from "@/app/(app)/members/_actions/status-actions";
 import { authClient } from "@/lib/auth/auth-client";
 import { MEMBER_INACTIVE_BAN_REASON } from "@/lib/members/inactive";
 
@@ -89,6 +92,7 @@ function ReactivateForm({
       unbanFailed = !!unbanError;
     }
 
+    await refreshMemberStatusPagesAction(String(member.id));
     onDone({ unbanFailed });
   }
 
