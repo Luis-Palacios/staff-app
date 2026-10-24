@@ -185,7 +185,7 @@ function DeactivateForm({
           <p className="text-[13px] text-muted">{t("noteHint")}</p>
         </TextField>
 
-        <div className="flex flex-col gap-3 rounded-xl bg-surface-secondary px-4 py-3.5">
+        <div className="flex flex-col gap-3 rounded-xl border border-separator bg-surface-secondary px-4 py-3.5">
           <p className="text-[13px] font-semibold text-heading">
             {t("whatHappens")}
           </p>
