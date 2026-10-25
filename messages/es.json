@@ -703,6 +703,7 @@
     "copy": "Copiar para WhatsApp",
     "copyAria": "Copiar para WhatsApp: {group}",
     "copyAll": "Copiar todas para WhatsApp",
+    "copyMatching": "Copiar coincidencias para WhatsApp",
     "copied": "Copiada para WhatsApp",
     "copiedAll": "Peticiones copiadas para WhatsApp",
     "copiedNote": "Revisa los nombres y detalles antes de compartirla.",
