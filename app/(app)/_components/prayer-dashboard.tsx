@@ -182,7 +182,6 @@ async function PrayerWeek({
         allLabel={t("filterAll")}
         chips={perSection((key) => ({
           label: t(FILTER_LABELS[key]),
-          count: bySection[key].length,
         }))}
         label={t("filterLabel")}
         noMatches={t("searchNoMatches")}

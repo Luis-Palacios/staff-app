@@ -3,7 +3,7 @@ import type {
   ReportSharedEntry,
 } from "@/api/small-groups-api/types";
 import type { Locale } from "@/lib/locale-shared";
-import type { PrayerSectionView } from "./prayer-section";
+import type { PrayerSectionView } from "./prayer-types";
 
 import clsx from "clsx";
 import NextLink from "next/link";
@@ -100,6 +100,7 @@ export async function buildPrayerSection({
     title: sectionTitle,
     subtitle: t(scoped ? config.subLeader : config.sub),
     emptyText: t(isCurrentWeek ? config.emptyThis : config.emptyPast),
+    activeReportId,
     groupCounts: Array.from({ length: entries.length + 1 }, (_, n) =>
       t("groupCount", { n }),
     ),
@@ -108,6 +109,7 @@ export async function buildPrayerSection({
         ? {
             weekRange: formatCalendarRange(weekStart, weekEnd, locale),
             label: t("copyAll"),
+            matchingLabel: t("copyMatching"),
             copied: t("copiedAll"),
             note: t("copiedNote"),
             failed: t("copyFailed"),
@@ -116,7 +118,10 @@ export async function buildPrayerSection({
     entries: entries.map(({ entry, text }) => ({
       reportId: entry.reportId,
       searchText: normalizeText(
-        `${entry.smallGroup.name} ${entry.leaders.map((leader) => leader.name).join(" ")}`,
+        [
+          entry.smallGroup.name,
+          ...entry.leaders.map((leader) => leader.name),
+        ].join("\n"),
       ),
       whatsApp: {
         group: entry.smallGroup.name,

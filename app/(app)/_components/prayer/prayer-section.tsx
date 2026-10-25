@@ -1,10 +1,11 @@
-import type { ReportSectionKey } from "@/api/small-groups-api/types";
-import type { ReactNode } from "react";
-import type { WhatsAppEntry } from "./whatsapp-text";
+"use client";
+
+import type { PrayerSectionView } from "./prayer-types";
 
 import { Fragment } from "react";
 
 import { CopyForWhatsApp } from "./copy-for-whatsapp";
+import { filterPrayerEntries } from "./prayer-types";
 import { whatsappAllText } from "./whatsapp-text";
 
 import { card, title } from "@/components/primitives";
@@ -12,32 +13,6 @@ import {
   REPORT_SECTION_TONES,
   ReportSectionTile,
 } from "@/components/report-section-tile";
-
-export interface PrayerSectionEntryView {
-  reportId: number;
-  /** Normalized group and leader names for client-side search. */
-  searchText: string;
-  whatsApp: WhatsAppEntry;
-  node: ReactNode;
-}
-
-export interface PrayerSectionView {
-  section: ReportSectionKey;
-  title: string;
-  subtitle: string;
-  emptyText: string;
-  /** Formatted group counts for 0..entries.length ("0 groups", "1 group", …). */
-  groupCounts: string[];
-  /** Present on sections that support *Copy all for WhatsApp* (Prayer requests). */
-  copyAll?: {
-    weekRange: string;
-    label: string;
-    copied: string;
-    note: string;
-    failed: string;
-  };
-  entries: PrayerSectionEntryView[];
-}
 
 /** One of the three cards: icon tile, title with its count, a line on what it holds, the entries. */
 export function PrayerSection({
@@ -51,9 +26,7 @@ export function PrayerSection({
 }) {
   const { section, entries } = view;
   const headingId = `prayer-section-${section}`;
-  const visible = normalizedQuery
-    ? entries.filter((item) => item.searchText.includes(normalizedQuery))
-    : entries;
+  const visible = filterPrayerEntries(view, normalizedQuery);
   const copyAll = view.copyAll && visible.length >= 2 ? view.copyAll : null;
 
   return (
@@ -90,7 +63,7 @@ export function PrayerSection({
           <CopyForWhatsApp
             copied={copyAll.copied}
             failed={copyAll.failed}
-            label={copyAll.label}
+            label={normalizedQuery ? copyAll.matchingLabel : copyAll.label}
             note={copyAll.note}
             text={whatsappAllText(
               view.title,
@@ -103,7 +76,7 @@ export function PrayerSection({
 
       {visible.length === 0 ? (
         <p className="border-t border-separator px-4 pb-[22px] pt-4 text-sm italic text-muted md:px-[22px]">
-          {normalizedQuery ? noMatches : view.emptyText}
+          {entries.length > 0 ? noMatches : view.emptyText}
         </p>
       ) : (
         <ul>

@@ -706,6 +706,7 @@ declare const messages: {
     "copy": "Copy for WhatsApp",
     "copyAria": "Copy for WhatsApp: {group}",
     "copyAll": "Copy all for WhatsApp",
+    "copyMatching": "Copy matching for WhatsApp",
     "copied": "Copied for WhatsApp",
     "copiedAll": "Prayer requests copied for WhatsApp",
     "copiedNote": "Check names and details before you share it.",

@@ -2,7 +2,7 @@
 
 import type { ReportSectionKey } from "@/api/small-groups-api/types";
 import type { ReactNode } from "react";
-import type { PrayerSectionView } from "./prayer-section";
+import type { PrayerSectionView } from "./prayer-types";
 
 import { useMemo, useState } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -10,6 +10,7 @@ import { InputGroup, TextField } from "@heroui/react";
 import clsx from "clsx";
 
 import { PrayerSection } from "./prayer-section";
+import { filterPrayerEntries } from "./prayer-types";
 
 import { normalizeText } from "@/lib/normalize-text";
 
@@ -35,7 +36,7 @@ export function PrayerFilter({
   /** The group's accessible name ("Show"). */
   label: string;
   allLabel: string;
-  chips: Record<ReportSectionKey, { label: string; count: number }>;
+  chips: Record<ReportSectionKey, { label: string }>;
   searchLabel: string;
   searchPlaceholder: string;
   noMatches: string;
@@ -46,10 +47,25 @@ export function PrayerFilter({
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   const normalizedQuery = useMemo(() => normalizeText(query), [query]);
+  // The chips count what the search leaves, like each card's own badge.
+  const counts = {
+    prayer: filterPrayerEntries(sections.prayer, normalizedQuery).length,
+    praise: filterPrayerEntries(sections.praise, normalizedQuery).length,
+    followUp: filterPrayerEntries(sections.followUp, normalizedQuery).length,
+  };
   const options: { key: Filter; label: string; count?: number }[] = [
     { key: "all", label: allLabel },
-    ...SECTION_ORDER.map((key) => ({ key, ...chips[key] })),
+    ...SECTION_ORDER.map((key) => ({
+      key,
+      label: chips[key].label,
+      count: counts[key],
+    })),
   ];
+  const shown = SECTION_ORDER.filter(
+    (key) => filter === "all" || filter === key,
+  );
+  const noResults =
+    normalizedQuery !== "" && shown.every((key) => counts[key] === 0);
 
   return (
     <>
@@ -95,6 +111,9 @@ export function PrayerFilter({
             type="search"
             value={query}
             onChange={setQuery}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") setQuery("");
+            }}
           >
             <InputGroup className="h-10 w-full">
               <InputGroup.Prefix className="border-0 pl-3 pr-2">
@@ -111,6 +130,9 @@ export function PrayerFilter({
           </TextField>
         </div>
         {note}
+        <p aria-live="polite" className="sr-only" role="status">
+          {noResults ? noMatches : ""}
+        </p>
       </div>
       {SECTION_ORDER.map((key) => (
         <div key={key} hidden={filter !== "all" && filter !== key}>
