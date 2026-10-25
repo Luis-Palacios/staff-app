@@ -13,9 +13,9 @@ import { parseWeekParam } from "../_lib/week-param";
 
 import { TodayDate } from "./dashboard-greeting";
 import { NoGroupsCard } from "./no-groups-card";
+import { buildPrayerSection, sectionEntries } from "./prayer/prayer-entry";
 import { PrayerFilter } from "./prayer/prayer-filter";
 import { prayerPanel } from "./prayer/prayer-panel";
-import { PrayerSection, sectionEntries } from "./prayer/prayer-section";
 import { PrayerSkeleton } from "./prayer/prayer-skeleton";
 import { StillToReportNote } from "./prayer/still-to-report-note";
 import { WeekStepper } from "./report-week/week-stepper";
@@ -123,6 +123,22 @@ async function PrayerWeek({
         })
       : null;
   const bySection = perSection((key) => sectionEntries(entries, key));
+  const [prayer, praise, followUp] = await Promise.all(
+    (["prayer", "praise", "followUp"] as const).map((key) =>
+      buildPrayerSection({
+        activeReportId:
+          panel && open?.section === key ? open.reportId : undefined,
+        conversationHref: conversationHref(key),
+        entries: bySection[key],
+        isCurrentWeek,
+        scoped,
+        section: key,
+        weekEnd,
+        weekStart,
+      }),
+    ),
+  );
+  const sections = { prayer, praise, followUp };
 
   return (
     // Room for the panel at 1024 and up, as on Report detail.
@@ -169,6 +185,7 @@ async function PrayerWeek({
           count: bySection[key].length,
         }))}
         label={t("filterLabel")}
+        noMatches={t("searchNoMatches")}
         note={
           <StillToReportNote
             groups={shared.stillToReport}
@@ -177,20 +194,9 @@ async function PrayerWeek({
             scoped={scoped}
           />
         }
-        sections={perSection((key) => (
-          <PrayerSection
-            activeReportId={
-              panel && open?.section === key ? open.reportId : undefined
-            }
-            conversationHref={conversationHref(key)}
-            entries={bySection[key]}
-            isCurrentWeek={isCurrentWeek}
-            scoped={scoped}
-            section={key}
-            weekEnd={weekEnd}
-            weekStart={weekStart}
-          />
-        ))}
+        searchLabel={t("searchLabel")}
+        searchPlaceholder={t("searchPlaceholder")}
+        sections={sections}
       />
       {panel}
     </div>

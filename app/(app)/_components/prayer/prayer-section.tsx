@@ -1,13 +1,10 @@
-import type {
-  ReportSectionKey,
-  ReportSharedEntry,
-} from "@/api/small-groups-api/types";
-import type { Locale } from "@/lib/locale-shared";
+import type { ReportSectionKey } from "@/api/small-groups-api/types";
+import type { ReactNode } from "react";
+import type { WhatsAppEntry } from "./whatsapp-text";
 
-import { useLocale, useTranslations } from "next-intl";
+import { Fragment } from "react";
 
 import { CopyForWhatsApp } from "./copy-for-whatsapp";
-import { PrayerEntry } from "./prayer-entry";
 import { whatsappAllText } from "./whatsapp-text";
 
 import { card, title } from "@/components/primitives";
@@ -15,82 +12,49 @@ import {
   REPORT_SECTION_TONES,
   ReportSectionTile,
 } from "@/components/report-section-tile";
-import {
-  formatCalendarRange,
-  formatCalendarShortWeekdayDate,
-} from "@/lib/format-date";
 
-const SECTIONS = {
-  prayer: {
-    title: "prayerTitle",
-    sub: "prayerSub",
-    subLeader: "prayerSubLeader",
-    emptyThis: "emptyPrayerThis",
-    emptyPast: "emptyPrayerPast",
-    copy: "one-and-all",
-  },
-  praise: {
-    title: "praiseTitle",
-    sub: "praiseSub",
-    subLeader: "praiseSub",
-    emptyThis: "emptyPraiseThis",
-    emptyPast: "emptyPraisePast",
-    copy: "one",
-  },
-  followUp: {
-    title: "followUpTitle",
-    sub: "followUpSub",
-    subLeader: "followUpSubLeader",
-    emptyThis: "emptyFollowUpThis",
-    emptyPast: "emptyFollowUpPast",
-    // Internal pastoral items: never copied (rule 12).
-    copy: "none",
-  },
-} as const satisfies Record<ReportSectionKey, unknown>;
+export interface PrayerSectionEntryView {
+  reportId: number;
+  /** Normalized group and leader names for client-side search. */
+  searchText: string;
+  whatsApp: WhatsAppEntry;
+  node: ReactNode;
+}
 
-/** The entries of `section` that have its text, in the API's order (rules 7–8). */
-export function sectionEntries(
-  entries: ReportSharedEntry[],
-  section: ReportSectionKey,
-): { entry: ReportSharedEntry; text: string }[] {
-  return entries.flatMap((entry) => {
-    const text = entry[section];
-
-    return text ? [{ entry, text }] : [];
-  });
+export interface PrayerSectionView {
+  section: ReportSectionKey;
+  title: string;
+  subtitle: string;
+  emptyText: string;
+  /** Formatted group counts for 0..entries.length ("0 groups", "1 group", …). */
+  groupCounts: string[];
+  /** Present on sections that support *Copy all for WhatsApp* (Prayer requests). */
+  copyAll?: {
+    weekRange: string;
+    label: string;
+    copied: string;
+    note: string;
+    failed: string;
+  };
+  entries: PrayerSectionEntryView[];
 }
 
 /** One of the three cards: icon tile, title with its count, a line on what it holds, the entries. */
 export function PrayerSection({
-  section,
-  entries,
-  weekStart,
-  weekEnd,
-  isCurrentWeek,
-  scoped,
-  conversationHref,
-  activeReportId,
+  view,
+  normalizedQuery,
+  noMatches,
 }: {
-  section: ReportSectionKey;
-  entries: { entry: ReportSharedEntry; text: string }[];
-  /** The week, for *Copy all*'s title. */
-  weekStart: string;
-  weekEnd: string;
-  isCurrentWeek: boolean;
-  /** A leader's view: the description speaks of "your groups". */
-  scoped: boolean;
-  /** The link that opens an entry's thread here, or none when the caller can't see it. */
-  conversationHref: (entry: ReportSharedEntry) => string | undefined;
-  /** The report whose panel is open on this section, if any. */
-  activeReportId?: number;
+  view: PrayerSectionView;
+  normalizedQuery: string;
+  noMatches: string;
 }) {
-  const t = useTranslations("PrayerDashboard");
-  const config = SECTIONS[section];
-  const locale = useLocale() as Locale;
+  const { section, entries } = view;
   const headingId = `prayer-section-${section}`;
-  const sectionTitle = t(config.title);
-  const copyTitle = config.copy === "none" ? undefined : sectionTitle;
-  const copyAll = config.copy === "one-and-all" && entries.length >= 2;
+  const visible = normalizedQuery
+    ? entries.filter((item) => item.searchText.includes(normalizedQuery))
+    : entries;
+  const copyAll = view.copyAll && visible.length >= 2 ? view.copyAll : null;
 
   return (
     <section
@@ -112,54 +76,39 @@ export function PrayerSection({
               })}
               id={headingId}
             >
-              {sectionTitle}
+              {view.title}
               <span
                 className={`rounded-full px-[9px] py-0.5 font-sans text-[13px] font-semibold tracking-normal ${REPORT_SECTION_TONES[section]}`}
               >
-                {t("groupCount", { n: entries.length })}
+                {view.groupCounts[visible.length]}
               </span>
             </h2>
-            <p className="text-[13.5px] text-muted">
-              {t(scoped ? config.subLeader : config.sub)}
-            </p>
+            <p className="text-[13.5px] text-muted">{view.subtitle}</p>
           </div>
         </div>
         {copyAll && (
           <CopyForWhatsApp
-            copied={t("copiedAll")}
-            failed={t("copyFailed")}
-            label={t("copyAll")}
-            note={t("copiedNote")}
+            copied={copyAll.copied}
+            failed={copyAll.failed}
+            label={copyAll.label}
+            note={copyAll.note}
             text={whatsappAllText(
-              sectionTitle,
-              formatCalendarRange(weekStart, weekEnd, locale),
-              entries.map(({ entry, text }) => ({
-                group: entry.smallGroup.name,
-                date: formatCalendarShortWeekdayDate(entry.meetingDate, locale),
-                text,
-              })),
+              view.title,
+              copyAll.weekRange,
+              visible.map((item) => item.whatsApp),
             )}
           />
         )}
       </div>
 
-      {entries.length === 0 ? (
+      {visible.length === 0 ? (
         <p className="border-t border-separator px-4 pb-[22px] pt-4 text-sm italic text-muted md:px-[22px]">
-          {t(isCurrentWeek ? config.emptyThis : config.emptyPast)}
+          {normalizedQuery ? noMatches : view.emptyText}
         </p>
       ) : (
         <ul>
-          {entries.map(({ entry, text }) => (
-            <PrayerEntry
-              key={entry.reportId}
-              conversationHref={conversationHref(entry)}
-              copyTitle={copyTitle}
-              entry={entry}
-              focused={entry.reportId === activeReportId}
-              section={section}
-              sectionTitle={sectionTitle}
-              text={text}
-            />
+          {visible.map((item) => (
+            <Fragment key={item.reportId}>{item.node}</Fragment>
           ))}
         </ul>
       )}

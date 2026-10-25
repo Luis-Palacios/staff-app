@@ -13,10 +13,13 @@ export function PrayerSkeleton() {
         </div>
         <Skeleton className="h-[46px] w-56 rounded-xl" />
       </div>
-      <div className="flex flex-wrap gap-2">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="h-10 w-28 rounded-full" />
-        ))}
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <div className="flex flex-wrap gap-2">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-10 w-28 rounded-full" />
+          ))}
+        </div>
+        <Skeleton className="h-10 w-full rounded-xl sm:w-[280px]" />
       </div>
       <div className={card({ className: "flex flex-col gap-5 p-[22px]" })}>
         <div className="flex items-center gap-3.5">
