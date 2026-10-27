@@ -102,10 +102,15 @@ what changed and anything that differs from the canvas in the progress log below
 
 **Where to resume (Part 1 is functionally done; check this before starting Part 2):**
 
-- Not exercised yet: touch (`(hover: none)`), an elder session, 422 `items` (the form caps at 20
-  items and 10 tags first, so the UI can't reach it) and the design review checklist against the
-  canvas boards. Checked on Oct 27, see "Final checks of Part 1" below.
-- Then Part 2 on a new `person-timeline` branch from stage 6; it needs the API's stages 6–7 running.
+- Still open: touch (`(hover: none)`, needs a real phone or tablet), an elder session, and the
+  design review checklist against the canvas boards (Claude Design is doing the canvas comparison;
+  record its findings in the progress log). 422 `items` can't be reached from the UI (the form caps at
+  20 items and 10 tags first), so it isn't a check. Everything else was checked on Oct 27, see
+  "Final checks of Part 1" and "Legacy banner removed" below.
+- Nothing needs setting at deploy: the `ITEMS_SINCE` date is gone. The API's stage 5 (dropping the old
+  text fields) must come after Part 1 is deployed.
+- Then Part 2 on a new `person-timeline` branch from stage 6. It needs the API's stages 6–7 first
+  (timeline service and routes, still ⬜ in `membership-management`), done in a separate session there.
 
 **Checking in the browser (the work happens on both a Mac and a Windows machine):**
 
