@@ -102,7 +102,6 @@ what changed and anything that differs from the canvas in the progress log below
 
 **Where to resume (Part 1 is functionally done; check this before starting Part 2):**
 
-- Set the real deploy date in `ITEMS_SINCE` (`_lib/items-since.ts`).
 - Not exercised yet: touch (`(hover: none)`), an elder session, 422 `items` (the form caps at 20
   items and 10 tags first, so the UI can't reach it) and the design review checklist against the
   canvas boards. Checked on Oct 27, see "Final checks of Part 1" below.
@@ -172,9 +171,8 @@ what changed and anything that differs from the canvas in the progress log below
   at-symbol icon) then three stacked `ReportItemsField`s; list step and edit: `grid`. The picker's
   roster comes from `tagContextOf` (people on the report plus their current answers, so a guest added
   mid-flow can be tagged at once). `group-fields.tsx` is deleted. Edit form: items from
-  `report.sections`; the legacy banner (warning-soft) shows when the report has items, none tagged and
-  `submittedAt < ITEMS_SINCE`. **`ITEMS_SINCE` is `"2026-10-27"` in `_lib/items-since.ts`: set it to the
-  real deploy date.** The stage 1 shim (strings ⇄ items) is gone, so editing a tagged report keeps its tags.
+  `report.sections`. (The legacy banner and its `ITEMS_SINCE` date were removed on Oct 27: see
+  "Legacy banner removed" below.) The stage 1 shim (strings ⇄ items) is gone, so editing a tagged report keeps its tags.
 - **Stage 4, not verified against the API.** The local API is the `report-tags` branch, but the dev
   database is still at migration `e73b39f55d6b` (branch head is `c19ca7f78d85`), so
   `GET /small-group-reports/{id}` answers 500 there. I didn't migrate your dev database. Create / edit /
@@ -243,14 +241,19 @@ what changed and anything that differs from the canvas in the progress log below
   at 400 px, the picker as a bottom sheet at 400 px. As a member-group co-leader (GP - #1; I added them
   by inserting a `small_group_members` row in the dev DB): create with quick list, church-wide `@`
   search, chips disambiguated (*Kevin Ú.* / *Kevin M.*, rule 11), save, edit round trip keeps the tags and
-  shows no legacy banner, and a member of another group and a guest outside their scope are plain chips
+  shows no banner, and a member of another group and a guest outside their scope are plain chips
   (rule 12). As a guest-group leader (Nuevos Comienzos): the guest in their group is a link
   (`/guests/<id>`), the roster picker lists *At this meeting* with the group's name for guests, and
   editing and saving a tagged item works. **Changed:** a paste with more lines than the section has room
   for used to merge the overflow into the last item that fits (`punto 20punto 21…`); now the whole paste
   is refused and the `limitItems` text shows (`role="status"`) until the list changes. Test data left in
   the dev DB: reports 53 (GP - #1) and an added praise item on report 52, and the co-leader row. Still
-  open: touch, elder session, canvas comparison, and `ITEMS_SINCE` (needs the real deploy date).
+  open: touch, elder session and the canvas comparison.
+- **Legacy banner removed (Oct 27).** The edit form no longer says that an older report "came over as
+  one item per line" (`ReportItems.legacyBanner`, `ITEMS_SINCE`, `_lib/items-since.ts`): with a few
+  users and two weeks of reports it wasn't worth a date to set at deploy. Older reports still open as
+  one untagged item per line. If a large import ever needs the note back, have the API backfill mark
+  converted reports instead of comparing dates.
 - **Width.** The edit form, the list step and the review wrapper no longer cap at 1000 px (they follow
   the shell's `max-w-7xl`), so the three item columns are ~334 px each at 1792 instead of ~165. The
   meeting and group steps keep their 720 px. Reported by the user while reviewing.
@@ -391,11 +394,7 @@ All from `membership-management/docs/REPORT-TAGS-API-HANDOFF.md` and the spec's 
   `withPersonKeys` migrates older answers. Drafts with tags keep the person's full name too, so the
   chip renders before any request.
 - `toReportInput` sends `sections`, dropping empty items, never the old fields.
-- **Edit form:** items come from `report.sections`. When every item of the report is untagged
-  **and** the report was submitted before this feature shipped, show the banner (warning-soft):
-  *This report was written before items and tags, so each section came over as one item per line.
-  Press Enter inside an item to split it, and tag people if it helps. Nothing changes until you
-  save.* Use `submittedAt` < a constant `ITEMS_SINCE` date set when this ships (note it in
+- **Edit form:** items come from `report.sections`. No banner for older reports (dropped, see
   *Decisions*). Elders editing use the same form (board `ReportForm-Tags-Edit-Elder`).
 - Errors: 422 `tag` / `items` show as the form's error toast with the message keys above; the form
   keeps the draft.
@@ -522,7 +521,6 @@ that's simpler (CLAUDE.md, *Adding UI text*).
 | `ReportItems.footer` | Not listed? Leave it as plain text. ↑ ↓ to move, Enter to tag, Esc to close. | ¿No aparece? Déjalo como texto. ↑ ↓ para moverte, Enter para etiquetar, Esc para cerrar. |
 | `ReportItems.footerPhone` | Not listed? Leave the name as plain text. Members of any group and guests can be tagged. | ¿No aparece? Deja el nombre como texto. Puedes etiquetar miembros de cualquier grupo e invitados. |
 | `ReportItems.limitItems` | Up to 20 items per section. | Hasta 20 puntos por sección. |
-| `ReportItems.legacyBanner` | This report was written before items and tags, so each section came over as one item per line. Press Enter inside an item to split it, and tag people if it helps. Nothing changes until you save. | Este reporte se escribió antes de los puntos y las etiquetas, así que cada sección quedó como un punto por línea. Presiona Enter dentro de un punto para dividirlo y etiqueta a las personas si ayuda. Nada cambia hasta que guardes. |
 | `ReportItems.errorTag` | Someone you tagged can't be tagged any more. Remove the tag and try again. | Alguien que etiquetaste ya no se puede etiquetar. Quita la etiqueta e inténtalo de nuevo. |
 | `ReportItems.errorLimit` | A section has too many items or an item has too many tags. | Una sección tiene demasiados puntos o un punto tiene demasiadas etiquetas. |
 | `PersonTabs.profile` / `timeline` | Profile / Timeline | Perfil / Historial |

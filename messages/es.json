@@ -1737,7 +1737,6 @@
     "searchError": "No se pudo buscar ahora. Inténtalo de nuevo.",
     "searching": "Buscando…",
     "close": "Cerrar",
-    "tip": "Un punto por petición: presiona Enter para empezar el siguiente. Escribe @ o usa el botón @ de la fila para etiquetar a un miembro o invitado, de cualquier grupo.",
-    "legacyBanner": "Este reporte se escribió antes de los puntos y las etiquetas, así que cada sección quedó como un punto por línea. Presiona Enter dentro de un punto para dividirlo y etiqueta a las personas si ayuda. Nada cambia hasta que guardes."
+    "tip": "Un punto por petición: presiona Enter para empezar el siguiente. Escribe @ o usa el botón @ de la fila para etiquetar a un miembro o invitado, de cualquier grupo."
   }
 }
