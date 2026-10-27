@@ -3,7 +3,13 @@
 import type {
   GroupAudience,
   ReportRosterPerson,
+  ReportSectionKey,
 } from "@/api/small-groups-api/types";
+import type {
+  DraftItem,
+  DraftItems,
+} from "@/app/(app)/groups/reports/_lib/report-items-draft";
+import type { TagContext } from "@/app/(app)/groups/reports/_lib/report-tags";
 import type { ReportDraftAnswer } from "@/app/(app)/groups/reports/_lib/report-draft";
 import type { ReactNode } from "react";
 import type { Locale } from "@/lib/locale-shared";
@@ -19,7 +25,7 @@ import { Label, TextArea, TextField } from "@heroui/react";
 import clsx from "clsx";
 import { useLocale, useTranslations } from "next-intl";
 
-import { GroupFields, type GroupTextField } from "./group-fields";
+import { ReportItemsFields } from "./report-items-field";
 import {
   type ReportGuestControls,
   SomeoneNewButton,
@@ -260,11 +266,12 @@ export function ReportListStep({
   shortSundayLabel,
   observationsVisible,
   tintUnanswered,
-  groupValues,
+  items,
+  tagContext,
   audience,
   guests,
   onAnswer,
-  onGroupText,
+  onItems,
   footer,
 }: {
   /** In display order: a guest group lists its guests first. */
@@ -275,13 +282,14 @@ export function ReportListStep({
   shortSundayLabel: string;
   observationsVisible: boolean;
   tintUnanswered: boolean;
-  groupValues: Record<GroupTextField, string>;
+  items: DraftItems;
+  tagContext: TagContext;
   /** A guest group splits the list into Guests and Leaders and members. */
   audience: GroupAudience;
   guests: ReportGuestControls | null;
   /** `key` is the person's `personKey`. */
   onAnswer: (key: string, patch: Partial<ReportDraftAnswer>) => void;
-  onGroupText: (field: GroupTextField, value: string) => void;
+  onItems: (section: ReportSectionKey, items: DraftItem[]) => void;
   footer: ReactNode;
 }) {
   const t = useTranslations("ReportForm");
@@ -430,10 +438,11 @@ export function ReportListStep({
             {t("groupTitle")}
           </h2>
         </div>
-        <GroupFields
+        <ReportItemsFields
+          items={items}
           layout="grid"
-          values={groupValues}
-          onChange={onGroupText}
+          tagContext={tagContext}
+          onChange={onItems}
         />
       </section>
 
