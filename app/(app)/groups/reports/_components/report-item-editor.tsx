@@ -456,7 +456,11 @@ export function ReportItemEditor({
     if (picker?.mode === "at" && !isPhone) {
       dom.setAttribute("aria-haspopup", "listbox");
       dom.setAttribute("aria-expanded", "true");
-      dom.setAttribute("aria-controls", activeId?.replace(/-\d+$/, "") ?? "");
+
+      const listId = activeId?.replace(/-\d+$/, "");
+
+      if (listId) dom.setAttribute("aria-controls", listId);
+      else dom.removeAttribute("aria-controls");
 
       if (activeId) dom.setAttribute("aria-activedescendant", activeId);
     } else {

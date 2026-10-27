@@ -23,6 +23,8 @@ export async function searchTaggablePeopleAction(
 ): Promise<TagSearchResult> {
   const text = query.trim();
 
+  if (!Number.isInteger(groupId) || groupId <= 0) return { ok: false };
+
   if (text.length < MIN_QUERY_LENGTH) return { ok: true, people: [] };
 
   const [canCreate, canUpdate] = await Promise.all([
