@@ -440,7 +440,6 @@ export function ReportListStep({
         </div>
         <ReportItemsFields
           items={items}
-          layout="grid"
           tagContext={tagContext}
           onChange={onItems}
         />

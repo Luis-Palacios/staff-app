@@ -75,7 +75,6 @@ export function GroupStep({
         </p>
         <ReportItemsFields
           items={items}
-          layout="stacked"
           tagContext={tagContext}
           onChange={onChange}
         />

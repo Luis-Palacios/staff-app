@@ -5,9 +5,10 @@ import type { Node as ProseNode } from "@tiptap/pm/model";
 import type { DraftSegment } from "@/app/(app)/groups/reports/_lib/report-items-draft";
 import type { TagContext } from "@/app/(app)/groups/reports/_lib/report-tags";
 import type { PersonKey } from "@/lib/report-items";
+import type { ReactNode } from "react";
 import type { PickerKeys } from "./tag-picker";
 
-import { UserPlusIcon } from "@heroicons/react/24/outline";
+import { AtSymbolIcon } from "@heroicons/react/24/outline";
 import { Extension } from "@tiptap/core";
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
@@ -40,6 +41,14 @@ import {
   TAGS_MAX,
   toPersonKey,
 } from "@/lib/report-items";
+
+/**
+ * A row button (tag, remove): 40 px, hidden until the row is hovered or has focus, but still in the
+ * tab order and shown once focused or while its picker is open. Touch has no hover, so it stays
+ * visible there, at 44 px. The row is the `group/row` that the parent `<li>` provides.
+ */
+export const ROW_BUTTON =
+  "flex size-10 shrink-0 items-center justify-center rounded-[10px] text-muted opacity-0 hover:bg-surface-secondary hover:text-heading focus-visible:opacity-100 aria-expanded:opacity-100 group-hover/row:opacity-100 group-focus-within/row:opacity-100 [@media(hover:none)]:size-11 [@media(hover:none)]:opacity-100";
 
 /** The quiet "n / 1024" counter shows from here, as the old text field's did. */
 const COUNTER_FROM = 900;
@@ -206,6 +215,7 @@ export function ReportItemEditor({
   canBreak,
   focusRequest,
   tagging,
+  trailing,
   onChange,
   onBreak,
   onMergeUp,
@@ -217,6 +227,8 @@ export function ReportItemEditor({
   canBreak: boolean;
   focusRequest?: FocusRequest;
   tagging?: ItemTagging;
+  /** Buttons after the tag button, at the end of the row (the parent's *Remove item*). */
+  trailing?: ReactNode;
   onChange: (segments: DraftSegment[]) => void;
   onBreak: (itemBreak: ItemBreak) => void;
   /** Backspace at the start: join with the previous item, or remove this one when it's empty. */
@@ -529,53 +541,53 @@ export function ReportItemEditor({
   const open = canTag && picker !== null;
 
   return (
-    <div className="flex min-w-0 flex-1 items-start gap-2">
+    <div ref={anchorRef} className="flex min-w-0 flex-1 items-start">
       <div className="flex min-w-0 flex-1 flex-col">
-        <div ref={anchorRef}>
-          <EditorContent
-            className={clsx(
-              "min-h-11 w-full cursor-text rounded-[var(--field-radius)] border border-field-border bg-field px-3 py-[9px] text-sm leading-[1.55] text-field-foreground",
-              "focus-within:border-field-border-focus focus-within:shadow-[var(--shadow-focus)]",
-              "[&_.tiptap]:min-h-6 [&_.tiptap]:whitespace-pre-wrap [&_.tiptap]:break-words",
-              "[&_.tiptap_p]:m-0",
-              "[&_p.is-editor-empty]:before:pointer-events-none [&_p.is-editor-empty]:before:float-left [&_p.is-editor-empty]:before:h-0 [&_p.is-editor-empty]:before:text-field-placeholder [&_p.is-editor-empty]:before:content-[attr(data-placeholder)]",
-            )}
-            editor={editor}
-          />
-        </div>
+        <EditorContent
+          className={clsx(
+            "min-h-11 w-full cursor-text px-3 py-[9px] text-sm leading-[1.55] text-field-foreground md:pl-0",
+            "[&_.tiptap]:min-h-6 [&_.tiptap]:whitespace-pre-wrap [&_.tiptap]:break-words",
+            "[&_.tiptap_p]:m-0",
+            "[&_p.is-editor-empty]:before:pointer-events-none [&_p.is-editor-empty]:before:float-left [&_p.is-editor-empty]:before:-mb-6 [&_p.is-editor-empty]:before:h-6 [&_p.is-editor-empty]:before:max-w-full [&_p.is-editor-empty]:before:overflow-hidden [&_p.is-editor-empty]:before:text-ellipsis [&_p.is-editor-empty]:before:whitespace-nowrap [&_p.is-editor-empty]:before:text-field-placeholder [&_p.is-editor-empty]:before:content-[attr(data-placeholder)]",
+          )}
+          editor={editor}
+        />
         {length >= COUNTER_FROM && (
-          <span className="mt-1 self-end text-[13px] tabular-nums text-muted">
+          <span className="-mt-1 mb-1.5 self-end px-3 text-[13px] tabular-nums text-muted">
             {t("counter", { count: length })}
           </span>
         )}
       </div>
-      {canTag && (
-        <button
-          aria-expanded={picker?.mode === "button"}
-          aria-haspopup="dialog"
-          aria-label={tItems("tagSomeone")}
-          className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary hover:text-heading"
-          data-tag-button=""
-          title={tItems("tagSomeone")}
-          type="button"
-          onClick={() =>
-            setPicker((current) =>
-              current?.mode === "button"
-                ? null
-                : { mode: "button", snapshotFocused: snapshotRef.current },
-            )
-          }
-          onPointerDown={() => {
-            snapshotRef.current = editor?.isFocused ?? false;
-          }}
-        >
-          <UserPlusIcon
-            aria-hidden="true"
-            className="size-5"
-            strokeWidth={1.7}
-          />
-        </button>
-      )}
+      <div className="flex shrink-0 items-center gap-1 py-0.5 pr-1.5">
+        {canTag && (
+          <button
+            aria-expanded={picker?.mode === "button"}
+            aria-haspopup="dialog"
+            aria-label={tItems("tagSomeone")}
+            className={ROW_BUTTON}
+            data-tag-button=""
+            title={tItems("tagSomeone")}
+            type="button"
+            onClick={() =>
+              setPicker((current) =>
+                current?.mode === "button"
+                  ? null
+                  : { mode: "button", snapshotFocused: snapshotRef.current },
+              )
+            }
+            onPointerDown={() => {
+              snapshotRef.current = editor?.isFocused ?? false;
+            }}
+          >
+            <AtSymbolIcon
+              aria-hidden="true"
+              className="size-5"
+              strokeWidth={1.7}
+            />
+          </button>
+        )}
+        {trailing}
+      </div>
       {open && tagging && !isPhone && (
         <TagPicker
           anchorRef={anchorRef}

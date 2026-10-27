@@ -88,6 +88,7 @@ what changed and anything that differs from the canvas in the progress log below
 | 3. Tags: chips, `@` picker, person button, phone sheet | ✅ | `e9e1f93` |
 | 4. Report form wiring: group step, list step, edit, draft, older reports | ✅ | `763aaed` |
 | 5. Read views: Report detail, conversation panel, Prayer & follow-up, WhatsApp | ✅ | `8ebd362` |
+| 5b. Stacked notepad layout for the three sections (canvas revision of Oct 26) | ✅ | this commit |
 | **Part 2 (`person-timeline`)** | | |
 | 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ⬜ | |
 | 7. Tabs and Recent activity on Member and Guest detail | ⬜ | |
@@ -186,6 +187,34 @@ what changed and anything that differs from the canvas in the progress log below
 - **Part 1 not yet checked at 1440 / 1024 / 390, light and dark, leader and elder** against the canvas
   (I couldn't open the canvas page; the build follows the spec text and the notes above). Do that
   review once the API answers.
+- **Stacked notepad layout (canvas revision, Oct 26).** The 3-column grid is gone: `ReportItemsFields`
+  always stacks the sections in one column (`max-w-[760px]`, `gap-7`) and has no `layout` prop (only
+  `group-step.tsx` and `report-list-step.tsx` passed one; the edit form reuses `ReportListStep`). Each
+  section is a notepad: the `<ol>` is the box (`field-border`, `rounded-xl`, `bg-field`,
+  `divide-separator`, focus ring on `focus-within`), the editor has no border of its own, and the row being
+  edited gets `bg-surface-secondary/40`. The row's buttons are a 40 px `@` button (`AtSymbolIcon`,
+  replaces the person-plus icon) and a 40 px remove ×, hidden until the row is hovered or has focus
+  (`ROW_BUTTON` in `report-item-editor.tsx`; still in the tab order, visible when focused or while the
+  picker is open), always visible at 44 px under `(hover: none)`. The tag button stays in the editor
+  (it owns the picker state) and the remove button is passed in as `trailing`; the picker now anchors to
+  the whole row. *Add another* is replaced by a ghost row (+ in the gutter, the section's placeholder in
+  `text-subtle`), hidden while the last item is empty and at 20 items (the limit text then shows under the
+  box). A section can have zero items; removing the last one focuses the ghost row. The legend is one
+  line: title, *(optional)* and the count of non-empty items. Copy: `ReportItems.count` added,
+  `ReportItems.tip` reworded, `ReportItems.addItem` and the three `ReportForm.*Hint` keys removed (no
+  other reader). Keyboard and paste behavior unchanged. Checked in the browser as admin on the edit form
+  of report 52 (ES): 1406 px light, dark, and a 390 px frame in dark; 1024 px light (no horizontal
+  scroll at 390 or 1024). The ghost row adds and focuses an item, the box gets the focus ring, `@` and ×
+  show on hover. Also checked on a new report (as admin, ES and EN, light and dark): the group step, the
+  list step and the review step (the review wasn't submitted), `@Ana` + Enter makes the chip, the row's `@`
+  button opens the search picker under the row (aligned with the text) and Esc returns focus to the item.
+  Fixes that came out of it: the empty row's placeholder is one truncated line (the box's `overflow-hidden`
+  clipped its second line at 390), the count never wraps, and each editor is keyed by its placeholder
+  because TipTap reads it once, so switching language in place left empty items on the old language.
+  **Still not exercised:** touch itself (the `(hover: none)` rules compile to `size-11` and
+  `opacity: 1`, but the browser can't emulate it), a pasted multi-line block in the new box, elder and
+  leader sessions. A fresh draft starts each section with one empty item (the zero-item box only appears
+  after removing the last one).
 - **Width.** The edit form, the list step and the review wrapper no longer cap at 1000 px (they follow
   the shell's `max-w-7xl`), so the three item columns are ~334 px each at 1792 instead of ~165. The
   meeting and group steps keep their 720 px. Reported by the user while reviewing.
@@ -271,7 +300,7 @@ All from `membership-management/docs/REPORT-TAGS-API-HANDOFF.md` and the spec's 
   {n}". Limits: 20 items (then *Add another* is disabled with a hint), 1024 characters per item (a
   quiet counter appears at 900+, as the old field's counter).
 - The section's tip line under the group step's intro: *One item per request: press Enter to start
-  the next. Type @ or use the person button to tag a member or guest, from any group.* (accent-soft
+  the next. Type @ or use a row's @ button to tag a member or guest, from any group.* (accent-soft
   box with the at-symbol icon, as the board).
 
 ### Stage 3: tags
@@ -428,8 +457,8 @@ that's simpler (CLAUDE.md, *Adding UI text*).
 
 | Namespace.key | English | Español |
 | --- | --- | --- |
-| `ReportItems.tip` | One item per request: press Enter to start the next. Type @ or use the person button to tag a member or guest, from any group. | Un punto por petición: presiona Enter para empezar el siguiente. Escribe @ o usa el botón de persona para etiquetar a un miembro o invitado, de cualquier grupo. |
-| `ReportItems.addItem` | Add another | Agregar otro |
+| `ReportItems.tip` | One item per request: press Enter to start the next. Type @ or use a row's @ button to tag a member or guest, from any group. | Un punto por petición: presiona Enter para empezar el siguiente. Escribe @ o usa el botón @ de la fila para etiquetar a un miembro o invitado, de cualquier grupo. |
+| `ReportItems.count` | {count, plural, one {# item} other {# items}} | {count, plural, one {# punto} other {# puntos}} |
 | `ReportItems.itemLabel` | {section}, item {n} | {section}, punto {n} |
 | `ReportItems.removeItem` | Remove item {n}: {section} | Quitar punto {n}: {section} |
 | `ReportItems.tagSomeone` | Tag someone | Etiquetar a alguien |
