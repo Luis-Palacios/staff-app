@@ -542,9 +542,6 @@
     "praise": "Motivos de alabanza",
     "discussion": "Para seguimiento de los ancianos",
     "optional": "(opcional)",
-    "prayerHint": "Por qué pidió orar el grupo.",
-    "praiseHint": "Por qué está agradecido el grupo.",
-    "discussionHint": "Temas de la conversación a los que los ancianos podrían dar seguimiento.",
     "counter": "{count, number} / 1024",
     "toReview": "Revisar reporte",
     "change": "Cambiar",
@@ -1712,7 +1709,7 @@
   "ReportItems": {
     "errorTag": "Alguien que etiquetaste ya no se puede etiquetar. Quita la etiqueta e inténtalo de nuevo.",
     "errorLimit": "Una sección tiene demasiados puntos o un punto tiene demasiadas etiquetas.",
-    "addItem": "Agregar otro",
+    "count": "{count, plural, one {# punto} other {# puntos}}",
     "itemLabel": "{section}, punto {n}",
     "removeItem": "Quitar punto {n}: {section}",
     "placeholderPrayer": "Agrega una petición de oración…",
@@ -1740,7 +1737,7 @@
     "searchError": "No se pudo buscar ahora. Inténtalo de nuevo.",
     "searching": "Buscando…",
     "close": "Cerrar",
-    "tip": "Un punto por petición: presiona Enter para empezar el siguiente. Escribe @ o usa el botón de persona para etiquetar a un miembro o invitado, de cualquier grupo.",
+    "tip": "Un punto por petición: presiona Enter para empezar el siguiente. Escribe @ o usa el botón @ de la fila para etiquetar a un miembro o invitado, de cualquier grupo.",
     "legacyBanner": "Este reporte se escribió antes de los puntos y las etiquetas, así que cada sección quedó como un punto por línea. Presiona Enter dentro de un punto para dividirlo y etiqueta a las personas si ayuda. Nada cambia hasta que guardes."
   }
 }

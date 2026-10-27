@@ -10,11 +10,10 @@ import type { TagContext } from "@/app/(app)/groups/reports/_lib/report-tags";
 import type { FocusRequest, ItemBreak } from "./report-item-editor";
 
 import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import clsx from "clsx";
 import { useTranslations } from "next-intl";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { ReportItemEditor } from "./report-item-editor";
+import { ReportItemEditor, ROW_BUTTON } from "./report-item-editor";
 import { ShortNamesContext } from "./report-tag-node";
 
 import {
@@ -36,12 +35,6 @@ const LABEL_KEY = {
   prayer: "prayer",
   praise: "praise",
   followUp: "discussion",
-} as const satisfies Record<ReportSectionKey, string>;
-
-const HINT_KEY = {
-  prayer: "prayerHint",
-  praise: "praiseHint",
-  followUp: "discussionHint",
 } as const satisfies Record<ReportSectionKey, string>;
 
 const PLACEHOLDER_KEY = {
@@ -73,9 +66,10 @@ function clamp(segments: DraftSegment[]): DraftSegment[] {
 }
 
 /**
- * One section as a list of items (rules 1–3): a numbered single-line editor each, *Remove item*
- * and *Add another*. Enter, Backspace at the start and multi-line paste change the list, so the
- * focus moves with them. The list always shows at least one item to type in.
+ * One section as a notepad (rules 1–3): one bordered box whose rows are the items, each a numbered
+ * single-line editor with its @ and *Remove item* buttons, and a ghost row at the end that adds the
+ * next item. Enter, Backspace at the start and multi-line paste change the list, so the focus moves
+ * with them. A section can be empty: the box is then just the ghost row.
  */
 export function ReportItemsField({
   section,
@@ -96,10 +90,21 @@ export function ReportItemsField({
   );
   const focusId = useRef(0);
   const addRef = useRef<HTMLButtonElement>(null);
+  const focusGhost = useRef(false);
   const label = t(LABEL_KEY[section]);
   const full = items.length >= ITEMS_MAX;
-  const onlyEmpty =
-    items.length === 1 && isEmptyItem(items[0] ?? { segments: [] });
+  const filled = items.filter((item) => !isEmptyItem(item)).length;
+  const lastItem = items[items.length - 1];
+  // The last item, while still empty, is where to type; otherwise the ghost row starts the next one.
+  const showGhost = !full && !(lastItem && isEmptyItem(lastItem));
+
+  // After the last item is removed the ghost row is the only thing left to focus.
+  useEffect(() => {
+    if (focusGhost.current) {
+      focusGhost.current = false;
+      addRef.current?.focus();
+    }
+  });
 
   function requestFocus(key: string, position: number | "end") {
     focusId.current += 1;
@@ -177,139 +182,124 @@ export function ReportItemsField({
     const rest = items.filter((_, i) => i !== index);
     const neighbour = items[index - 1] ?? items[index + 1];
 
-    if (rest.length === 0) {
-      const fresh = newDraftItem();
-
-      onChange([fresh]);
-      requestFocus(fresh.key, 0);
-
-      return;
-    }
-
     onChange(rest);
 
     if (neighbour) requestFocus(neighbour.key, "end");
-    else addRef.current?.focus();
+    else focusGhost.current = true;
   }
 
   return (
     <fieldset className="flex min-w-0 flex-col gap-2 border-0 p-0">
       <legend className="mb-0.5 w-full p-0">
-        <span className="block text-[13px] font-semibold text-heading md:flex md:min-h-9 md:items-end">
+        <span className="flex items-baseline justify-between gap-3 text-[15px] font-semibold text-heading">
           <span>
             {label}{" "}
             <span className="font-normal text-muted">{t("optional")}</span>
           </span>
-        </span>
-        <span className="mt-1 block text-[13px] font-normal text-muted">
-          {t(HINT_KEY[section])}
+          <span className="shrink-0 whitespace-nowrap text-[13px] font-normal tabular-nums text-muted">
+            {tItems("count", { count: filled })}
+          </span>
         </span>
       </legend>
-      <ol className="flex flex-col gap-2">
+      <ol className="divide-y divide-separator overflow-hidden rounded-xl border border-field-border bg-field focus-within:border-field-border-focus focus-within:shadow-[var(--shadow-focus)]">
         {items.map((item, index) => {
           const n = index + 1;
+          const placeholder = tItems(PLACEHOLDER_KEY[section]);
+          const itemLabel = tItems("itemLabel", {
+            section: label,
+            n: String(n),
+          });
 
           return (
-            <li key={item.key} className="flex items-start gap-2">
+            <li
+              key={item.key}
+              className="group/row flex items-start focus-within:bg-surface-secondary/40"
+            >
               <span
                 aria-hidden="true"
-                className="hidden w-5 shrink-0 pt-[11px] text-right text-[13px] tabular-nums text-subtle md:block"
+                className="hidden w-10 shrink-0 pl-3 pt-[11px] text-[13px] tabular-nums text-subtle md:block"
               >
                 {n}
               </span>
               <ReportItemEditor
-                ariaLabel={tItems("itemLabel", {
-                  section: label,
-                  n: String(n),
-                })}
+                // TipTap reads the placeholder once, so a language switch remounts the editor.
+                key={placeholder}
+                ariaLabel={itemLabel}
                 canBreak={!full}
                 focusRequest={focus?.key === item.key ? focus : undefined}
-                placeholder={tItems(PLACEHOLDER_KEY[section])}
+                placeholder={placeholder}
                 segments={item.segments}
                 tagging={
-                  tagContext
-                    ? {
-                        context: tagContext,
-                        itemLabel: tItems("itemLabel", {
-                          section: label,
-                          n: String(n),
-                        }),
-                      }
-                    : undefined
+                  tagContext ? { context: tagContext, itemLabel } : undefined
+                }
+                trailing={
+                  <button
+                    aria-label={tItems("removeItem", {
+                      n: String(n),
+                      section: label,
+                    })}
+                    className={ROW_BUTTON}
+                    type="button"
+                    onClick={() => remove(index)}
+                  >
+                    <XMarkIcon
+                      aria-hidden="true"
+                      className="size-5"
+                      strokeWidth={1.8}
+                    />
+                  </button>
                 }
                 onBreak={(itemBreak) => breakItem(index, itemBreak)}
                 onChange={(segments) => replace(index, segments)}
                 onMergeUp={() => mergeUp(index)}
               />
-              {onlyEmpty ? (
-                <span aria-hidden="true" className="size-11 shrink-0" />
-              ) : (
-                <button
-                  aria-label={tItems("removeItem", {
-                    n: String(n),
-                    section: label,
-                  })}
-                  className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary hover:text-heading"
-                  type="button"
-                  onClick={() => remove(index)}
-                >
-                  <XMarkIcon
-                    aria-hidden="true"
-                    className="size-5"
-                    strokeWidth={1.8}
-                  />
-                </button>
-              )}
             </li>
           );
         })}
-      </ol>
-      <div className={clsx("flex flex-col gap-1.5", "md:pl-7")}>
-        <button
-          ref={addRef}
-          className="flex min-h-11 items-center justify-center gap-2 rounded-[10px] border border-dashed border-field-border text-[13.5px] font-semibold text-muted hover:bg-surface-secondary hover:text-heading disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent"
-          disabled={full}
-          type="button"
-          onClick={add}
-        >
-          <PlusIcon aria-hidden="true" className="size-4" strokeWidth={2} />
-          {tItems("addItem")}
-        </button>
-        {full && (
-          <p className="text-[13px] text-muted">{tItems("limitItems")}</p>
+        {showGhost && (
+          <li>
+            <button
+              ref={addRef}
+              className="flex min-h-[46px] w-full items-center text-left text-sm text-subtle hover:bg-surface-secondary/40 hover:text-heading"
+              type="button"
+              onClick={add}
+            >
+              <span className="flex w-auto shrink-0 pl-3 pr-2.5 md:w-10 md:pr-0">
+                <PlusIcon
+                  aria-hidden="true"
+                  className="size-4"
+                  strokeWidth={2}
+                />
+              </span>
+              {tItems(PLACEHOLDER_KEY[section])}
+            </button>
+          </li>
         )}
-      </div>
+      </ol>
+      {full && <p className="text-[13px] text-muted">{tItems("limitItems")}</p>}
     </fieldset>
   );
 }
 
 /**
- * The three sections of a report. `stacked` is the group step (one column); `grid` is the list step
- * and the edit form (three columns from `md`, each starting at the top).
+ * The three sections of a report: always one column, in the group step, the list step, the review
+ * and the edit form.
  */
 export function ReportItemsFields({
   items,
   tagContext,
   onChange,
-  layout,
 }: {
   items: DraftItems;
   tagContext?: TagContext;
   onChange: (section: ReportSectionKey, items: DraftItem[]) => void;
-  layout: "stacked" | "grid";
 }) {
   // Chip labels are per report (rule 11), so they're worked out across all three sections.
   const names = shortNames(REPORT_SECTION_KEYS.flatMap((key) => items[key]));
 
   return (
     <ShortNamesContext.Provider value={names}>
-      <div
-        className={
-          layout === "grid"
-            ? "grid items-start gap-4 md:grid-cols-3"
-            : "flex flex-col gap-5"
-        }
-      >
+      <div className="flex max-w-[760px] flex-col gap-7">
         {REPORT_SECTION_KEYS.map((section) => (
           <ReportItemsField
             key={section}

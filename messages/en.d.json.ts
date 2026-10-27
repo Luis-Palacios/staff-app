@@ -545,9 +545,6 @@ declare const messages: {
     "praise": "Praise",
     "discussion": "For the elders to follow up",
     "optional": "(optional)",
-    "prayerHint": "What the group asked to pray for.",
-    "praiseHint": "What the group is thankful for.",
-    "discussionHint": "Points from the conversation the elders may want to follow up on.",
     "counter": "{count, number} / 1024",
     "toReview": "Review report",
     "change": "Change",
@@ -1715,7 +1712,7 @@ declare const messages: {
   "ReportItems": {
     "errorTag": "Someone you tagged can't be tagged any more. Remove the tag and try again.",
     "errorLimit": "A section has too many items or an item has too many tags.",
-    "addItem": "Add another",
+    "count": "{count, plural, one {# item} other {# items}}",
     "itemLabel": "{section}, item {n}",
     "removeItem": "Remove item {n}: {section}",
     "placeholderPrayer": "Add a prayer request…",
@@ -1743,7 +1740,7 @@ declare const messages: {
     "searchError": "Couldn't search right now. Try again.",
     "searching": "Searching…",
     "close": "Close",
-    "tip": "One item per request: press Enter to start the next. Type @ or use the person button to tag a member or guest, from any group.",
+    "tip": "One item per request: press Enter to start the next. Type @ or use a row's @ button to tag a member or guest, from any group.",
     "legacyBanner": "This report was written before items and tags, so each section came over as one item per line. Press Enter inside an item to split it, and tag people if it helps. Nothing changes until you save."
   }
 };
