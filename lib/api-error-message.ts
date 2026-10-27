@@ -13,7 +13,9 @@ export type ReportErrorKind =
   | "closed"
   | "future"
   | "rosterChanged"
-  | "notLeaderOnDate";
+  | "notLeaderOnDate"
+  | "tag"
+  | "items";
 
 /** Matched on status and a phrase of `detail`, never shown. Null for any other error. */
 export function getReportErrorKind(error: unknown): ReportErrorKind | null {
@@ -28,6 +30,14 @@ export function getReportErrorKind(error: unknown): ReportErrorKind | null {
   }
 
   if (error.status === 422) {
+    // "Too many items or tags in {section}" and "{section} is too long: items can be up to…" first:
+    // the tag texts below ("Unknown person to tag", "is inactive and can't be tagged") differ.
+    if (detail.includes("too many items") || detail.includes("items can be")) {
+      return "items";
+    }
+
+    if (detail.includes("to tag") || detail.includes("be tagged")) return "tag";
+
     if (detail.includes("future")) return "future";
     if (detail.includes("attendance")) return "rosterChanged";
     if (detail.includes("didn't lead")) return "notLeaderOnDate";
@@ -91,6 +101,10 @@ export async function getApiErrorMessage(
         return t("reportRosterChanged");
       case "notLeaderOnDate":
         return t("reportNotLeaderOnDate");
+      case "tag":
+        return (await getTranslations("ReportItems"))("errorTag");
+      case "items":
+        return (await getTranslations("ReportItems"))("errorLimit");
     }
   }
 

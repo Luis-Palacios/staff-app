@@ -21,6 +21,7 @@ import {
   formatCalendarShortWeekdayDate,
 } from "@/lib/format-date";
 import { normalizeText } from "@/lib/normalize-text";
+import { sectionPlainLines } from "@/lib/report-sections";
 
 const SECTIONS = {
   prayer: {
@@ -50,15 +51,17 @@ const SECTIONS = {
   },
 } as const satisfies Record<ReportSectionKey, unknown>;
 
-/** The entries of `section` that have its text, in the API's order (rules 7–8). */
+/** The entries of `section` that have items, in the API's order (rules 7–8). */
 export function sectionEntries(
   entries: ReportSharedEntry[],
   section: ReportSectionKey,
 ): { entry: ReportSharedEntry; text: string }[] {
   return entries.flatMap((entry) => {
-    const text = entry[section];
+    const items = entry.sections[section];
 
-    return text ? [{ entry, text }] : [];
+    return items.length > 0
+      ? [{ entry, text: sectionPlainLines(items).join("\n") }]
+      : [];
   });
 }
 

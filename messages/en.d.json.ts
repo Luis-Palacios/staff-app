@@ -1711,6 +1711,10 @@ declare const messages: {
     "inactiveBanFailed": "Marked inactive, but sign-in couldn't be turned off",
     "reactivated": "{name} reactivated",
     "reactivatedUnbanFailed": "Reactivated, but sign-in couldn't be turned back on"
+  },
+  "ReportItems": {
+    "errorTag": "Someone you tagged can't be tagged any more. Remove the tag and try again.",
+    "errorLimit": "A section has too many items or an item has too many tags."
   }
 };
 export default messages;

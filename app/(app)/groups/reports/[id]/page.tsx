@@ -49,7 +49,11 @@ import {
 } from "@/lib/format-date";
 import { personFocusKey } from "@/lib/conversation-format";
 import { getEnv } from "@/lib/env/server";
-import { parseSectionParam, reportSectionText } from "@/lib/report-sections";
+import {
+  parseSectionParam,
+  reportSectionItems,
+  sectionPlainLines,
+} from "@/lib/report-sections";
 
 export default async function ReportDetailPage({
   params,
@@ -128,7 +132,10 @@ export default async function ReportDetailPage({
     (a) => target && personKey(a.person) === personFocusKey(target),
   );
   const sectionKey = target === null ? parseSectionParam(section) : null;
-  const sectionText = sectionKey ? reportSectionText(report, sectionKey) : null;
+  const sectionText = sectionKey
+    ? sectionPlainLines(reportSectionItems(report, sectionKey)).join("\n") ||
+      null
+    : null;
   let panel: ReactNode = null;
   const panelProps = {
     closeHref: `/groups/reports/${report.id}`,

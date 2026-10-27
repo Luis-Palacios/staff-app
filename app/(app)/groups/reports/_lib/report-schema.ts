@@ -8,6 +8,24 @@ export const REASON_MAX = 255;
 const optionalText = (max: number) =>
   z.string().trim().max(max).nullable().optional();
 
+// An item is segments: plain text or a tagged person (`{ type, id }`; the API fills in the name).
+// The 20 items, 1024 characters and 10 tags limits are the API's, which answers 422 with a text
+// the form maps; here only the shape is checked.
+const itemSchema = z.object({
+  segments: z.array(
+    z.discriminatedUnion("type", [
+      z.strictObject({ type: z.literal("text"), text: z.string() }),
+      z.strictObject({
+        type: z.literal("person"),
+        person: z.strictObject({
+          type: z.enum(["member", "guest"]),
+          id: z.number().int().positive(),
+        }),
+      }),
+    ]),
+  ),
+});
+
 /**
  * The body for create and edit, as the server actions check it before calling
  * the API. The form keeps answers as `boolean | null` while a person is still
@@ -16,9 +34,11 @@ const optionalText = (max: number) =>
 export const reportBodySchema = z.object({
   meetingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   address: optionalText(ADDRESS_MAX),
-  groupPrayerRequest: optionalText(TEXT_MAX),
-  groupPraiseReport: optionalText(TEXT_MAX),
-  groupRelevantDiscussion: optionalText(TEXT_MAX),
+  sections: z.object({
+    prayer: z.array(itemSchema),
+    praise: z.array(itemSchema),
+    followUp: z.array(itemSchema),
+  }),
   replacesNoMeeting: z.boolean().optional(),
   // A member's `memberId` or a guest's `guestId`, never both.
   attendances: z.array(

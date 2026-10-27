@@ -1708,5 +1708,9 @@
     "inactiveBanFailed": "Marcado como inactivo, pero no se pudo quitar el acceso",
     "reactivated": "{name} reactivado",
     "reactivatedUnbanFailed": "Reactivado, pero no se pudo volver a dar el acceso"
+  },
+  "ReportItems": {
+    "errorTag": "Alguien que etiquetaste ya no se puede etiquetar. Quita la etiqueta e inténtalo de nuevo.",
+    "errorLimit": "Una sección tiene demasiados puntos o un punto tiene demasiadas etiquetas."
   }
 }

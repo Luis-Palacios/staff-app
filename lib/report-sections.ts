@@ -1,9 +1,12 @@
 import type {
-  ReportDetail,
+  ReportItem,
+  ReportSections,
   ReportSectionKey,
 } from "@/api/small-groups-api/types";
 
-/** The report texts a conversation can be about, in the page's order. */
+import { segmentsToPlain } from "@/lib/report-items";
+
+/** The report sections a conversation can be about, in the page's order. */
 export const REPORT_SECTION_KEYS: readonly ReportSectionKey[] = [
   "prayer",
   "praise",
@@ -19,19 +22,23 @@ export function parseSectionParam(
   return REPORT_SECTION_KEYS.find((key) => key === raw) ?? null;
 }
 
-/** The report's text for `section` (the API's own field names), trimmed; null when empty. */
-export function reportSectionText(
-  report: Pick<
-    ReportDetail,
-    "groupPrayerRequest" | "groupPraiseReport" | "groupRelevantDiscussion"
-  >,
+/** The report's items for `section`, in the order the leader wrote them. */
+export function reportSectionItems(
+  report: { sections: ReportSections },
   section: ReportSectionKey,
-): string | null {
-  const text = {
-    prayer: report.groupPrayerRequest,
-    praise: report.groupPraiseReport,
-    followUp: report.groupRelevantDiscussion,
-  }[section];
+): ReportItem[] {
+  return report.sections[section];
+}
 
-  return text?.trim() || null;
+/** A section thread can start when the section has at least one item (rule 18). */
+export function sectionHasItems(
+  report: { sections: ReportSections },
+  section: ReportSectionKey,
+): boolean {
+  return report.sections[section].length > 0;
+}
+
+/** The items as plain lines, tagged people by full name. */
+export function sectionPlainLines(items: readonly ReportItem[]): string[] {
+  return items.map((item) => segmentsToPlain(item.segments, { names: "full" }));
 }

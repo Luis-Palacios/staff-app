@@ -15,7 +15,7 @@ import { getTranslations } from "next-intl/server";
 import { ConversationIndicator } from "./conversation-indicator";
 
 import { card, testimony, title } from "@/components/primitives";
-import { reportSectionText } from "@/lib/report-sections";
+import { reportSectionItems, sectionPlainLines } from "@/lib/report-sections";
 
 const SECTIONS = [
   { key: "prayer", icon: HeartIcon, label: "prayer" },
@@ -65,7 +65,8 @@ export async function ReportSharedCard({
       </header>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] pb-3 pt-2">
         {SECTIONS.map(({ key, icon: Icon, label }) => {
-          const text = reportSectionText(report, key);
+          const lines = sectionPlainLines(reportSectionItems(report, key));
+          const text = lines.join("\n");
           const summary = summaryBySection.get(key);
           const about = tConv("sectionAbout", { section: key });
           const state = summary
