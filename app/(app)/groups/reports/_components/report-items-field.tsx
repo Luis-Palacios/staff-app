@@ -88,6 +88,7 @@ export function ReportItemsField({
   const [focus, setFocus] = useState<({ key: string } & FocusRequest) | null>(
     null,
   );
+  const [refused, setRefused] = useState(false);
   const focusId = useRef(0);
   const addRef = useRef<HTMLButtonElement>(null);
   const focusGhost = useRef(false);
@@ -106,6 +107,11 @@ export function ReportItemsField({
     }
   });
 
+  // The refusal note stays until the list changes (the refused paste itself changes nothing).
+  useEffect(() => {
+    setRefused(false);
+  }, [items]);
+
   function requestFocus(key: string, position: number | "end") {
     focusId.current += 1;
     setFocus({ key, position, id: focusId.current });
@@ -122,13 +128,16 @@ export function ReportItemsField({
 
     if (!current) return;
 
-    // Past the limit, the overflow joins the last item that fits.
-    const room = ITEMS_MAX - items.length + 1;
-    const fitted =
-      parts.length > room
-        ? [...parts.slice(0, room - 1), parts.slice(room - 1).flat()]
-        : parts;
-    const [first = [], ...rest] = fitted.map(clamp);
+    // A paste that would go past the limit is refused whole, with the limit text, rather than cut.
+    if (parts.length > ITEMS_MAX - items.length + 1) {
+      setRefused(true);
+
+      return;
+    }
+
+    setRefused(false);
+
+    const [first = [], ...rest] = parts.map(clamp);
     const added = rest.map((segments) => newDraftItem(segments));
     const next = [
       ...items.slice(0, index),
@@ -276,7 +285,11 @@ export function ReportItemsField({
           </li>
         )}
       </ol>
-      {full && <p className="text-[13px] text-muted">{tItems("limitItems")}</p>}
+      {(full || refused) && (
+        <p className="text-[13px] text-muted" role="status">
+          {tItems("limitItems")}
+        </p>
+      )}
     </fieldset>
   );
 }

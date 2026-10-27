@@ -103,9 +103,9 @@ what changed and anything that differs from the canvas in the progress log below
 **Where to resume (Part 1 is functionally done; check this before starting Part 2):**
 
 - Set the real deploy date in `ITEMS_SINCE` (`_lib/items-since.ts`).
-- Not exercised yet: touch (`(hover: none)`), a multi-line paste into the new box, elder and
-  leader sessions, a member-group leader, 422 `items`, the picker as a sheet at 390 on the new box,
-  and the design review checklist against the canvas boards.
+- Not exercised yet: touch (`(hover: none)`), an elder session, 422 `items` (the form caps at 20
+  items and 10 tags first, so the UI can't reach it) and the design review checklist against the
+  canvas boards. Checked on Oct 27, see "Final checks of Part 1" below.
 - Then Part 2 on a new `person-timeline` branch from stage 6; it needs the API's stages 6–7 running.
 
 **Checking in the browser (the work happens on both a Mac and a Windows machine):**
@@ -238,6 +238,19 @@ what changed and anything that differs from the canvas in the progress log below
   `opacity: 1`, but the browser can't emulate it), a pasted multi-line block in the new box, elder and
   leader sessions. A fresh draft starts each section with one empty item (the zero-item box only appears
   after removing the last one).
+- **Final checks of Part 1 (Oct 27, dev server on the Mac, Chrome on the same Mac).** As admin: a
+  multi-line paste (`- uno / • dos / 3) tres`) makes three items without markers, no horizontal scroll
+  at 400 px, the picker as a bottom sheet at 400 px. As a member-group co-leader (GP - #1; I added them
+  by inserting a `small_group_members` row in the dev DB): create with quick list, church-wide `@`
+  search, chips disambiguated (*Kevin Ú.* / *Kevin M.*, rule 11), save, edit round trip keeps the tags and
+  shows no legacy banner, and a member of another group and a guest outside their scope are plain chips
+  (rule 12). As a guest-group leader (Nuevos Comienzos): the guest in their group is a link
+  (`/guests/<id>`), the roster picker lists *At this meeting* with the group's name for guests, and
+  editing and saving a tagged item works. **Changed:** a paste with more lines than the section has room
+  for used to merge the overflow into the last item that fits (`punto 20punto 21…`); now the whole paste
+  is refused and the `limitItems` text shows (`role="status"`) until the list changes. Test data left in
+  the dev DB: reports 53 (GP - #1) and an added praise item on report 52, and the co-leader row. Still
+  open: touch, elder session, canvas comparison, and `ITEMS_SINCE` (needs the real deploy date).
 - **Width.** The edit form, the list step and the review wrapper no longer cap at 1000 px (they follow
   the shell's `max-w-7xl`), so the three item columns are ~334 px each at 1792 instead of ~165. The
   meeting and group steps keep their 720 px. Reported by the user while reviewing.
