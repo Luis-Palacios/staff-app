@@ -1,8 +1,4 @@
-import type {
-  Person,
-  ReportItem,
-  ReportSegment,
-} from "@/api/small-groups-api/types";
+import type { Person, ReportSegment } from "@/api/small-groups-api/types";
 
 /** The key a person is known by within a report: a member and a guest can share an id. */
 export type PersonKey = `${Person["type"]}:${number}`;
@@ -39,7 +35,12 @@ export function segmentsToPlain(
  * different people tagged in the same report share a first name. Pass every item of the report.
  */
 export function shortNames(
-  items: Iterable<Pick<ReportItem, "segments">>,
+  items: Iterable<{
+    segments: readonly (
+      | { type: "text"; text: string }
+      | { type: "person"; person: Pick<Person, "type" | "id" | "name"> }
+    )[];
+  }>,
 ): Map<PersonKey, string> {
   const people = new Map<PersonKey, string>();
 

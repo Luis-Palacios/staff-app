@@ -1,9 +1,13 @@
 "use client";
 
-import type { Editor } from "@tiptap/core";
+import type { JSONContent } from "@tiptap/core";
 import type { Node as ProseNode } from "@tiptap/pm/model";
 import type { DraftSegment } from "@/app/(app)/groups/reports/_lib/report-items-draft";
+import type { TagContext } from "@/app/(app)/groups/reports/_lib/report-tags";
+import type { PersonKey } from "@/lib/report-items";
+import type { PickerKeys } from "./tag-picker";
 
+import { UserPlusIcon } from "@heroicons/react/24/outline";
 import { Extension } from "@tiptap/core";
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
@@ -11,16 +15,30 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Text from "@tiptap/extension-text";
 import { Plugin } from "@tiptap/pm/state";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { exitSuggestion, Suggestion } from "@tiptap/suggestion";
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+
+import { PersonTag } from "./report-tag-node";
+import { TagPicker } from "./tag-picker";
+import { TagPickerSheet } from "./tag-picker-sheet";
 
 import { mergeText } from "@/app/(app)/groups/reports/_lib/report-items-draft";
+import { findFirstNameWord } from "@/app/(app)/groups/reports/_lib/report-tags";
 import {
   ITEM_MAX,
   segmentsLength,
   segmentsSize,
   splitLegacyText,
+  TAGS_MAX,
+  toPersonKey,
 } from "@/lib/report-items";
 
 /** The quiet "n / 1024" counter shows from here, as the old text field's did. */
@@ -44,29 +62,81 @@ export interface ItemBreak {
   caret: number;
 }
 
-/** Refuses any change that would take the item past the API's length limit. */
-const ItemLimit = Extension.create({
-  name: "itemLimit",
+/** What the editor needs to tag people; without it the field is plain text only. */
+export interface ItemTagging {
+  context: TagContext;
+  /** "{Section}, item {n}", for the phone sheet. */
+  itemLabel: string;
+}
+
+/** Refuses any change that takes the item past the API's length or tag limits. */
+const ItemLimits = Extension.create({
+  name: "itemLimits",
   addProseMirrorPlugins() {
     return [
       new Plugin({
-        filterTransaction: (tr) =>
-          !tr.docChanged || tr.doc.textContent.length <= ITEM_MAX,
+        filterTransaction: (tr) => {
+          if (!tr.docChanged) return true;
+
+          let length = 0;
+          let tags = 0;
+
+          tr.doc.descendants((node) => {
+            if (node.isText) length += node.text?.length ?? 0;
+            else if (node.type.name === "personTag") {
+              tags += 1;
+              length += `@{${node.attrs.personType}:${node.attrs.personId}}`
+                .length;
+            }
+
+            return true;
+          });
+
+          return length <= ITEM_MAX && tags <= TAGS_MAX;
+        },
       }),
     ];
   },
 });
 
-function docOf(segments: readonly DraftSegment[]) {
+interface AtState {
+  mode: "at";
+  query: string;
+  command: (attrs: TagAttrs) => void;
+}
+
+interface TagAttrs {
+  personType: "member" | "guest";
+  personId: number;
+  name: string;
+}
+
+type PickerState =
+  | AtState
+  | { mode: "button"; snapshotFocused: boolean }
+  | null;
+
+function docOf(segments: readonly DraftSegment[]): JSONContent {
   return {
     type: "doc",
     content: [
       {
         type: "paragraph",
-        content: segments.flatMap((segment) =>
-          segment.type === "text" && segment.text
-            ? [{ type: "text", text: segment.text }]
-            : [],
+        content: segments.flatMap((segment): JSONContent[] =>
+          segment.type === "text"
+            ? segment.text
+              ? [{ type: "text", text: segment.text }]
+              : []
+            : [
+                {
+                  type: "personTag",
+                  attrs: {
+                    personType: segment.person.type,
+                    personId: segment.person.id,
+                    name: segment.person.name,
+                  },
+                },
+              ],
         ),
       },
     ],
@@ -81,6 +151,16 @@ function segmentsOf(content: {
 
   content.descendants((node) => {
     if (node.isText) segments.push({ type: "text", text: node.text ?? "" });
+    else if (node.type.name === "personTag") {
+      segments.push({
+        type: "person",
+        person: {
+          type: node.attrs.personType,
+          id: node.attrs.personId,
+          name: node.attrs.name,
+        },
+      });
+    }
 
     return true;
   });
@@ -95,10 +175,29 @@ function sameSegments(
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
+const PHONE_QUERY = "(max-width: 767px)";
+
+function subscribePhone(callback: () => void) {
+  const query = window.matchMedia(PHONE_QUERY);
+
+  query.addEventListener("change", callback);
+
+  return () => query.removeEventListener("change", callback);
+}
+
+function useIsPhone() {
+  return useSyncExternalStore(
+    subscribePhone,
+    () => window.matchMedia(PHONE_QUERY).matches,
+    () => false,
+  );
+}
+
 /**
  * One item: a single-line rich field (it wraps, but Enter starts the next item). The parent owns
  * the list, so Enter, Backspace at the start and multi-line paste are handed up; the editor only
- * reports its own contents.
+ * reports its own contents. With `tagging`, typing `@` or the person button picks a member or guest
+ * and puts a chip in the text (rules 8–9).
  */
 export function ReportItemEditor({
   segments,
@@ -106,6 +205,7 @@ export function ReportItemEditor({
   ariaLabel,
   canBreak,
   focusRequest,
+  tagging,
   onChange,
   onBreak,
   onMergeUp,
@@ -116,17 +216,51 @@ export function ReportItemEditor({
   /** False at the 20-item limit: Enter and multi-line paste then do nothing special. */
   canBreak: boolean;
   focusRequest?: FocusRequest;
+  tagging?: ItemTagging;
   onChange: (segments: DraftSegment[]) => void;
   onBreak: (itemBreak: ItemBreak) => void;
   /** Backspace at the start: join with the previous item, or remove this one when it's empty. */
   onMergeUp: () => void;
 }) {
+  const t = useTranslations("ReportForm");
+  const tItems = useTranslations("ReportItems");
+  const isPhone = useIsPhone();
+  const anchorRef = useRef<HTMLDivElement>(null);
+  // Whether the field had the focus when the person button was pressed (rule 9: caret or end).
+  const snapshotRef = useRef(false);
+  const keysRef = useRef<PickerKeys | null>(null);
+  const [picker, setPicker] = useState<PickerState>(null);
+  const [activeId, setActiveId] = useState<string | undefined>();
   // The editor's handlers are created once; they read the latest props from here.
-  const latest = useRef({ canBreak, onChange, onBreak, onMergeUp });
+  const latest = useRef({
+    canBreak,
+    onChange,
+    onBreak,
+    onMergeUp,
+    hasPicker: false,
+  });
 
   useEffect(() => {
-    latest.current = { canBreak, onChange, onBreak, onMergeUp };
+    latest.current = {
+      canBreak,
+      onChange,
+      onBreak,
+      onMergeUp,
+      hasPicker: picker?.mode === "at",
+    };
   });
+
+  const tagged = new Set<PersonKey>(
+    segments.flatMap((segment) =>
+      segment.type === "person" ? [toPersonKey(segment.person)] : [],
+    ),
+  );
+  const itemText = segments
+    .map((segment) =>
+      segment.type === "text" ? segment.text : segment.person.name,
+    )
+    .join("");
+  const canTag = tagging !== undefined;
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -134,8 +268,53 @@ export function ReportItemEditor({
       ItemDocument,
       Paragraph,
       Text,
-      ItemLimit,
+      PersonTag,
+      ItemLimits,
       Placeholder.configure({ placeholder }),
+      Extension.create({
+        name: "atTrigger",
+        addProseMirrorPlugins() {
+          return [
+            Suggestion<unknown, TagAttrs>({
+              editor: this.editor,
+              char: "@",
+              allowSpaces: true,
+              items: () => [],
+              command: ({ editor: current, range, props }) => {
+                current
+                  .chain()
+                  .focus()
+                  .insertContentAt(range, [
+                    { type: "personTag", attrs: props },
+                    { type: "text", text: " " },
+                  ])
+                  .run();
+              },
+              render: () => {
+                const open = (props: {
+                  query: string;
+                  command: (attrs: TagAttrs) => void;
+                }) =>
+                  setPicker({
+                    mode: "at",
+                    query: props.query,
+                    command: props.command,
+                  });
+
+                return {
+                  onStart: open,
+                  onUpdate: open,
+                  onExit: () =>
+                    setPicker((current) =>
+                      current?.mode === "at" ? null : current,
+                    ),
+                  onKeyDown: ({ event }) => keysRef.current?.(event) ?? false,
+                };
+              },
+            }),
+          ];
+        },
+      }),
     ],
     content: docOf(segments),
     editorProps: {
@@ -148,6 +327,17 @@ export function ReportItemEditor({
       handleKeyDown: (view, event) => {
         const { state } = view;
         const { selection } = state;
+
+        // While `@` is open the picker owns the arrows, Enter, Tab and Esc.
+        if (
+          latest.current.hasPicker &&
+          ["ArrowDown", "ArrowUp", "Enter", "Tab", "Escape"].includes(
+            event.key,
+          ) &&
+          keysRef.current?.(event)
+        ) {
+          return true;
+        }
 
         if (event.key === "Enter" && !event.isComposing) {
           event.preventDefault();
@@ -197,9 +387,7 @@ export function ReportItemEditor({
 
         if (!latest.current.canBreak || pasted.length === 1) {
           // No room for more items (or one line): keep it all in this item, joined by spaces.
-          const joined = lines.join(" ");
-
-          view.dispatch(state.tr.insertText(joined));
+          view.dispatch(state.tr.insertText(lines.join(" ")));
 
           return true;
         }
@@ -232,18 +420,6 @@ export function ReportItemEditor({
     }
   }, [editor, segments]);
 
-  useEffect(() => {
-    editor?.setOptions({
-      editorProps: {
-        ...editor.options.editorProps,
-        attributes: {
-          ...(editor.options.editorProps.attributes as Record<string, string>),
-          "aria-label": ariaLabel,
-        },
-      },
-    });
-  }, [editor, ariaLabel]);
-
   const handledFocus = useRef(0);
 
   useEffect(() => {
@@ -252,39 +428,181 @@ export function ReportItemEditor({
     }
 
     handledFocus.current = focusRequest.id;
-    focusEditor(editor, focusRequest.position);
+
+    if (focusRequest.position === "end") editor.commands.focus("end");
+    else editor.commands.focus(focusRequest.position + 1);
   }, [editor, focusRequest]);
 
-  const t = useTranslations("ReportForm");
+  // The label follows the item's number; the open picker makes the editor its combobox owner.
+  useEffect(() => {
+    const dom = editor?.view.dom;
+
+    if (!dom) return;
+
+    dom.setAttribute("aria-label", ariaLabel);
+
+    if (picker?.mode === "at" && !isPhone) {
+      dom.setAttribute("aria-haspopup", "listbox");
+      dom.setAttribute("aria-expanded", "true");
+      dom.setAttribute("aria-controls", activeId?.replace(/-\d+$/, "") ?? "");
+
+      if (activeId) dom.setAttribute("aria-activedescendant", activeId);
+    } else {
+      for (const name of [
+        "aria-haspopup",
+        "aria-expanded",
+        "aria-controls",
+        "aria-activedescendant",
+      ]) {
+        dom.removeAttribute(name);
+      }
+    }
+  }, [editor, ariaLabel, picker, isPhone, activeId]);
+
+  const closePicker = useCallback(() => {
+    setPicker(null);
+
+    if (!editor) return;
+
+    exitSuggestion(editor.view);
+    editor.commands.focus();
+  }, [editor]);
+
+  function pick(person: {
+    type: "member" | "guest";
+    id: number;
+    name: string;
+  }) {
+    if (!editor || !picker) return;
+
+    const attrs: TagAttrs = {
+      personType: person.type,
+      personId: person.id,
+      name: person.name,
+    };
+
+    setPicker(null);
+
+    if (picker.mode === "at") {
+      picker.command(attrs);
+
+      return;
+    }
+
+    // Rule 9: a name already written becomes the tag; otherwise the chip goes at the caret.
+    const chip: JSONContent = { type: "personTag", attrs };
+    let replaced = false;
+
+    editor.state.doc.descendants((node, pos) => {
+      if (replaced || !node.isText || !node.text) return true;
+
+      const found = findFirstNameWord(node.text, person);
+
+      if (found) {
+        replaced = true;
+        editor
+          .chain()
+          .insertContentAt(
+            { from: pos + found.index, to: pos + found.index + found.length },
+            chip,
+          )
+          .focus()
+          .run();
+      }
+
+      return true;
+    });
+
+    if (replaced) return;
+
+    const chain = editor.chain();
+
+    if (!picker.snapshotFocused) chain.focus("end");
+
+    chain
+      .insertContent([chip, { type: "text", text: " " }])
+      .focus()
+      .run();
+  }
+
   const length = segmentsLength(segments);
+  const open = canTag && picker !== null;
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col">
-      <EditorContent
-        className={clsx(
-          "min-h-11 w-full cursor-text rounded-[var(--field-radius)] border border-field-border bg-field px-3 py-[9px] text-sm leading-[1.55] text-field-foreground",
-          "focus-within:border-field-border-focus focus-within:shadow-[var(--shadow-focus)]",
-          "[&_.tiptap]:min-h-6 [&_.tiptap]:whitespace-pre-wrap [&_.tiptap]:break-words",
-          "[&_.tiptap_p]:m-0",
-          "[&_p.is-editor-empty]:before:pointer-events-none [&_p.is-editor-empty]:before:float-left [&_p.is-editor-empty]:before:h-0 [&_p.is-editor-empty]:before:text-field-placeholder [&_p.is-editor-empty]:before:content-[attr(data-placeholder)]",
+    <div className="flex min-w-0 flex-1 items-start gap-2">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div ref={anchorRef}>
+          <EditorContent
+            className={clsx(
+              "min-h-11 w-full cursor-text rounded-[var(--field-radius)] border border-field-border bg-field px-3 py-[9px] text-sm leading-[1.55] text-field-foreground",
+              "focus-within:border-field-border-focus focus-within:shadow-[var(--shadow-focus)]",
+              "[&_.tiptap]:min-h-6 [&_.tiptap]:whitespace-pre-wrap [&_.tiptap]:break-words",
+              "[&_.tiptap_p]:m-0",
+              "[&_p.is-editor-empty]:before:pointer-events-none [&_p.is-editor-empty]:before:float-left [&_p.is-editor-empty]:before:h-0 [&_p.is-editor-empty]:before:text-field-placeholder [&_p.is-editor-empty]:before:content-[attr(data-placeholder)]",
+            )}
+            editor={editor}
+          />
+        </div>
+        {length >= COUNTER_FROM && (
+          <span className="mt-1 self-end text-[13px] tabular-nums text-muted">
+            {t("counter", { count: length })}
+          </span>
         )}
-        editor={editor}
-      />
-      {length >= COUNTER_FROM && (
-        <span className="mt-1 self-end text-[13px] tabular-nums text-muted">
-          {t("counter", { count: length })}
-        </span>
+      </div>
+      {canTag && (
+        <button
+          aria-expanded={picker?.mode === "button"}
+          aria-haspopup="dialog"
+          aria-label={tItems("tagSomeone")}
+          className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary hover:text-heading"
+          data-tag-button=""
+          title={tItems("tagSomeone")}
+          type="button"
+          onClick={() =>
+            setPicker((current) =>
+              current?.mode === "button"
+                ? null
+                : { mode: "button", snapshotFocused: snapshotRef.current },
+            )
+          }
+          onPointerDown={() => {
+            snapshotRef.current = editor?.isFocused ?? false;
+          }}
+        >
+          <UserPlusIcon
+            aria-hidden="true"
+            className="size-5"
+            strokeWidth={1.7}
+          />
+        </button>
+      )}
+      {open && tagging && !isPhone && (
+        <TagPicker
+          anchorRef={anchorRef}
+          context={tagging.context}
+          itemText={itemText}
+          keysRef={keysRef}
+          mode={picker.mode}
+          query={picker.mode === "at" ? picker.query : ""}
+          tagged={tagged}
+          onActive={setActiveId}
+          onClose={closePicker}
+          onPick={pick}
+        />
+      )}
+      {open && tagging && isPhone && (
+        <TagPickerSheet
+          context={tagging.context}
+          initialQuery={picker.mode === "at" ? picker.query : ""}
+          itemLabel={tagging.itemLabel}
+          itemText={itemText}
+          keysRef={keysRef}
+          mode={picker.mode}
+          tagged={tagged}
+          onClose={closePicker}
+          onPick={pick}
+        />
       )}
     </div>
   );
-}
-
-function focusEditor(editor: Editor, position: number | "end") {
-  if (position === "end") {
-    editor.commands.focus("end");
-
-    return;
-  }
-
-  editor.commands.focus(position + 1);
 }
