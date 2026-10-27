@@ -4,6 +4,13 @@
  * flow works without it (private windows, blocked storage).
  */
 
+import {
+  type DraftItem,
+  type DraftItems,
+  itemsFromText,
+  newDraftItem,
+} from "./report-items-draft";
+
 export interface ReportDraftAnswer {
   attendedGroup: boolean | null;
   attendedChurch: boolean | null;
@@ -12,9 +19,8 @@ export interface ReportDraftAnswer {
 
 export interface ReportDraft {
   address: string;
-  prayer: string;
-  praise: string;
-  discussion: string;
+  /** The three sections as items (people keep their full name so chips render at once). */
+  items: DraftItems;
   /** Step 1: did the group meet? Defaults to yes; a no meeting uses only `reason`. */
   met: boolean;
   /** Kept when the leader switches back to yes, but only sent for a no meeting. */
@@ -36,12 +42,44 @@ function isDraft(value: unknown): value is ReportDraft {
 
   return (
     typeof draft.address === "string" &&
-    typeof draft.prayer === "string" &&
-    typeof draft.praise === "string" &&
-    typeof draft.discussion === "string" &&
     typeof draft.answers === "object" &&
     draft.answers !== null
   );
+}
+
+function isDraftItem(value: unknown): value is DraftItem {
+  if (typeof value !== "object" || value === null) return false;
+
+  const item = value as Record<string, unknown>;
+
+  return typeof item.key === "string" && Array.isArray(item.segments);
+}
+
+/** A section always has an item to type in. */
+function atLeastOne(items: DraftItem[]): DraftItem[] {
+  return items.length > 0 ? items : [newDraftItem()];
+}
+
+/**
+ * Drafts saved before items hold three strings: each becomes one item per line (rule 2), like
+ * `withPersonKeys` migrates older answers.
+ */
+function withItems(draft: Record<string, unknown>): DraftItems {
+  const saved = draft.items as Record<string, unknown> | undefined;
+  const fromText = (field: string) =>
+    typeof draft[field] === "string" ? itemsFromText(draft[field]) : [];
+  const section = (key: keyof DraftItems, legacyField: string) =>
+    atLeastOne(
+      Array.isArray(saved?.[key]) && saved[key].every(isDraftItem)
+        ? (saved[key] as DraftItem[])
+        : fromText(legacyField),
+    );
+
+  return {
+    prayer: section("prayer", "prayer"),
+    praise: section("praise", "praise"),
+    followUp: section("followUp", "discussion"),
+  };
 }
 
 /** Drafts saved before guests were keyed by member id alone: "12" is "member:12". */
@@ -62,6 +100,7 @@ function withMeetingDefaults(draft: ReportDraft): ReportDraft {
 
   return {
     ...draft,
+    items: withItems(draft as unknown as Record<string, unknown>),
     answers: withPersonKeys(draft.answers),
     met: typeof saved.met === "boolean" ? saved.met : true,
     reason: typeof saved.reason === "string" ? saved.reason : "",

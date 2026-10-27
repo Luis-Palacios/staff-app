@@ -1,5 +1,6 @@
 import type {
   Person,
+  ReportRosterPerson,
   SmallGroupRole,
   TaggablePerson,
 } from "@/api/small-groups-api/types";
@@ -156,4 +157,39 @@ export function findFirstNameWord(
   }
 
   return null;
+}
+
+/**
+ * The picker's roster: everyone on this report with how they were marked (came, missed, or not yet).
+ * `answers` is keyed by `personKey`.
+ */
+export function tagContextOf({
+  groupId,
+  groupName,
+  people,
+  answers,
+}: {
+  groupId: number;
+  groupName: string;
+  people: readonly Pick<ReportRosterPerson, "person" | "role">[];
+  answers: Record<string, { attendedGroup: boolean | null } | undefined>;
+}): TagContext {
+  return {
+    groupId,
+    groupName,
+    roster: people.map(({ person, role }) => {
+      const attended = answers[toPersonKey(person)]?.attendedGroup;
+
+      return {
+        person,
+        role,
+        state:
+          attended === true
+            ? "came"
+            : attended === false
+              ? "missed"
+              : "notMarked",
+      };
+    }),
+  };
 }

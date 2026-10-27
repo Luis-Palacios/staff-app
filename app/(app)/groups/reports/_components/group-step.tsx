@@ -1,27 +1,41 @@
 "use client";
 
-import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import type { ReportSectionKey } from "@/api/small-groups-api/types";
+import type {
+  DraftItem,
+  DraftItems,
+} from "@/app/(app)/groups/reports/_lib/report-items-draft";
+import type { TagContext } from "@/app/(app)/groups/reports/_lib/report-tags";
+
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  AtSymbolIcon,
+} from "@heroicons/react/24/outline";
 import { Button } from "@heroui/react";
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
-import { GroupFields, type GroupTextField } from "./group-fields";
+import { ReportItemsFields } from "./report-items-field";
 
 import { card, title } from "@/components/primitives";
 
 /** Step 3: what the group shared as a whole (prayer, praise, points for the elders). */
 export function GroupStep({
-  values,
+  items,
+  tagContext,
   onChange,
   onBack,
   onNext,
 }: {
-  values: Record<GroupTextField, string>;
-  onChange: (field: GroupTextField, value: string) => void;
+  items: DraftItems;
+  tagContext: TagContext;
+  onChange: (section: ReportSectionKey, items: DraftItem[]) => void;
   onBack: () => void;
   onNext: () => void;
 }) {
   const t = useTranslations("ReportForm");
+  const tItems = useTranslations("ReportItems");
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -51,7 +65,20 @@ export function GroupStep({
           </h2>
           <p className="text-sm text-muted">{t("groupSub")}</p>
         </div>
-        <GroupFields layout="stacked" values={values} onChange={onChange} />
+        <p className="flex items-start gap-2.5 rounded-xl bg-accent-soft px-3.5 py-3 text-[13.5px] text-accent-soft-foreground">
+          <AtSymbolIcon
+            aria-hidden="true"
+            className="mt-0.5 size-4 shrink-0"
+            strokeWidth={1.8}
+          />
+          {tItems("tip")}
+        </p>
+        <ReportItemsFields
+          items={items}
+          layout="stacked"
+          tagContext={tagContext}
+          onChange={onChange}
+        />
       </div>
       <div className="flex items-center justify-between gap-3 border-t border-separator bg-surface-secondary/50 px-5 py-4 sm:px-6">
         <Button

@@ -86,7 +86,7 @@ what changed and anything that differs from the canvas in the progress log below
 | 1. API types and client; drop every use of the old text fields | ✅ | |
 | 2. The item editor (`ReportItemsField`), without tags | ✅ | |
 | 3. Tags: chips, `@` picker, person button, phone sheet | ✅ | |
-| 4. Report form wiring: group step, list step, edit, draft, older reports | ⬜ | |
+| 4. Report form wiring: group step, list step, edit, draft, older reports | ✅ | |
 | 5. Read views: Report detail, conversation panel, Prayer & follow-up, WhatsApp | ⬜ | |
 | **Part 2 (`person-timeline`)** | | |
 | 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ⬜ | |
@@ -141,6 +141,20 @@ what changed and anything that differs from the canvas in the progress log below
   *Named in this item* first and Enter turns the written *Gabriela* into the chip, the same picker as a
   bottom sheet in a 390 px frame. **Not exercised here:** the church-wide search (it needs a signed-in
   session and the API), the screen-reader announcements, Backspace over a chip.
+- **Stage 4.** `ReportDraft` now holds `items: DraftItems` (segments; people keep their full name).
+  Older drafts (three strings) are split into items on load (`withItems` in `report-draft.ts`).
+  `toReportInput` sends `sections`, dropping empty items. Group step: the tip line (accent-soft box,
+  at-symbol icon) then three stacked `ReportItemsField`s; list step and edit: `grid`. The picker's
+  roster comes from `tagContextOf` (people on the report plus their current answers, so a guest added
+  mid-flow can be tagged at once). `group-fields.tsx` is deleted. Edit form: items from
+  `report.sections`; the legacy banner (warning-soft) shows when the report has items, none tagged and
+  `submittedAt < ITEMS_SINCE`. **`ITEMS_SINCE` is `"2026-10-27"` in `_lib/items-since.ts`: set it to the
+  real deploy date.** The stage 1 shim (strings ⇄ items) is gone, so editing a tagged report keeps its tags.
+- **Stage 4, not verified against the API.** The local API is the `report-tags` branch, but the dev
+  database is still at migration `e73b39f55d6b` (branch head is `c19ca7f78d85`), so
+  `GET /small-group-reports/{id}` answers 500 there. I didn't migrate your dev database. Create / edit /
+  tag search / the 422 texts still need a run after `uv run alembic upgrade head` (or against a scratch
+  DB). Checked only: lint, `tsc`, and the editor and picker on a throwaway route (stages 2–3).
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes

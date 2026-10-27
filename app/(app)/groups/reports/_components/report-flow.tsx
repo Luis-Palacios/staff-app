@@ -2,7 +2,6 @@
 
 import type { ReportRoster } from "@/api/small-groups-api/types";
 import type { ReportFailure } from "@/app/(app)/groups/reports/_actions/report-actions";
-import type { GroupTextField } from "@/app/(app)/groups/reports/_components/group-fields";
 import type { DateProblem } from "@/app/(app)/groups/reports/_components/date-problem-note";
 import type {
   AttendanceMode,
@@ -42,6 +41,8 @@ import { formatChurchSunday } from "@/app/(app)/groups/reports/_lib/format-churc
 import { toReportInput } from "@/app/(app)/groups/reports/_lib/report-body";
 import { defaultMeetingDate } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import { guestsFirst, personKey } from "@/app/(app)/groups/reports/_lib/person";
+import { emptyDraftItems } from "@/app/(app)/groups/reports/_lib/report-items-draft";
+import { tagContextOf } from "@/app/(app)/groups/reports/_lib/report-tags";
 import {
   clearDraft,
   loadDraft,
@@ -92,9 +93,7 @@ const NO_ANSWER: ReportDraftAnswer = {
 function emptyDraft(address: string): ReportDraft {
   return {
     address,
-    prayer: "",
-    praise: "",
-    discussion: "",
+    items: emptyDraftItems(),
     met: true,
     reason: "",
     replacing: false,
@@ -422,11 +421,12 @@ export function ReportFlow({
     isMarked(draft.answers[personKey(person.person)]),
   ).length;
   const remaining = people.length - markedCount;
-  const groupValues: Record<GroupTextField, string> = {
-    prayer: draft.prayer,
-    praise: draft.praise,
-    discussion: draft.discussion,
-  };
+  const tagContext = tagContextOf({
+    groupId,
+    groupName: group.name,
+    people,
+    answers: draft.answers,
+  });
   const heading = step === "review" ? t("reviewTitle") : t("newTitle");
   // The quick list has no number, and neither has saving a no meeting from step 1.
   const numbered =
@@ -555,9 +555,12 @@ export function ReportFlow({
 
       {step === "group" && (
         <GroupStep
-          values={groupValues}
+          items={draft.items}
+          tagContext={tagContext}
           onBack={() => setStep("people")}
-          onChange={(field, value) => edit({ [field]: value })}
+          onChange={(section, next) =>
+            edit({ items: { ...draftRef.current.items, [section]: next } })
+          }
           onNext={() => {
             setReviewFrom("group");
             setStep("review");
@@ -636,14 +639,17 @@ export function ReportFlow({
                 </div>
               </>
             }
-            groupValues={groupValues}
             guests={guestActions.controls}
+            items={draft.items}
             meetingDate={date}
             people={people}
             shortSundayLabel={shortSundayLabel}
+            tagContext={tagContext}
             tintUnanswered={step === "review"}
             onAnswer={answer}
-            onGroupText={(field, value) => edit({ [field]: value })}
+            onItems={(section, next) =>
+              edit({ items: { ...draftRef.current.items, [section]: next } })
+            }
           />
         </div>
       )}

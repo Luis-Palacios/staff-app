@@ -1,7 +1,10 @@
 "use client";
 
-import type { ReportDetail, ReportRoster } from "@/api/small-groups-api/types";
-import type { GroupTextField } from "@/app/(app)/groups/reports/_components/group-fields";
+import type {
+  ReportDetail,
+  ReportRoster,
+  ReportSectionKey,
+} from "@/api/small-groups-api/types";
 import type { Locale } from "@/lib/locale-shared";
 import type { ReportDraft } from "@/app/(app)/groups/reports/_lib/report-draft";
 
@@ -30,17 +33,55 @@ import {
   type ReportFailure,
 } from "@/app/(app)/groups/reports/_actions/report-actions";
 import { guestsFirst, personKey } from "@/app/(app)/groups/reports/_lib/person";
+import { ITEMS_SINCE } from "@/app/(app)/groups/reports/_lib/items-since";
+import {
+  type DraftItem,
+  type DraftItems,
+  type DraftSegment,
+  newDraftItem,
+} from "@/app/(app)/groups/reports/_lib/report-items-draft";
+import { tagContextOf } from "@/app/(app)/groups/reports/_lib/report-tags";
 import { toReportInput } from "@/app/(app)/groups/reports/_lib/report-body";
 import { ADDRESS_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
 import { card } from "@/components/primitives";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
-import { sectionPlainLines } from "@/lib/report-sections";
+import { REPORT_SECTION_KEYS } from "@/lib/report-sections";
 
 const DATE_FAILURES: readonly (string | undefined)[] = [
   "exists",
   "future",
   "notLeaderOnDate",
 ];
+
+/** The report's items as the form holds them: a person keeps their name, never `viewable`. */
+function itemsOf(report: ReportDetail): DraftItems {
+  const section = (key: ReportSectionKey): DraftItem[] =>
+    report.sections[key].length > 0
+      ? report.sections[key].map((item) =>
+          newDraftItem(
+            item.segments.map(
+              (segment): DraftSegment =>
+                segment.type === "text"
+                  ? segment
+                  : {
+                      type: "person",
+                      person: {
+                        type: segment.person.type,
+                        id: segment.person.id,
+                        name: segment.person.name,
+                      },
+                    },
+            ),
+          ),
+        )
+      : [newDraftItem()];
+
+  return {
+    prayer: section("prayer"),
+    praise: section("praise"),
+    followUp: section("followUp"),
+  };
+}
 
 /** The report's own rows as answers, keyed by `personKey`. */
 function answersOf(report: ReportDetail): ReportDraft["answers"] {
@@ -79,6 +120,7 @@ export function EditReportForm({
   editMeta: string;
 }) {
   const t = useTranslations("ReportForm");
+  const tItems = useTranslations("ReportItems");
   const locale = useLocale() as Locale;
   const [isSaving, startSave] = useTransition();
   const [date, setDate] = useState(report.meetingDate);
@@ -89,9 +131,7 @@ export function EditReportForm({
   >({ status: "ready", roster: initialRoster, existsMessage: null });
   const [draft, setDraft] = useState<ReportDraft>(() => ({
     address: report.address ?? "",
-    prayer: sectionPlainLines(report.sections.prayer).join("\n"),
-    praise: sectionPlainLines(report.sections.praise).join("\n"),
-    discussion: sectionPlainLines(report.sections.followUp).join("\n"),
+    items: itemsOf(report),
     met: true,
     reason: "",
     replacing: false,
@@ -230,11 +270,22 @@ export function EditReportForm({
   const remaining = people.filter(
     (person) => !isMarked(draft.answers[personKey(person.person)]),
   ).length;
-  const groupValues: Record<GroupTextField, string> = {
-    prayer: draft.prayer,
-    praise: draft.praise,
-    discussion: draft.discussion,
-  };
+  const tagContext = tagContextOf({
+    groupId: report.smallGroup.id,
+    groupName: report.smallGroup.name,
+    people,
+    answers: draft.answers,
+  });
+  // Rule 5: an older report's sections came over as one item per line, with nobody tagged.
+  const allSections = REPORT_SECTION_KEYS.flatMap(
+    (key) => report.sections[key],
+  );
+  const showLegacyBanner =
+    allSections.length > 0 &&
+    report.submittedAt < ITEMS_SINCE &&
+    allSections.every((item) =>
+      item.segments.every((segment) => segment.type === "text"),
+    );
   const blocking =
     failure && !DATE_FAILURES.includes(failure.kind) ? failure : null;
 
@@ -278,6 +329,15 @@ export function EditReportForm({
         </div>
         <p className="mt-4 text-[13px] text-muted">{editMeta}</p>
       </section>
+
+      {showLegacyBanner && (
+        <p
+          className="rounded-tile bg-warning-soft px-4 py-3 text-[13.5px] font-semibold text-warning-soft-foreground"
+          role="note"
+        >
+          {tItems("legacyBanner")}
+        </p>
+      )}
 
       <ReportListStep
         tintUnanswered
@@ -323,8 +383,8 @@ export function EditReportForm({
             </div>
           </>
         }
-        groupValues={groupValues}
         guests={guestActions.controls}
+        items={draft.items}
         meetingDate={date}
         observationsVisible={report.observationsVisible}
         people={people}
@@ -333,8 +393,11 @@ export function EditReportForm({
             ? formatCalendarShortWeekdayDate(ready.churchSunday, locale)
             : ""
         }
+        tagContext={tagContext}
         onAnswer={answer}
-        onGroupText={(field, value) => edit({ [field]: value })}
+        onItems={(section, next) =>
+          edit({ items: { ...latest.current.items, [section]: next } })
+        }
       />
 
       {guestActions.dialogs}

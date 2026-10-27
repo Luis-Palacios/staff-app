@@ -1742,7 +1742,9 @@ declare const messages: {
     "limitTags": "Up to 10 people per item.",
     "searchError": "Couldn't search right now. Try again.",
     "searching": "Searching…",
-    "close": "Close"
+    "close": "Close",
+    "tip": "One item per request: press Enter to start the next. Type @ or use the person button to tag a member or guest, from any group.",
+    "legacyBanner": "This report was written before items and tags, so each section came over as one item per line. Press Enter inside an item to split it, and tag people if it helps. Nothing changes until you save."
   }
 };
 export default messages;

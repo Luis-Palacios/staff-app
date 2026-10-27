@@ -1,28 +1,23 @@
 import type {
   ReportInput,
   ReportRoster,
+  ReportSectionKey,
   ReportSectionsInput,
 } from "@/api/small-groups-api/types";
 import type { ReportDraft } from "./report-draft";
 
 import { personKey } from "./person";
+import { isEmptyItem, toItemInput } from "./report-items-draft";
 
-import { splitLegacyText } from "@/lib/report-items";
-
-/**
- * The three draft texts as items, one per line (rule 2). The draft still holds strings until the
- * item editor is wired in; the API drops empty items.
- */
+/** The draft's items as the API takes them; empty ones are left out (rule 2). */
 function sectionsOf(draft: ReportDraft): ReportSectionsInput {
-  const items = (text: string) =>
-    splitLegacyText(text).map((line) => ({
-      segments: [{ type: "text" as const, text: line }],
-    }));
+  const items = (section: ReportSectionKey) =>
+    draft.items[section].filter((item) => !isEmptyItem(item)).map(toItemInput);
 
   return {
-    prayer: items(draft.prayer),
-    praise: items(draft.praise),
-    followUp: items(draft.discussion),
+    prayer: items("prayer"),
+    praise: items("praise"),
+    followUp: items("followUp"),
   };
 }
 
