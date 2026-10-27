@@ -6,7 +6,7 @@ rules are referred to as *rule N*. After this work:
 
 - **Report form** (`/groups/reports/new`, `/groups/reports/[id]/edit`): *Prayer requests*,
   *Praise* and *For the elders to follow up* are lists of items. An item can tag members and guests
-  with `@` or the item's person button.
+  with `@` or the row's `@` button.
 - **Report detail, Prayer & follow-up, the conversation panel:** items as a list, tagged people as
   chips; *Copy for WhatsApp* one line per item.
 - **Member detail and Guest detail** (Part 2): **Profile · Timeline** tabs, a *Recent activity* card
@@ -15,10 +15,15 @@ rules are referred to as *rule N*. After this work:
 
 **Decided:** everything in the cross-repo spec's *Rules*, plus these UI decisions (don't reopen):
 
-- **One editor per item**, not one editor per section. Each item is a single-line rich field
-  (wraps visually, no line breaks inside) with its number on the left and two 44 px icon buttons on
-  the right: *Tag someone* (person-plus) and *Remove item* (×). *Add another* (dashed) under the
-  list. The numbers are hidden below `md`.
+- **One editor per item, in a notepad box per section** (revised Oct 26, stage 5b; the earlier
+  bordered-editor-per-item design is gone). The three sections always stack in one column
+  (`max-w-[760px]`): no grid. Each section's `<ol>` is one bordered box and its items are rows
+  separated by a hairline. A row is a single-line rich field with no border of its own (wraps
+  visually, no line breaks inside), its number in the left gutter, and a 40 px *Tag someone* (`@`)
+  and a 40 px *Remove item* (×) at the end, shown on row hover or focus (always, at 44 px, on touch).
+  The last row is a ghost row (+ and the section's placeholder) that adds an item; it's hidden while
+  the last item is empty and at 20 items. A section can be empty. The legend is the title,
+  *(optional)* and the count of non-empty items. The numbers are hidden below `md`.
 - **Enter** in an item splits it at the caret into the next item and moves focus there.
   **Backspace** at the start of an item merges it into the previous one (an empty item is removed).
   **Paste** with line breaks inserts one item per line (rule 2).
@@ -26,7 +31,7 @@ rules are referred to as *rule N*. After this work:
   whole chip, they can't be edited letter by letter.
 - **Picker:** on desktop a popover under the item (400 px max), on phones a bottom sheet with its
   own search field. With `@` the query is what's typed after it (no search field on desktop);
-  with the person button the popover has a search field. `↑`/`↓` move, Enter picks, Esc closes and
+  with the row's `@` button the popover has a search field. `↑`/`↓` move, Enter picks, Esc closes and
   leaves `@pab` as plain text. Group headings in the eyebrow style. First option highlighted.
 - **Rich-text library:** use **TipTap** (`@tiptap/react`, `@tiptap/pm`, `@tiptap/extension-document`,
   `-paragraph`, `-text`, `-mention`, `-placeholder`), one editor instance per item, mention nodes
@@ -56,7 +61,7 @@ what changed and anything that differs from the canvas in the progress log below
 
 - **Design (source of truth for look):** [Staff App canvas](https://claude.ai/artifact/PLs9gdHVcigkRSAWJrsKs1),
   page **"Tagging people"**, its four rows and its two blue notes. Report form boards are clickable
-  in Play (pick a person, *Tag someone*, *Add another*, remove); so are the person pages (tabs) and
+  in Play (pick a person, *Tag someone*, the ghost row, remove); so are the person pages (tabs) and
   the timeline boards (filters, chips, *Show 3 more months*, the phone sheet).
 - **Boards:**
   - Form: `ReportForm-Tags` (group step, typing `@Pab`: *In Jóvenes Bello Horizonte* with Pablo
@@ -88,12 +93,20 @@ what changed and anything that differs from the canvas in the progress log below
 | 3. Tags: chips, `@` picker, person button, phone sheet | ✅ | `e9e1f93` |
 | 4. Report form wiring: group step, list step, edit, draft, older reports | ✅ | `763aaed` |
 | 5. Read views: Report detail, conversation panel, Prayer & follow-up, WhatsApp | ✅ | `8ebd362` |
-| 5b. Stacked notepad layout for the three sections (canvas revision of Oct 26) | ✅ | this commit |
+| 5b. Stacked notepad layout for the three sections (canvas revision of Oct 26) | ✅ | `bd57083` |
 | **Part 2 (`person-timeline`)** | | |
 | 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ⬜ | |
 | 7. Tabs and Recent activity on Member and Guest detail | ⬜ | |
 | 8. The Timeline tab: filters, URL, *Show 3 more months*, phone sheet | ⬜ | |
 | 9. Docs and design review fixes | ⬜ | |
+
+**Where to resume (Part 1 is functionally done; check this before starting Part 2):**
+
+- Set the real deploy date in `ITEMS_SINCE` (`_lib/items-since.ts`).
+- Not exercised yet: touch (`(hover: none)`), a multi-line paste into the new box, elder and
+  leader sessions, a member-group leader, 422 `items`, the picker as a sheet at 390 on the new box,
+  and the design review checklist against the canvas boards.
+- Then Part 2 on a new `person-timeline` branch from stage 6; it needs the API's stages 6–7 running.
 
 ### Decisions and deviations
 
@@ -168,9 +181,7 @@ what changed and anything that differs from the canvas in the progress log below
   items with gold dots; the edit form loads a seeded report as items; `@kev` in an item returns
   church-wide rows (guest pill, role · group) through the server action and tag-search endpoint.
   Still **not exercised**: saving (create/edit) and the 422 texts, a report with tagged chips on detail /
-  panel / Prayer & follow-up, the WhatsApp text. In the 3-column edit grid at 1440 an item's field is
-  narrow (~165 px) because the person and remove buttons take 104 px of each column: check it
-  against the canvas.
+  panel / Prayer & follow-up, the WhatsApp text. (The 3-column grid this note was about is gone: stage 5b.)
 - **Saved and read back against the local API (report 5 edited twice, tags added through `@`):**
   save + redirect works; Report detail and the `?section=followUp` panel show the chip (a link to
   `/members/49` for the admin); Prayer & follow-up finds the report by the tagged person's name
@@ -283,6 +294,10 @@ All from `membership-management/docs/REPORT-TAGS-API-HANDOFF.md` and the spec's 
 
 ### Stage 2: the item editor, without tags
 
+> Superseded in part by stage 5b (see **Decided** and *Decisions*): the per-item border, the
+> `layout` prop / grid and *Add another* below are gone. Read this stage for the behavior (keyboard,
+> limits, aria), not the look.
+
 **Files:** `app/(app)/groups/reports/_components/report-items-field.tsx` (new),
 `report-item-editor.tsx` (new, the TipTap instance). Replaces `group-fields.tsx` in stage 4.
 
@@ -338,6 +353,8 @@ All from `membership-management/docs/REPORT-TAGS-API-HANDOFF.md` and the spec's 
   tagged.*). Board `ReportForm-Tags-Phone`.
 
 ### Stage 4: report form wiring
+
+> Layout superseded by stage 5b: every step stacks the three sections in one column.
 
 **Files:** `group-step.tsx`, `report-list-step.tsx`, `edit-report-form.tsx`, `report-flow.tsx`,
 `_lib/report-draft.ts`, `_lib/report-body.ts`, `_lib/report-schema.ts`, delete `group-fields.tsx`.
