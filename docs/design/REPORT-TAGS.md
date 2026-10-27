@@ -163,7 +163,14 @@ what changed and anything that differs from the canvas in the progress log below
   (`max-w-[72ch]`), `searchText` adds tagged people's full names (rule 16). WhatsApp: `• ` + item, tagged
   people as first names, one line per item, for one entry and for *Copy all* (comment in
   `whatsapp-text.ts` updated).
-- **Stage 5, not verified in the browser** (same reason as stage 4: the dev API 500s on reports until
+- **After the dev database was migrated (checked in the browser, nothing saved):** Report detail shows
+  items with gold dots; the edit form loads a seeded report as items; `@kev` in an item returns
+  church-wide rows (guest pill, role · group) through the server action and tag-search endpoint.
+  Still **not exercised**: saving (create/edit) and the 422 texts, a report with tagged chips on detail /
+  panel / Prayer & follow-up, the WhatsApp text. In the 3-column edit grid at 1440 an item's field is
+  narrow (~165 px) because the person and remove buttons take 104 px of each column: check it
+  against the canvas.
+- **Stage 5, was not verified in the browser** (same reason as stage 4: the dev API 500s on reports until
   its database is migrated). Lint and `tsc` pass. After migrating, check: a report with tagged items on
   Report detail, `?section=` panel, Prayer & follow-up search for a tagged name, and the copied text.
 - **Part 1 not yet checked at 1440 / 1024 / 390, light and dark, leader and elder** against the canvas
