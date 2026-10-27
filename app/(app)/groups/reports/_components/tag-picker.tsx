@@ -27,6 +27,7 @@ export type PickerKeys = (event: {
 
 function OptionRow({
   option,
+  groupName,
   id,
   active,
   tall,
@@ -34,6 +35,8 @@ function OptionRow({
   onHover,
 }: {
   option: TagOption;
+  /** This report's group: what a guest on the roster shows instead of a role. */
+  groupName: string;
   id: string;
   active: boolean;
   tall: boolean;
@@ -55,7 +58,8 @@ function OptionRow({
           ? t("missed")
           : t("notMarked");
 
-    sub = `${tRole(roster.role)} · ${state}`;
+    // A guest's roster role is always "member", which says nothing: their group does.
+    sub = `${guest ? groupName : tRole(roster.role)} · ${state}`;
     warn = roster.state === "missed";
   } else if (church && guest) {
     sub = [
@@ -266,6 +270,7 @@ export function TagPickerBody({
                 <OptionRow
                   key={option.key}
                   active={start + i === index}
+                  groupName={context.groupName}
                   id={`${listId}-${start + i}`}
                   option={option}
                   tall={tall}
