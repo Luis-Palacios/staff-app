@@ -33,7 +33,6 @@ import {
   type ReportFailure,
 } from "@/app/(app)/groups/reports/_actions/report-actions";
 import { guestsFirst, personKey } from "@/app/(app)/groups/reports/_lib/person";
-import { ITEMS_SINCE } from "@/app/(app)/groups/reports/_lib/items-since";
 import {
   type DraftItem,
   type DraftItems,
@@ -45,7 +44,6 @@ import { toReportInput } from "@/app/(app)/groups/reports/_lib/report-body";
 import { ADDRESS_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
 import { card } from "@/components/primitives";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
-import { REPORT_SECTION_KEYS } from "@/lib/report-sections";
 
 const DATE_FAILURES: readonly (string | undefined)[] = [
   "exists",
@@ -120,7 +118,6 @@ export function EditReportForm({
   editMeta: string;
 }) {
   const t = useTranslations("ReportForm");
-  const tItems = useTranslations("ReportItems");
   const locale = useLocale() as Locale;
   const [isSaving, startSave] = useTransition();
   const [date, setDate] = useState(report.meetingDate);
@@ -276,16 +273,6 @@ export function EditReportForm({
     people,
     answers: draft.answers,
   });
-  // Rule 5: an older report's sections came over as one item per line, with nobody tagged.
-  const allSections = REPORT_SECTION_KEYS.flatMap(
-    (key) => report.sections[key],
-  );
-  const showLegacyBanner =
-    allSections.length > 0 &&
-    report.submittedAt < ITEMS_SINCE &&
-    allSections.every((item) =>
-      item.segments.every((segment) => segment.type === "text"),
-    );
   const blocking =
     failure && !DATE_FAILURES.includes(failure.kind) ? failure : null;
 
@@ -329,15 +316,6 @@ export function EditReportForm({
         </div>
         <p className="mt-4 text-[13px] text-muted">{editMeta}</p>
       </section>
-
-      {showLegacyBanner && (
-        <p
-          className="rounded-tile bg-warning-soft px-4 py-3 text-[13.5px] font-semibold text-warning-soft-foreground"
-          role="note"
-        >
-          {tItems("legacyBanner")}
-        </p>
-      )}
 
       <ReportListStep
         tintUnanswered
