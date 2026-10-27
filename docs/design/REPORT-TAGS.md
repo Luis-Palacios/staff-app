@@ -108,6 +108,18 @@ what changed and anything that differs from the canvas in the progress log below
   and the design review checklist against the canvas boards.
 - Then Part 2 on a new `person-timeline` branch from stage 6; it needs the API's stages 6–7 running.
 
+**Checking in the browser (the work happens on both a Mac and a Windows machine):**
+
+- Start the dev server on the machine the session runs on (`pnpm dev`, port 3001); it also needs the
+  API (8000) and auth-server (5000) there.
+- Claude in Chrome can list a Chrome on each machine (`list_connected_browsers`). Use the one on the
+  **same computer as the dev server**: the other one gets `ERR_CONNECTION_REFUSED` on `localhost`, and
+  its sign-in isn't the one you made here. Ask which one rather than guessing.
+- Sign in as admin yourself (the password can't be typed for you). The page doesn't resize the window:
+  for 390 / 1024, load the page in a same-origin `<iframe>` of that width. `(hover: none)` can't be
+  emulated.
+- Report ids differ per database: open a report from `/groups/reports` rather than assuming one.
+
 ### Decisions and deviations
 
 - **Stage 1.** Types (`ReportSegment`, `ReportItem`, `ReportSections`, `ReportSectionsInput`,
