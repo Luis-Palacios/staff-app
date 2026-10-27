@@ -205,9 +205,11 @@ export function ReportItemsField({
             {label}{" "}
             <span className="font-normal text-muted">{t("optional")}</span>
           </span>
-          <span className="shrink-0 whitespace-nowrap text-[13px] font-normal tabular-nums text-muted">
-            {tItems("count", { count: filled })}
-          </span>
+          {filled > 0 && (
+            <span className="shrink-0 whitespace-nowrap text-[13px] font-normal tabular-nums text-muted">
+              {tItems("count", { count: filled })}
+            </span>
+          )}
         </span>
       </legend>
       <ol className="divide-y divide-separator overflow-hidden rounded-xl border border-field-border bg-field focus-within:border-field-border-focus focus-within:shadow-[var(--shadow-focus)]">
@@ -226,7 +228,7 @@ export function ReportItemsField({
             >
               <span
                 aria-hidden="true"
-                className="hidden w-10 shrink-0 pl-3 pt-[11px] text-[13px] tabular-nums text-subtle md:block"
+                className="hidden w-10 shrink-0 pl-3 pt-[11px] text-[13px] tabular-nums text-muted md:block"
               >
                 {n}
               </span>
@@ -269,7 +271,7 @@ export function ReportItemsField({
           <li>
             <button
               ref={addRef}
-              className="flex min-h-[46px] w-full items-center text-left text-sm text-subtle hover:bg-surface-secondary/40 hover:text-heading"
+              className="flex min-h-[46px] w-full items-center text-left text-[15px] text-muted hover:bg-surface-secondary/40 hover:text-heading"
               type="button"
               onClick={add}
             >
@@ -285,11 +287,10 @@ export function ReportItemsField({
           </li>
         )}
       </ol>
-      {(full || refused) && (
-        <p className="text-[13px] text-muted" role="status">
-          {tItems("limitItems")}
-        </p>
-      )}
+      {/* Always mounted, so a screen reader announces the text when it is filled in. */}
+      <p className="text-[13px] text-muted empty:hidden" role="status">
+        {full || refused ? tItems("limitItems") : null}
+      </p>
     </fieldset>
   );
 }
