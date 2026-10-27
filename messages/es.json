@@ -1711,6 +1711,13 @@
   },
   "ReportItems": {
     "errorTag": "Alguien que etiquetaste ya no se puede etiquetar. Quita la etiqueta e inténtalo de nuevo.",
-    "errorLimit": "Una sección tiene demasiados puntos o un punto tiene demasiadas etiquetas."
+    "errorLimit": "Una sección tiene demasiados puntos o un punto tiene demasiadas etiquetas.",
+    "addItem": "Agregar otro",
+    "itemLabel": "{section}, punto {n}",
+    "removeItem": "Quitar punto {n}: {section}",
+    "placeholderPrayer": "Agrega una petición de oración…",
+    "placeholderPraise": "Agrega un motivo de gratitud…",
+    "placeholderFollowUp": "Agrega un punto para los ancianos…",
+    "limitItems": "Hasta 20 puntos por sección."
   }
 }

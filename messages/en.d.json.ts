@@ -1714,7 +1714,14 @@ declare const messages: {
   },
   "ReportItems": {
     "errorTag": "Someone you tagged can't be tagged any more. Remove the tag and try again.",
-    "errorLimit": "A section has too many items or an item has too many tags."
+    "errorLimit": "A section has too many items or an item has too many tags.",
+    "addItem": "Add another",
+    "itemLabel": "{section}, item {n}",
+    "removeItem": "Remove item {n}: {section}",
+    "placeholderPrayer": "Add a prayer request…",
+    "placeholderPraise": "Add something to be thankful for…",
+    "placeholderFollowUp": "Add a point for the elders…",
+    "limitItems": "Up to 20 items per section."
   }
 };
 export default messages;

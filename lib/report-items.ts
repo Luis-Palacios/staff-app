@@ -87,3 +87,33 @@ export function splitLegacyText(text: string): string[] {
     )
     .filter(Boolean);
 }
+
+/** The API's limits (rule 3). An item's length counts a tagged person as its `@{member:198}` token. */
+export const ITEMS_MAX = 20;
+export const ITEM_MAX = 1024;
+export const TAGS_MAX = 10;
+
+type SegmentLike =
+  | { type: "text"; text: string }
+  | { type: "person"; person: Pick<Person, "type" | "id"> };
+
+/** Characters the API counts against {@link ITEM_MAX}. */
+export function segmentsLength(segments: readonly SegmentLike[]): number {
+  return segments.reduce(
+    (total, segment) =>
+      total +
+      (segment.type === "text"
+        ? segment.text.length
+        : `@{${segment.person.type}:${segment.person.id}}`.length),
+    0,
+  );
+}
+
+/** Editor positions the segments take: a character each, a chip as one atom. */
+export function segmentsSize(segments: readonly SegmentLike[]): number {
+  return segments.reduce(
+    (total, segment) =>
+      total + (segment.type === "text" ? segment.text.length : 1),
+    0,
+  );
+}

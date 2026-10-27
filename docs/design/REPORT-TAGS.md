@@ -84,7 +84,7 @@ what changed and anything that differs from the canvas in the progress log below
 | --- | --- | --- |
 | **Part 1 (`report-tags`)** | | |
 | 1. API types and client; drop every use of the old text fields | ✅ | |
-| 2. The item editor (`ReportItemsField`), without tags | ⬜ | |
+| 2. The item editor (`ReportItemsField`), without tags | ✅ | |
 | 3. Tags: chips, `@` picker, person button, phone sheet | ⬜ | |
 | 4. Report form wiring: group step, list step, edit, draft, older reports | ⬜ | |
 | 5. Read views: Report detail, conversation panel, Prayer & follow-up, WhatsApp | ⬜ | |
@@ -108,6 +108,20 @@ what changed and anything that differs from the canvas in the progress log below
   them into untagged items (rule 2) and the edit form joins items back into lines with people by full
   name, so editing a tagged report flattens its tags until stage 4. Read views show items as plain
   lines until stage 5. Nothing visible changes except line breaks becoming separate items.
+- **Stage 2.** TipTap 3.32 (`@tiptap/react`, `pm`, `core`, `extension-document/paragraph/text/placeholder`,
+  `@tiptap/suggestion` for stage 3; `extension-mention` is installed too) fits Next 16 / React 19:
+  `immediatelyRender: false`, no HeroUI conflict (the field box is plain classes with the field tokens).
+  One editor per item (`report-item-editor.tsx`, single-paragraph document, length filter at 1024
+  counting text only until chips exist). The parent (`report-items-field.tsx`) owns the list; the editor
+  hands up Enter / multi-line paste as one `ItemBreak` (`parts` + caret) and Backspace-at-start as
+  `onMergeUp`; focus moves by a `focusRequest` prop so a freshly mounted editor still gets it. Draft
+  model in `_lib/report-items-draft.ts` (`DraftItem { key, segments }`, people keep their full name).
+  `ReportItemsFields` renders the three sections (`stacked` / `grid`); the group step's tip line comes
+  with the wiring in stage 4. Not wired into any page yet, so nothing changes for users.
+- **Stage 2, checked** in the browser on a throwaway route (not committed): typing, Enter mid-text
+  splits and focuses the new item, Backspace at the start merges (and removes an empty item), a pasted
+  `- uno / • dos / 3) tres` becomes items without markers. Remove-item focus and the 20-item limit were
+  read through, not exercised.
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes

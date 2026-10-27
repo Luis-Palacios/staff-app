@@ -52,6 +52,7 @@ export const CLIENT_NAMESPACES = [
   "PasswordField",
   "RemoveGuestDialog",
   "ReportForm",
+  "ReportItems",
   "ReportsList",
   "ResendVerificationButton",
   "ResetPasswordForm",
