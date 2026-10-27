@@ -259,6 +259,15 @@ what changed and anything that differs from the canvas in the progress log below
   users and two weeks of reports it wasn't worth a date to set at deploy. Older reports still open as
   one untagged item per line. If a large import ever needs the note back, have the API backfill mark
   converted reports instead of comparing dates.
+- **Canvas review fixes (Oct 27, from Claude Design).** Item numbers and the ghost row use `text-muted`
+  instead of `text-subtle` (subtle is decorative: ~2.6–2.9:1; measured 6.14:1 dark, 5.87:1 light; the
+  empty-item placeholder was already `text-field-placeholder` = ink-muted). The legend count shows only
+  when a section has a non-empty item. Item text is 15px (`text-[15px]`, `leading-[1.55]`); the ghost
+  row went to 15px as well so its text lines up with an item's placeholder. The `role="status"` limit
+  line is always mounted (`empty:hidden`) and only its text changes, so screen readers announce it.
+  Checked on the edit form as a guest-group leader: dark and light at 1792, 390 in an iframe (no
+  sideways scroll), a 25-line paste fills the status text. Not re-checked in Spanish (the locale cookie
+  I set didn't switch it; same code path). The picker's roster-guest sub-line is unchanged on purpose.
 - **Width.** The edit form, the list step and the review wrapper no longer cap at 1000 px (they follow
   the shell's `max-w-7xl`), so the three item columns are ~334 px each at 1792 instead of ~165. The
   meeting and group steps keep their 720 px. Reported by the user while reviewing.

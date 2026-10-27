@@ -545,7 +545,7 @@ export function ReportItemEditor({
       <div className="flex min-w-0 flex-1 flex-col">
         <EditorContent
           className={clsx(
-            "min-h-11 w-full cursor-text px-3 py-[9px] text-sm leading-[1.55] text-field-foreground md:pl-0",
+            "min-h-11 w-full cursor-text px-3 py-[9px] text-[15px] leading-[1.55] text-field-foreground md:pl-0",
             "[&_.tiptap]:min-h-6 [&_.tiptap]:whitespace-pre-wrap [&_.tiptap]:break-words",
             "[&_.tiptap_p]:m-0",
             "[&_p.is-editor-empty]:before:pointer-events-none [&_p.is-editor-empty]:before:float-left [&_p.is-editor-empty]:before:-mb-6 [&_p.is-editor-empty]:before:h-6 [&_p.is-editor-empty]:before:max-w-full [&_p.is-editor-empty]:before:overflow-hidden [&_p.is-editor-empty]:before:text-ellipsis [&_p.is-editor-empty]:before:whitespace-nowrap [&_p.is-editor-empty]:before:text-field-placeholder [&_p.is-editor-empty]:before:content-[attr(data-placeholder)]",
