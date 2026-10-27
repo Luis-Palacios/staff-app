@@ -7,7 +7,7 @@ export function toPersonKey(person: Pick<Person, "type" | "id">): PersonKey {
   return `${person.type}:${person.id}`;
 }
 
-function firstNameOf(name: string): string {
+export function firstNameOf(name: string): string {
   return name.trim().split(/\s+/)[0] ?? name;
 }
 

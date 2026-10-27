@@ -6,7 +6,7 @@ import type {
 } from "@/api/small-groups-api/types";
 import type { PersonKey } from "@/lib/report-items";
 
-import { toPersonKey } from "@/lib/report-items";
+import { firstNameOf, toPersonKey } from "@/lib/report-items";
 import { normalizeText } from "@/lib/normalize-text";
 
 /** Where someone stands on this report's attendance list (rule 8). */
@@ -39,10 +39,6 @@ export type TagSectionId = "named" | "meeting" | "group" | "church";
 export interface TagSection {
   id: TagSectionId;
   options: TagOption[];
-}
-
-function firstNameOf(name: string): string {
-  return name.trim().split(/\s+/)[0] ?? name;
 }
 
 function wordsOf(text: string): string[] {
