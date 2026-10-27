@@ -34,6 +34,7 @@ import { toReportInput } from "@/app/(app)/groups/reports/_lib/report-body";
 import { ADDRESS_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
 import { card } from "@/components/primitives";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
+import { sectionPlainLines } from "@/lib/report-sections";
 
 const DATE_FAILURES: readonly (string | undefined)[] = [
   "exists",
@@ -88,9 +89,9 @@ export function EditReportForm({
   >({ status: "ready", roster: initialRoster, existsMessage: null });
   const [draft, setDraft] = useState<ReportDraft>(() => ({
     address: report.address ?? "",
-    prayer: report.groupPrayerRequest ?? "",
-    praise: report.groupPraiseReport ?? "",
-    discussion: report.groupRelevantDiscussion ?? "",
+    prayer: sectionPlainLines(report.sections.prayer).join("\n"),
+    praise: sectionPlainLines(report.sections.praise).join("\n"),
+    discussion: sectionPlainLines(report.sections.followUp).join("\n"),
     met: true,
     reason: "",
     replacing: false,

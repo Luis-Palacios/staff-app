@@ -83,7 +83,7 @@ what changed and anything that differs from the canvas in the progress log below
 | Stage | Status | Commit |
 | --- | --- | --- |
 | **Part 1 (`report-tags`)** | | |
-| 1. API types and client; drop every use of the old text fields | ⬜ | |
+| 1. API types and client; drop every use of the old text fields | ✅ | |
 | 2. The item editor (`ReportItemsField`), without tags | ⬜ | |
 | 3. Tags: chips, `@` picker, person button, phone sheet | ⬜ | |
 | 4. Report form wiring: group step, list step, edit, draft, older reports | ⬜ | |
@@ -96,7 +96,19 @@ what changed and anything that differs from the canvas in the progress log below
 
 ### Decisions and deviations
 
-- *(fill in per stage)*
+- **Stage 1.** Types (`ReportSegment`, `ReportItem`, `ReportSections`, `ReportSectionsInput`,
+  `TaggablePerson`), `searchTaggablePeople` and its server action
+  (`_actions/tag-search-action.ts`, needs `smallGroupReports` create *or* update), `lib/report-items.ts`
+  (`segmentsToPlain`, `shortNames`, `splitLegacyText`, `toPersonKey`) and
+  `reportSectionItems` / `sectionHasItems` / `sectionPlainLines` in `lib/report-sections.ts`. The old
+  text fields are gone from the types, so `tsc` found every reader. 422 `tag` / `items` map to
+  `ReportItems.errorTag` / `errorLimit` in `getApiErrorMessage` (the items phrases are checked first:
+  "Too many items or *tags*…" also contains "tag").
+- **Stage 1, temporary until stage 4.** The report draft is still three strings: `toReportInput` splits
+  them into untagged items (rule 2) and the edit form joins items back into lines with people by full
+  name, so editing a tagged report flattens its tags until stage 4. Read views show items as plain
+  lines until stage 5. Nothing visible changes except line breaks becoming separate items.
+- **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes
 

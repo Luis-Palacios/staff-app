@@ -14,6 +14,7 @@ import type {
   SmallGroupInput,
   SmallGroupRole,
   SmallGroupSummary,
+  TaggablePerson,
 } from "@/api/small-groups-api/types";
 
 import { cache } from "react";
@@ -214,7 +215,7 @@ export function getSmallGroupReportWeek(date?: string): Promise<ReportWeek> {
 }
 
 /**
- * The prayer, praise and follow-up texts of the held reports in the Sunday–Saturday week containing
+ * The prayer, praise and follow-up items of the held reports in the Sunday–Saturday week containing
  * `date` (default: the church's today), and the groups still to report. Scoped to the caller's
  * groups; 422 for a later week.
  */
@@ -238,6 +239,21 @@ export function getReportRoster(
   return authenticatedFetch<ReportRoster>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     `${groupPath(groupId, "/report-roster")}?date=${encodeURIComponent(date)}`,
+    { cache: "no-store" },
+  );
+}
+
+/**
+ * Church-wide people to tag in `groupId`'s reports (rules 8, 10): active members and guests, this
+ * group's first, at most 10. `[]` under 2 characters.
+ */
+export function searchTaggablePeople(
+  groupId: number | string,
+  q: string,
+): Promise<TaggablePerson[]> {
+  return authenticatedFetch<TaggablePerson[]>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `${groupPath(groupId, "/tag-search")}?q=${encodeURIComponent(q)}`,
     { cache: "no-store" },
   );
 }

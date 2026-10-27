@@ -213,8 +213,35 @@ export interface ReportWeek {
   groups: ReportWeekGroup[];
 }
 
-/** The report texts a thread can be about, in the page's order. */
+/** The report sections a thread can be about, in the page's order. */
 export type ReportSectionKey = "prayer" | "praise" | "followUp";
+
+/** A tagged person on a read: the current name, and whether the caller may open their page. */
+export type TaggedPerson = Person & { viewable: boolean };
+
+/** Part of an item: plain text, or a tagged member or guest (report tags, segments). */
+export type ReportSegment =
+  | { type: "text"; text: string }
+  | { type: "person"; person: TaggedPerson };
+
+/** One request, reason to be thankful or point for the elders. Ids aren't stable across edits. */
+export interface ReportItem {
+  id: number;
+  segments: ReportSegment[];
+}
+
+export type ReportSections = Record<ReportSectionKey, ReportItem[]>;
+
+/** What a write sends: a person is only `{ type, id }`, the API fills in the name. */
+export type ReportSegmentInput =
+  | { type: "text"; text: string }
+  | { type: "person"; person: { type: Person["type"]; id: number } };
+
+export interface ReportItemInput {
+  segments: ReportSegmentInput[];
+}
+
+export type ReportSectionsInput = Record<ReportSectionKey, ReportItemInput[]>;
 
 /** A section thread's indicator on a shared entry; `unread` and `needsMyReply` are the caller's. */
 export interface ReportSharedConversation {
@@ -225,17 +252,14 @@ export interface ReportSharedConversation {
   needsMyReply: boolean;
 }
 
-/** One held report in the week, with its three texts. */
+/** One held report in the week, with its three sections. */
 export interface ReportSharedEntry {
   reportId: number;
   meetingDate: string;
   smallGroup: { id: number; name: string; audience: GroupAudience };
   /** Active today: the leader, then co-leaders by name. */
   leaders: ReportWeekGroup["leaders"];
-  /** Null when empty after trimming; line breaks kept. */
-  prayer: string | null;
-  praise: string | null;
-  followUp: string | null;
+  sections: ReportSections;
   /** Section threads only; a key is absent when that section has no thread. */
   conversations: Partial<Record<ReportSectionKey, ReportSharedConversation>>;
 }
@@ -314,9 +338,7 @@ export interface ReportDetail {
   held: boolean;
   notHeldReason: string | null;
   address: string | null;
-  groupPrayerRequest: string | null;
-  groupPraiseReport: string | null;
-  groupRelevantDiscussion: string | null;
+  sections: ReportSections;
   submittedBy: ReportPerson;
   submittedAt: string;
   observationsVisible: boolean;
@@ -352,9 +374,8 @@ export interface ReportInput {
   held?: true;
   meetingDate: string;
   address?: string | null;
-  groupPrayerRequest?: string | null;
-  groupPraiseReport?: string | null;
-  groupRelevantDiscussion?: string | null;
+  /** Always sent: it wins over the API's old text fields. Empty items are dropped there. */
+  sections: ReportSectionsInput;
   attendances: ReportAttendanceInput[];
   /** Create only: delete the date's no meeting and insert this report in one transaction. */
   replacesNoMeeting?: boolean;
@@ -403,4 +424,18 @@ export interface OtherGroup {
   name: string;
   /** Date only, "YYYY-MM-DD". */
   joinedAt: string;
+}
+
+/** A row of the tag search: who they are and enough to tell people apart (rules 8, 10). */
+export interface TaggablePerson {
+  person: Person;
+  inThisGroup: boolean;
+  groups: {
+    id: number;
+    name: string;
+    audience: GroupAudience;
+    role: SmallGroupRole;
+  }[];
+  /** Guests only; null for members and for guests without 4 phone digits. */
+  phoneLast4: string | null;
 }

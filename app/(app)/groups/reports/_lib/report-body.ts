@@ -1,7 +1,30 @@
-import type { ReportInput, ReportRoster } from "@/api/small-groups-api/types";
+import type {
+  ReportInput,
+  ReportRoster,
+  ReportSectionsInput,
+} from "@/api/small-groups-api/types";
 import type { ReportDraft } from "./report-draft";
 
 import { personKey } from "./person";
+
+import { splitLegacyText } from "@/lib/report-items";
+
+/**
+ * The three draft texts as items, one per line (rule 2). The draft still holds strings until the
+ * item editor is wired in; the API drops empty items.
+ */
+function sectionsOf(draft: ReportDraft): ReportSectionsInput {
+  const items = (text: string) =>
+    splitLegacyText(text).map((line) => ({
+      segments: [{ type: "text" as const, text: line }],
+    }));
+
+  return {
+    prayer: items(draft.prayer),
+    praise: items(draft.praise),
+    followUp: items(draft.discussion),
+  };
+}
 
 /**
  * The API body for a complete draft, people in roster order (rule 3); null while anyone is
@@ -42,9 +65,7 @@ export function toReportInput(
   return {
     meetingDate: date,
     address: draft.address.trim() || null,
-    groupPrayerRequest: draft.prayer.trim() || null,
-    groupPraiseReport: draft.praise.trim() || null,
-    groupRelevantDiscussion: draft.discussion.trim() || null,
+    sections: sectionsOf(draft),
     attendances,
   };
 }
