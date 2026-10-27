@@ -4,7 +4,11 @@ import type {
   ConversationAnchor,
   ConversationThread,
 } from "@/api/conversations-api/types";
-import type { Person, ReportSectionKey } from "@/api/small-groups-api/types";
+import type {
+  Person,
+  ReportItem,
+  ReportSectionKey,
+} from "@/api/small-groups-api/types";
 import type { ConversationResult } from "@/app/(app)/groups/reports/_actions/conversation-actions";
 
 import {
@@ -30,6 +34,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { ConversationComment } from "./conversation-comment";
 import { ConversationComposer } from "./conversation-composer";
+import { ReportItemList } from "./report-item-list";
 
 import {
   addCommentAction,
@@ -60,8 +65,8 @@ export type ConversationPanelAnchor =
   | {
       type: "section";
       key: ReportSectionKey;
-      /** Null when the text was cleared after the thread started: it still opens. */
-      text: string | null;
+      /** Empty when the items were cleared after the thread started: it still opens. */
+      items: ReportItem[];
     };
 
 export interface ConversationPanelLabels {
@@ -486,14 +491,16 @@ export function ConversationPanel({
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <div className="mx-5 mb-1 mt-4 flex flex-col gap-2.5 rounded-xl bg-surface-secondary px-3.5 py-3">
           {anchor.type === "section" ? (
-            anchor.text ? (
+            anchor.items.length > 0 ? (
               <span className="flex flex-col gap-[3px]">
                 <span className="text-xs font-semibold text-muted">
                   {t("sharedBy", { name: submittedBy })}
                 </span>
-                <span className="whitespace-pre-line font-display text-base italic leading-normal text-foreground">
-                  {anchor.text}
-                </span>
+                <ReportItemList
+                  className="mt-1"
+                  items={anchor.items}
+                  textClassName="text-[14.5px]"
+                />
               </span>
             ) : (
               <span className="text-[13.5px] text-muted">

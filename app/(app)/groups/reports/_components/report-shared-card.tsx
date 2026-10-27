@@ -13,9 +13,10 @@ import clsx from "clsx";
 import { getTranslations } from "next-intl/server";
 
 import { ConversationIndicator } from "./conversation-indicator";
+import { ReportItemList } from "./report-item-list";
 
-import { card, testimony, title } from "@/components/primitives";
-import { reportSectionItems, sectionPlainLines } from "@/lib/report-sections";
+import { card, title } from "@/components/primitives";
+import { REPORT_SECTION_KEYS, reportSectionItems } from "@/lib/report-sections";
 
 const SECTIONS = [
   { key: "prayer", icon: HeartIcon, label: "prayer" },
@@ -30,7 +31,7 @@ const SECTIONS = [
 /**
  * What the group asked, thanked and left for the elders: three sections in the testimony style.
  * With `conversations` (the caller is in the audience), each section gets the conversation control
- * right of its title (prayer & follow-up rule 16). A section with no text and no thread shows none:
+ * right of its title (prayer & follow-up rule 16). A section with no items and no thread shows none:
  * there is nothing to talk about (rule 14).
  */
 export async function ReportSharedCard({
@@ -55,6 +56,10 @@ export async function ReportSharedCard({
     ),
   );
 
+  const allItems = REPORT_SECTION_KEYS.flatMap((key) =>
+    reportSectionItems(report, key),
+  );
+
   return (
     <section className={card({ className: "mb-5 flex flex-col" })}>
       <header className="flex flex-col gap-1 px-6 pb-1.5 pt-5">
@@ -65,8 +70,7 @@ export async function ReportSharedCard({
       </header>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] pb-3 pt-2">
         {SECTIONS.map(({ key, icon: Icon, label }) => {
-          const lines = sectionPlainLines(reportSectionItems(report, key));
-          const text = lines.join("\n");
+          const items = reportSectionItems(report, key);
           const summary = summaryBySection.get(key);
           const about = tConv("sectionAbout", { section: key });
           const state = summary
@@ -97,7 +101,7 @@ export async function ReportSharedCard({
                 <h3 className="min-w-0 flex-1 text-[15px] font-semibold text-heading">
                   {t(label)}
                 </h3>
-                {conversations !== null && (text || summary) && (
+                {conversations !== null && (items.length > 0 || summary) && (
                   <span className="-mr-2 shrink-0">
                     <ConversationIndicator
                       anchor={{ type: "section", key }}
@@ -116,10 +120,12 @@ export async function ReportSharedCard({
                   </span>
                 )}
               </div>
-              {text ? (
-                <p className={testimony({ className: "whitespace-pre-line" })}>
-                  {text}
-                </p>
+              {items.length > 0 ? (
+                <ReportItemList
+                  items={items}
+                  nameItems={allItems}
+                  textClassName="text-[15px]"
+                />
               ) : (
                 <p className="text-sm text-muted">{t("nothingShared")}</p>
               )}
