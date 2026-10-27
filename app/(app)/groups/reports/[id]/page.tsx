@@ -49,11 +49,7 @@ import {
 } from "@/lib/format-date";
 import { personFocusKey } from "@/lib/conversation-format";
 import { getEnv } from "@/lib/env/server";
-import {
-  parseSectionParam,
-  reportSectionItems,
-  sectionPlainLines,
-} from "@/lib/report-sections";
+import { parseSectionParam, reportSectionItems } from "@/lib/report-sections";
 
 export default async function ReportDetailPage({
   params,
@@ -122,7 +118,7 @@ export default async function ReportDetailPage({
 
   // `?person=` (a member), `?guest=` or `?section=`: the panel. A person wins over a section, and a
   // member over a guest. A person with a thread but no row (edited off the report), or a section
-  // whose text was cleared, still opens.
+  // whose items were cleared, still opens.
   const target: ConversationTarget | null = /^[1-9]\d*$/.test(person ?? "")
     ? { type: "member", id: Number(person) }
     : /^[1-9]\d*$/.test(guest ?? "")
@@ -132,10 +128,7 @@ export default async function ReportDetailPage({
     (a) => target && personKey(a.person) === personFocusKey(target),
   );
   const sectionKey = target === null ? parseSectionParam(section) : null;
-  const sectionText = sectionKey
-    ? sectionPlainLines(reportSectionItems(report, sectionKey)).join("\n") ||
-      null
-    : null;
+  const sectionItems = sectionKey ? reportSectionItems(report, sectionKey) : [];
   let panel: ReactNode = null;
   const panelProps = {
     closeHref: `/groups/reports/${report.id}`,
@@ -199,12 +192,12 @@ export default async function ReportDetailPage({
     );
 
     // An empty section with no thread can't start one (rule 14): a stale link, so no panel.
-    if (thread !== undefined && (sectionText || thread)) {
+    if (thread !== undefined && (sectionItems.length > 0 || thread)) {
       panel = (
         <ConversationPanel
           key={sectionKey}
           {...panelProps}
-          anchor={{ type: "section", key: sectionKey, text: sectionText }}
+          anchor={{ type: "section", key: sectionKey, items: sectionItems }}
           initialThread={thread}
           returnFocusSelector={`[data-conversation-section="${sectionKey}"]`}
         />

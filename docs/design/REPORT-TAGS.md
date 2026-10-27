@@ -87,7 +87,7 @@ what changed and anything that differs from the canvas in the progress log below
 | 2. The item editor (`ReportItemsField`), without tags | ✅ | |
 | 3. Tags: chips, `@` picker, person button, phone sheet | ✅ | |
 | 4. Report form wiring: group step, list step, edit, draft, older reports | ✅ | |
-| 5. Read views: Report detail, conversation panel, Prayer & follow-up, WhatsApp | ⬜ | |
+| 5. Read views: Report detail, conversation panel, Prayer & follow-up, WhatsApp | ✅ | |
 | **Part 2 (`person-timeline`)** | | |
 | 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ⬜ | |
 | 7. Tabs and Recent activity on Member and Guest detail | ⬜ | |
@@ -109,7 +109,7 @@ what changed and anything that differs from the canvas in the progress log below
   name, so editing a tagged report flattens its tags until stage 4. Read views show items as plain
   lines until stage 5. Nothing visible changes except line breaks becoming separate items.
 - **Stage 2.** TipTap 3.32 (`@tiptap/react`, `pm`, `core`, `extension-document/paragraph/text/placeholder`,
-  `@tiptap/suggestion` for stage 3; `extension-mention` is installed too) fits Next 16 / React 19:
+  `@tiptap/suggestion` for stage 3; `extension-mention` was dropped) fits Next 16 / React 19:
   `immediatelyRender: false`, no HeroUI conflict (the field box is plain classes with the field tokens).
   One editor per item (`report-item-editor.tsx`, single-paragraph document, length filter at 1024
   counting text only until chips exist). The parent (`report-items-field.tsx`) owns the list; the editor
@@ -124,8 +124,7 @@ what changed and anything that differs from the canvas in the progress log below
   read through, not exercised.
 - **Stage 3.** Own TipTap node `personTag` (inline atom, React node view rendering
   `ReportPersonChip`, labels from `ShortNamesContext` so *Pablo S.* works inside the editor) instead of
-  `extension-mention`, which is installed but unused (remove it if you prefer; `@tiptap/suggestion`
-  does the `@` trigger with `allowSpaces`). The editor owns its picker state: `@` mode reads the
+  `extension-mention` (not installed; `@tiptap/suggestion` does the `@` trigger with `allowSpaces`). The editor owns its picker state: `@` mode reads the
   suggestion's query, button mode has a search field. Desktop picker is portalled and fixed to the
   field's rectangle (cards with `overflow-hidden` can't clip it); phone is a HeroUI
   `Modal` with `placement="bottom"`. Roster sections are built on the client from a `TagContext`
@@ -155,6 +154,21 @@ what changed and anything that differs from the canvas in the progress log below
   `GET /small-group-reports/{id}` answers 500 there. I didn't migrate your dev database. Create / edit /
   tag search / the 422 texts still need a run after `uv run alembic upgrade head` (or against a scratch
   DB). Checked only: lint, `tsc`, and the editor and picker on a throwaway route (stages 2–3).
+- **Stage 5.** `report-item-list.tsx` (gold dot, segments, `ReportPersonChip`; a chip is a link only
+  when `viewable`, via `personHref` in `lib/person-href.ts`: Part 2 changes that one line to the
+  Timeline tab). Report detail lists items per section (sans body, no italic serif; chip names worked
+  out across all three sections); conversation indicators show when a section has items or a thread.
+  The conversation panel's anchor carries `items` instead of `text` (14.5 px; its chip names come from
+  that section only). Prayer & follow-up: `sectionEntries` returns items, entries render the list
+  (`max-w-[72ch]`), `searchText` adds tagged people's full names (rule 16). WhatsApp: `• ` + item, tagged
+  people as first names, one line per item, for one entry and for *Copy all* (comment in
+  `whatsapp-text.ts` updated).
+- **Stage 5, not verified in the browser** (same reason as stage 4: the dev API 500s on reports until
+  its database is migrated). Lint and `tsc` pass. After migrating, check: a report with tagged items on
+  Report detail, `?section=` panel, Prayer & follow-up search for a tagged name, and the copied text.
+- **Part 1 not yet checked at 1440 / 1024 / 390, light and dark, leader and elder** against the canvas
+  (I couldn't open the canvas page; the build follows the spec text and the notes above). Do that
+  review once the API answers.
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes

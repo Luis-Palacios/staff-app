@@ -1,4 +1,5 @@
 import type {
+  ReportItem,
   ReportSectionKey,
   ReportSharedEntry,
 } from "@/api/small-groups-api/types";
@@ -14,6 +15,7 @@ import { CopyForWhatsApp } from "./copy-for-whatsapp";
 import { SectionConversationLink } from "./section-conversation-link";
 import { whatsappEntryText } from "./whatsapp-text";
 
+import { ReportItemList } from "@/app/(app)/groups/reports/_components/report-item-list";
 import { GuestsBadge } from "@/components/guests-badge";
 import { textLink } from "@/components/primitives";
 import {
@@ -21,7 +23,7 @@ import {
   formatCalendarShortWeekdayDate,
 } from "@/lib/format-date";
 import { normalizeText } from "@/lib/normalize-text";
-import { sectionPlainLines } from "@/lib/report-sections";
+import { segmentsToPlain } from "@/lib/report-items";
 
 const SECTIONS = {
   prayer: {
@@ -55,13 +57,11 @@ const SECTIONS = {
 export function sectionEntries(
   entries: ReportSharedEntry[],
   section: ReportSectionKey,
-): { entry: ReportSharedEntry; text: string }[] {
+): { entry: ReportSharedEntry; items: ReportItem[] }[] {
   return entries.flatMap((entry) => {
     const items = entry.sections[section];
 
-    return items.length > 0
-      ? [{ entry, text: sectionPlainLines(items).join("\n") }]
-      : [];
+    return items.length > 0 ? [{ entry, items }] : [];
   });
 }
 
@@ -77,7 +77,7 @@ export async function buildPrayerSection({
   activeReportId,
 }: {
   section: ReportSectionKey;
-  entries: { entry: ReportSharedEntry; text: string }[];
+  entries: { entry: ReportSharedEntry; items: ReportItem[] }[];
   /** The week, for *Copy all*'s title. */
   weekStart: string;
   weekEnd: string;
@@ -118,18 +118,26 @@ export async function buildPrayerSection({
             failed: t("copyFailed"),
           }
         : undefined,
-    entries: entries.map(({ entry, text }) => ({
+    entries: entries.map(({ entry, items }) => ({
       reportId: entry.reportId,
+      // The group, its leaders and the people tagged in these items (rule 16).
       searchText: normalizeText(
         [
           entry.smallGroup.name,
           ...entry.leaders.map((leader) => leader.name),
+          ...items.flatMap((item) =>
+            item.segments.flatMap((segment) =>
+              segment.type === "person" ? [segment.person.name] : [],
+            ),
+          ),
         ].join("\n"),
       ),
       whatsApp: {
         group: entry.smallGroup.name,
         date: formatCalendarShortWeekdayDate(entry.meetingDate, locale),
-        text,
+        items: items.map((item) =>
+          segmentsToPlain(item.segments, { names: "first" }),
+        ),
       },
       node: (
         <PrayerEntry
@@ -137,9 +145,9 @@ export async function buildPrayerSection({
           copyTitle={copyTitle}
           entry={entry}
           focused={entry.reportId === activeReportId}
+          items={items}
           section={section}
           sectionTitle={sectionTitle}
-          text={text}
         />
       ),
     })),
@@ -155,7 +163,7 @@ export function PrayerEntry({
   entry,
   section,
   sectionTitle,
-  text,
+  items,
   copyTitle,
   conversationHref,
   focused,
@@ -163,8 +171,8 @@ export function PrayerEntry({
   entry: ReportSharedEntry;
   section: ReportSectionKey;
   sectionTitle: string;
-  /** This section's text of the entry, never empty. */
-  text: string;
+  /** This section's items of the entry, never empty. */
+  items: ReportItem[];
   /** The section title for *Copy for WhatsApp*; none on follow-up, which is never copied. */
   copyTitle?: string;
   /** Opens this entry's section thread on the page; none outside the conversations' audience. */
@@ -201,9 +209,10 @@ export function PrayerEntry({
         <span className="text-[13px] tabular-nums text-muted">{date}</span>
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <p className="max-w-[72ch] whitespace-pre-line text-[15.5px] leading-[1.6] text-foreground">
-          {text}
-        </p>
+        <ReportItemList
+          items={items}
+          textClassName="max-w-[72ch] text-[15.5px]"
+        />
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
           {copyTitle && (
             <CopyForWhatsApp
@@ -215,7 +224,9 @@ export function PrayerEntry({
               text={whatsappEntryText(copyTitle, {
                 group: entry.smallGroup.name,
                 date,
-                text,
+                items: items.map((item) =>
+                  segmentsToPlain(item.segments, { names: "first" }),
+                ),
               })}
             />
           )}

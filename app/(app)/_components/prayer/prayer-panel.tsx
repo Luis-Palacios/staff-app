@@ -12,7 +12,6 @@ import { getSmallGroupReport } from "@/api/small-groups-api/client";
 import { ConversationPanel } from "@/app/(app)/groups/reports/_components/conversation-panel";
 import { getEnv } from "@/lib/env/server";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
-import { sectionPlainLines } from "@/lib/report-sections";
 
 /**
  * The conversation panel for `?report=&section=`, opened over this page (rule 15): the same panel
@@ -37,16 +36,20 @@ export async function prayerPanel({
     getSmallGroupReport(String(entry.reportId)).catch(() => undefined),
     getLocale(),
   ]);
-  const text = sectionPlainLines(entry.sections[section]).join("\n");
+  const items = entry.sections[section];
 
-  if (thread === undefined || report === undefined || (!text && !thread)) {
+  if (
+    thread === undefined ||
+    report === undefined ||
+    (items.length === 0 && !thread)
+  ) {
     return null;
   }
 
   return (
     <ConversationPanel
       key={`${entry.reportId}:${section}`}
-      anchor={{ type: "section", key: section, text }}
+      anchor={{ type: "section", key: section, items }}
       closeHref={closeHref}
       groupName={entry.smallGroup.name}
       initialThread={thread}
