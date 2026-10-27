@@ -186,6 +186,9 @@ what changed and anything that differs from the canvas in the progress log below
 - **Part 1 not yet checked at 1440 / 1024 / 390, light and dark, leader and elder** against the canvas
   (I couldn't open the canvas page; the build follows the spec text and the notes above). Do that
   review once the API answers.
+- **Width.** The edit form, the list step and the review wrapper no longer cap at 1000 px (they follow
+  the shell's `max-w-7xl`), so the three item columns are ~334 px each at 1792 instead of ~165. The
+  meeting and group steps keep their 720 px. Reported by the user while reviewing.
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes
