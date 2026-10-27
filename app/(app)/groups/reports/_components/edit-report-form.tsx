@@ -290,7 +290,7 @@ export function EditReportForm({
     failure && !DATE_FAILURES.includes(failure.kind) ? failure : null;
 
   return (
-    <div className="flex max-w-[1000px] flex-col gap-5">
+    <div className="flex flex-col gap-5">
       <section
         aria-label={t("meetingDetails")}
         className={card({ className: "p-5" })}

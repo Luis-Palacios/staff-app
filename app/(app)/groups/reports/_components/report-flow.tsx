@@ -569,7 +569,7 @@ export function ReportFlow({
       )}
 
       {(step === "review" || step === "quick") && ready && (
-        <div className="flex max-w-[1000px] flex-col gap-4">
+        <div className="flex flex-col gap-4">
           {step === "review" && (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-tile border border-border bg-surface px-4 py-3 text-sm">
               <span className="flex items-center gap-2 font-semibold text-heading">

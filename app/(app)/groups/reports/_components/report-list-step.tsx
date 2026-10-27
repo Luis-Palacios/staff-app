@@ -344,7 +344,7 @@ export function ReportListStep({
     });
 
   return (
-    <div className="flex max-w-[1000px] flex-col gap-5">
+    <div className="flex flex-col gap-5">
       <section
         aria-labelledby="attendance-title"
         className={card({ className: "overflow-hidden" })}
