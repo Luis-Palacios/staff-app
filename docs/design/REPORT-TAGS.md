@@ -170,6 +170,12 @@ what changed and anything that differs from the canvas in the progress log below
   panel / Prayer & follow-up, the WhatsApp text. In the 3-column edit grid at 1440 an item's field is
   narrow (~165 px) because the person and remove buttons take 104 px of each column: check it
   against the canvas.
+- **Saved and read back against the local API (report 5 edited twice, tags added through `@`):**
+  save + redirect works; Report detail and the `?section=followUp` panel show the chip (a link to
+  `/members/49` for the admin); Prayer & follow-up finds the report by the tagged person's name
+  (rule 16); *Copy for WhatsApp* (one entry and *Copy all*) writes `• ` lines with first names only.
+  Not exercised: the 422 texts (needs an inactive member), a leader's view, light mode, 1024 / 390
+  on the read views.
 - **Stage 5, was not verified in the browser** (same reason as stage 4: the dev API 500s on reports until
   its database is migrated). Lint and `tsc` pass. After migrating, check: a report with tagged items on
   Report detail, `?section=` panel, Prayer & follow-up search for a tagged name, and the copied text.
