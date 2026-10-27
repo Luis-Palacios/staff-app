@@ -133,8 +133,8 @@ what changed and anything that differs from the canvas in the progress log below
   with tokens, 10 tags) are a ProseMirror `filterTransaction`.
 - **Stage 3, differences from the spec.** The "second space with no match" end of an `@` query is
   approximated as "more than two words and nothing matches". Extra copy keys: `limitTags`,
-  `searchError`, `searching`, `close`. Option sub-line for a guest on the roster shows their role
-  from the roster row (the API's roster role for guests is `member`).
+  `searchError`, `searching`, `close`. A guest on the roster shows the group's name instead of a role
+  in the sub-line (their roster role is always `member`; found while testing as a leader).
 - **Stage 3, checked** in the browser on the throwaway route: `@pab` lists the roster (amber *missed
   this meeting*), ↑↓ Enter picks and leaves the caret after the chip, the person button opens with
   *Named in this item* first and Enter turns the written *Gabriela* into the chip, the same picker as a
@@ -176,8 +176,10 @@ what changed and anything that differs from the canvas in the progress log below
   (rule 16); *Copy for WhatsApp* (one entry and *Copy all*) writes `• ` lines with first names only.
   The 422 `tag` path was checked too: member 40 was marked inactive, then picked from the September
   roster (the picker still lists people on the report) in a new section; the save answers with
-  `ReportItems.errorTag` and the form keeps its draft. Not exercised: 422 `items`, a leader's view,
-  light mode, 1024 / 390 on the read views.
+  `ReportItems.errorTag` and the form keeps its draft. A guest-group leader was checked too: roster + church-wide
+  tagging works, and on the saved report (id 52) the guest in their scope is a link (`/guests/11`) while a
+  member of another group is a plain chip (rule 12). Not exercised: 422 `items`, a member-group
+  leader, light mode, 1024 / 390 on the read views.
 - **Stage 5, was not verified in the browser** (same reason as stage 4: the dev API 500s on reports until
   its database is migrated). Lint and `tsc` pass. After migrating, check: a report with tagged items on
   Report detail, `?section=` panel, Prayer & follow-up search for a tagged name, and the copied text.
