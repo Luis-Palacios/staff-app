@@ -1718,6 +1718,27 @@
     "placeholderPrayer": "Agrega una petición de oración…",
     "placeholderPraise": "Agrega un motivo de gratitud…",
     "placeholderFollowUp": "Agrega un punto para los ancianos…",
-    "limitItems": "Hasta 20 puntos por sección."
+    "limitItems": "Hasta 20 puntos por sección.",
+    "tagSomeone": "Etiquetar a alguien",
+    "search": "Buscar miembros e invitados",
+    "matching": "Personas que coinciden con “{q}”",
+    "namedHere": "Nombrados en este punto",
+    "atMeeting": "En esta reunión",
+    "inGroup": "En {group}",
+    "restOfChurch": "Resto de la iglesia",
+    "came": "vino",
+    "missed": "faltó a esta reunión",
+    "notMarked": "sin marcar",
+    "noGroup": "Miembro · sin grupo",
+    "phoneLast4": "tel. ···{digits}",
+    "guest": "Invitado",
+    "chipGuest": "{name}, invitado",
+    "none": "Ningún miembro o invitado coincide con “{q}”. Déjalo como texto.",
+    "footer": "¿No aparece? Déjalo como texto. ↑ ↓ para moverte, Enter para etiquetar, Esc para cerrar.",
+    "footerPhone": "¿No aparece? Deja el nombre como texto. Puedes etiquetar miembros de cualquier grupo e invitados.",
+    "limitTags": "Hasta 10 personas por punto.",
+    "searchError": "No se pudo buscar ahora. Inténtalo de nuevo.",
+    "searching": "Buscando…",
+    "close": "Cerrar"
   }
 }

@@ -85,7 +85,7 @@ what changed and anything that differs from the canvas in the progress log below
 | **Part 1 (`report-tags`)** | | |
 | 1. API types and client; drop every use of the old text fields | ✅ | |
 | 2. The item editor (`ReportItemsField`), without tags | ✅ | |
-| 3. Tags: chips, `@` picker, person button, phone sheet | ⬜ | |
+| 3. Tags: chips, `@` picker, person button, phone sheet | ✅ | |
 | 4. Report form wiring: group step, list step, edit, draft, older reports | ⬜ | |
 | 5. Read views: Report detail, conversation panel, Prayer & follow-up, WhatsApp | ⬜ | |
 | **Part 2 (`person-timeline`)** | | |
@@ -122,6 +122,25 @@ what changed and anything that differs from the canvas in the progress log below
   splits and focuses the new item, Backspace at the start merges (and removes an empty item), a pasted
   `- uno / • dos / 3) tres` becomes items without markers. Remove-item focus and the 20-item limit were
   read through, not exercised.
+- **Stage 3.** Own TipTap node `personTag` (inline atom, React node view rendering
+  `ReportPersonChip`, labels from `ShortNamesContext` so *Pablo S.* works inside the editor) instead of
+  `extension-mention`, which is installed but unused (remove it if you prefer; `@tiptap/suggestion`
+  does the `@` trigger with `allowSpaces`). The editor owns its picker state: `@` mode reads the
+  suggestion's query, button mode has a search field. Desktop picker is portalled and fixed to the
+  field's rectangle (cards with `overflow-hidden` can't clip it); phone is a HeroUI
+  `Modal` with `placement="bottom"`. Roster sections are built on the client from a `TagContext`
+  (`_lib/report-tags.ts`; stage 4 builds it from the roster and answers), church-wide results through
+  `searchTaggablePeopleAction`, debounced 200 ms with a stale-answer guard. Limits (1024 characters
+  with tokens, 10 tags) are a ProseMirror `filterTransaction`.
+- **Stage 3, differences from the spec.** The "second space with no match" end of an `@` query is
+  approximated as "more than two words and nothing matches". Extra copy keys: `limitTags`,
+  `searchError`, `searching`, `close`. Option sub-line for a guest on the roster shows their role
+  from the roster row (the API's roster role for guests is `member`).
+- **Stage 3, checked** in the browser on the throwaway route: `@pab` lists the roster (amber *missed
+  this meeting*), ↑↓ Enter picks and leaves the caret after the chip, the person button opens with
+  *Named in this item* first and Enter turns the written *Gabriela* into the chip, the same picker as a
+  bottom sheet in a 390 px frame. **Not exercised here:** the church-wide search (it needs a signed-in
+  session and the API), the screen-reader announcements, Backspace over a chip.
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes

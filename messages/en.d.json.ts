@@ -1721,7 +1721,28 @@ declare const messages: {
     "placeholderPrayer": "Add a prayer request…",
     "placeholderPraise": "Add something to be thankful for…",
     "placeholderFollowUp": "Add a point for the elders…",
-    "limitItems": "Up to 20 items per section."
+    "limitItems": "Up to 20 items per section.",
+    "tagSomeone": "Tag someone",
+    "search": "Search members and guests",
+    "matching": "People matching “{q}”",
+    "namedHere": "Named in this item",
+    "atMeeting": "At this meeting",
+    "inGroup": "In {group}",
+    "restOfChurch": "Everyone else in the church",
+    "came": "came",
+    "missed": "missed this meeting",
+    "notMarked": "not marked yet",
+    "noGroup": "Member · not in a group",
+    "phoneLast4": "phone ···{digits}",
+    "guest": "Guest",
+    "chipGuest": "{name}, guest",
+    "none": "No member or guest matches “{q}”. Leave it as plain text.",
+    "footer": "Not listed? Leave it as plain text. ↑ ↓ to move, Enter to tag, Esc to close.",
+    "footerPhone": "Not listed? Leave the name as plain text. Members of any group and guests can be tagged.",
+    "limitTags": "Up to 10 people per item.",
+    "searchError": "Couldn't search right now. Try again.",
+    "searching": "Searching…",
+    "close": "Close"
   }
 };
 export default messages;

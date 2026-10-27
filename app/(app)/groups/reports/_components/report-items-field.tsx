@@ -6,6 +6,7 @@ import type {
   DraftItems,
   DraftSegment,
 } from "@/app/(app)/groups/reports/_lib/report-items-draft";
+import type { TagContext } from "@/app/(app)/groups/reports/_lib/report-tags";
 import type { FocusRequest, ItemBreak } from "./report-item-editor";
 
 import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -14,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
 import { ReportItemEditor } from "./report-item-editor";
+import { ShortNamesContext } from "./report-tag-node";
 
 import {
   isEmptyItem,
@@ -25,6 +27,7 @@ import {
   ITEMS_MAX,
   segmentsLength,
   segmentsSize,
+  shortNames,
 } from "@/lib/report-items";
 import { REPORT_SECTION_KEYS } from "@/lib/report-sections";
 
@@ -77,10 +80,13 @@ function clamp(segments: DraftSegment[]): DraftSegment[] {
 export function ReportItemsField({
   section,
   items,
+  tagContext,
   onChange,
 }: {
   section: ReportSectionKey;
   items: DraftItem[];
+  /** Who can be picked; without it the items are plain text. */
+  tagContext?: TagContext;
   onChange: (items: DraftItem[]) => void;
 }) {
   const t = useTranslations("ReportForm");
@@ -220,6 +226,17 @@ export function ReportItemsField({
                 focusRequest={focus?.key === item.key ? focus : undefined}
                 placeholder={tItems(PLACEHOLDER_KEY[section])}
                 segments={item.segments}
+                tagging={
+                  tagContext
+                    ? {
+                        context: tagContext,
+                        itemLabel: tItems("itemLabel", {
+                          section: label,
+                          n: String(n),
+                        }),
+                      }
+                    : undefined
+                }
                 onBreak={(itemBreak) => breakItem(index, itemBreak)}
                 onChange={(segments) => replace(index, segments)}
                 onMergeUp={() => mergeUp(index)}
@@ -272,29 +289,37 @@ export function ReportItemsField({
  */
 export function ReportItemsFields({
   items,
+  tagContext,
   onChange,
   layout,
 }: {
   items: DraftItems;
+  tagContext?: TagContext;
   onChange: (section: ReportSectionKey, items: DraftItem[]) => void;
   layout: "stacked" | "grid";
 }) {
+  // Chip labels are per report (rule 11), so they're worked out across all three sections.
+  const names = shortNames(REPORT_SECTION_KEYS.flatMap((key) => items[key]));
+
   return (
-    <div
-      className={
-        layout === "grid"
-          ? "grid items-start gap-4 md:grid-cols-3"
-          : "flex flex-col gap-5"
-      }
-    >
-      {REPORT_SECTION_KEYS.map((section) => (
-        <ReportItemsField
-          key={section}
-          items={items[section]}
-          section={section}
-          onChange={(next) => onChange(section, next)}
-        />
-      ))}
-    </div>
+    <ShortNamesContext.Provider value={names}>
+      <div
+        className={
+          layout === "grid"
+            ? "grid items-start gap-4 md:grid-cols-3"
+            : "flex flex-col gap-5"
+        }
+      >
+        {REPORT_SECTION_KEYS.map((section) => (
+          <ReportItemsField
+            key={section}
+            items={items[section]}
+            section={section}
+            tagContext={tagContext}
+            onChange={(next) => onChange(section, next)}
+          />
+        ))}
+      </div>
+    </ShortNamesContext.Provider>
   );
 }
