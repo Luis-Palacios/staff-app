@@ -83,11 +83,11 @@ what changed and anything that differs from the canvas in the progress log below
 | Stage | Status | Commit |
 | --- | --- | --- |
 | **Part 1 (`report-tags`)** | | |
-| 1. API types and client; drop every use of the old text fields | ✅ | |
-| 2. The item editor (`ReportItemsField`), without tags | ✅ | |
-| 3. Tags: chips, `@` picker, person button, phone sheet | ✅ | |
-| 4. Report form wiring: group step, list step, edit, draft, older reports | ✅ | |
-| 5. Read views: Report detail, conversation panel, Prayer & follow-up, WhatsApp | ✅ | |
+| 1. API types and client; drop every use of the old text fields | ✅ | `d384e40` |
+| 2. The item editor (`ReportItemsField`), without tags | ✅ | `0fa22c4` |
+| 3. Tags: chips, `@` picker, person button, phone sheet | ✅ | `e9e1f93` |
+| 4. Report form wiring: group step, list step, edit, draft, older reports | ✅ | `763aaed` |
+| 5. Read views: Report detail, conversation panel, Prayer & follow-up, WhatsApp | ✅ | `8ebd362` |
 | **Part 2 (`person-timeline`)** | | |
 | 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ⬜ | |
 | 7. Tabs and Recent activity on Member and Guest detail | ⬜ | |
