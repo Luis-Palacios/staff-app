@@ -323,8 +323,13 @@ what changed and anything that differs from the canvas in the progress log below
   months* button and end text, an invalid `?from>to` link falling back to *Last 3 months*, the phone Filters
   button, sheet and preset toggle. Fix found on the way: `Intl.formatRange` spaces its dash differently in
   Node and Chrome and broke hydration, so the range is two formatted dates joined with ` – `.
-  **Not checked:** Spanish, 1024 px, guest timeline, a leader and a non-admin elder session, the in-UI
-  invalid-range error, the result of clicking *Show 3 more months*.
+  **Second pass (same day, as admin, Mac):** *Show 3 more months* moves a 10/20 range to 07/20 as a custom range;
+  typing a *To* before *From* shows `errorRange` and leaves the URL alone (the selects shift down a few px while
+  the error shows); Spanish on member 49 (labels, dates, chips, footer); guest 11's timeline in Spanish in a
+  1024 px frame (no sideways scroll, the guest end text *Eso es todo desde la primera visita de…* uses the
+  oldest visible row's date). **Not checked:** a leader session and an elder who isn't admin (needs their
+  sign-in; wording and rule 23 rows differ), the *Tagged in this report* pill in the preview's 150 px column,
+  the phone sheet in Spanish.
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes
