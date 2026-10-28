@@ -49,7 +49,11 @@ import {
 } from "@/lib/format-date";
 import { personFocusKey } from "@/lib/conversation-format";
 import { getEnv } from "@/lib/env/server";
-import { parseSectionParam, reportSectionItems } from "@/lib/report-sections";
+import {
+  parseSectionParam,
+  REPORT_SECTION_KEYS,
+  reportSectionItems,
+} from "@/lib/report-sections";
 
 export default async function ReportDetailPage({
   params,
@@ -197,7 +201,14 @@ export default async function ReportDetailPage({
         <ConversationPanel
           key={sectionKey}
           {...panelProps}
-          anchor={{ type: "section", key: sectionKey, items: sectionItems }}
+          anchor={{
+            type: "section",
+            key: sectionKey,
+            items: sectionItems,
+            nameItems: REPORT_SECTION_KEYS.flatMap((key) =>
+              reportSectionItems(report, key),
+            ),
+          }}
           initialThread={thread}
           returnFocusSelector={`[data-conversation-section="${sectionKey}"]`}
         />

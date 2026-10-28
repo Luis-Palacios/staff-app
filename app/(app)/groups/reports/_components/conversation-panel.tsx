@@ -67,6 +67,8 @@ export type ConversationPanelAnchor =
       key: ReportSectionKey;
       /** Empty when the items were cleared after the thread started: it still opens. */
       items: ReportItem[];
+      /** Every item of the report, for first-name clashes across sections (rule 11). */
+      nameItems?: readonly ReportItem[];
     };
 
 export interface ConversationPanelLabels {
@@ -499,6 +501,7 @@ export function ConversationPanel({
                 <ReportItemList
                   className="mt-1"
                   items={anchor.items}
+                  nameItems={anchor.nameItems}
                   textClassName="text-[14.5px]"
                 />
               </span>

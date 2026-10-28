@@ -23,7 +23,7 @@ import {
   formatCalendarShortWeekdayDate,
 } from "@/lib/format-date";
 import { normalizeText } from "@/lib/normalize-text";
-import { segmentsToPlain } from "@/lib/report-items";
+import { segmentsToPlain, shortNames } from "@/lib/report-items";
 
 const SECTIONS = {
   prayer: {
@@ -52,6 +52,11 @@ const SECTIONS = {
     copy: "none",
   },
 } as const satisfies Record<ReportSectionKey, unknown>;
+
+/** The report's items in all three sections, for short names that hold across them (rule 11). */
+function allItems(entry: ReportSharedEntry): ReportItem[] {
+  return Object.values(entry.sections).flat();
+}
 
 /** The entries of `section` that have items, in the API's order (rules 7–8). */
 export function sectionEntries(
@@ -136,7 +141,10 @@ export async function buildPrayerSection({
         group: entry.smallGroup.name,
         date: formatCalendarShortWeekdayDate(entry.meetingDate, locale),
         items: items.map((item) =>
-          segmentsToPlain(item.segments, { names: "first" }),
+          segmentsToPlain(item.segments, {
+            names: "first",
+            shortNames: shortNames(allItems(entry)),
+          }),
         ),
       },
       node: (
@@ -186,6 +194,7 @@ export function PrayerEntry({
   const group = entry.smallGroup.name;
   const locale = useLocale() as Locale;
   const date = formatCalendarShortWeekdayDate(entry.meetingDate, locale);
+  const names = shortNames(allItems(entry));
 
   return (
     <li
@@ -211,6 +220,7 @@ export function PrayerEntry({
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <ReportItemList
           items={items}
+          nameItems={allItems(entry)}
           textClassName="max-w-[72ch] text-[15.5px]"
         />
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
@@ -225,7 +235,10 @@ export function PrayerEntry({
                 group: entry.smallGroup.name,
                 date,
                 items: items.map((item) =>
-                  segmentsToPlain(item.segments, { names: "first" }),
+                  segmentsToPlain(item.segments, {
+                    names: "first",
+                    shortNames: names,
+                  }),
                 ),
               })}
             />

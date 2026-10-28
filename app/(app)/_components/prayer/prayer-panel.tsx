@@ -49,7 +49,12 @@ export async function prayerPanel({
   return (
     <ConversationPanel
       key={`${entry.reportId}:${section}`}
-      anchor={{ type: "section", key: section, items }}
+      anchor={{
+        type: "section",
+        key: section,
+        items,
+        nameItems: Object.values(entry.sections).flat(),
+      }}
       closeHref={closeHref}
       groupName={entry.smallGroup.name}
       initialThread={thread}
