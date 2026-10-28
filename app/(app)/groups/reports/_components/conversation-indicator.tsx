@@ -37,7 +37,7 @@ const pill = tv({
 });
 
 const startLink = tv({
-  base: "inline-flex items-center justify-center rounded-tile text-subtle hover:bg-default hover:text-heading",
+  base: "inline-flex items-center justify-center rounded-tile text-muted hover:bg-default hover:text-heading",
   variants: { size: { table: "size-10", card: "size-11" } },
 });
 
