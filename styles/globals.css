@@ -59,6 +59,13 @@
     }
   }
 
+  /*
+   * brand.css also defines --shadow-focus (the brand's 4px gold halo), and Tailwind inlines a
+   * shadow theme value into its utility, so `shadow-focus` rendered the halo while
+   * var(--shadow-focus) is the theme's ring (theme.css). Pointing the utility at the variable
+   * makes both the same ring, light and dark.
+   */
+  --shadow-focus: var(--shadow-focus);
   --color-heading: var(--heading);
   --color-eyebrow: var(--eyebrow);
   --color-subtle: var(--subtle);
