@@ -77,6 +77,21 @@ export function timelineViewer(
     : "leader";
 }
 
+/**
+ * The groups whose page and reports the viewer can open (the rest would 404): every group with
+ * full access, otherwise the ones they lead. For the links on a person's timeline.
+ */
+export type OpenGroups = "all" | readonly number[];
+
+export function openGroupsOf(
+  permissions: Permissions | null | undefined,
+  leads: readonly { smallGroupId: number }[],
+): OpenGroups {
+  return getSmallGroupAccess(permissions) === "full"
+    ? "all"
+    : leads.map((lead) => lead.smallGroupId);
+}
+
 // Rule 6: `smallGroups: all` is full access, `view` without `all` is the leader's own groups.
 export function getSmallGroupAccess(
   permissions: Permissions | null | undefined,

@@ -4,6 +4,7 @@ import type {
   TimelineItem,
   TimelineRow as Row,
 } from "@/api/small-groups-api/types";
+import type { OpenGroups } from "@/lib/auth/permissions";
 import type { Locale } from "@/lib/locale-shared";
 
 import {
@@ -118,9 +119,12 @@ function ItemList({
 export function TimelineRow({
   row,
   person,
+  openGroups,
   compact = false,
 }: {
   row: Row;
+  /** The groups whose page and report the viewer can open; the rest would 404. */
+  openGroups: OpenGroups;
   person: PersonTimeline["person"];
   compact?: boolean;
 }) {
@@ -138,6 +142,8 @@ export function TimelineRow({
     !observation &&
     row.items.length > 0 &&
     row.items.every((item) => item.section === "followUp");
+  const canOpen =
+    openGroups === "all" || openGroups.includes(row.smallGroup.id);
   const reportHref = `/groups/reports/${row.reportId}${onlyFollowUp ? "?section=followUp" : ""}`;
 
   return (
@@ -154,7 +160,7 @@ export function TimelineRow({
         )}
       >
         <p className="text-[15px] font-semibold text-heading">
-          {compact ? (
+          {compact && canOpen ? (
             // The preview has no *View report*: the date opens the report instead.
             <NextLink
               className="underline-offset-[3px] hover:underline"
@@ -166,12 +172,18 @@ export function TimelineRow({
             formatCalendarRowDate(row.meetingDate, locale)
           )}
         </p>
-        <NextLink
-          className="text-[13.5px] text-foreground underline decoration-border underline-offset-[3px] hover:decoration-current"
-          href={`/groups/${row.smallGroup.id}`}
-        >
-          {row.smallGroup.name}
-        </NextLink>
+        {canOpen ? (
+          <NextLink
+            className="text-[13.5px] text-foreground underline decoration-border underline-offset-[3px] hover:decoration-current"
+            href={`/groups/${row.smallGroup.id}`}
+          >
+            {row.smallGroup.name}
+          </NextLink>
+        ) : (
+          <span className="text-[13.5px] text-foreground">
+            {row.smallGroup.name}
+          </span>
+        )}
         {roleLabel && <p className="text-[13px] text-muted">{roleLabel}</p>}
         {!attendance && (
           <span className="inline-flex items-center gap-1 self-start whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-semibold text-muted">
@@ -241,7 +253,7 @@ export function TimelineRow({
             </Block>
           );
         })}
-        {!compact && (
+        {!compact && canOpen && (
           <NextLink
             className={textLink({
               className:

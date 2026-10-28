@@ -1,10 +1,11 @@
 "use client";
 
 import type { PersonTimeline } from "@/api/small-groups-api/types";
+import type { OpenGroups } from "@/lib/auth/permissions";
 import type { Locale } from "@/lib/locale-shared";
 import type { TimelineRange, TimelineRangeKind } from "@/lib/timeline-range";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   AdjustmentsHorizontalIcon,
@@ -56,6 +57,7 @@ export function TimelineBoard({
   today,
   viewer,
   kind,
+  openGroups,
 }: {
   timeline: PersonTimeline;
   range: TimelineRange;
@@ -64,6 +66,7 @@ export function TimelineBoard({
   today: string;
   viewer: "elder" | "leader";
   kind: "member" | "guest";
+  openGroups: OpenGroups;
 }) {
   const t = useTranslations("ReportTimeline");
   const locale = useLocale() as Locale;
@@ -76,6 +79,13 @@ export function TimelineBoard({
   const [draft, setDraft] = useState({ from: range.from, to: range.to });
   const [rangeError, setRangeError] = useState(false);
   const name = firstNameOf(timeline.person.name);
+
+  // Back and Forward change the URL's range without remounting: the date inputs follow it.
+  useEffect(() => {
+    setDraft({ from: range.from, to: range.to });
+    setRangeError(false);
+  }, [range.from, range.to]);
+
   const showCustom = range.kind === "custom" || pickingCustom;
   const group = timeline.groups.find((item) => item.id === groupId);
 
@@ -349,7 +359,10 @@ export function TimelineBoard({
           </div>
         ) : (
           <div className="border-t border-separator">
-            <ReportTimeline timeline={{ person: timeline.person, rows }} />
+            <ReportTimeline
+              openGroups={openGroups}
+              timeline={{ person: timeline.person, rows }}
+            />
           </div>
         )}
         <div className="flex flex-col items-start gap-3 border-t border-separator px-6 py-4">

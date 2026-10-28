@@ -1,4 +1,5 @@
 import type { PersonTimeline } from "@/api/small-groups-api/types";
+import type { OpenGroups } from "@/lib/auth/permissions";
 
 import NextLink from "next/link";
 import { useTranslations } from "next-intl";
@@ -18,10 +19,12 @@ export function RecentActivityCard({
   timeline,
   timelineHref,
   viewer,
+  openGroups,
 }: {
   timeline: PersonTimeline;
   timelineHref: string;
   viewer: "elder" | "leader";
+  openGroups: OpenGroups;
 }) {
   const t = useTranslations("ReportTimeline");
 
@@ -44,7 +47,11 @@ export function RecentActivityCard({
         </NextLink>
       </div>
       <div className="border-t border-separator">
-        <ReportTimeline timeline={timeline} variant="preview" />
+        <ReportTimeline
+          openGroups={openGroups}
+          timeline={timeline}
+          variant="preview"
+        />
       </div>
       <p className="border-t border-separator px-6 py-3.5 text-[13px] text-muted">
         {viewer === "elder"

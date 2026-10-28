@@ -13,6 +13,7 @@ import { getPermissions } from "@/lib/auth/get-permissions";
 import {
   can,
   getSmallGroupAccess,
+  openGroupsOf,
   timelineViewer,
 } from "@/lib/auth/permissions";
 import { parseTimelineQuery, toTimelineParams } from "@/lib/timeline-range";
@@ -64,6 +65,7 @@ export default async function GuestTimelinePage({
       />
       <TimelineCard
         kind="guest"
+        openGroups={openGroupsOf(permissions, me.leads)}
         query={query}
         timeline={timeline}
         today={today}

@@ -1,4 +1,5 @@
 import type { PersonTimeline } from "@/api/small-groups-api/types";
+import type { OpenGroups } from "@/lib/auth/permissions";
 import type { TimelineQuery } from "@/lib/timeline-range";
 
 import { useTranslations } from "next-intl";
@@ -16,12 +17,15 @@ export function TimelineCard({
   today,
   viewer,
   kind,
+  openGroups,
 }: {
   timeline: PersonTimeline;
   query: TimelineQuery;
   today: string;
   viewer: "elder" | "leader";
   kind: "member" | "guest";
+  /** The groups whose page and reports the viewer can open. */
+  openGroups: OpenGroups;
 }) {
   const t = useTranslations("ReportTimeline");
   const name = firstNameOf(timeline.person.name);
@@ -44,6 +48,7 @@ export function TimelineCard({
       <TimelineBoard
         groupId={query.groupId}
         kind={kind}
+        openGroups={openGroups}
         range={query.range}
         timeline={timeline}
         today={today}

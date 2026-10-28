@@ -16,6 +16,7 @@ import { getPermissions } from "@/lib/auth/get-permissions";
 import {
   can,
   getSmallGroupAccess,
+  openGroupsOf,
   timelineViewer,
 } from "@/lib/auth/permissions";
 
@@ -76,6 +77,7 @@ export default async function GuestDetailPage({
         <div className="flex min-w-0 flex-col gap-5">
           {activity && (
             <RecentActivityCard
+              openGroups={openGroupsOf(permissions, me.leads)}
               timeline={activity}
               timelineHref={`/guests/${guest.id}/timeline`}
               viewer={timelineViewer(permissions)}
