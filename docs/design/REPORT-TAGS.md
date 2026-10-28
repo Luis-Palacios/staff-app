@@ -675,3 +675,20 @@ Run after implementation, against the boards listed above. Record findings in th
 - **Recent activity rows link to the report** (deviation from the spec, which has no *View report* in the
   preview): each row's date is a link to `/groups/reports/{id}` (`?section=followUp` for a follow-up-only row,
   as on the Timeline tab). Checked as elder on member 49 and guest 11.
+
+### Design review fixes (Oct 28)
+
+- **Chip short names** are worked out across all three sections on Report detail, the conversation panel and
+  Prayer & follow-up (and in *Copy for WhatsApp*). **Known gap:** the person timeline and Recent activity only
+  get the items that tag that person, so a first-name clash with someone tagged only in another item of the
+  same report isn't visible there (report 53: *Kevin Ú.* / *Kevin M.* both show *Kevin*). Fixing it needs the
+  timeline API to return a per-report short name; not planned.
+- **`shadow-focus` utility = the theme ring.** `brand.css` also defines `--shadow-focus` (the brand's 4px gold
+  halo, which the landing page uses) and Tailwind inlines a shadow theme value into its utility, so
+  `shadow-focus` drew the halo while `var(--shadow-focus)` drew the theme's ring. `@theme inline` in
+  `globals.css` now points the utility at the variable. The two tokens share a name: rename the brand one at
+  the next design-system re-sync.
+- **Phone tag sheet** focuses its search in a layout effect (before the dialog's autofocus), so a quick
+  `@Da` keeps *Da*. The Filters sheet is docked full width (`rounded-t-panel`), with a handle and a 44px close.
+- **Not checked after these fixes:** Spanish and light mode on the timeline, and the 390 px layouts in the
+  browser (the window kept reporting 1792 px); button heights read from the code only.
