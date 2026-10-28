@@ -9,11 +9,13 @@ import { MemberInactiveBanner } from "./_components/member-inactive-banner";
 import { ReactivateMemberButton } from "./_components/reactivate-member-button";
 import { MemberStatusHistoryCard } from "./_components/member-status-card";
 
-import { getMe } from "@/api/members-api/client";
+import { getMe, getMemberTimeline } from "@/api/members-api/client";
 import { listSmallGroups } from "@/api/small-groups-api/client";
 import { loadMember } from "@/app/(app)/members/_lib/load-member";
 import { loadMemberAccount } from "@/app/(app)/members/_lib/load-member-account";
 import { loadStatusHistory } from "@/app/(app)/members/_lib/load-status-history";
+import { PersonTabs } from "@/components/person-tabs";
+import { RecentActivityCard } from "@/components/report-timeline/recent-activity-card";
 import { SavedToast } from "@/components/saved-toast";
 import { getPermissions, requirePermission } from "@/lib/auth/get-permissions";
 import { AuthRole } from "@/lib/auth/roles";
@@ -21,6 +23,7 @@ import { getChurchToday } from "@/lib/church-time";
 import {
   can,
   getSmallGroupAccess,
+  timelineViewer,
   userAccountAccess,
 } from "@/lib/auth/permissions";
 import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
@@ -56,7 +59,11 @@ export default async function MemberDetailPage({
     !!session &&
     userAccountAccess(permissions, session.user.id, account.user.id).ban;
   // Leader names come from the groups list; if it can't be read the card just omits them.
-  const groups = await listSmallGroups().catch(() => []);
+  const [groups, activity] = await Promise.all([
+    listSmallGroups().catch(() => []),
+    // Recent activity is a bonus on the Profile: if it can't be read the card is just left out.
+    getMemberTimeline(id, { latest: 3 }).catch(() => null),
+  ]);
   const leaders = Object.fromEntries(
     groups.flatMap(({ id: groupId, leaderName }) =>
       leaderName === null ? [] : [[groupId, leaderName]],
@@ -77,6 +84,11 @@ export default async function MemberDetailPage({
         canManage={account.canManage}
         member={member}
         status={account.status}
+      />
+      <PersonTabs
+        basePath={`/members/${member.id}`}
+        current="profile"
+        name={member.name}
       />
       {inactive && (
         <MemberInactiveBanner
@@ -107,6 +119,13 @@ export default async function MemberDetailPage({
           member={member}
         />
         <div className="flex min-w-0 flex-col gap-5">
+          {activity && (
+            <RecentActivityCard
+              timeline={activity}
+              timelineHref={`/members/${member.id}/timeline`}
+              viewer={timelineViewer(permissions)}
+            />
+          )}
           <MemberGroupsCard
             canOpen={canOpenGroup}
             leaders={leaders}

@@ -1,12 +1,12 @@
 /**
- * Where a tagged person's chip goes. Part 2 adds a Timeline tab, so a person's page will be
- * `/members/{id}/timeline` and `/guests/{id}/timeline`: that is the one line to change then.
+ * Where a tagged person's chip goes: their Timeline tab (rule 12), which is the page that shows
+ * where they were tagged. The viewer's access to it is the person page's own.
  */
 export function personHref(person: {
   type: "member" | "guest";
   id: number;
 }): string {
   return person.type === "guest"
-    ? `/guests/${person.id}`
-    : `/members/${person.id}`;
+    ? `/guests/${person.id}/timeline`
+    : `/members/${person.id}/timeline`;
 }

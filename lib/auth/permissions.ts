@@ -63,6 +63,20 @@ export function can(
 /** `full` sees every group, `scoped` only the ones they lead, `none` no groups at all. */
 export type SmallGroupAccess = "full" | "scoped" | "none";
 
+/**
+ * Who a person's report timeline is written for (report tags, rule 23): admins and elders see
+ * every group's notes and follow-up, anyone else only the groups they lead. The API decides the
+ * rows; this only picks the wording around them.
+ */
+export function timelineViewer(
+  permissions: Permissions | null | undefined,
+): "elder" | "leader" {
+  return getSmallGroupAccess(permissions) === "full" &&
+    can(permissions, { smallGroupReports: ["viewObservations"] })
+    ? "elder"
+    : "leader";
+}
+
 // Rule 6: `smallGroups: all` is full access, `view` without `all` is the leader's own groups.
 export function getSmallGroupAccess(
   permissions: Permissions | null | undefined,
