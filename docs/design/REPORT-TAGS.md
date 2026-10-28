@@ -96,7 +96,7 @@ what changed and anything that differs from the canvas in the progress log below
 | 5b. Stacked notepad layout for the three sections (canvas revision of Oct 26) | ✅ | `bd57083` |
 | **Part 2 (`person-timeline`)** | | |
 | 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ✅ | `c6c1ced` |
-| 7. Tabs and Recent activity on Member and Guest detail | ✅ | STAGE7 |
+| 7. Tabs and Recent activity on Member and Guest detail | ✅ | `b3e119b` |
 | 8. The Timeline tab: filters, URL, *Show 3 more months*, phone sheet | ⬜ | |
 | 9. Docs and design review fixes | ⬜ | |
 
