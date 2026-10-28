@@ -13,19 +13,28 @@ export function firstNameOf(name: string): string {
 
 /**
  * An item as plain text: tagged people as their first name (WhatsApp, rule 17) or their full name
- * (search, rule 16). No `@`.
+ * (search, rule 16). No `@`. With `shortNames`, "first" uses the report's short names (*Kevin Ú.*).
  */
 export function segmentsToPlain(
   segments: readonly ReportSegment[],
-  { names }: { names: "first" | "full" },
+  {
+    names,
+    shortNames: short,
+  }: {
+    names: "first" | "full";
+    shortNames?: ReadonlyMap<PersonKey, string>;
+  },
 ): string {
   return segments
     .map((segment) => {
       if (segment.type === "text") return segment.text;
 
-      return names === "first"
-        ? firstNameOf(segment.person.name)
-        : segment.person.name;
+      if (names === "full") return segment.person.name;
+
+      return (
+        short?.get(toPersonKey(segment.person)) ??
+        firstNameOf(segment.person.name)
+      );
     })
     .join("");
 }
