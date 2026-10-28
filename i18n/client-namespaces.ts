@@ -54,6 +54,7 @@ export const CLIENT_NAMESPACES = [
   "ReportForm",
   "ReportItems",
   "ReportsList",
+  "ReportTimeline",
   "ResendVerificationButton",
   "ResetPasswordForm",
   "Roles",

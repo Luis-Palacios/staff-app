@@ -1,22 +1,27 @@
 import type { PersonTimeline } from "@/api/small-groups-api/types";
+import type { TimelineQuery } from "@/lib/timeline-range";
 
-import { ClockIcon } from "@heroicons/react/24/outline";
 import { useTranslations } from "next-intl";
 
-import { ReportTimeline } from "./report-timeline";
+import { TimelineBoard } from "./timeline-board";
 
 import { DetailCardHeading } from "@/app/(app)/applications/[id]/_components/detail-card-heading";
-import { EmptyState } from "@/components/empty-state";
 import { card } from "@/components/primitives";
 import { firstNameOf } from "@/lib/report-items";
 
-/** The Timeline tab's card: heading and description, the rows by month, the audience note. */
+/** The Timeline tab's card: heading and description over the filterable board. */
 export function TimelineCard({
   timeline,
+  query,
+  today,
   viewer,
+  kind,
 }: {
   timeline: PersonTimeline;
+  query: TimelineQuery;
+  today: string;
   viewer: "elder" | "leader";
+  kind: "member" | "guest";
 }) {
   const t = useTranslations("ReportTimeline");
   const name = firstNameOf(timeline.person.name);
@@ -36,22 +41,14 @@ export function TimelineCard({
             : t("subLeader", { name })}
         </p>
       </div>
-      {timeline.rows.length === 0 ? (
-        <div className="border-t border-separator px-6 py-8">
-          <EmptyState as="h3" icon={ClockIcon} title={t("emptyTitle")}>
-            {t("emptyBody")}
-          </EmptyState>
-        </div>
-      ) : (
-        <div className="border-t border-separator">
-          <ReportTimeline timeline={timeline} />
-        </div>
-      )}
-      <p className="border-t border-separator px-6 py-3.5 text-[13px] text-muted">
-        {viewer === "elder"
-          ? t("footElder", { name })
-          : t("footLeader", { name })}
-      </p>
+      <TimelineBoard
+        groupId={query.groupId}
+        kind={kind}
+        range={query.range}
+        timeline={timeline}
+        today={today}
+        viewer={viewer}
+      />
     </section>
   );
 }
