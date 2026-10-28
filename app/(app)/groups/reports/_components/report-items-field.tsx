@@ -89,6 +89,8 @@ export function ReportItemsField({
     null,
   );
   const [refused, setRefused] = useState(false);
+  // An untouched section is only the ghost row; the first press brings its empty item in.
+  const [started, setStarted] = useState(false);
   const focusId = useRef(0);
   const addRef = useRef<HTMLButtonElement>(null);
   const focusGhost = useRef(false);
@@ -96,8 +98,10 @@ export function ReportItemsField({
   const full = items.length >= ITEMS_MAX;
   const filled = items.filter((item) => !isEmptyItem(item)).length;
   const lastItem = items[items.length - 1];
+  const idle =
+    !started && items.length === 1 && !!lastItem && isEmptyItem(lastItem);
   // The last item, while still empty, is where to type; otherwise the ghost row starts the next one.
-  const showGhost = !full && !(lastItem && isEmptyItem(lastItem));
+  const showGhost = idle || (!full && !(lastItem && isEmptyItem(lastItem)));
 
   // After the last item is removed the ghost row is the only thing left to focus.
   useEffect(() => {
@@ -181,6 +185,15 @@ export function ReportItemsField({
   }
 
   function add() {
+    const [only] = items;
+
+    if (idle && only) {
+      setStarted(true);
+      requestFocus(only.key, 0);
+
+      return;
+    }
+
     const item = newDraftItem();
 
     onChange([...items, item]);
@@ -213,7 +226,7 @@ export function ReportItemsField({
         </span>
       </legend>
       <ol className="divide-y divide-separator overflow-hidden rounded-xl border border-field-border bg-field focus-within:border-field-border-focus focus-within:shadow-[var(--shadow-focus)]">
-        {items.map((item, index) => {
+        {(idle ? [] : items).map((item, index) => {
           const n = index + 1;
           const placeholder = tItems(PLACEHOLDER_KEY[section]);
           const itemLabel = tItems("itemLabel", {

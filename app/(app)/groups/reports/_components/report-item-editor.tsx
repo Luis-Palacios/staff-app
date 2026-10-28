@@ -331,7 +331,12 @@ export function ReportItemEditor({
     content: docOf(segments),
     editorProps: {
       attributes: {
-        role: "textbox",
+        // ProseMirror re-applies these on every update, so the role lives here, not in the effect.
+        role: canTag ? "combobox" : "textbox",
+        ...(canTag && {
+          "aria-autocomplete": "list",
+          "aria-haspopup": "listbox",
+        }),
         "aria-multiline": "false",
         "aria-label": ariaLabel,
         class: "outline-none",
@@ -453,8 +458,18 @@ export function ReportItemEditor({
 
     dom.setAttribute("aria-label", ariaLabel);
 
-    if (picker?.mode === "at" && !isPhone) {
+    // With tagging on, the field is the combobox that `@` opens a listbox for.
+    if (canTag) {
+      dom.setAttribute("role", "combobox");
+      dom.setAttribute("aria-autocomplete", "list");
       dom.setAttribute("aria-haspopup", "listbox");
+    } else {
+      dom.setAttribute("role", "textbox");
+      dom.removeAttribute("aria-autocomplete");
+      dom.removeAttribute("aria-haspopup");
+    }
+
+    if (picker?.mode === "at" && !isPhone) {
       dom.setAttribute("aria-expanded", "true");
 
       const listId = activeId?.replace(/-\d+$/, "");
@@ -464,16 +479,14 @@ export function ReportItemEditor({
 
       if (activeId) dom.setAttribute("aria-activedescendant", activeId);
     } else {
-      for (const name of [
-        "aria-haspopup",
-        "aria-expanded",
-        "aria-controls",
-        "aria-activedescendant",
-      ]) {
+      for (const name of ["aria-controls", "aria-activedescendant"]) {
         dom.removeAttribute(name);
       }
+
+      if (canTag) dom.setAttribute("aria-expanded", "false");
+      else dom.removeAttribute("aria-expanded");
     }
-  }, [editor, ariaLabel, picker, isPhone, activeId]);
+  }, [editor, ariaLabel, picker, isPhone, activeId, canTag]);
 
   const closePicker = useCallback(() => {
     setPicker(null);
@@ -550,9 +563,9 @@ export function ReportItemEditor({
         <EditorContent
           className={clsx(
             "min-h-11 w-full cursor-text px-3 py-[9px] text-[15px] leading-[1.55] text-field-foreground md:pl-0",
-            "[&_.tiptap]:min-h-6 [&_.tiptap]:whitespace-pre-wrap [&_.tiptap]:break-words",
+            "[&_.tiptap]:flow-root [&_.tiptap]:min-h-6 [&_.tiptap]:whitespace-pre-wrap [&_.tiptap]:break-words",
             "[&_.tiptap_p]:m-0",
-            "[&_p.is-editor-empty]:before:pointer-events-none [&_p.is-editor-empty]:before:float-left [&_p.is-editor-empty]:before:-mb-6 [&_p.is-editor-empty]:before:h-6 [&_p.is-editor-empty]:before:max-w-full [&_p.is-editor-empty]:before:overflow-hidden [&_p.is-editor-empty]:before:text-ellipsis [&_p.is-editor-empty]:before:whitespace-nowrap [&_p.is-editor-empty]:before:text-field-placeholder [&_p.is-editor-empty]:before:content-[attr(data-placeholder)]",
+            "[&_p.is-editor-empty]:before:pointer-events-none [&_p.is-editor-empty]:before:float-left [&_p.is-editor-empty]:before:max-w-full [&_p.is-editor-empty]:before:whitespace-normal [&_p.is-editor-empty]:before:text-field-placeholder [&_p.is-editor-empty]:before:content-[attr(data-placeholder)]",
           )}
           editor={editor}
         />
