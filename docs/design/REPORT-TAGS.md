@@ -644,7 +644,8 @@ members (guests have it too): use an ICU `select` and note it in *Decisions*.
 
 Run after implementation, against the boards listed above. Record findings in the progress log.
 
-- [ ] Every board matches in light and dark: layout, spacing, type, states.
+- [x] Every board matches in light and dark: layout, spacing, type, states. (Claude Design review, two rounds;
+      the second gave the green light after the "Design review 2 fixes" stage.)
 - [x] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways (except the timeline's type
       chips on phones, on purpose); the picker becomes a sheet on phones. (Checked in the browser during
       stages 5b, 7 and 8: report form, timeline and Recent activity; the filters sheet is a sheet at 390.)
@@ -711,3 +712,11 @@ Run after implementation, against the boards listed above. Record findings in th
 - **Checked as admin:** timeline range summary, month band and row dates in English and Spanish at 1440; the
   Filters sheet in dark, in Spanish, and the empty follow-up item in Spanish at 390 (a 390 px frame inside
   the tab). Not checked: light mode of the sheet, the 1024 px layout, `/guests/11` and `/guests/11/timeline`.
+
+### Pre-merge checks (Oct 28)
+
+- `pnpm lint` (the one existing `member-form.tsx` import-order warning), `tsc`, `pnpm tokens --check`, and
+  `docker build` + `pnpm smoke staff-app:dev` all pass.
+- **Open, not blocking the merge:** the screen-reader pass on the editor, touch (`(hover: none)`), a full
+  focus-order pass, and a tool-based audit of gold-on-light and status-never-color-alone. The timeline's
+  same-first-name gap stays (needs a per-report short name from the timeline API; decided not to do it).
