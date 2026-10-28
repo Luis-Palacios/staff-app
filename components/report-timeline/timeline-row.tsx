@@ -19,7 +19,7 @@ import { ReportPersonChip } from "@/app/(app)/groups/reports/_components/report-
 import { textLink } from "@/components/primitives";
 import { ReportSectionTile } from "@/components/report-section-tile";
 import { StatusBadge } from "@/components/status-badge";
-import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
+import { formatCalendarRowDate } from "@/lib/format-date";
 import { personHref } from "@/lib/person-href";
 import { shortNames, toPersonKey } from "@/lib/report-items";
 
@@ -160,10 +160,10 @@ export function TimelineRow({
               className="underline-offset-[3px] hover:underline"
               href={reportHref}
             >
-              {formatCalendarShortWeekdayDate(row.meetingDate, locale)}
+              {formatCalendarRowDate(row.meetingDate, locale)}
             </NextLink>
           ) : (
-            formatCalendarShortWeekdayDate(row.meetingDate, locale)
+            formatCalendarRowDate(row.meetingDate, locale)
           )}
         </p>
         <NextLink
@@ -174,7 +174,7 @@ export function TimelineRow({
         </NextLink>
         {roleLabel && <p className="text-[13px] text-muted">{roleLabel}</p>}
         {!attendance && (
-          <span className="inline-flex items-center gap-1 self-start whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-[12.5px] font-semibold text-muted">
+          <span className="inline-flex items-center gap-1 self-start whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-semibold text-muted">
             <AtSymbolIcon
               aria-hidden="true"
               className="size-3.5 shrink-0 text-muted"
@@ -243,7 +243,10 @@ export function TimelineRow({
         })}
         {!compact && (
           <NextLink
-            className={textLink({ className: "self-start text-[13.5px]" })}
+            className={textLink({
+              className:
+                "inline-flex min-h-8 items-center self-start text-[13.5px]",
+            })}
             href={reportHref}
           >
             {t("viewReport")}

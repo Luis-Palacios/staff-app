@@ -155,9 +155,48 @@ export function formatCalendarShortWeekdayDate(
   });
 }
 
-// "October 2026": a month heading.
+// "October 2026" ("octubre 2026", not "octubre de 2026"): a month heading.
 export function formatCalendarMonth(iso: string, locale: Locale): string {
-  return formatCalendarWith(iso, locale, { month: "long", year: "numeric" });
+  const parts = formatCalendarWith(iso, locale, {
+    month: "long",
+    year: "numeric",
+  });
+
+  // Intl's Spanish joins month and year with "de"; the headings drop it.
+  return locale === "es" ? parts.replace(/ de (\d{4})$/, " $1") : parts;
+}
+
+// "Tue, Oct 27", and "mar 27 oct" in Spanish (no comma): a row date on the person timeline.
+export function formatCalendarRowDate(iso: string, locale: Locale): string {
+  const text = formatCalendarShortWeekdayDate(iso, locale);
+
+  return locale === "es" ? text.replace(",", "") : text;
+}
+
+/**
+ * A date range: "Oct 20 – Oct 28, 2026" ("20 oct – 28 oct, 2026"), the year once when both ends
+ * share it, on each end when they don't. Each end is formatted alone: `formatRange` spaces its
+ * dash differently in Node and in the browser, which breaks hydration.
+ */
+export function formatCalendarSpan(
+  fromIso: string,
+  toIso: string,
+  locale: Locale,
+): string {
+  const year = (iso: string) => iso.slice(0, 4);
+
+  if (year(fromIso) !== year(toIso)) {
+    const full = (iso: string) =>
+      formatCalendarWith(iso, locale, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+
+    return `${full(fromIso)} – ${full(toIso)}`;
+  }
+
+  return `${formatCalendarShortDate(fromIso, locale)} – ${formatCalendarShortDate(toIso, locale)}, ${year(toIso)}`;
 }
 
 // "Oct 11 – 17" (or "Oct 28 – Nov 3"): a week's range from two date-only values, in the picked

@@ -26,7 +26,9 @@ export function TimelineMonth({
         <h3 className="text-[13px] font-semibold uppercase tracking-[0.06em] text-heading">
           {label}
         </h3>
-        <span className="text-xs text-muted">{t("monthCount", { count })}</span>
+        <span className="text-[13px] tabular-nums text-muted">
+          {t("monthCount", { count })}
+        </span>
       </div>
       <ol className="flex flex-col">{children}</ol>
     </section>
