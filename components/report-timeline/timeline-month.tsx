@@ -22,8 +22,8 @@ export function TimelineMonth({
 
   return (
     <section aria-label={label}>
-      <div className="flex items-center justify-between gap-3 border-y border-border bg-surface-secondary/50 px-[22px] py-2.5 first:border-t-0">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.06em] text-muted">
+      <div className="flex items-center justify-between gap-3 border-y border-border bg-surface-secondary px-4 md:px-6 py-2.5 first:border-t-0">
+        <h3 className="text-[13px] font-semibold uppercase tracking-[0.06em] text-heading">
           {label}
         </h3>
         <span className="text-xs text-muted">{t("monthCount", { count })}</span>

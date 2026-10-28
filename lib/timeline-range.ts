@@ -2,7 +2,7 @@ import type { TimelineParams } from "@/api/small-groups-api/types";
 
 import { parseDate } from "@internationalized/date";
 
-/** The Dates select: three presets and a custom range (`?range=`, `?from=`, `?to=`). */
+/** The Dates select: three presets and a custom range (`?range=`, `?from=`, `?to=`; `from` and `to` without `range` are a custom range). */
 export type TimelineRangeKind = "3m" | "6m" | "year" | "custom";
 
 export interface TimelineRange {
@@ -78,7 +78,13 @@ export function parseTimelineQuery(
   let range = presetRange("3m", today);
 
   if (kind === "6m" || kind === "year") range = presetRange(kind, today);
-  else if (kind === "custom" && from && to && isValidRange(from, to, today)) {
+  else if (
+    (kind === "custom" || kind === undefined) &&
+    from &&
+    to &&
+    isValidRange(from, to, today)
+  ) {
+    // `?from=&to=` alone is a custom range too.
     range = { kind: "custom", from, to };
   }
 

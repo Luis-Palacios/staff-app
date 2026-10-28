@@ -8,7 +8,9 @@ import { useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   AdjustmentsHorizontalIcon,
+  CheckIcon,
   ClockIcon,
+  XMarkIcon,
   EyeIcon,
 } from "@heroicons/react/24/outline";
 import { Button, Label, ListBox, Modal, Select } from "@heroui/react";
@@ -35,6 +37,9 @@ const RANGE_LABEL = {
   year: "rangeYear",
   custom: "rangeCustom",
 } as const;
+
+/** The range's name where the trailing "…" of the select's custom option would dangle. */
+const RANGE_NAME = { ...RANGE_LABEL, custom: "rangeCustomName" } as const;
 
 /**
  * The date range as "Jul 16 – Oct 15, 2026". Each end is formatted alone: `formatRange` spaces its
@@ -216,7 +221,7 @@ export function TimelineBoard({
       <Label className="text-[13px] font-semibold text-heading">
         {t("group")}
       </Label>
-      <Select.Trigger className="h-10 min-h-10 items-center rounded-control py-0">
+      <Select.Trigger className="h-11 min-h-11 items-center rounded-control py-0 md:h-10 md:min-h-10">
         <Select.Value />
         <Select.Indicator />
       </Select.Trigger>
@@ -294,7 +299,9 @@ export function TimelineBoard({
           <span className="flex min-w-0 flex-col">
             <span className="text-sm font-semibold">{t("filters")}</span>
             <span className="truncate text-[13px] font-normal text-muted">
-              {group ? `${rangeText} · ${group.name}` : rangeText}
+              {t(RANGE_NAME[showCustom ? "custom" : range.kind])}
+              {" · "}
+              {group ? group.name : t("allGroups")}
             </span>
           </span>
         </Button>
@@ -361,7 +368,7 @@ export function TimelineBoard({
         <div className="flex flex-col items-start gap-3 border-t border-separator px-6 py-4">
           {canShowMore ? (
             <Button
-              className="font-semibold"
+              className="h-10 min-h-10 font-semibold pointer-coarse:h-11 pointer-coarse:min-h-11"
               isPending={isPending}
               variant="outline"
               onPress={showMoreMonths}
@@ -387,12 +394,28 @@ export function TimelineBoard({
       </div>
 
       <Modal.Backdrop isOpen={sheetOpen} onOpenChange={setSheetOpen}>
-        <Modal.Container placement="bottom" size="md">
-          <Modal.Dialog>
-            <Modal.Header>
+        <Modal.Container className="p-0 sm:w-full sm:p-0" placement="bottom">
+          <Modal.Dialog className="max-w-none gap-0 rounded-b-none rounded-t-panel px-5 pb-5 pt-2">
+            <span
+              aria-hidden="true"
+              className="mx-auto h-1 w-10 shrink-0 rounded-full bg-separator"
+            />
+            <Modal.Header className="flex-row items-center justify-between gap-3 pb-2 pt-1">
               <Modal.Heading className="font-display text-2xl font-medium text-heading">
                 {t("filters")}
               </Modal.Heading>
+              <button
+                aria-label={t("closeFilters")}
+                className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-control text-muted hover:bg-surface-secondary hover:text-heading"
+                type="button"
+                onClick={() => setSheetOpen(false)}
+              >
+                <XMarkIcon
+                  aria-hidden="true"
+                  className="size-5"
+                  strokeWidth={1.8}
+                />
+              </button>
             </Modal.Header>
             <Modal.Body className="flex flex-col gap-4 overflow-visible p-1">
               <div
@@ -411,15 +434,22 @@ export function TimelineBoard({
                       key={key}
                       aria-pressed={pressed}
                       className={clsx(
-                        "flex min-h-12 items-center rounded-control border px-4 text-left text-sm font-semibold transition-colors",
+                        "flex min-h-12 items-center justify-between gap-3 rounded-control border px-4 text-left text-sm font-semibold transition-colors",
                         pressed
-                          ? "border-accent bg-accent text-accent-foreground"
+                          ? "border-accent bg-accent-soft text-accent-soft-foreground"
                           : "border-border bg-surface text-heading hover:bg-default",
                       )}
                       type="button"
                       onClick={() => pickPreset(key)}
                     >
                       {t(RANGE_LABEL[key])}
+                      {pressed && (
+                        <CheckIcon
+                          aria-hidden="true"
+                          className="size-5 shrink-0"
+                          strokeWidth={2}
+                        />
+                      )}
                     </button>
                   );
                 })}
@@ -429,7 +459,7 @@ export function TimelineBoard({
             </Modal.Body>
             <Modal.Footer>
               <Button
-                className="w-full font-semibold"
+                className="h-11 min-h-11 w-full font-semibold"
                 onPress={() => setSheetOpen(false)}
               >
                 {t("showReports", { count: rows.length })}
