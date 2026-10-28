@@ -327,8 +327,11 @@ what changed and anything that differs from the canvas in the progress log below
   typing a *To* before *From* shows `errorRange` and leaves the URL alone (the selects shift down a few px while
   the error shows); Spanish on member 49 (labels, dates, chips, footer); guest 11's timeline in Spanish in a
   1024 px frame (no sideways scroll, the guest end text *Eso es todo desde la primera visita de…* uses the
-  oldest visible row's date). **Not checked:** a leader session and an elder who isn't admin (needs their
-  sign-in; wording and rule 23 rows differ), the *Tagged in this report* pill in the preview's 150 px column,
+  oldest visible row's date). **Leader session (member 15 in their own group, Oct 28):**
+  the leader subtitle, footer and end text (*everything you can see for Harold*), the Group select listing only
+  their group, and the Profile's Recent activity footer (*The last 3 reports you can see…*) are right; a member
+  outside their groups (49) and a guest outside their scope (11) are the page's 404. **Not checked:** an elder
+  who isn't admin (wording and rule 23 rows differ), the *Tagged in this report* pill in the preview's 150 px column,
   the phone sheet in Spanish.
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
