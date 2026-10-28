@@ -145,7 +145,7 @@ export function TimelineRow({
       <div
         className={clsx(
           "flex shrink-0 flex-col gap-1.5",
-          compact ? "md:w-[150px]" : "md:w-[190px]",
+          compact ? "md:w-[172px]" : "md:w-[190px]",
         )}
       >
         <p className="text-[14.5px] font-semibold text-heading">
@@ -179,7 +179,7 @@ export function TimelineRow({
               </StatusBadge>
             </>
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-full border border-field-border px-2 py-0.5 text-[12.5px] font-semibold text-heading">
+            <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-field-border px-2 py-0.5 text-[12.5px] font-semibold text-heading">
               <AtSymbolIcon
                 aria-hidden="true"
                 className="size-3.5 shrink-0 text-eyebrow"
