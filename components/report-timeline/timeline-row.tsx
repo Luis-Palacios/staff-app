@@ -112,7 +112,7 @@ function ItemList({
 /**
  * One held report in a person's timeline (rule 21): date, group, their role (or *Tagged in this
  * report* when only a tag is visible), attendance, the note about them and only the items that tag
- * them. `compact` is the Recent activity preview: a narrower date column and no *View report*.
+ * them. `compact` is the Recent activity preview: a narrower date column, and the date links to the report instead of a *View report* link.
  */
 export function TimelineRow({
   row,
@@ -149,7 +149,17 @@ export function TimelineRow({
         )}
       >
         <p className="text-[14.5px] font-semibold text-heading">
-          {formatCalendarShortWeekdayDate(row.meetingDate, locale)}
+          {compact ? (
+            // The preview has no *View report*: the date opens the report instead.
+            <NextLink
+              className="underline-offset-[3px] hover:underline"
+              href={reportHref}
+            >
+              {formatCalendarShortWeekdayDate(row.meetingDate, locale)}
+            </NextLink>
+          ) : (
+            formatCalendarShortWeekdayDate(row.meetingDate, locale)
+          )}
         </p>
         <NextLink
           className="text-[13.5px] text-muted underline-offset-[3px] hover:underline"

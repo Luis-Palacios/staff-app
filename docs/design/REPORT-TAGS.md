@@ -672,6 +672,6 @@ Run after implementation, against the boards listed above. Record findings in th
   picker, the highlighted option and the inserted chip); touch (`(hover: none)`); a full focus-order pass
   (after adding, removing and tagging, and after closing the picker and the filters sheet); gold-on-light
   and status-is-never-color-alone were read in the code and seen in screenshots, not audited with a tool.
-- **Open question:** the Recent activity preview has no link to a report (spec: no *View report* in the
-  preview), so an elder on a Profile must open the Timeline tab first. Add a link on each row's date if
-  that is wanted.
+- **Recent activity rows link to the report** (deviation from the spec, which has no *View report* in the
+  preview): each row's date is a link to `/groups/reports/{id}` (`?section=followUp` for a follow-up-only row,
+  as on the Timeline tab). Checked as elder on member 49 and guest 11.
