@@ -100,17 +100,24 @@ what changed and anything that differs from the canvas in the progress log below
 | 8. The Timeline tab: filters, URL, *Show 3 more months*, phone sheet | ⬜ | |
 | 9. Docs and design review fixes | ⬜ | |
 
-**Where to resume (Part 1 is deployed; Part 2 is on the `person-timeline` branch, next is stage 7):**
+**Where to resume (Part 1 is deployed; Part 2 is on the `person-timeline` branch, stages 6–7 done, next is stage 8):**
 
-- Still open: touch (`(hover: none)`, needs a real phone or tablet), an elder session, and the
-  design review checklist against the canvas boards (Claude Design is doing the canvas comparison;
-  record its findings in the progress log). 422 `items` can't be reached from the UI (the form caps at
-  20 items and 10 tags first), so it isn't a check. Everything else was checked on Oct 27, see
+- **Stage 8** (the Timeline tab's filters, URL, type chips, summary, *Show 3 more months*, phone sheet)
+  builds on `TimelineCard` (`components/report-timeline/timeline-card.tsx`), which today renders
+  the heading, rows and audience note with no filters. The date range is server-rendered from
+  `?range` / `?from` / `?to` / `?group`: the timeline pages call `getMemberTimeline(id)` /
+  `getGuestTimeline(id)` with no params, so stage 8 maps the URL to `TimelineParams`. Add
+  `ReportTimeline` to `CLIENT_NAMESPACES` only if a client component calls `useTranslations` with it (or
+  pass labels as props). The branch is local only (not pushed).
+- The API side is done: `membership-management` stages 6–7 (timeline routes) are on its `main`. Its
+  stage 5 (dropping the old text fields) is still open and can go ahead now that Part 1 is deployed.
+- **Still unchecked for Part 2** (do them with stage 8's checks): Spanish, 1024 px, a leader session and
+  an elder who isn't admin (wording and rule 23 rows differ), the *Tagged in this report* pill wrapping in
+  the preview's 150 px column.
+- **Still open from Part 1:** touch (`(hover: none)`, needs a real phone or tablet), an elder session,
+  and the design review checklist against the canvas boards (Claude Design is doing the canvas
+  comparison; record its findings in the progress log). 422 `items` can't be reached from the UI. See
   "Final checks of Part 1" and "Legacy banner removed" below.
-- Nothing needs setting at deploy: the `ITEMS_SINCE` date is gone. The API's stage 5 (dropping the old
-  text fields) must come after Part 1 is deployed.
-- Then Part 2 on a new `person-timeline` branch from stage 6. It needs the API's stages 6–7 first
-  (timeline service and routes, still ⬜ in `membership-management`), done in a separate session there.
 
 **Checking in the browser (the work happens on both a Mac and a Windows machine):**
 
