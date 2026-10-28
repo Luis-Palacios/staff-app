@@ -156,6 +156,11 @@ export function formatCalendarShortWeekdayDate(
   });
 }
 
+// "October 2026": a month heading.
+export function formatCalendarMonth(iso: string, locale: Locale): string {
+  return formatCalendarWith(iso, locale, { month: "long", year: "numeric" });
+}
+
 // "Oct 11 – 17" (or "Oct 28 – Nov 3"): a week's range from two date-only values, in the picked
 // language's own range format.
 export function formatCalendarRange(

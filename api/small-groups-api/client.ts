@@ -15,6 +15,7 @@ import type {
   SmallGroupRole,
   SmallGroupSummary,
   TaggablePerson,
+  TimelineParams,
 } from "@/api/small-groups-api/types";
 
 import { cache } from "react";
@@ -302,4 +303,20 @@ export function deleteSmallGroupReport(id: number | string): Promise<void> {
     reportPath(id),
     { method: "DELETE" },
   );
+}
+
+/** Shared by the member and guest timeline calls: the query string for `params`. */
+export function timelineQuery(params: TimelineParams): string {
+  const query = new URLSearchParams();
+
+  if (params.from) query.set("from", params.from);
+  if (params.to) query.set("to", params.to);
+  if (params.smallGroupId) {
+    query.set("smallGroupId", String(params.smallGroupId));
+  }
+  if (params.latest) query.set("latest", String(params.latest));
+
+  const qs = query.toString();
+
+  return qs ? `?${qs}` : "";
 }
