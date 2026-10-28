@@ -98,7 +98,7 @@ what changed and anything that differs from the canvas in the progress log below
 | 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ✅ | `c6c1ced` |
 | 7. Tabs and Recent activity on Member and Guest detail | ✅ | `b3e119b` |
 | 8. The Timeline tab: filters, URL, *Show 3 more months*, phone sheet | ✅ | (this commit) |
-| 9. Docs and design review fixes | ⬜ | |
+| 9. Docs and design review fixes | 🟡 docs and mechanical checks done; canvas comparison and device checks open | |
 
 **Where to resume (Part 1 is deployed; Part 2 is on the `person-timeline` branch, stages 6–7 done, next is stage 8):**
 
@@ -645,16 +645,33 @@ members (guests have it too): use an ICU `select` and note it in *Decisions*.
 Run after implementation, against the boards listed above. Record findings in the progress log.
 
 - [ ] Every board matches in light and dark: layout, spacing, type, states.
-- [ ] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways (except the timeline's type
-      chips on phones, on purpose); the picker becomes a sheet on phones.
+- [x] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways (except the timeline's type
+      chips on phones, on purpose); the picker becomes a sheet on phones. (Checked in the browser during
+      stages 5b, 7 and 8: report form, timeline and Recent activity; the filters sheet is a sheet at 390.)
 - [ ] The editor: Enter, Backspace, paste and chips behave as **Decided**; a screen reader announces
       the item, the open picker, the highlighted option and the inserted chip.
-- [ ] No color, font, radius or shadow literals in the changed files
+- [x] No color, font, radius or shadow literals in the changed files
       (`git diff main --name-only | xargs grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\('`), and no new
       `dark:` overrides a token could replace.
-- [ ] Token changes: none; `pnpm tokens --check` passes.
+- [x] Token changes: none; `pnpm tokens --check` passes.
 - [ ] Gold never carries text on a light ground; status shows a dot and a word.
 - [ ] Focus ring visible on every control; focus after adding, removing and tagging items, and
       after closing the picker and the filters sheet, makes sense.
-- [ ] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
-- [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+- [x] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
+- [x] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+
+### Stage 9 log (Oct 28)
+
+- `CLAUDE.md` has the overview line (items and tags, Profile · Timeline, `report-timeline/` vs
+  `person_timeline/`).
+- **Mechanical checks, run on `person-timeline` against `main`:** no color literals or new `dark:` overrides
+  in the changed files, `pnpm tokens --check` passes, no `react/jsx-no-literals` warnings, `pnpm lint` (one
+  existing import-order warning in `member-form.tsx`) and `tsc` pass.
+- **Still open** (the boxes above left unticked): the board-by-board comparison with the canvas in light and
+  dark (Claude Design is doing it); the editor with a screen reader (announcements of the item, the open
+  picker, the highlighted option and the inserted chip); touch (`(hover: none)`); a full focus-order pass
+  (after adding, removing and tagging, and after closing the picker and the filters sheet); gold-on-light
+  and status-is-never-color-alone were read in the code and seen in screenshots, not audited with a tool.
+- **Open question:** the Recent activity preview has no link to a report (spec: no *View report* in the
+  preview), so an elder on a Profile must open the Timeline tab first. Add a link on each row's date if
+  that is wanted.
