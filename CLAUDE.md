@@ -14,6 +14,10 @@ member management (add, role, leader swap, remove, close) and add/edit (see
 Members can be marked inactive and reactivated (status tabs on the list, banner, dialogs and
 history on the detail page): see `docs/design/INACTIVE-MEMBERS.md`. Turning sign-in off and on is
 done here, by banning the linked user, not by the API.
+Report sections are lists of items that can tag members and guests (`@`), and member and guest
+detail have Profile · Timeline tabs showing the reports a person was on or tagged in:
+`components/report-timeline/` (not `components/person_timeline/`, which is the membership
+application's baptism and class events). See `docs/design/REPORT-TAGS.md`.
 
 See `docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring this app together
 with the sibling `auth-server` (better-auth) and `membership-management` (FastAPI) repos —
