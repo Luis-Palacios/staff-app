@@ -11,7 +11,7 @@ import type { PickerKeys } from "./tag-picker";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@heroui/react";
 import { useTranslations } from "next-intl";
-import { useId, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 
 import { TagPickerBody, TagSearchField } from "./tag-picker";
 
@@ -44,8 +44,40 @@ export function TagPickerSheet({
 }) {
   const t = useTranslations("ReportItems");
   const listId = useId();
+  const searchRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState(initialQuery);
   const [activeId, setActiveId] = useState<string | undefined>();
+
+  const edited = useRef(false);
+
+  // Letters typed into the item before the field has the focus keep arriving as `initialQuery`.
+  useEffect(() => {
+    if (!edited.current) setSearch(initialQuery);
+  }, [initialQuery]);
+
+  // Opened from `@`, the person is mid-word: the search field takes the focus, caret at the end
+  // of what they typed after `@`. It happens in a layout effect, before the dialog's own
+  // autofocus (a parent effect, which then sees focus already inside) and before any key can land
+  // on the dialog; the frame after is a fallback should something take the focus anyway. Opened
+  // from the button, the dialog keeps it.
+  useLayoutEffect(() => {
+    if (mode !== "at") return;
+
+    function focusSearch() {
+      const input = searchRef.current;
+
+      if (!input || document.activeElement === input) return;
+
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
+
+    focusSearch();
+
+    const frame = requestAnimationFrame(focusSearch);
+
+    return () => cancelAnimationFrame(frame);
+  }, [mode]);
 
   return (
     <Modal.Backdrop
@@ -85,12 +117,16 @@ export function TagPickerSheet({
           </div>
           <div className="px-4 pb-2">
             <TagSearchField
+              ref={searchRef}
               tall
               activeId={activeId}
               keysRef={keysRef}
               listId={listId}
               value={search}
-              onChange={setSearch}
+              onChange={(value) => {
+                edited.current = true;
+                setSearch(value);
+              }}
             />
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto">
