@@ -95,12 +95,12 @@ what changed and anything that differs from the canvas in the progress log below
 | 5. Read views: Report detail, conversation panel, Prayer & follow-up, WhatsApp | ✅ | `8ebd362` |
 | 5b. Stacked notepad layout for the three sections (canvas revision of Oct 26) | ✅ | `bd57083` |
 | **Part 2 (`person-timeline`)** | | |
-| 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ⬜ | |
+| 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ✅ | `c6c1ced` |
 | 7. Tabs and Recent activity on Member and Guest detail | ⬜ | |
 | 8. The Timeline tab: filters, URL, *Show 3 more months*, phone sheet | ⬜ | |
 | 9. Docs and design review fixes | ⬜ | |
 
-**Where to resume (Part 1 is functionally done; check this before starting Part 2):**
+**Where to resume (Part 1 is deployed; Part 2 is on the `person-timeline` branch, next is stage 7):**
 
 - Still open: touch (`(hover: none)`, needs a real phone or tablet), an elder session, and the
   design review checklist against the canvas boards (Claude Design is doing the canvas comparison;
@@ -271,6 +271,20 @@ what changed and anything that differs from the canvas in the progress log below
 - **Width.** The edit form, the list step and the review wrapper no longer cap at 1000 px (they follow
   the shell's `max-w-7xl`), so the three item columns are ~334 px each at 1792 instead of ~165. The
   meeting and group steps keep their 720 px. Reported by the user while reviewing.
+- **Stage 6 (Part 2, Oct 28).** The API's stages 6–7 are done in `membership-management`. Types
+  (`PersonTimeline`, `TimelineRow`, `TimelineItem`, `TimelineParams`…) are in `small-groups-api/types.ts`;
+  `getMemberTimeline` / `getGuestTimeline` live in the members and guests clients and share
+  `timelineQuery` (in the small-groups client). `components/report-timeline/`: `ReportTimeline`
+  (`full` groups rows under `TimelineMonth` headings; `preview` is a bare list), `TimelineRow`
+  (date as `Thu, Oct 8`, group link, role / attendance `StatusBadge`s or the *Tagged in this report*
+  pill, a note block, one block per section with only the items tagging the person, own chip
+  highlighted and not a link, *View report*) and `skeleton.tsx`. Copy: the whole `ReportTimeline`
+  namespace is added in both languages now (the filter keys are used in stage 8). It stays out of
+  `CLIENT_NAMESPACES` until stage 8 needs it. Choices: *View report* adds `?section=followUp` only for a
+  row whose visible content is follow-up items alone; `formatCalendarMonth` added for the headings.
+  The card header, the preview's footer line and *See full timeline* belong to stages 7–8, where the
+  page knows the viewer. **Not checked in the browser:** nothing renders it until stage 7 wires a page.
+  `personHref` still points at the Profile page; stage 7 changes that one line once the tab exists.
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes
