@@ -243,6 +243,64 @@ export interface ReportItemInput {
 
 export type ReportSectionsInput = Record<ReportSectionKey, ReportItemInput[]>;
 
+/** What `/members/{id}/timeline` and `/guests/{id}/timeline` take (report tags, rule 22). */
+export interface TimelineParams {
+  /** Date only, "YYYY-MM-DD". */
+  from?: string;
+  to?: string;
+  smallGroupId?: number;
+  /** 1–10 newest visible rows (Recent activity); not with the others. */
+  latest?: number;
+}
+
+export interface TimelineGroup {
+  id: number;
+  name: string;
+  audience: GroupAudience;
+}
+
+/** Null `attendance` means the person isn't on the list or the caller can't see it (rule 23). */
+export interface TimelineAttendance {
+  /** Their role on the meeting date; null when no period covers it. */
+  role: SmallGroupRole | null;
+  attendedGroup: boolean;
+  attendedChurch: boolean;
+}
+
+export interface TimelineObservation {
+  text: string;
+  submittedBy: { memberId: number; name: string };
+}
+
+/** An item that tags the person whose timeline it is. */
+export interface TimelineItem extends ReportItem {
+  section: ReportSectionKey;
+}
+
+export interface TimelineRow {
+  reportId: number;
+  /** Date only, "YYYY-MM-DD". */
+  meetingDate: string;
+  smallGroup: TimelineGroup;
+  attendance: TimelineAttendance | null;
+  observation: TimelineObservation | null;
+  items: TimelineItem[];
+}
+
+export interface PersonTimeline {
+  person: Person;
+  /** Null with `latest`. Date only. */
+  from: string | null;
+  to: string | null;
+  /** Oldest visible row, any group: whether "Show 3 more months" has anything to show. */
+  earliestDate: string | null;
+  /** Groups with a visible row at any date, for the group filter. */
+  groups: TimelineGroup[];
+  /** In the range and group, after rule 23. */
+  counts: { notes: number; prayer: number; praise: number; followUp: number };
+  rows: TimelineRow[];
+}
+
 /** A section thread's indicator on a shared entry; `unread` and `needsMyReply` are the caller's. */
 export interface ReportSharedConversation {
   id: number;

@@ -1,4 +1,8 @@
 import type {
+  PersonTimeline,
+  TimelineParams,
+} from "@/api/small-groups-api/types";
+import type {
   Me,
   MeFeatures,
   MemberDeactivateInput,
@@ -14,6 +18,7 @@ import type {
 import { cache } from "react";
 
 import { authenticatedFetch } from "@/api/authenticated-fetch";
+import { timelineQuery } from "@/api/small-groups-api/client";
 import { getEnv } from "@/lib/env/server";
 
 /**
@@ -156,4 +161,19 @@ export const getMe = cache(
 /** The church's settings, from the same cached `/me` call. */
 export async function getFeatures(): Promise<MeFeatures> {
   return (await getMe()).features;
+}
+
+/**
+ * The reports a member was on or tagged in (`members: view` + members scope; 404 outside it).
+ * Rows follow rule 23. 422 `range` for a bad date range.
+ */
+export function getMemberTimeline(
+  id: number | string,
+  params: TimelineParams = {},
+): Promise<PersonTimeline> {
+  return authenticatedFetch<PersonTimeline>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `/members/${encodeURIComponent(String(id))}/timeline${timelineQuery(params)}`,
+    { cache: "no-store" },
+  );
 }

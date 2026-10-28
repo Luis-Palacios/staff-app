@@ -1,4 +1,8 @@
 import type {
+  PersonTimeline,
+  TimelineParams,
+} from "@/api/small-groups-api/types";
+import type {
   GuestCreateInput,
   GuestDetail,
   GuestList,
@@ -8,6 +12,7 @@ import type {
 } from "@/api/guests-api/types";
 
 import { authenticatedFetch } from "@/api/authenticated-fetch";
+import { timelineQuery } from "@/api/small-groups-api/client";
 import { getEnv } from "@/lib/env/server";
 
 function guestPath(id: number | string): string {
@@ -71,5 +76,17 @@ export function updateGuest(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     guestPath(id),
     { method: "PATCH", body: changes },
+  );
+}
+
+/** Like `getMemberTimeline` for a guest (`guests: view` + guests scope; 404 outside it). */
+export function getGuestTimeline(
+  id: number | string,
+  params: TimelineParams = {},
+): Promise<PersonTimeline> {
+  return authenticatedFetch<PersonTimeline>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `${guestPath(id)}/timeline${timelineQuery(params)}`,
+    { cache: "no-store" },
   );
 }
