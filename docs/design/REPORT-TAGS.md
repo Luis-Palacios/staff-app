@@ -96,7 +96,7 @@ what changed and anything that differs from the canvas in the progress log below
 | 5b. Stacked notepad layout for the three sections (canvas revision of Oct 26) | ✅ | `bd57083` |
 | **Part 2 (`person-timeline`)** | | |
 | 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ✅ | `c6c1ced` |
-| 7. Tabs and Recent activity on Member and Guest detail | ⬜ | |
+| 7. Tabs and Recent activity on Member and Guest detail | ✅ | STAGE7 |
 | 8. The Timeline tab: filters, URL, *Show 3 more months*, phone sheet | ⬜ | |
 | 9. Docs and design review fixes | ⬜ | |
 
@@ -285,6 +285,22 @@ what changed and anything that differs from the canvas in the progress log below
   The card header, the preview's footer line and *See full timeline* belong to stages 7–8, where the
   page knows the viewer. **Not checked in the browser:** nothing renders it until stage 7 wires a page.
   `personHref` still points at the Profile page; stage 7 changes that one line once the tab exists.
+- **Stage 7 (Part 2, Oct 28).** `components/person-tabs.tsx` (two links, `aria-current`, gold
+  underline), `Profile`/`Timeline` on both pages, new `/members/[id]/timeline` and
+  `/guests/[id]/timeline` (same `requirePermission` / `requireGuests`, same header, a 404 from the
+  timeline call is the page's 404). `RecentActivityCard` (3 newest rows, *See full timeline*, footer by
+  viewer) is the top of the right column on both Profiles and is left out when empty or when the call
+  fails; `guest-meetings-card.tsx` and its `GuestMeetingsCard` messages are deleted.
+  `TimelineCard` is the Timeline tab for now (heading, description, rows by month, audience note; no
+  filters until stage 8). `timelineViewer(permissions)` in `lib/auth/permissions.ts` picks the
+  elder / leader wording (`smallGroups: all` + `viewObservations`). `personHref` now goes to the Timeline
+  tab. The headers are rendered by each page, not a shared loader: the Profile pages already hold
+  the data, and the timeline pages repeat only the few permission lines.
+  **Checked in the browser as admin** (dev server on the Mac, Chrome on the same Mac): member 49
+  Profile and Timeline (light 1502 px, dark in a 390 px frame, no sideways scroll), guest 11 Profile
+  (dark) with a follow-up block, the lock note and a second chip beside the highlighted one; both guest
+  routes answer 200. **Not checked:** Spanish, 1024 px, a leader session, an elder who isn't admin.
+  Known roughness: the *Tagged in this report* pill wraps to two lines in the preview's 150 px column.
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes

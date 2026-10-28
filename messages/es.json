@@ -1565,15 +1565,6 @@
       "other": "Otro motivo"
     }
   },
-  "GuestMeetingsCard": {
-    "eyebrow": "Asistencia",
-    "title": "Reuniones recientes",
-    "empty": "Aún no hay reuniones registradas.",
-    "cameGroup": "Vino al grupo",
-    "missedGroup": "No vino al grupo",
-    "cameChurch": "Vino a la iglesia",
-    "missedChurch": "No vino a la iglesia"
-  },
   "GuestSavedToast": {
     "created": "Invitado agregado",
     "updated": "Cambios guardados"
@@ -1787,5 +1778,9 @@
     "emptyBody": "Prueba con un rango más largo u otro grupo.",
     "showReports": "Ver {count, plural, one {# reporte} other {# reportes}}",
     "errorRange": "Elige un rango de hasta 2 años que no termine en el futuro."
+  },
+  "PersonTabs": {
+    "profile": "Perfil",
+    "timeline": "Historial"
   }
 }

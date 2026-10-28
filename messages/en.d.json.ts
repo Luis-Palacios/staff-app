@@ -1568,15 +1568,6 @@ declare const messages: {
       "other": "Other reason"
     }
   },
-  "GuestMeetingsCard": {
-    "eyebrow": "Attendance",
-    "title": "Recent meetings",
-    "empty": "No meetings recorded yet.",
-    "cameGroup": "Came to the group",
-    "missedGroup": "Didn't come to the group",
-    "cameChurch": "Came to church",
-    "missedChurch": "Didn't come to church"
-  },
   "GuestSavedToast": {
     "created": "Guest added",
     "updated": "Changes saved"
@@ -1790,6 +1781,10 @@ declare const messages: {
     "emptyBody": "Try a longer range or another group.",
     "showReports": "Show {count, plural, one {# report} other {# reports}}",
     "errorRange": "Pick a range of up to 2 years that doesn’t end in the future."
+  },
+  "PersonTabs": {
+    "profile": "Profile",
+    "timeline": "Timeline"
   }
 };
 export default messages;
