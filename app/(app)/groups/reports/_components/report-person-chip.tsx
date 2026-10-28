@@ -42,7 +42,10 @@ export function ReportPersonChip({
       {person.type === "guest" && (
         <HandRaisedIcon
           aria-hidden="true"
-          className="size-3 shrink-0 text-eyebrow"
+          className={clsx(
+            "size-3 shrink-0",
+            highlighted ? "text-current" : "text-eyebrow",
+          )}
           strokeWidth={1.8}
         />
       )}

@@ -16,6 +16,7 @@ import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
 import { ReportPersonChip } from "@/app/(app)/groups/reports/_components/report-person-chip";
+import { textLink } from "@/components/primitives";
 import { ReportSectionTile } from "@/components/report-section-tile";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
@@ -42,7 +43,7 @@ function Block({
       {tile}
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
-          <h4 className="text-[13px] font-semibold text-heading">{title}</h4>
+          <h4 className="text-[12.5px] font-semibold text-muted">{title}</h4>
           {hint && (
             <span className="inline-flex items-center gap-1 text-xs text-muted">
               <LockClosedIcon
@@ -125,6 +126,10 @@ export function TimelineRow({
 }) {
   const t = useTranslations("ReportTimeline");
   const tRole = useTranslations("SmallGroupRole");
+  // A guest's roster role is always "member": they are participants.
+  const roleLabel =
+    row.attendance?.role &&
+    (person.type === "guest" ? t("guestRole") : tRole(row.attendance.role));
   const locale = useLocale() as Locale;
   const { attendance, observation } = row;
   const names = shortNames(row.items);
@@ -138,8 +143,8 @@ export function TimelineRow({
   return (
     <li
       className={clsx(
-        "flex flex-col gap-3 border-b border-separator px-[22px] py-4 last:border-b-0",
-        "md:flex-row md:gap-6",
+        "flex flex-col gap-3 border-b border-separator px-4 py-[18px] last:border-b-0 md:px-6",
+        "md:flex-row md:flex-wrap md:gap-x-6",
       )}
     >
       <div
@@ -148,7 +153,7 @@ export function TimelineRow({
           compact ? "md:w-[172px]" : "md:w-[190px]",
         )}
       >
-        <p className="text-[14.5px] font-semibold text-heading">
+        <p className="text-[15px] font-semibold text-heading">
           {compact ? (
             // The preview has no *View report*: the date opens the report instead.
             <NextLink
@@ -162,45 +167,40 @@ export function TimelineRow({
           )}
         </p>
         <NextLink
-          className="text-[13.5px] text-muted underline-offset-[3px] hover:underline"
+          className="text-[13.5px] text-foreground underline decoration-border underline-offset-[3px] hover:decoration-current"
           href={`/groups/${row.smallGroup.id}`}
         >
           {row.smallGroup.name}
         </NextLink>
-        <div className="flex flex-wrap gap-1.5">
-          {attendance ? (
-            <>
-              {attendance.role && (
-                <StatusBadge tone="accent" variant="ring-dot">
-                  {tRole(attendance.role)}
-                </StatusBadge>
-              )}
-              <StatusBadge
-                tone={attendance.attendedGroup ? "success" : "warning"}
-                variant={attendance.attendedGroup ? "solid-dot" : "ring-dot"}
-              >
-                {attendance.attendedGroup ? t("came") : t("didntCome")}
-              </StatusBadge>
-              <StatusBadge
-                tone={attendance.attendedChurch ? "success" : "neutral"}
-                variant={attendance.attendedChurch ? "solid-dot" : "ring-dot"}
-              >
-                {attendance.attendedChurch ? t("atChurch") : t("notAtChurch")}
-              </StatusBadge>
-            </>
-          ) : (
-            <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-field-border px-2 py-0.5 text-[12.5px] font-semibold text-heading">
-              <AtSymbolIcon
-                aria-hidden="true"
-                className="size-3.5 shrink-0 text-eyebrow"
-                strokeWidth={1.8}
-              />
-              {t("taggedOnly")}
-            </span>
-          )}
-        </div>
+        {roleLabel && <p className="text-[13px] text-muted">{roleLabel}</p>}
+        {!attendance && (
+          <span className="inline-flex items-center gap-1 self-start whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-[12.5px] font-semibold text-muted">
+            <AtSymbolIcon
+              aria-hidden="true"
+              className="size-3.5 shrink-0 text-muted"
+              strokeWidth={1.8}
+            />
+            {t("taggedOnly")}
+          </span>
+        )}
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-4">
+      <div className="flex min-w-[min(260px,100%)] flex-1 flex-col gap-4">
+        {attendance && (
+          <div className="flex flex-wrap gap-1.5">
+            <StatusBadge
+              tone={attendance.attendedGroup ? "success" : "warning"}
+              variant={attendance.attendedGroup ? "solid-dot" : "ring-dot"}
+            >
+              {attendance.attendedGroup ? t("came") : t("didntCome")}
+            </StatusBadge>
+            <StatusBadge
+              tone={attendance.attendedChurch ? "success" : "neutral"}
+              variant={attendance.attendedChurch ? "solid-dot" : "ring-dot"}
+            >
+              {attendance.attendedChurch ? t("atChurch") : t("notAtChurch")}
+            </StatusBadge>
+          </div>
+        )}
         {observation && (
           <Block
             hint={t("notePrivate")}
@@ -243,7 +243,7 @@ export function TimelineRow({
         })}
         {!compact && (
           <NextLink
-            className="self-start text-[13.5px] font-semibold text-accent underline-offset-[3px] hover:underline"
+            className={textLink({ className: "self-start text-[13.5px]" })}
             href={reportHref}
           >
             {t("viewReport")}

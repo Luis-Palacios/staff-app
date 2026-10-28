@@ -110,10 +110,9 @@ export function formatCalendarShortDate(iso: string, locale: Locale): string {
   return formatCalendarWith(iso, locale, { month: "short", day: "numeric" });
 }
 
-// "Thu, Oct 8, 2026".
+// "Oct 8, 2026" ("8 oct 2026").
 export function formatCalendarMediumDate(iso: string, locale: Locale): string {
   return formatCalendarWith(iso, locale, {
-    weekday: "short",
     month: "short",
     day: "numeric",
     year: "numeric",
