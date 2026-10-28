@@ -307,7 +307,7 @@ what changed and anything that differs from the canvas in the progress log below
   Profile and Timeline (light 1502 px, dark in a 390 px frame, no sideways scroll), guest 11 Profile
   (dark) with a follow-up block, the lock note and a second chip beside the highlighted one; both guest
   routes answer 200. **Not checked:** Spanish, 1024 px, a leader session, an elder who isn't admin.
-  Known roughness: the *Tagged in this report* pill wraps to two lines in the preview's 150 px column.
+  The *Tagged in this report* pill wrapped in the preview's 150 px column: fixed in stage 8's checks (column 172 px, pill `whitespace-nowrap`; a deviation from the spec's 150 px).
 - **Stage 8 (Part 2, Oct 28), code only.** `lib/timeline-range.ts` maps `?range=3m|6m|year|custom`, `?from`, `?to`,
   `?group` to `TimelineParams` (church today; presets end today, *Last 3 months* starts the day after
   today minus 3 months; a bad or out-of-range custom link falls back to the default; at most 2 years).
@@ -330,9 +330,11 @@ what changed and anything that differs from the canvas in the progress log below
   oldest visible row's date). **Leader session (member 15 in their own group, Oct 28):**
   the leader subtitle, footer and end text (*everything you can see for Harold*), the Group select listing only
   their group, and the Profile's Recent activity footer (*The last 3 reports you can see…*) are right; a member
-  outside their groups (49) and a guest outside their scope (11) are the page's 404. **Not checked:** an elder
-  who isn't admin (wording and rule 23 rows differ), the *Tagged in this report* pill in the preview's 150 px column,
-  the phone sheet in Spanish.
+  outside their groups (49) and a guest outside their scope (11) are the page's 404. **Elder session (Luis Reyes, Oct 28):** elder
+  wording and end text, rows from both groups, guest 11's timeline shows the follow-up item and its chip count,
+  the Profile preview footer. The preview's pill wrapped: column widened to 172 px, pill `whitespace-nowrap`.
+  **Not checked:** an admin-less elder whose rows differ from admin's (none in the data: every note and follow-up
+  seen was visible to both), the phone sheet in Spanish.
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes
