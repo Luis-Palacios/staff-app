@@ -97,7 +97,7 @@ what changed and anything that differs from the canvas in the progress log below
 | **Part 2 (`person-timeline`)** | | |
 | 6. Types, client and `components/report-timeline/` (rows, chips, month headings) | ✅ | `c6c1ced` |
 | 7. Tabs and Recent activity on Member and Guest detail | ✅ | `b3e119b` |
-| 8. The Timeline tab: filters, URL, *Show 3 more months*, phone sheet | ⬜ | |
+| 8. The Timeline tab: filters, URL, *Show 3 more months*, phone sheet | ✅ | (this commit) |
 | 9. Docs and design review fixes | ⬜ | |
 
 **Where to resume (Part 1 is deployed; Part 2 is on the `person-timeline` branch, stages 6–7 done, next is stage 8):**
@@ -308,6 +308,23 @@ what changed and anything that differs from the canvas in the progress log below
   (dark) with a follow-up block, the lock note and a second chip beside the highlighted one; both guest
   routes answer 200. **Not checked:** Spanish, 1024 px, a leader session, an elder who isn't admin.
   Known roughness: the *Tagged in this report* pill wraps to two lines in the preview's 150 px column.
+- **Stage 8 (Part 2, Oct 28), code only.** `lib/timeline-range.ts` maps `?range=3m|6m|year|custom`, `?from`, `?to`,
+  `?group` to `TimelineParams` (church today; presets end today, *Last 3 months* starts the day after
+  today minus 3 months; a bad or out-of-range custom link falls back to the default; at most 2 years).
+  `TimelineCard` (server) is now the heading over `TimelineBoard` (client, `ReportTimeline` added to
+  `CLIENT_NAMESPACES`): Dates and Group selects, From/To (`GuestDatePicker`, validated before the URL
+  changes, `errorRange` inline), type chips (page state, counts from `counts`, hide rows without that block),
+  `role="status"` summary, *Show 3 more months* (custom range 3 months earlier, hidden at the 2-year limit)
+  or the end text, the audience note with the eye icon, empty state. Below `md`: a *Filters* button
+  (range · group under it) opening a bottom sheet with preset toggle rows; unlike the board it applies as you
+  pick and the button is *Show N reports* (closes). `lint` and `tsc` pass.
+  **Checked in the browser as admin** (member 49, dev server and Chrome on the Mac, light, 1502 px and a 390 px
+  frame): presets, custom range (URL updates), group filter, type chip, summary, empty state, *Show 3 more
+  months* button and end text, an invalid `?from>to` link falling back to *Last 3 months*, the phone Filters
+  button, sheet and preset toggle. Fix found on the way: `Intl.formatRange` spaces its dash differently in
+  Node and Chrome and broke hydration, so the range is two formatted dates joined with ` – `.
+  **Not checked:** Spanish, 1024 px, guest timeline, a leader and a non-admin elder session, the in-UI
+  invalid-range error, the result of clicking *Show 3 more months*.
 - **Stage 1, checked:** `pnpm lint` (only a warning in `member-form.tsx`, untouched), `tsc --noEmit`.
 
 ## Token changes

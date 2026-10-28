@@ -7,23 +7,33 @@ import { loadMember } from "@/app/(app)/members/_lib/load-member";
 import { loadMemberAccount } from "@/app/(app)/members/_lib/load-member-account";
 import { PersonTabs } from "@/components/person-tabs";
 import { TimelineCard } from "@/components/report-timeline/timeline-card";
+import { getChurchToday } from "@/lib/church-time";
 import { getPermissions, requirePermission } from "@/lib/auth/get-permissions";
 import { can, timelineViewer } from "@/lib/auth/permissions";
+import { parseTimelineQuery, toTimelineParams } from "@/lib/timeline-range";
 
 // The Timeline tab (rule 19): same access as the Profile, same header. A 404 from the timeline
 // call is the page's own 404.
 export default async function MemberTimelinePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requirePermission({ members: ["view"] });
 
-  const [{ id }, permissions] = await Promise.all([params, getPermissions()]);
+  const [{ id }, search, permissions] = await Promise.all([
+    params,
+    searchParams,
+    getPermissions(),
+  ]);
+  const today = getChurchToday();
+  const query = parseTimelineQuery(search, today);
   const member = await loadMember(id);
   const [account, timeline] = await Promise.all([
     loadMemberAccount(member),
-    getMemberTimeline(id).catch((error: unknown) => {
+    getMemberTimeline(id, toTimelineParams(query)).catch((error: unknown) => {
       if (error instanceof ApiError && error.status === 404) notFound();
 
       throw error;
@@ -44,7 +54,13 @@ export default async function MemberTimelinePage({
         current="timeline"
         name={member.name}
       />
-      <TimelineCard timeline={timeline} viewer={timelineViewer(permissions)} />
+      <TimelineCard
+        kind="member"
+        query={query}
+        timeline={timeline}
+        today={today}
+        viewer={timelineViewer(permissions)}
+      />
     </>
   );
 }

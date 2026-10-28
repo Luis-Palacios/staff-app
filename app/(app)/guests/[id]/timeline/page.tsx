@@ -8,32 +8,41 @@ import { loadGuest } from "@/app/(app)/guests/_lib/load-guest";
 import { requireGuests } from "@/app/(app)/guests/_lib/require-guests";
 import { PersonTabs } from "@/components/person-tabs";
 import { TimelineCard } from "@/components/report-timeline/timeline-card";
+import { getChurchToday } from "@/lib/church-time";
 import { getPermissions } from "@/lib/auth/get-permissions";
 import {
   can,
   getSmallGroupAccess,
   timelineViewer,
 } from "@/lib/auth/permissions";
+import { parseTimelineQuery, toTimelineParams } from "@/lib/timeline-range";
 
 // The Timeline tab of a guest (rule 19): same access and header as the Profile.
 export default async function GuestTimelinePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireGuests({ guests: ["view"] });
 
-  const [{ id }, permissions, me] = await Promise.all([
+  const [{ id }, search, permissions, me] = await Promise.all([
     params,
+    searchParams,
     getPermissions(),
     getMe(),
   ]);
+  const today = getChurchToday();
+  const query = parseTimelineQuery(search, today);
   const guest = await loadGuest(id);
-  const timeline = await getGuestTimeline(id).catch((error: unknown) => {
-    if (error instanceof ApiError && error.status === 404) notFound();
+  const timeline = await getGuestTimeline(id, toTimelineParams(query)).catch(
+    (error: unknown) => {
+      if (error instanceof ApiError && error.status === 404) notFound();
 
-    throw error;
-  });
+      throw error;
+    },
+  );
   const ledIds = new Set(me.leads.map((lead) => lead.smallGroupId));
   const groupId = guest.currentGroup?.id;
   const canOpenGroup =
@@ -53,7 +62,13 @@ export default async function GuestTimelinePage({
         current="timeline"
         name={guest.name}
       />
-      <TimelineCard timeline={timeline} viewer={timelineViewer(permissions)} />
+      <TimelineCard
+        kind="guest"
+        query={query}
+        timeline={timeline}
+        today={today}
+        viewer={timelineViewer(permissions)}
+      />
     </>
   );
 }
