@@ -21,7 +21,10 @@ import { ReportTimeline } from "./report-timeline";
 
 import { GuestDatePicker } from "@/app/(app)/groups/[id]/_components/guest-date-picker";
 import { EmptyState } from "@/components/empty-state";
-import { formatCalendarMediumDate } from "@/lib/format-date";
+import {
+  formatCalendarMediumDate,
+  formatCalendarSpan,
+} from "@/lib/format-date";
 import { firstNameOf } from "@/lib/report-items";
 import { extendRange, isValidRange } from "@/lib/timeline-range";
 
@@ -40,22 +43,6 @@ const RANGE_LABEL = {
 
 /** The range's name where the trailing "…" of the select's custom option would dangle. */
 const RANGE_NAME = { ...RANGE_LABEL, custom: "rangeCustomName" } as const;
-
-/**
- * The date range as "Jul 16 – Oct 15, 2026". Each end is formatted alone: `formatRange` spaces its
- * dash differently in Node and in the browser, which breaks hydration.
- */
-function formatRange(from: string, to: string, locale: Locale): string {
-  const format = (iso: string) =>
-    new Intl.DateTimeFormat(locale, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      timeZone: "UTC",
-    }).format(new Date(`${iso}T00:00:00Z`));
-
-  return `${format(from)} – ${format(to)}`;
-}
 
 /**
  * The Timeline tab's body (rules 21–22): filters, type chips, summary, rows and footer. The date
@@ -164,7 +151,7 @@ export function TimelineBoard({
     praise: t("typePraise"),
     followUp: t("typeFollowUp"),
   };
-  const rangeText = formatRange(range.from, range.to, locale);
+  const rangeText = formatCalendarSpan(range.from, range.to, locale);
   const summary = t("summary", {
     count: rows.length,
     range: group ? `${rangeText} · ${group.name}` : rangeText,
@@ -395,18 +382,18 @@ export function TimelineBoard({
 
       <Modal.Backdrop isOpen={sheetOpen} onOpenChange={setSheetOpen}>
         <Modal.Container className="p-0 sm:w-full sm:p-0" placement="bottom">
-          <Modal.Dialog className="max-w-none gap-0 rounded-b-none rounded-t-panel px-5 pb-5 pt-2">
+          <Modal.Dialog className="max-w-none gap-0 rounded-b-none rounded-t-panel bg-surface px-4 pb-5 pt-2">
             <span
               aria-hidden="true"
-              className="mx-auto h-1 w-10 shrink-0 rounded-full bg-separator"
+              className="mx-auto h-1 w-10 shrink-0 rounded-full bg-border"
             />
             <Modal.Header className="flex-row items-center justify-between gap-3 pb-2 pt-1">
-              <Modal.Heading className="font-display text-2xl font-medium text-heading">
+              <Modal.Heading className="text-[17px] font-semibold text-heading">
                 {t("filters")}
               </Modal.Heading>
               <button
                 aria-label={t("closeFilters")}
-                className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-control text-muted hover:bg-surface-secondary hover:text-heading"
+                className="-mr-3 flex size-11 shrink-0 items-center justify-center rounded-control text-muted hover:bg-surface-secondary hover:text-heading"
                 type="button"
                 onClick={() => setSheetOpen(false)}
               >
@@ -434,9 +421,9 @@ export function TimelineBoard({
                       key={key}
                       aria-pressed={pressed}
                       className={clsx(
-                        "flex min-h-12 items-center justify-between gap-3 rounded-control border px-4 text-left text-sm font-semibold transition-colors",
+                        "flex min-h-12 items-center justify-between gap-3 rounded-control border-[1.5px] px-4 text-left text-[15px] font-semibold transition-colors",
                         pressed
-                          ? "border-accent bg-accent-soft text-accent-soft-foreground"
+                          ? "border-accent bg-accent-soft text-heading"
                           : "border-border bg-surface text-heading hover:bg-default",
                       )}
                       type="button"

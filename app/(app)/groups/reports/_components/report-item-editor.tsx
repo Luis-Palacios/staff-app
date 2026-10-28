@@ -565,7 +565,9 @@ export function ReportItemEditor({
             "min-h-11 w-full cursor-text px-3 py-[9px] text-[15px] leading-[1.55] text-field-foreground md:pl-0",
             "[&_.tiptap]:flow-root [&_.tiptap]:min-h-6 [&_.tiptap]:whitespace-pre-wrap [&_.tiptap]:break-words",
             "[&_.tiptap_p]:m-0",
-            "[&_p.is-editor-empty]:before:pointer-events-none [&_p.is-editor-empty]:before:float-left [&_p.is-editor-empty]:before:max-w-full [&_p.is-editor-empty]:before:whitespace-normal [&_p.is-editor-empty]:before:text-field-placeholder [&_p.is-editor-empty]:before:content-[attr(data-placeholder)]",
+            // The placeholder is a full-width float with a -100% margin: it holds its height as it
+            // wraps, but takes no width from the line, so the caret sits at the start of the item.
+            "[&_p.is-editor-empty]:before:pointer-events-none [&_p.is-editor-empty]:before:float-left [&_p.is-editor-empty]:before:-mr-[100%] [&_p.is-editor-empty]:before:w-full [&_p.is-editor-empty]:before:whitespace-normal [&_p.is-editor-empty]:before:text-field-placeholder [&_p.is-editor-empty]:before:content-[attr(data-placeholder)]",
           )}
           editor={editor}
         />

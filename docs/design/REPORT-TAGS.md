@@ -692,3 +692,22 @@ Run after implementation, against the boards listed above. Record findings in th
   `@Da` keeps *Da*. The Filters sheet is docked full width (`rounded-t-panel`), with a handle and a 44px close.
 - **Not checked after these fixes:** Spanish and light mode on the timeline, and the 390 px layouts in the
   browser (the window kept reporting 1792 px); button heights read from the code only.
+
+### Design review 2 fixes (Oct 28)
+
+- **Filters sheet** (phone): on `bg-surface` with a `bg-border` handle (the modal's `bg-overlay` equals
+  `accent-soft` in dark, which hid the selected option); 17px Figtree semibold title, 16px side padding,
+  15px options with a 1.5px border, selected text `text-heading`. The shared modal default is unchanged.
+- **Empty item placeholder:** a full-width float with a `-100%` margin, so it wraps and holds its height but
+  takes no width from the line: the caret sits at the start of the item. (A grid overlay and an absolutely
+  placed `<br>` both left the caret on a line below.)
+- **Range summary** (`formatCalendarSpan`): the year once when both ends share it ("Oct 20 – Oct 28, 2026",
+  "20 oct – 28 oct, 2026"), on each end when they don't.
+- **Timeline details:** *View report* min 32px; *Tagged in this report* 12px; month count 13px muted tabular;
+  Spanish month band "OCTUBRE 2026" (no "de"); Spanish row date "mar 27 oct" (`formatCalendarRowDate`, used
+  by the timeline and Recent activity only; other pages keep `formatCalendarShortWeekdayDate`).
+- **Tests:** `lib/format-date.test.ts` (`node --test lib/format-date.test.ts`; Node strips the types, so
+  `tsconfig.json` now has `allowImportingTsExtensions`). The repo still has no test runner or script.
+- **Checked as admin:** timeline range summary, month band and row dates in English and Spanish at 1440; the
+  Filters sheet in dark, in Spanish, and the empty follow-up item in Spanish at 390 (a 390 px frame inside
+  the tab). Not checked: light mode of the sheet, the 1024 px layout, `/guests/11` and `/guests/11/timeline`.
