@@ -720,3 +720,17 @@ Run after implementation, against the boards listed above. Record findings in th
 - **Open, not blocking the merge:** the screen-reader pass on the editor, touch (`(hover: none)`), a full
   focus-order pass, and a tool-based audit of gold-on-light and status-never-color-alone. The timeline's
   same-first-name gap stays (needs a per-report short name from the timeline API; decided not to do it).
+
+### PR review fixes (Oct 28)
+
+- **Month band border:** `first:border-t-0` matched every band (each is the first child of its own
+  `<section>`); it now applies to the first month only.
+- **Links a viewer can't open:** a scoped leader sees prayer and praise from other groups (rule 23), but the
+  group page and the report 404 for groups they don't lead. `TimelineRow` takes `openGroups`
+  (`openGroupsOf()` in `lib/auth/permissions.ts`: `"all"` with full access, else the led group ids): the group
+  name is plain text, the date doesn't link and *View report* is hidden for other groups' rows. The four
+  pages (member and guest, Profile and Timeline) pass it. Checked as admin only (all links still render);
+  not tried as a leader.
+- **Custom range inputs** now follow the URL on Back / Forward (an effect on `range.from` / `range.to`).
+- **Inactive banner on the Timeline tab:** left out on purpose (the spec puts the banner on the Profile;
+  the header already shows the Inactive pill).

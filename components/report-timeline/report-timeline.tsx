@@ -1,4 +1,5 @@
 import type { PersonTimeline } from "@/api/small-groups-api/types";
+import type { OpenGroups } from "@/lib/auth/permissions";
 
 import { Fragment } from "react";
 
@@ -12,9 +13,11 @@ import { TimelineRow } from "./timeline-row";
  */
 export function ReportTimeline({
   timeline,
+  openGroups,
   variant = "full",
 }: {
   timeline: Pick<PersonTimeline, "person" | "rows">;
+  openGroups: OpenGroups;
   variant?: "full" | "preview";
 }) {
   const { person, rows } = timeline;
@@ -23,7 +26,13 @@ export function ReportTimeline({
     return (
       <ol className="flex flex-col">
         {rows.map((row) => (
-          <TimelineRow key={row.reportId} compact person={person} row={row} />
+          <TimelineRow
+            key={row.reportId}
+            compact
+            openGroups={openGroups}
+            person={person}
+            row={row}
+          />
         ))}
       </ol>
     );
@@ -48,7 +57,12 @@ export function ReportTimeline({
           month={`${month}-01`}
         >
           {monthRows.map((row) => (
-            <TimelineRow key={row.reportId} person={person} row={row} />
+            <TimelineRow
+              key={row.reportId}
+              openGroups={openGroups}
+              person={person}
+              row={row}
+            />
           ))}
         </TimelineMonth>
       ))}

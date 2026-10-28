@@ -21,8 +21,8 @@ export function TimelineMonth({
   const label = formatCalendarMonth(month, locale);
 
   return (
-    <section aria-label={label}>
-      <div className="flex items-center justify-between gap-3 border-y border-border bg-surface-secondary px-4 md:px-6 py-2.5 first:border-t-0">
+    <section aria-label={label} className="first:[&>div]:border-t-0">
+      <div className="flex items-center justify-between gap-3 border-y border-border bg-surface-secondary px-4 md:px-6 py-2.5">
         <h3 className="text-[13px] font-semibold uppercase tracking-[0.06em] text-heading">
           {label}
         </h3>

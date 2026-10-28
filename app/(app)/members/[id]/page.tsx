@@ -23,6 +23,7 @@ import { getChurchToday } from "@/lib/church-time";
 import {
   can,
   getSmallGroupAccess,
+  openGroupsOf,
   timelineViewer,
   userAccountAccess,
 } from "@/lib/auth/permissions";
@@ -121,6 +122,7 @@ export default async function MemberDetailPage({
         <div className="flex min-w-0 flex-col gap-5">
           {activity && (
             <RecentActivityCard
+              openGroups={openGroupsOf(permissions, me.leads)}
               timeline={activity}
               timelineHref={`/members/${member.id}/timeline`}
               viewer={timelineViewer(permissions)}

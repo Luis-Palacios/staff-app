@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { ApiError } from "@/api/api-client";
-import { getMemberTimeline } from "@/api/members-api/client";
+import { getMe, getMemberTimeline } from "@/api/members-api/client";
 import { MemberDetailHeader } from "@/app/(app)/members/[id]/_components/member-detail-header";
 import { loadMember } from "@/app/(app)/members/_lib/load-member";
 import { loadMemberAccount } from "@/app/(app)/members/_lib/load-member-account";
@@ -9,7 +9,7 @@ import { PersonTabs } from "@/components/person-tabs";
 import { TimelineCard } from "@/components/report-timeline/timeline-card";
 import { getChurchToday } from "@/lib/church-time";
 import { getPermissions, requirePermission } from "@/lib/auth/get-permissions";
-import { can, timelineViewer } from "@/lib/auth/permissions";
+import { can, openGroupsOf, timelineViewer } from "@/lib/auth/permissions";
 import { parseTimelineQuery, toTimelineParams } from "@/lib/timeline-range";
 
 // The Timeline tab (rule 19): same access as the Profile, same header. A 404 from the timeline
@@ -23,10 +23,11 @@ export default async function MemberTimelinePage({
 }) {
   await requirePermission({ members: ["view"] });
 
-  const [{ id }, search, permissions] = await Promise.all([
+  const [{ id }, search, permissions, me] = await Promise.all([
     params,
     searchParams,
     getPermissions(),
+    getMe(),
   ]);
   const today = getChurchToday();
   const query = parseTimelineQuery(search, today);
@@ -56,6 +57,7 @@ export default async function MemberTimelinePage({
       />
       <TimelineCard
         kind="member"
+        openGroups={openGroupsOf(permissions, me.leads)}
         query={query}
         timeline={timeline}
         today={today}
