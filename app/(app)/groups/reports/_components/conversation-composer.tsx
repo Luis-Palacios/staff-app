@@ -49,7 +49,7 @@ export function ConversationComposer({
       </label>
       <textarea
         ref={textareaRef}
-        className="min-h-[88px] w-full resize-y rounded-[10px] border-[1.5px] border-field-border bg-field-background px-3 py-2.5 text-[14.5px] leading-normal text-field-foreground placeholder:text-field-placeholder"
+        className="min-h-[88px] w-full resize-y rounded-[10px] border-[1.5px] border-field-border bg-field-background px-3 py-2.5 text-[14.5px] leading-normal text-field-foreground placeholder:text-field-placeholder focus:border-field-border-focus focus:shadow-focus focus:outline-none"
         id="conversation-composer"
         placeholder={placeholder}
         rows={3}
