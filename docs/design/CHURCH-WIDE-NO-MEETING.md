@@ -49,7 +49,7 @@ that differs from the canvas in the progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API types, client and server actions | ✅ | |
+| 1. API types, client and server actions | ✅ | `276c100` |
 | 2. Next week on Report status | ⬜ | |
 | 3. Mark button and confirm dialog | ⬜ | |
 | 4. Week banner: edit reason and undo | ⬜ | |
