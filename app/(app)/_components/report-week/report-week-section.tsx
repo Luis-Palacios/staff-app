@@ -6,6 +6,10 @@ import { getTranslations } from "next-intl/server";
 
 import { NoGroupsCard } from "../no-groups-card";
 
+import {
+  CHURCH_WIDE_BANNER_HEADING,
+  ChurchWideBanner,
+} from "./church-wide-banner";
 import { MarkWeekButton } from "./mark-week-button";
 import { markWeekCounts } from "./mark-week-counts";
 import { buildWeekRows } from "./week-rows";
@@ -37,9 +41,10 @@ export async function ReportWeekSection({
   /** The church's today ("YYYY-MM-DD"). */
   today: string;
 }) {
-  const [result, t] = await Promise.all([
+  const [result, t, tWeek] = await Promise.all([
     week,
     getTranslations("GroupsDashboard"),
+    getTranslations("NoMeetingWeek"),
   ]);
 
   if (result.ok && result.value.groups.length === 0) return <NoGroupsCard />;
@@ -81,7 +86,7 @@ export async function ReportWeekSection({
         <div className="flex flex-wrap items-center gap-x-[18px] gap-y-3 max-sm:w-full">
           {mark && (
             <MarkWeekButton
-              focusAfter="week"
+              focusAfter={[CHURCH_WIDE_BANNER_HEADING, "week"]}
               hasMember={mark.hasMember}
               target={{
                 weekStart,
@@ -110,6 +115,21 @@ export async function ReportWeekSection({
           />
         </div>
       </div>
+
+      {result.ok && result.value.noMeetingWeek && (
+        <ChurchWideBanner
+          focusAfterUndo="week"
+          heading={
+            isCurrentWeek
+              ? tWeek("bannerThisWeek")
+              : weekStart === addDays(currentSunday, 7)
+                ? tWeek("bannerNextWeek")
+                : tWeek("bannerOtherWeek")
+          }
+          week={result.value.noMeetingWeek}
+          weekEnd={weekEnd}
+        />
+      )}
 
       {result.ok ? (
         <>

@@ -397,7 +397,22 @@
     "markedToast": "{count, plural, one {# grupo marcado sin reunión} other {# grupos marcados sin reunión}}",
     "needsMember": "Vincula tu cuenta a un miembro para marcar una semana.",
     "tooFarAhead": "Puedes marcar hasta la próxima semana.",
-    "gone": "Esto ya se deshizo. La página se actualizará."
+    "gone": "Esto ya se deshizo. La página se actualizará.",
+    "churchWide": "Toda la iglesia",
+    "bannerThisWeek": "Esta semana no hay reuniones",
+    "bannerNextWeek": "La próxima semana no hay reuniones",
+    "bannerOtherWeek": "Esa semana no hubo reuniones",
+    "markedBy": "{count, plural, one {Marcado para # grupo por {name} · {date}} other {Marcado para # grupos por {name} · {date}}}",
+    "editReason": "Editar motivo",
+    "weekOfRange": "Semana del {range}",
+    "editTitle": "Editar el motivo de la semana",
+    "editBody": "{count, plural, one {Cambia para el # grupo que sigue marcado para toda la iglesia. Los grupos cuyo líder cambió su marca conservan la suya.} other {Cambia para los # grupos que siguen marcados para toda la iglesia. Los grupos cuyo líder cambió su marca conservan la suya.}}",
+    "save": "Guardar",
+    "reasonUpdated": "Motivo actualizado",
+    "undo": "Deshacer",
+    "undoTitle": "{count, plural, one {¿Deshacer el sin reunión de # grupo?} other {¿Deshacer el sin reunión de # grupos?}}",
+    "undoBody": "Sus fechas vuelven a Pendiente, Sin reporte o Próxima. Los grupos que enviaron un reporte o cuyo líder cambió su marca quedan como están.",
+    "undoneToast": "Deshecho"
   },
   "Conversations": {
     "errors": {

@@ -4,19 +4,18 @@ import type { Locale } from "@/lib/locale-shared";
 import type { MarkWeekCounts } from "./mark-week-counts";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import {
-  Button,
-  Description,
-  Label,
-  Modal,
-  TextArea,
-  TextField,
-} from "@heroui/react";
-import clsx from "clsx";
+import { Button, Modal } from "@heroui/react";
 import { useLocale, useTranslations } from "next-intl";
 
+import {
+  WeekDialog,
+  WeekDialogError,
+  WeekDialogHeader,
+  WeekDialogLine,
+  WeekReasonField,
+} from "./week-dialog";
+
 import { markNoMeetingWeekAction } from "@/app/(app)/_actions/no-meeting-week-actions";
-import { REASON_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
 import { CalendarXIcon } from "@/components/icons";
 import { formatCalendarRange } from "@/lib/format-date";
 
@@ -30,26 +29,6 @@ export interface MarkWeekTarget {
    * is left out and the existing reason is used.
    */
   existingReason?: string | null;
-}
-
-function CountLine({ text, strong }: { text: string; strong?: boolean }) {
-  return (
-    <li
-      className={clsx(
-        "flex items-start gap-2.5 text-[14.5px] leading-normal",
-        strong ? "font-semibold text-heading" : "text-foreground",
-      )}
-    >
-      <span
-        aria-hidden="true"
-        className={clsx(
-          "mt-2 size-[7px] shrink-0 rounded-full border-[1.5px] border-current",
-          strong && "bg-current",
-        )}
-      />
-      <span>{text}</span>
-    </li>
-  );
 }
 
 function MarkWeekForm({
@@ -99,34 +78,45 @@ function MarkWeekForm({
 
   return (
     <>
-      <Modal.Header className="flex-col items-start gap-3">
-        <Modal.Icon className="bg-default text-foreground">
-          <CalendarXIcon className="size-5" />
-        </Modal.Icon>
-        <div className="flex flex-col gap-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-eyebrow">
-            {remaining ? t("eyebrowRemaining") : t("eyebrowAll")}
-          </p>
-          <Modal.Heading className="font-display text-2xl font-medium text-heading">
-            {remaining
-              ? t("remainingTitle")
-              : t("dialogTitle", {
-                  range: formatCalendarRange(
-                    target.weekStart,
-                    target.weekEnd,
-                    locale,
-                  ),
-                })}
-          </Modal.Heading>
-        </div>
-        <ul className="m-0 flex list-none flex-col gap-1.5 p-0 font-normal">
+      <WeekDialogHeader
+        eyebrow={remaining ? t("eyebrowRemaining") : t("eyebrowAll")}
+        icon={<CalendarXIcon className="size-5" />}
+        title={
+          remaining
+            ? t("remainingTitle")
+            : t("dialogTitle", {
+                range: formatCalendarRange(
+                  target.weekStart,
+                  target.weekEnd,
+                  locale,
+                ),
+              })
+        }
+      >
+        <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
           {toMark > 0 && (
-            <CountLine strong text={t("toMark", { count: toMark })} />
+            <li>
+              <WeekDialogLine dot strong>
+                {t("toMark", { count: toMark })}
+              </WeekDialogLine>
+            </li>
           )}
-          {staying > 0 && <CountLine text={t("staying", { count: staying })} />}
-          {noDay > 0 && <CountLine text={t("noDay", { count: noDay })} />}
+          {staying > 0 && (
+            <li>
+              <WeekDialogLine dot>
+                {t("staying", { count: staying })}
+              </WeekDialogLine>
+            </li>
+          )}
+          {noDay > 0 && (
+            <li>
+              <WeekDialogLine dot>
+                {t("noDay", { count: noDay })}
+              </WeekDialogLine>
+            </li>
+          )}
         </ul>
-      </Modal.Header>
+      </WeekDialogHeader>
       <Modal.Body className="flex flex-col gap-3 overflow-visible p-1">
         {remaining ? (
           <div className="flex flex-col gap-1.5 rounded-xl bg-accent-soft px-3.5 py-3 text-accent-soft-foreground">
@@ -136,41 +126,14 @@ function MarkWeekForm({
             </p>
           </div>
         ) : (
-          <TextField
-            className="gap-1.5"
+          <WeekReasonField
+            fieldRef={field}
             isDisabled={isPending}
-            maxLength={REASON_MAX}
-            name="reason"
             value={reason}
             onChange={setReason}
-          >
-            <Label className="text-[13px] font-semibold text-heading">
-              {tForm("reasonLabel")}{" "}
-              <span className="font-normal text-muted">
-                {tForm("optional")}
-              </span>
-            </Label>
-            <TextArea
-              ref={field}
-              className="text-sm"
-              placeholder={t("reasonPlaceholder")}
-              rows={3}
-            />
-            <div className="flex items-start justify-between gap-3">
-              <Description className="text-[13px] text-muted">
-                {t("reasonHint")}
-              </Description>
-              <span className="shrink-0 text-[13px] text-muted tabular-nums">
-                {tForm("reasonCounter", { count: reason.length })}
-              </span>
-            </div>
-          </TextField>
+          />
         )}
-        {error && (
-          <p className="text-[13px] text-danger" role="alert">
-            {error}
-          </p>
-        )}
+        <WeekDialogError message={error} />
       </Modal.Body>
       <Modal.Footer>
         <Button
@@ -212,28 +175,21 @@ export function MarkWeekDialog({
   const [isPending, startTransition] = useTransition();
 
   return (
-    <Modal.Backdrop
-      isDismissable={!isPending}
-      isKeyboardDismissDisabled={isPending}
+    <WeekDialog
       isOpen={isOpen}
-      onOpenChange={(open) => {
-        if (!isPending) onOpenChange(open);
-      }}
+      isPending={isPending}
+      onOpenChange={onOpenChange}
     >
-      <Modal.Container placement="auto" scroll="inside" size="md">
-        <Modal.Dialog className="sm:max-w-[500px]">
-          <MarkWeekForm
-            isPending={isPending}
-            startTransition={startTransition}
-            target={target}
-            onClose={() => onOpenChange(false)}
-            onDone={(marked) => {
-              onOpenChange(false);
-              onDone(marked);
-            }}
-          />
-        </Modal.Dialog>
-      </Modal.Container>
-    </Modal.Backdrop>
+      <MarkWeekForm
+        isPending={isPending}
+        startTransition={startTransition}
+        target={target}
+        onClose={() => onOpenChange(false)}
+        onDone={(marked) => {
+          onOpenChange(false);
+          onDone(marked);
+        }}
+      />
+    </WeekDialog>
   );
 }

@@ -52,7 +52,7 @@ that differs from the canvas in the progress log below.
 | 1. API types, client and server actions | ✅ | `276c100` |
 | 2. Next week on Report status | ✅ | `2497869` |
 | 3. Mark button and confirm dialog | ✅ | `ec64418` |
-| 4. Week banner: edit reason and undo | ⬜ | |
+| 4. Week banner: edit reason and undo | ✅ | |
 | 5. Church-wide label and the leader's detach note | ⬜ | |
 | 6. Design review fixes | ⬜ | |
 
@@ -95,6 +95,23 @@ that differs from the canvas in the progress log below.
   dark, 1440 / 1024 / 500 (bottom sheet, full-width buttons), English and Spanish. Not seen in the
   browser yet: the disabled button of an admin or elder without a member, and an error inside the
   dialog (needs an unlinked account).
+- Stage 4: the banner follows the board: a **Church-wide** pill (`StatusBadge`, key `churchWide`) above
+  the heading, the reason in quotes in the display face, and the date as the church's date and time
+  (`formatChurchDateTime`). The edit and undo dialogs follow `MarkWeekDialog`: eyebrow **Week of
+  {range}** (`weekOfRange`), **Edit the week's reason** with a body on how many groups it changes
+  (`editTitle`, `editBody`, `save`), and the undo body's first sentence from the board (**Their dates go
+  back to Due, Not filed or Upcoming.**) before the spec's.
+- Stage 4: the three dialogs share `report-week/week-dialog.tsx` (frame that can't close while
+  saving, header, reason field, error line, `MarkedWeek`).
+- Stage 4: **Undo** is the outline button with danger text, like the report's Delete, not a
+  bordered-in-danger button as on the board.
+- Stage 4: after a mark, focus waits (up to 2 s) for the banner heading to arrive with the refresh,
+  then falls back to the week heading.
+- Stage 4: checked as admin: edit reason (toast, banner and rows show the new reason, focus back on
+  Edit reason); undo from a second tab (toast, banner gone, rows back to Upcoming, focus on the week
+  heading), then edit reason in the first tab shows `gone` in the dialog and refreshes on close;
+  marked with no reason (**Sin motivo**); undo dialog at phone size. Light and dark, 1440 / 1024 /
+  500, English and Spanish.
 
 ## Token changes
 
