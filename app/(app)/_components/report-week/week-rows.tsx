@@ -43,6 +43,11 @@ export interface WeekRowView {
   when: string | null;
   /** A no meeting's reason. */
   reason: string | null;
+  /**
+   * Set on a church-wide no meeting: the table's badge reads `label`; the cards keep the short
+   * badge and show `note` under the reason.
+   */
+  churchWide: { label: string; note: string } | null;
   moreReports: { label: string; href: string } | null;
   attendance: { attended: number; total: number; text: ReactNode } | null;
   observations: { count: number; text: string } | null;
@@ -64,8 +69,9 @@ export function sortWeekGroups(
 
 /** Everything a row shows, translated, so the table and the cards render the same content. */
 export async function buildWeekRows(week: ReportWeek): Promise<WeekRowView[]> {
-  const [t, tLeader, tDay, locale] = await Promise.all([
+  const [t, tWeek, tLeader, tDay, locale] = await Promise.all([
     getTranslations("GroupsDashboard"),
+    getTranslations("NoMeetingWeek"),
     getTranslations("LeaderDashboard"),
     getTranslations("Weekdays"),
     getLocale(),
@@ -122,6 +128,10 @@ export async function buildWeekRows(week: ReportWeek): Promise<WeekRowView[]> {
       badge: { ...WEEK_STATUS_BADGE[status], label: t(`status.${key}`) },
       when,
       reason: noMeeting ? noMeeting.notHeldReason : null,
+      churchWide:
+        noMeeting && noMeeting.noMeetingWeekId !== null
+          ? { label: tWeek("label"), note: tWeek("churchWideRow") }
+          : null,
       moreReports:
         reports.length > 1
           ? {
@@ -191,7 +201,7 @@ export function WeekStatusCell({
   return (
     <span className="flex flex-col items-start gap-1.5">
       <StatusBadge tone={row.badge.tone} variant={row.badge.variant}>
-        {row.badge.label}
+        {!wrapReason && row.churchWide ? row.churchWide.label : row.badge.label}
       </StatusBadge>
       {row.when && (
         <span className="whitespace-nowrap text-[13px] text-muted">
@@ -209,6 +219,9 @@ export function WeekStatusCell({
         >
           {row.reason}
         </span>
+      )}
+      {wrapReason && row.churchWide && (
+        <span className="text-[13px] text-muted">{row.churchWide.note}</span>
       )}
       {row.moreReports && (
         <NextLink

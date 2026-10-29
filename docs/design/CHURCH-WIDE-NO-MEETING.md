@@ -53,7 +53,7 @@ that differs from the canvas in the progress log below.
 | 2. Next week on Report status | ✅ | `2497869` |
 | 3. Mark button and confirm dialog | ✅ | `ec64418` |
 | 4. Week banner: edit reason and undo | ✅ | `7a80cf0` |
-| 5. Church-wide label and the leader's detach note | ⬜ | |
+| 5. Church-wide label and the leader's detach note | ✅ | |
 | 6. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
@@ -112,6 +112,21 @@ that differs from the canvas in the progress log below.
   heading), then edit reason in the first tab shows `gone` in the dialog and refreshes on close;
   marked with no reason (**Sin motivo**); undo dialog at phone size. Light and dark, 1440 / 1024 /
   500, English and Spanish.
+- Stage 5: on the week's phone cards the badge keeps the short **No meeting** and a muted line
+  **Marked for every group** (`churchWideRow`) follows the reason, as on the board; the table shows
+  `label`. The lines sit in the card's status column, not full width under the header as the board
+  draws them (for the design review).
+- Stage 5: the report detail follows the `ReportDetail-NoMeeting-ChurchWide` board: **Marked for
+  every group by {name} on {date}** (`NoMeetingWeek.markedOn`) instead of the submitter line, and
+  the note under the reason **This week was marked as no meeting for every open group. This date
+  doesn't count as a missing report.** (`effect`). The board says "An elder marked…"; admins can
+  mark too, so the text doesn't name a role.
+- Stage 5: the detach note is the board's accent-soft box with an info icon, under the reason field.
+- Stage 5: checked as admin: week table, Reports list (six church-wide rows, one detached), detail
+  page, the detach note; saving a different reason in it turned GP - #1 into a plain **No
+  meeting** everywhere. Phone cards in dark, detail in English. Not seen in the browser: the
+  group page's recent reports card, which lists meetings up to today only, so next week's marks
+  aren't on it (same check as the list).
 
 ## Token changes
 

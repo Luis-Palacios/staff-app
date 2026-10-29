@@ -35,8 +35,9 @@ import {
 // The detail page of a date marked as no meeting (`held === false`): the reason, the actions and,
 // for someone who can file, the way to replace the mark with a report.
 export async function NoMeetingDetail({ report }: { report: ReportDetail }) {
-  const [t, locale, me, permissions] = await Promise.all([
+  const [t, tWeek, locale, me, permissions] = await Promise.all([
     getTranslations("ReportDetail"),
+    getTranslations("NoMeetingWeek"),
     getLocale(),
     getMe(),
     getPermissions(),
@@ -47,6 +48,12 @@ export async function NoMeetingDetail({ report }: { report: ReportDetail }) {
   const typedLocale = locale as Locale;
   const longDate = formatCalendarDate(meetingDate, typedLocale);
   const groupHref = `/groups/${smallGroup.id}`;
+  // Marked with the whole week (church-wide no meeting) and not changed here since.
+  const churchWide = report.noMeetingWeekId !== null;
+  const markedOn = {
+    name: report.submittedBy.name,
+    dateTime: formatChurchDateTime(report.submittedAt, locale),
+  };
   const buttonClass =
     "h-[42px] flex-1 gap-2 px-[18px] font-semibold sm:flex-none md:h-[42px]";
 
@@ -93,6 +100,7 @@ export async function NoMeetingDetail({ report }: { report: ReportDetail }) {
                   date: meetingDate,
                   reportId: report.id,
                   reason: report.notHeldReason,
+                  churchWide,
                 }}
                 variant="button"
               />
@@ -109,11 +117,10 @@ export async function NoMeetingDetail({ report }: { report: ReportDetail }) {
         ]}
         description={
           <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <StatusBadge tone="neutral">{t("noMeeting")}</StatusBadge>
-            {t("markedOn", {
-              name: report.submittedBy.name,
-              dateTime: formatChurchDateTime(report.submittedAt, locale),
-            })}
+            <StatusBadge tone="neutral">
+              {churchWide ? tWeek("label") : t("noMeeting")}
+            </StatusBadge>
+            {churchWide ? tWeek("markedOn", markedOn) : t("markedOn", markedOn)}
           </span>
         }
         eyebrow={
@@ -174,7 +181,7 @@ export async function NoMeetingDetail({ report }: { report: ReportDetail }) {
               aria-hidden="true"
               className="mt-0.5 size-4 shrink-0"
             />
-            {t("noMeetingEffect")}
+            {churchWide ? tWeek("effect") : t("noMeetingEffect")}
           </p>
         </section>
 
