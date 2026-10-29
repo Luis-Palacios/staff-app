@@ -49,7 +49,7 @@ that differs from the canvas in the progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API types, client and server actions | ⬜ | |
+| 1. API types, client and server actions | ✅ | |
 | 2. Next week on Report status | ⬜ | |
 | 3. Mark button and confirm dialog | ⬜ | |
 | 4. Week banner: edit reason and undo | ⬜ | |
@@ -58,7 +58,16 @@ that differs from the canvas in the progress log below.
 
 ### Decisions and deviations
 
-- (none yet)
+- Stage 1: the dialogs read their text from the client: `NoMeetingWeek` is in `CLIENT_NAMESPACES`.
+  They need a dozen ICU plurals with counts from the week, too many to pass as props. The server
+  actions translate the three error messages on the server, from the same namespace.
+- Stage 1: the actions revalidate `/`, `/groups/reports` and `/groups/[id]` as layouts, so a
+  report's detail page (`/groups/reports/{id}`) picks up an edited reason or an undo too.
+- Stage 1: a failure returns `gone: true` for the 404, so the dialogs know to refresh on close.
+  `markNoMeetingWeekAction` returns `marked` and `linkedCount`; `skipped` isn't passed on (the
+  dialog's counts come from the loaded week, rule 13).
+- Stage 1: the API is on membership-management's `church-wide-no-meeting` branch (stages 1–5 done),
+  not merged to `main` yet.
 
 ## Token changes
 

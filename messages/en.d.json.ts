@@ -381,6 +381,11 @@ declare const messages: {
     "markedToast": "Marked as no meeting",
     "savedToast": "Reason saved"
   },
+  "NoMeetingWeek": {
+    "needsMember": "Link your account to a member to mark a week.",
+    "tooFarAhead": "You can mark up to next week.",
+    "gone": "This was already undone. The page will refresh."
+  },
   "Conversations": {
     "errors": {
       "notLinked": "Link your account to a member to comment.",
