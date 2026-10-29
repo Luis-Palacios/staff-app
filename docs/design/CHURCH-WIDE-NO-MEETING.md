@@ -53,7 +53,7 @@ that differs from the canvas in the progress log below.
 | 2. Next week on Report status | ✅ | `2497869` |
 | 3. Mark button and confirm dialog | ✅ | `ec64418` |
 | 4. Week banner: edit reason and undo | ✅ | `7a80cf0` |
-| 5. Church-wide label and the leader's detach note | ✅ | |
+| 5. Church-wide label and the leader's detach note | ✅ | `3ab0d44` |
 | 6. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
