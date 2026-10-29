@@ -378,6 +378,11 @@
     "markedToast": "Marcado sin reunión",
     "savedToast": "Motivo guardado"
   },
+  "NoMeetingWeek": {
+    "needsMember": "Vincula tu cuenta a un miembro para marcar una semana.",
+    "tooFarAhead": "Puedes marcar hasta la próxima semana.",
+    "gone": "Esto ya se deshizo. La página se actualizará."
+  },
   "Conversations": {
     "errors": {
       "notLinked": "Vincula tu cuenta con un miembro para comentar.",

@@ -103,6 +103,8 @@ export interface FiledReportItem {
   /** False = the group didn't meet that date (a no meeting); the counts are then 0. */
   held: boolean;
   notHeldReason: string | null;
+  /** Set on a no meeting marked church-wide and still linked to its week. */
+  noMeetingWeekId: number | null;
   rosterCount: number;
   attendedGroupCount: number;
   attendedChurchCount: number;
@@ -184,6 +186,8 @@ export interface ReportWeekReport {
   submittedBy: ReportPerson;
   held: boolean;
   notHeldReason: string | null;
+  /** Set on a no meeting marked church-wide and still linked to its week. */
+  noMeetingWeekId: number | null;
 }
 
 export interface ReportWeekGroup {
@@ -209,8 +213,32 @@ export interface ReportWeek {
   /** The church's today. */
   today: string;
   isCurrentWeek: boolean;
+  /** Set when the week was marked church-wide as no meeting. */
+  noMeetingWeek: NoMeetingWeek | null;
   /** Open groups, by name. */
   groups: ReportWeekGroup[];
+}
+
+/** A week marked as no meeting for every open group (church-wide no meeting). */
+export interface NoMeetingWeek {
+  id: number;
+  /** The week's Sunday, "YYYY-MM-DD". */
+  weekStart: string;
+  reason: string | null;
+  createdBy: ReportPerson;
+  /** ISO timestamps with offset. */
+  createdAt: string;
+  updatedAt: string;
+  /** Reports still linked to the week: a leader's edit or a held report unlinks one. */
+  linkedCount: number;
+}
+
+/** What marking a week returns: the week and what this call did. */
+export interface NoMeetingWeekMark extends NoMeetingWeek {
+  /** No meetings created by this call. */
+  marked: number;
+  /** `reported`: groups with any report dated in the week, including ones this week marked before. */
+  skipped: { reported: number; noMeetingDay: number };
 }
 
 /** The report sections a thread can be about, in the page's order. */
@@ -395,6 +423,8 @@ export interface ReportDetail {
   /** False = a no meeting: no attendances, no texts, only `notHeldReason`. */
   held: boolean;
   notHeldReason: string | null;
+  /** Set on a no meeting marked church-wide and still linked to its week. */
+  noMeetingWeekId: number | null;
   address: string | null;
   sections: ReportSections;
   submittedBy: ReportPerson;

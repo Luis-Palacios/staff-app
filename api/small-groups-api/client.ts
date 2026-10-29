@@ -1,6 +1,8 @@
 import type {
   AddGuestInput,
   NoMeetingInput,
+  NoMeetingWeek,
+  NoMeetingWeekMark,
   RemoveGuestInput,
   ReportDetail,
   ReportInput,
@@ -301,6 +303,47 @@ export function deleteSmallGroupReport(id: number | string): Promise<void> {
   return authenticatedFetch<void>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     reportPath(id),
+    { method: "DELETE" },
+  );
+}
+
+function noMeetingWeekPath(id: number): string {
+  return `/no-meeting-weeks/${encodeURIComponent(String(id))}`;
+}
+
+/**
+ * Marks the church week containing `date` as no meeting for every open group with a meeting day
+ * and no report dated in the week. 201 the first time; 200 on a re-run, which marks the groups
+ * still empty and keeps the week's reason. 409 without a linked member, 422 past next week.
+ */
+export function markNoMeetingWeek(
+  date: string,
+  reason: string | null,
+): Promise<NoMeetingWeekMark> {
+  return authenticatedFetch<NoMeetingWeekMark>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    "/no-meeting-weeks",
+    { method: "POST", body: { date, reason } },
+  );
+}
+
+/** Sets the reason on the week and every report still linked to it; null clears it. 404 once undone. */
+export function updateNoMeetingWeekReason(
+  id: number,
+  reason: string | null,
+): Promise<NoMeetingWeek> {
+  return authenticatedFetch<NoMeetingWeek>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    noMeetingWeekPath(id),
+    { method: "PATCH", body: { reason } },
+  );
+}
+
+/** Undo: deletes the reports still linked to the week, then the week. 204; 404 once undone. */
+export function deleteNoMeetingWeek(id: number): Promise<void> {
+  return authenticatedFetch<void>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    noMeetingWeekPath(id),
     { method: "DELETE" },
   );
 }
