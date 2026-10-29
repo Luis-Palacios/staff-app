@@ -52,7 +52,7 @@ that differs from the canvas in the progress log below.
 | 1. API types, client and server actions | ✅ | `276c100` |
 | 2. Next week on Report status | ✅ | `2497869` |
 | 3. Mark button and confirm dialog | ✅ | `ec64418` |
-| 4. Week banner: edit reason and undo | ✅ | |
+| 4. Week banner: edit reason and undo | ✅ | `7a80cf0` |
 | 5. Church-wide label and the leader's detach note | ⬜ | |
 | 6. Design review fixes | ⬜ | |
 
