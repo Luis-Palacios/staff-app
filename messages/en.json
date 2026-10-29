@@ -412,7 +412,12 @@
     "undo": "Undo",
     "undoTitle": "{count, plural, one {Undo the no meeting for # group?} other {Undo the no meeting for # groups?}}",
     "undoBody": "Their dates go back to Due, Not filed or Upcoming. Groups that filed a report or whose leader changed their mark stay as they are.",
-    "undoneToast": "Undone"
+    "undoneToast": "Undone",
+    "label": "No meeting · church-wide",
+    "churchWideRow": "Marked for every group",
+    "markedOn": "Marked for every group by {name} on {dateTime}",
+    "effect": "This week was marked as no meeting for every open group. This date doesn’t count as a missing report.",
+    "detachNote": "Marked for every group. Changing it only changes this group."
   },
   "Conversations": {
     "errors": {

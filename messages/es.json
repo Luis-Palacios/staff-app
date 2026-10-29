@@ -412,7 +412,12 @@
     "undo": "Deshacer",
     "undoTitle": "{count, plural, one {¿Deshacer el sin reunión de # grupo?} other {¿Deshacer el sin reunión de # grupos?}}",
     "undoBody": "Sus fechas vuelven a Pendiente, Sin reporte o Próxima. Los grupos que enviaron un reporte o cuyo líder cambió su marca quedan como están.",
-    "undoneToast": "Deshecho"
+    "undoneToast": "Deshecho",
+    "label": "Sin reunión · toda la iglesia",
+    "churchWideRow": "Marcado para todos los grupos",
+    "markedOn": "Marcado para todos los grupos por {name} el {dateTime}",
+    "effect": "Esta semana se marcó sin reunión para todos los grupos abiertos. Esta fecha no cuenta como reporte pendiente.",
+    "detachNote": "Marcado para todos los grupos. Si lo cambias, solo cambia para este grupo."
   },
   "Conversations": {
     "errors": {

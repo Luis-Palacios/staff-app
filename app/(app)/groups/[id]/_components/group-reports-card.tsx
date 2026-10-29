@@ -28,9 +28,10 @@ export async function GroupReportsCard({
   /** `reportAccess(...).canSubmit`: a linked member with access to groups (rule 5). */
   canSubmit: boolean;
 }) {
-  const [t, tList, locale] = await Promise.all([
+  const [t, tList, tWeek, locale] = await Promise.all([
     getTranslations("GroupReportsCard"),
     getTranslations("ReportsList"),
+    getTranslations("NoMeetingWeek"),
     getLocale(),
   ]);
   const items = await listSmallGroupReports({
@@ -99,7 +100,9 @@ export async function GroupReportsCard({
                     ? tList("notFiled")
                     : item.held
                       ? tList("filed")
-                      : tList("noMeeting")}
+                      : item.noMeetingWeekId !== null
+                        ? tWeek("label")
+                        : tList("noMeeting")}
                 </StatusBadge>
                 <ChevronRightIcon
                   aria-hidden="true"

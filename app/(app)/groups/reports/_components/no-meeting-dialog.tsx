@@ -3,6 +3,7 @@
 import type { Locale } from "@/lib/locale-shared";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import {
   Button,
   Description,
@@ -33,6 +34,11 @@ export interface NoMeetingTarget {
   reportId?: number;
   /** Only for `edit`: the reason to start from. */
   reason?: string | null;
+  /**
+   * Only for `edit`: the mark came with the whole week (church-wide no meeting). Saving a
+   * different reason detaches this group from it; the API does that, the dialog says so.
+   */
+  churchWide?: boolean;
 }
 
 function NoMeetingForm({
@@ -47,6 +53,7 @@ function NoMeetingForm({
   onClose: () => void;
 }) {
   const t = useTranslations("NoMeetingDialog");
+  const tWeek = useTranslations("NoMeetingWeek");
   const tForm = useTranslations("ReportForm");
   const locale = useLocale() as Locale;
   const [reason, setReason] = useState(target.reason ?? "");
@@ -131,6 +138,16 @@ function NoMeetingForm({
             </span>
           </div>
         </TextField>
+        {edit && target.churchWide && (
+          <p className="flex gap-2.5 rounded-xl bg-accent-soft px-3.5 py-3 text-[13.5px] text-accent-soft-foreground">
+            <InformationCircleIcon
+              aria-hidden="true"
+              className="mt-px size-[18px] shrink-0"
+              strokeWidth={1.7}
+            />
+            {tWeek("detachNote")}
+          </p>
+        )}
         {error && (
           <p className="text-[13px] text-danger" role="alert">
             {error}

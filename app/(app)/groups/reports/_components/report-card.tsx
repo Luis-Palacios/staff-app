@@ -30,6 +30,7 @@ export default function ReportCard({
   leader: string | undefined;
 }) {
   const t = useTranslations("ReportsList");
+  const tWeek = useTranslations("NoMeetingWeek");
   const locale = useLocale() as Locale;
   const date = formatCalendarMediumDate(item.meetingDate, locale);
 
@@ -85,7 +86,9 @@ export default function ReportCard({
           item.held ? (
             <StatusBadge tone="success">{t("filed")}</StatusBadge>
           ) : (
-            <StatusBadge tone="neutral">{t("noMeeting")}</StatusBadge>
+            <StatusBadge tone="neutral">
+              {item.noMeetingWeekId !== null ? tWeek("label") : t("noMeeting")}
+            </StatusBadge>
           )
         ) : (
           <StatusBadge tone="warning" variant="ring-dot">

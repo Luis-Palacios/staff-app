@@ -39,6 +39,7 @@ export default function ReportsTable({
   onPageChange: (page: number) => void;
 }) {
   const t = useTranslations("ReportsList");
+  const tWeek = useTranslations("NoMeetingWeek");
   const locale = useLocale() as Locale;
   const { root, column, row, cell } = dataTable();
 
@@ -103,7 +104,9 @@ export default function ReportsTable({
                         {item.kind === "report"
                           ? item.held
                             ? t("by", { name: item.submittedBy.name })
-                            : t("noMeeting")
+                            : item.noMeetingWeekId !== null
+                              ? tWeek("label")
+                              : t("noMeeting")
                           : notFiledBadge}
                       </span>
                     </span>
@@ -164,7 +167,9 @@ export default function ReportsTable({
                     ) : (
                       <span className="flex flex-col items-start gap-1">
                         <StatusBadge tone="neutral">
-                          {t("noMeeting")}
+                          {item.noMeetingWeekId !== null
+                            ? tWeek("label")
+                            : t("noMeeting")}
                         </StatusBadge>
                         <span className="text-[12.5px] text-muted">
                           {t("markedBy", { name: item.submittedBy.name })}
