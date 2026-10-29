@@ -13,7 +13,7 @@ export function firstNameOf(name: string): string {
 
 /**
  * An item as plain text: tagged people as their first name (WhatsApp, rule 17) or their full name
- * (search, rule 16). No `@`. With `shortNames`, "first" uses the report's short names (*Kevin Ú.*).
+ * (search, rule 16). No `@`. With `shortNames`, "first" uses the report's short names (*Luis Palacios M.*).
  */
 export function segmentsToPlain(
   segments: readonly ReportSegment[],
@@ -40,9 +40,21 @@ export function segmentsToPlain(
 }
 
 /**
- * The name a chip shows (rule 11): the first name, plus the last initial (*Pablo S.*) when two
- * different people tagged in the same report share a first name. Pass every item of the report.
+ * The name a chip shows (rule 11): the first two words and the initial of the third (*Luis Palacios M.*).
+ * Names are one free-text field, so no word is judged to be a given name or a surname; a one-word
+ * name stays as it is.
  */
+export function shortNameOf(name: string): string {
+  const [first, second, third] = name.trim().split(/\s+/);
+
+  if (!first) return name;
+
+  const initial = third ? `${Array.from(third)[0]}.` : "";
+
+  return [first, second, initial].filter(Boolean).join(" ");
+}
+
+/** The chip label of every person tagged in the report's items (rule 11). Pass every item of the report. */
 export function shortNames(
   items: Iterable<{
     segments: readonly (
@@ -51,35 +63,20 @@ export function shortNames(
     )[];
   }>,
 ): Map<PersonKey, string> {
-  const people = new Map<PersonKey, string>();
+  const names = new Map<PersonKey, string>();
 
   for (const item of items) {
     for (const segment of item.segments) {
       if (segment.type === "person") {
-        people.set(toPersonKey(segment.person), segment.person.name);
+        names.set(
+          toPersonKey(segment.person),
+          shortNameOf(segment.person.name),
+        );
       }
     }
   }
 
-  const firstNameCount = new Map<string, number>();
-
-  for (const name of people.values()) {
-    const key = firstNameOf(name).toLowerCase();
-
-    firstNameCount.set(key, (firstNameCount.get(key) ?? 0) + 1);
-  }
-
-  return new Map(
-    [...people].map(([key, name]) => {
-      const first = firstNameOf(name);
-      const words = name.trim().split(/\s+/);
-      const last = words.length > 1 ? words[words.length - 1] : "";
-      const initial = last ? Array.from(last)[0] : "";
-      const shared = (firstNameCount.get(first.toLowerCase()) ?? 0) > 1;
-
-      return [key, shared && initial ? `${first} ${initial}.` : first];
-    }),
-  );
+  return names;
 }
 
 /**
