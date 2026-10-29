@@ -51,7 +51,7 @@ that differs from the canvas in the progress log below.
 | --- | --- | --- |
 | 1. API types, client and server actions | ✅ | `276c100` |
 | 2. Next week on Report status | ✅ | `2497869` |
-| 3. Mark button and confirm dialog | ⬜ | |
+| 3. Mark button and confirm dialog | ✅ | |
 | 4. Week banner: edit reason and undo | ⬜ | |
 | 5. Church-wide label and the leader's detach note | ⬜ | |
 | 6. Design review fixes | ⬜ | |
@@ -76,6 +76,25 @@ that differs from the canvas in the progress log below.
   row Upcoming, *Next* disabled; a week after next falls back to this week; Prayer & follow-up with
   next week falls back to this week with *Next* disabled. Light and dark, 1440 / 1024 / 500 (Chrome's
   narrowest window; phone layout, no sideways scroll), English and Spanish.
+- Stage 3: the dialog follows the `MarkWeekDialog` board where it adds to the spec: an eyebrow
+  (**Every open group**; on a re-run **Groups still without a mark**), the hint under the reason
+  (**Leaders and elders see it on every marked group.**), a dot per count line (filled on the line
+  to mark), and on a re-run the title **Mark the remaining groups?** with the week's reason quoted
+  in a box (`usesReason`, then the reason or **No reason given**). New keys: `eyebrowAll`,
+  `eyebrowRemaining`, `remainingTitle`, `reasonHint`, `quoted`; `noReason` moved up from stage 4.
+- Stage 3: the reason field reuses `ReportForm.reasonLabel`, `optional`, `reasonCounter` and
+  `cancel`, as `NoMeetingDialog` does, so `NoMeetingWeek.reasonLabel` isn't added.
+- Stage 3: the button is HeroUI `outline` (the board's bordered surface button), as the other
+  no-meeting triggers are; the spec said secondary.
+- Stage 3: if `getMe()` fails the button stays enabled; the API's 409 then shows `needsMember` in
+  the dialog.
+- Stage 3: checked as admin: next week marked with a reason (toast **7 grupos marcados sin
+  reunión**, focus on the week heading, button gone); one of them deleted from its report page;
+  **Mark the remaining groups** with the quoted reason, 1 marked, singular toast, reason kept;
+  this week's dialog shows the "stays as it is" line; Escape closes and returns focus. Light and
+  dark, 1440 / 1024 / 500 (bottom sheet, full-width buttons), English and Spanish. Not seen in the
+  browser yet: the disabled button of an admin or elder without a member, and an error inside the
+  dialog (needs an unlinked account).
 
 ## Token changes
 

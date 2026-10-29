@@ -379,6 +379,22 @@
     "savedToast": "Motivo guardado"
   },
   "NoMeetingWeek": {
+    "markAll": "Marcar sin reunión para todos los grupos",
+    "markRemaining": "Marcar los grupos que faltan",
+    "eyebrowAll": "Todos los grupos abiertos",
+    "eyebrowRemaining": "Grupos que aún no tienen marca",
+    "dialogTitle": "¿Sin reunión la semana del {range}?",
+    "remainingTitle": "¿Marcar los grupos que faltan?",
+    "toMark": "{count, plural, one {Se marcará # grupo sin reunión.} other {Se marcarán # grupos sin reunión.}}",
+    "staying": "{count, plural, one {# grupo ya tiene un reporte o un sin reunión y queda como está.} other {# grupos ya tienen un reporte o un sin reunión y quedan como están.}}",
+    "noDay": "{count, plural, one {# grupo no tiene día de reunión y se omite.} other {# grupos no tienen día de reunión y se omiten.}}",
+    "reasonPlaceholder": "Ej.: retiro de la iglesia",
+    "reasonHint": "Líderes y ancianos lo ven en cada grupo marcado.",
+    "usesReason": "Se usa el motivo de la semana. Puedes cambiarlo después.",
+    "quoted": "“{reason}”",
+    "noReason": "Sin motivo",
+    "confirm": "{count, plural, one {Marcar # grupo} other {Marcar # grupos}}",
+    "markedToast": "{count, plural, one {# grupo marcado sin reunión} other {# grupos marcados sin reunión}}",
     "needsMember": "Vincula tu cuenta a un miembro para marcar una semana.",
     "tooFarAhead": "Puedes marcar hasta la próxima semana.",
     "gone": "Esto ya se deshizo. La página se actualizará."

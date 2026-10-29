@@ -382,6 +382,22 @@ declare const messages: {
     "savedToast": "Reason saved"
   },
   "NoMeetingWeek": {
+    "markAll": "Mark no meeting for all groups",
+    "markRemaining": "Mark the remaining groups",
+    "eyebrowAll": "Every open group",
+    "eyebrowRemaining": "Groups still without a mark",
+    "dialogTitle": "No meeting the week of {range}?",
+    "remainingTitle": "Mark the remaining groups?",
+    "toMark": "{count, plural, one {# group will be marked as no meeting.} other {# groups will be marked as no meeting.}}",
+    "staying": "{count, plural, one {# group already has a report or a no meeting and stays as it is.} other {# groups already have a report or a no meeting and stay as they are.}}",
+    "noDay": "{count, plural, one {# group has no meeting day and is skipped.} other {# groups have no meeting day and are skipped.}}",
+    "reasonPlaceholder": "E.g. church retreat",
+    "reasonHint": "Leaders and elders see it on every marked group.",
+    "usesReason": "The week’s reason is used. You can change it after.",
+    "quoted": "“{reason}”",
+    "noReason": "No reason given",
+    "confirm": "{count, plural, one {Mark # group} other {Mark # groups}}",
+    "markedToast": "{count, plural, one {# group marked as no meeting} other {# groups marked as no meeting}}",
     "needsMember": "Link your account to a member to mark a week.",
     "tooFarAhead": "You can mark up to next week.",
     "gone": "This was already undone. The page will refresh."

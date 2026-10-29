@@ -6,14 +6,18 @@ import { getTranslations } from "next-intl/server";
 
 import { NoGroupsCard } from "../no-groups-card";
 
+import { MarkWeekButton } from "./mark-week-button";
+import { markWeekCounts } from "./mark-week-counts";
 import { buildWeekRows } from "./week-rows";
 import { WeekBrowser } from "./week-browser";
 import { buildWeekPills } from "./week-counts";
 import { WeekStepper } from "./week-stepper";
 import { weekTitle } from "./week-title";
 
+import { getMe } from "@/api/members-api/client";
 import { addDays } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import { textLink, title } from "@/components/primitives";
+import { hasPermission } from "@/lib/auth/get-permissions";
 import { weekAround } from "@/lib/calendar-week";
 
 /**
@@ -58,17 +62,38 @@ export async function ReportWeekSection({
         buildWeekPills(result.value),
       ])
     : [[], []];
+  const mark = result.ok ? await markWeekAction(result.value) : null;
 
   return (
     <section aria-labelledby="week" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-x-5 gap-y-3">
         <div className="flex flex-col gap-0.5">
-          <h2 className={title({ size: "sm" })} id="week">
+          {/* Focusable for the moment after a church-wide mark. */}
+          <h2
+            className={title({ size: "sm", className: "outline-none" })}
+            id="week"
+            tabIndex={-1}
+          >
             {heading}
           </h2>
           <p className="text-sm text-muted">{t("weekDescription")}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-x-[18px] gap-y-3">
+        <div className="flex flex-wrap items-center gap-x-[18px] gap-y-3 max-sm:w-full">
+          {mark && (
+            <MarkWeekButton
+              focusAfter="week"
+              hasMember={mark.hasMember}
+              target={{
+                weekStart,
+                weekEnd,
+                counts: mark.counts,
+                ...(result.ok &&
+                  result.value.noMeetingWeek && {
+                    existingReason: result.value.noMeetingWeek.reason,
+                  }),
+              }}
+            />
+          )}
           <NextLink
             className={textLink({ className: "text-sm" })}
             href="/groups/reports"
@@ -111,4 +136,32 @@ export async function ReportWeekSection({
       )}
     </section>
   );
+}
+
+/**
+ * The church-wide mark's button: admins and elders (`smallGroups: all` + `create`), and only while
+ * a group in the week is still to mark (rules 5, 6). Null when it isn't shown.
+ */
+async function markWeekAction(week: ReportWeek) {
+  const counts = markWeekCounts(week);
+
+  if (
+    counts.toMark === 0 ||
+    !(await hasPermission({
+      smallGroups: ["all"],
+      smallGroupReports: ["create"],
+    }))
+  ) {
+    return null;
+  }
+
+  let hasMember = true;
+
+  try {
+    hasMember = (await getMe()).member !== null;
+  } catch {
+    // Leave it enabled: the API answers 409 and the dialog says why.
+  }
+
+  return { counts, hasMember };
 }
