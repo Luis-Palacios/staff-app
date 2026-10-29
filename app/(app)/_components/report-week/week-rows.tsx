@@ -8,6 +8,7 @@ import type { Locale } from "@/lib/locale-shared";
 import type { WeekBadgeStyle } from "./week-status";
 
 import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
 import NextLink from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -192,36 +193,37 @@ export function WeekGroupCell({
 
 export function WeekStatusCell({
   row,
-  wrapReason = false,
+  inCard = false,
 }: {
   row: WeekRowView;
-  /** Cards let the reason wrap; the table cuts it at one line. */
-  wrapReason?: boolean;
+  /**
+   * Cards right-align the status and keep the short badge; the reason and the church-wide note go
+   * full width under the card's header (`WeekCardNotes`). The table cuts the reason at one line.
+   */
+  inCard?: boolean;
 }) {
   return (
-    <span className="flex flex-col items-start gap-1.5">
+    <span
+      className={clsx(
+        "flex flex-col gap-1.5",
+        inCard ? "shrink-0 items-end" : "items-start",
+      )}
+    >
       <StatusBadge tone={row.badge.tone} variant={row.badge.variant}>
-        {!wrapReason && row.churchWide ? row.churchWide.label : row.badge.label}
+        {!inCard && row.churchWide ? row.churchWide.label : row.badge.label}
       </StatusBadge>
       {row.when && (
         <span className="whitespace-nowrap text-[13px] text-muted">
           {row.when}
         </span>
       )}
-      {row.reason && (
+      {!inCard && row.reason && (
         <span
-          className={
-            wrapReason
-              ? "text-[13px] italic text-muted"
-              : "block max-w-[220px] truncate text-[13px] italic text-muted"
-          }
+          className="block max-w-[220px] truncate text-[13px] italic text-muted"
           title={row.reason}
         >
           {row.reason}
         </span>
-      )}
-      {wrapReason && row.churchWide && (
-        <span className="text-[13px] text-muted">{row.churchWide.note}</span>
       )}
       {row.moreReports && (
         <NextLink
@@ -232,6 +234,26 @@ export function WeekStatusCell({
         </NextLink>
       )}
     </span>
+  );
+}
+
+/** A card's no-meeting reason and church-wide note, full width under its header. */
+export function WeekCardNotes({ row }: { row: WeekRowView }) {
+  if (!row.reason && !row.churchWide) return null;
+
+  return (
+    <div className="flex flex-col gap-1">
+      {row.reason && (
+        <p className="text-[13.5px] italic leading-snug text-foreground">
+          {row.reason}
+        </p>
+      )}
+      {row.churchWide && (
+        <p className="text-[13px] leading-snug text-muted">
+          {row.churchWide.note}
+        </p>
+      )}
+    </div>
   );
 }
 

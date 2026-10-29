@@ -54,7 +54,7 @@ that differs from the canvas in the progress log below.
 | 3. Mark button and confirm dialog | ✅ | `ec64418` |
 | 4. Week banner: edit reason and undo | ✅ | `7a80cf0` |
 | 5. Church-wide label and the leader's detach note | ✅ | `3ab0d44` |
-| 6. Design review fixes | ⬜ | |
+| 6. Design review fixes | ✅ | |
 
 ### Decisions and deviations
 
@@ -127,6 +127,19 @@ that differs from the canvas in the progress log below.
   meeting** everywhere. Phone cards in dark, detail in English. Not seen in the browser: the
   group page's recent reports card, which lists meetings up to today only, so next week's marks
   aren't on it (same check as the list).
+- Stage 6 (design review): the week's phone cards now follow the `ChurchWideWeek` and
+  `LeaderDashboard` boards: the status column is right-aligned and a no meeting's reason (and the
+  church-wide note) runs full width under the card's header (`WeekCardNotes`). Before, the reason
+  sat in the status column for every no meeting, which already differed from the elder boards.
+- Stage 6: checked as an elder with no linked member: the mark button is disabled with
+  **Link your account to a member to mark a week.** under it, full width at phone size; Edit reason
+  and Undo stay available on a marked week (the API needs no member for them). The API's 409 inside
+  the dialog isn't reachable from the UI (the button is disabled first; only a failed `getMe()`
+  leaves it on).
+- Stage 6: checked as the leader of GP - #2: the church-wide no meeting's Edit reason shows the
+  detach note; My groups has no mark button and no banner.
+- Stage 6: mechanical checks clean: no color literals or new `dark:` overrides in the changed
+  files, no token changes (`pnpm tokens --check` passes), `react/jsx-no-literals` clean.
 
 ## Token changes
 
@@ -312,15 +325,15 @@ card, `groups/[id]/_components/group-reports-card.tsx`, `report-week/week-rows.t
 
 Run after implementation, against the boards listed above. Record findings in the progress log.
 
-- [ ] Every board matches in light and dark: layout, spacing, type, states.
-- [ ] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways; the header wraps cleanly with
+- [x] Every board matches in light and dark: layout, spacing, type, states.
+- [x] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways; the header wraps cleanly with
       the new button; the banner's actions drop under the text on a phone.
-- [ ] No color, font, radius or shadow literals in the changed files
+- [x] No color, font, radius or shadow literals in the changed files
       (`git diff main --name-only | xargs grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\('`), and no new
       `dark:` overrides a token could replace.
-- [ ] Token changes (if any) are in `tokens/`, `pnpm tokens --check` passes.
-- [ ] Gold never carries text on a light ground; status shows a dot and a word.
-- [ ] Focus ring visible on every control; focus after mark, edit and undo as described.
-- [ ] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
-- [ ] Prayer & follow-up's stepper still stops at the current week.
-- [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+- [x] Token changes (if any) are in `tokens/`, `pnpm tokens --check` passes.
+- [x] Gold never carries text on a light ground; status shows a dot and a word.
+- [x] Focus ring visible on every control; focus after mark, edit and undo as described.
+- [x] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
+- [x] Prayer & follow-up's stepper still stops at the current week.
+- [x] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
