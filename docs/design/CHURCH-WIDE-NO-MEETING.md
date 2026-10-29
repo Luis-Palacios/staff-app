@@ -50,7 +50,7 @@ that differs from the canvas in the progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. API types, client and server actions | ✅ | `276c100` |
-| 2. Next week on Report status | ✅ | |
+| 2. Next week on Report status | ✅ | `2497869` |
 | 3. Mark button and confirm dialog | ⬜ | |
 | 4. Week banner: edit reason and undo | ⬜ | |
 | 5. Church-wide label and the leader's detach note | ⬜ | |
