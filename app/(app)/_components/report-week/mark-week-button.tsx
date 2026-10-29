@@ -24,8 +24,8 @@ export function MarkWeekButton({
 }: {
   target: MarkWeekTarget;
   hasMember: boolean;
-  /** The id of the heading that takes focus once the week is marked. */
-  focusAfter: string;
+  /** Ids of headings that may take focus once the week is marked: the first one on the page. */
+  focusAfter: string[];
 }) {
   const t = useTranslations("NoMeetingWeek");
   const router = useRouter();
@@ -38,10 +38,18 @@ export function MarkWeekButton({
     showToast(t("markedToast", { count: marked }));
     router.refresh();
 
-    // The button goes away (or turns into "Mark the remaining groups") once the refresh lands.
-    window.setTimeout(() => {
-      document.getElementById(focusAfter)?.focus();
-    }, 600);
+    // The banner appears once the refresh lands, which takes a moment: wait for the first heading,
+    // up to two seconds, then settle for the last one.
+    let tries = 0;
+    const timer = window.setInterval(() => {
+      const first = document.getElementById(focusAfter[0]);
+
+      tries += 1;
+      if (first || tries >= 20) {
+        window.clearInterval(timer);
+        (first ?? document.getElementById(focusAfter.at(-1) ?? ""))?.focus();
+      }
+    }, 100);
   }
 
   if (!hasMember) {

@@ -400,7 +400,22 @@ declare const messages: {
     "markedToast": "{count, plural, one {# group marked as no meeting} other {# groups marked as no meeting}}",
     "needsMember": "Link your account to a member to mark a week.",
     "tooFarAhead": "You can mark up to next week.",
-    "gone": "This was already undone. The page will refresh."
+    "gone": "This was already undone. The page will refresh.",
+    "churchWide": "Church-wide",
+    "bannerThisWeek": "No meetings this week",
+    "bannerNextWeek": "No meetings next week",
+    "bannerOtherWeek": "No meetings that week",
+    "markedBy": "{count, plural, one {Marked for # group by {name} · {date}} other {Marked for # groups by {name} · {date}}}",
+    "editReason": "Edit reason",
+    "weekOfRange": "Week of {range}",
+    "editTitle": "Edit the week’s reason",
+    "editBody": "{count, plural, one {It changes for the # group still marked church-wide. Groups whose leader changed their mark keep their own.} other {It changes for the # groups still marked church-wide. Groups whose leader changed their mark keep their own.}}",
+    "save": "Save",
+    "reasonUpdated": "Reason updated",
+    "undo": "Undo",
+    "undoTitle": "{count, plural, one {Undo the no meeting for # group?} other {Undo the no meeting for # groups?}}",
+    "undoBody": "Their dates go back to Due, Not filed or Upcoming. Groups that filed a report or whose leader changed their mark stay as they are.",
+    "undoneToast": "Undone"
   },
   "Conversations": {
     "errors": {
