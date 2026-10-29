@@ -6,6 +6,7 @@ import NextLink from "next/link";
 import {
   type WeekRowView,
   WeekAttendance,
+  WeekCardNotes,
   WeekGroupCell,
   WeekObservations,
   WeekStatusCell,
@@ -25,8 +26,9 @@ export function WeekCards({ rows, t }: { rows: WeekRowView[]; t: WeekLabels }) {
           <div className="flex flex-1 flex-col gap-3 px-[18px] py-4">
             <div className="flex items-start justify-between gap-2.5">
               <WeekGroupCell noLeader={t.noLeader} row={item} />
-              <WeekStatusCell wrapReason row={item} />
+              <WeekStatusCell inCard row={item} />
             </div>
+            <WeekCardNotes row={item} />
             <dl className="grid grid-cols-2 gap-3 text-sm tabular-nums">
               <div className="flex flex-col gap-1">
                 <dt className="text-[12.5px] font-semibold text-muted">
