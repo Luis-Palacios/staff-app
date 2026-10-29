@@ -5,7 +5,10 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { addDays } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import { formatCalendarShortDate } from "@/lib/format-date";
 
-/** "This week", "Last week", otherwise "Week of Oct 4": Report status and Prayer & follow-up. */
+/**
+ * "This week", "Last week", "Next week", otherwise "Week of Oct 4": Report status and Prayer &
+ * follow-up.
+ */
 export async function weekTitle({
   weekStart,
   currentSunday,
@@ -22,6 +25,7 @@ export async function weekTitle({
 
   if (isCurrentWeek) return t("thisWeek");
   if (weekStart === addDays(currentSunday, -7)) return t("lastWeek");
+  if (weekStart === addDays(currentSunday, 7)) return t("nextWeekTitle");
 
   return t("weekOf", {
     date: formatCalendarShortDate(weekStart, locale as Locale),

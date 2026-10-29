@@ -606,6 +606,7 @@ declare const messages: {
     "weekDescription": "Every open group’s report for the week, Sunday to Saturday.",
     "thisWeek": "This week",
     "lastWeek": "Last week",
+    "nextWeekTitle": "Next week",
     "weekOf": "Week of {date}",
     "allReports": "All reports",
     "weekNav": "Change week",

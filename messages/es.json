@@ -603,6 +603,7 @@
     "weekDescription": "El reporte de cada grupo abierto, de domingo a sábado.",
     "thisWeek": "Esta semana",
     "lastWeek": "Semana pasada",
+    "nextWeekTitle": "La próxima semana",
     "weekOf": "Semana del {date}",
     "allReports": "Todos los reportes",
     "weekNav": "Cambiar de semana",
