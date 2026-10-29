@@ -50,7 +50,7 @@ that differs from the canvas in the progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. API types, client and server actions | ✅ | `276c100` |
-| 2. Next week on Report status | ⬜ | |
+| 2. Next week on Report status | ✅ | |
 | 3. Mark button and confirm dialog | ⬜ | |
 | 4. Week banner: edit reason and undo | ⬜ | |
 | 5. Church-wide label and the leader's detach note | ⬜ | |
@@ -68,6 +68,14 @@ that differs from the canvas in the progress log below.
   dialog's counts come from the loaded week, rule 13).
 - Stage 1: the API is on membership-management's `church-wide-no-meeting` branch (stages 1–5 done),
   not merged to `main` yet.
+- Stage 2: the title is `GroupsDashboard.nextWeekTitle`, not `nextWeek`: `nextWeek` was already the
+  stepper's *Next* button label ("Semana siguiente"), which stays.
+- Stage 2: `WeekStepper` takes `lastSunday` in place of `isCurrentWeek` (*Next* is disabled on
+  `lastSunday`); Prayer & follow-up leaves it out, so it still stops at the current week.
+- Stage 2: checked as admin: `/?week=` next week shows **Next week** / **La próxima semana**, every
+  row Upcoming, *Next* disabled; a week after next falls back to this week; Prayer & follow-up with
+  next week falls back to this week with *Next* disabled. Light and dark, 1440 / 1024 / 500 (Chrome's
+  narrowest window; phone layout, no sideways scroll), English and Spanish.
 
 ## Token changes
 

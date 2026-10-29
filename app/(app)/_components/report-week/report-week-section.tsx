@@ -78,7 +78,8 @@ export async function ReportWeekSection({
           <WeekStepper
             basePath="/"
             currentSunday={currentSunday}
-            isCurrentWeek={isCurrentWeek}
+            // Next week too, so a cancellation can be marked ahead (church-wide no meeting).
+            lastSunday={addDays(currentSunday, 7)}
             weekEnd={weekEnd}
             weekStart={weekStart}
           />

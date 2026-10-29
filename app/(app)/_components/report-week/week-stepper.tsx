@@ -12,20 +12,21 @@ const buttonClass =
 
 /**
  * Previous / range / next for the week in the URL (`?week=` is a Sunday; none = this week), on the
- * page at `basePath`.
+ * page at `basePath`. *Next* stops at `lastSunday` (default: the current week).
  */
 export async function WeekStepper({
   basePath,
   weekStart,
   weekEnd,
   currentSunday,
-  isCurrentWeek,
+  lastSunday = currentSunday,
 }: {
   basePath: string;
   weekStart: string;
   weekEnd: string;
   currentSunday: string;
-  isCurrentWeek: boolean;
+  /** The last week it may step to. */
+  lastSunday?: string;
 }) {
   const [t, locale] = await Promise.all([
     getTranslations("GroupsDashboard"),
@@ -54,7 +55,7 @@ export async function WeekStepper({
       <span className="min-w-[108px] text-center text-sm font-semibold tabular-nums text-heading">
         {formatCalendarRange(weekStart, weekEnd, locale as Locale)}
       </span>
-      {isCurrentWeek ? (
+      {weekStart >= lastSunday ? (
         <button
           disabled
           aria-label={t("nextWeek")}

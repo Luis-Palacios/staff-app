@@ -171,7 +171,6 @@ async function PrayerWeek({
           <WeekStepper
             basePath="/dashboard/prayer"
             currentSunday={currentSunday}
-            isCurrentWeek={isCurrentWeek}
             weekEnd={weekEnd}
             weekStart={weekStart}
           />

@@ -36,7 +36,8 @@ export async function GroupsDashboard({
     getTranslations("DashboardPage"),
   ]);
   const today = getChurchToday();
-  const requestedSunday = parseWeekParam(week, today);
+  // Report status goes one week ahead, for marking a church-wide no meeting.
+  const requestedSunday = parseWeekParam(week, today, { weeksAhead: 1 });
   const reportWeek = settle(
     getSmallGroupReportWeek(requestedSunday ?? undefined),
   );
