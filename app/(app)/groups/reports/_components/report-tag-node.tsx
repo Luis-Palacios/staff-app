@@ -12,9 +12,9 @@ import { createContext, useContext } from "react";
 
 import { ReportPersonChip } from "./report-person-chip";
 
-import { toPersonKey } from "@/lib/report-items";
+import { shortNameOf, toPersonKey } from "@/lib/report-items";
 
-/** The chip labels of the report being edited (rule 11), so two *Pablo*s tell themselves apart. */
+/** The chip labels of the report being edited (rule 11). */
 export const ShortNamesContext = createContext<ReadonlyMap<PersonKey, string>>(
   new Map(),
 );
@@ -31,9 +31,7 @@ function TagView({ node }: NodeViewProps) {
     <NodeViewWrapper as="span" className="mx-px" contentEditable={false}>
       <ReportPersonChip
         label={
-          shortNames.get(toPersonKey(person)) ??
-          person.name.split(/\s+/)[0] ??
-          person.name
+          shortNames.get(toPersonKey(person)) ?? shortNameOf(person.name)
         }
         person={person}
       />
