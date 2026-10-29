@@ -13,7 +13,7 @@ export function firstNameOf(name: string): string {
 
 /**
  * An item as plain text: tagged people as their first name (WhatsApp, rule 17) or their full name
- * (search, rule 16). No `@`. With `shortNames`, "first" uses the report's short names (*Luis Palacios M.*).
+ * (search, rule 16). No `@`. With `shortNames`, "first" is the short name (*Luis Palacios M.*), from `shortNames` or else `shortNameOf`.
  */
 export function segmentsToPlain(
   segments: readonly ReportSegment[],
@@ -33,7 +33,7 @@ export function segmentsToPlain(
 
       return (
         short?.get(toPersonKey(segment.person)) ??
-        firstNameOf(segment.person.name)
+        shortNameOf(segment.person.name)
       );
     })
     .join("");
@@ -49,12 +49,12 @@ export function shortNameOf(name: string): string {
 
   if (!first) return name;
 
-  const initial = third ? `${Array.from(third)[0]}.` : "";
+  const initial = third ? `${Array.from(third)[0].toUpperCase()}.` : "";
 
   return [first, second, initial].filter(Boolean).join(" ");
 }
 
-/** The chip label of every person tagged in the report's items (rule 11). Pass every item of the report. */
+/** The chip label of every person tagged in the given items (rule 11). */
 export function shortNames(
   items: Iterable<{
     segments: readonly (

@@ -30,9 +30,7 @@ function TagView({ node }: NodeViewProps) {
   return (
     <NodeViewWrapper as="span" className="mx-px" contentEditable={false}>
       <ReportPersonChip
-        label={
-          shortNames.get(toPersonKey(person)) ?? shortNameOf(person.name)
-        }
+        label={shortNames.get(toPersonKey(person)) ?? shortNameOf(person.name)}
         person={person}
       />
     </NodeViewWrapper>
