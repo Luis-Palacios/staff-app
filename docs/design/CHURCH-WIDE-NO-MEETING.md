@@ -30,13 +30,18 @@ before the next one starts. After each stage, write a short summary of what chan
 that differs from the canvas in the progress log below.
 
 - **Design (source of truth for look):** [Staff App canvas](https://claude.ai/artifact/PLs9gdHVcigkRSAWJrsKs1),
-  page "Small group reports", row **"Church-wide no meeting"**. **Not drawn yet:** draw it before
-  stage 3; until then the layout notes below are the guide.
-- **Boards (proposed names):** `ReportWeek-MarkButton` (header with the button, current and next
-  week), `MarkWeekDialog` (first mark), `MarkWeekDialog-Remaining` (re-run, no reason field),
-  `ReportWeek-ChurchWideBanner`, `ReportWeek-ChurchWideBanner-Phone-Dark-ES`, `EditWeekReasonDialog`,
-  `UndoWeekDialog`, `ReportDetail-NoMeeting-ChurchWide`, `NoMeetingDialog` (`kind` edit with the
-  detach note).
+  page "Small group reports", rows **"Church-wide no meeting · marking next week ahead"** and
+  **"… marked late, the remaining groups, edit reason, undo, leaders"** (and their blue rules
+  sticky and orange note). The boards show the week section only; the rest of the page is the
+  existing `LeaderDashboard-Elder` boards.
+- **Boards:** `ChurchWideWeek` (the section component; Play runs mark → banner → edit → undo),
+  `MarkWeekDialog` (the dialog component, `kind` mark / remaining / editReason / undo),
+  `ChurchWide-Next` (button on next week), `ChurchWide-Next-Mark` (confirm),
+  `ChurchWide-Next-Marked` (banner + toast), `ChurchWide-Phone-Mark`, `ChurchWide-Phone-Dark-ES`,
+  `ChurchWide-ThisWeek-Mark` (marked late: 3 stay as they are), `ChurchWide-ThisWeek-Marked`
+  (mixed rows), `ChurchWide-Remaining`, `ChurchWide-EditReason`, `ChurchWide-Undo`,
+  `ReportDetail-NoMeeting-ChurchWide` and `-Edit` (`NoMeetingDialog` with `churchWide`: the detach
+  note).
 - **Design system:** [ekklesiaio Design System](https://claude.ai/artifact/3cQCVY9F8FWnLpggLknxh9),
   synced [YYYY-MM-DD].
 
