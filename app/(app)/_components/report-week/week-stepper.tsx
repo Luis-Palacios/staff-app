@@ -32,7 +32,10 @@ export async function WeekStepper({
     getTranslations("GroupsDashboard"),
     getLocale(),
   ]);
+  const previous = addDays(weekStart, -7);
   const next = addDays(weekStart, 7);
+  const weekHref = (week: string) =>
+    week === currentSunday ? basePath : `${basePath}?week=${week}`;
 
   return (
     <div
@@ -43,7 +46,7 @@ export async function WeekStepper({
       <NextLink
         aria-label={t("previousWeek")}
         className={buttonClass}
-        href={`${basePath}?week=${addDays(weekStart, -7)}`}
+        href={weekHref(previous)}
         scroll={false}
       >
         <ChevronLeftIcon
@@ -72,7 +75,7 @@ export async function WeekStepper({
         <NextLink
           aria-label={t("nextWeek")}
           className={buttonClass}
-          href={next === currentSunday ? basePath : `${basePath}?week=${next}`}
+          href={weekHref(next)}
           scroll={false}
         >
           <ChevronRightIcon
