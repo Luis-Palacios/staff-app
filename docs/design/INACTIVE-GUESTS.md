@@ -84,9 +84,9 @@ in the progress log below.
 - **Stage 4.** The search step is shared by Group detail and *Someone new came*, so both get it. The primary
   button is *Reactivate and add* in the report too, not *…and mark as came*. The dialog now scrolls inside: the
   note block pushed the button off short phones. `errors.overlap` no longer says *this group*: the API means any
-  group. **Same-day limit, from the API:** a guest deactivated today can't rejoin a group dated today, because
-  `left_at` is today and the end date counts as a day in the group, so it answers 409 overlap and rolls back.
-  Not tried in the browser for that reason: the success toast, and the stale-page 409.
+  group. A guest marked inactive today can rejoin a group today: the API refused that with a 409 overlap until
+  `membership-management` `791a77d`. Tried in the browser on the dev database: reactivate and add, its toast, and
+  the timeline entries it leaves. Not tried: the stale-page 409.
 - **Stage 5.** Eyebrow: *Reports and status changes* on the card and the board, always. Recent activity's
   footer now says *latest activity* instead of *the last 3 reports*, which a status entry made untrue; both
   footers add the board's status sentence when a status entry is showing. The guest end line reads the real
@@ -101,6 +101,9 @@ in the progress log below.
   leader items of the checklist (no leader session here), so *Reactivate and add* as a leader, a leader's Guest
   detail, and `GuestDetail-Timeline-Status-Leader` are untried in a browser. Also untried: *Someone new came*
   in a real report form (same dialog component).
+- **After stage 6.** The same-day rejoin lets a guest have two periods in one group with the same join date, so
+  the group history's React key adds the row's position. Type-checked and linted; not reproduced in a browser,
+  since no dev guest has two such periods.
 - **Local checks** run against the dev database, migrated by the user, with status changes made through the app
   on the guests named *Prueba* only.
 
