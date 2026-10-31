@@ -13,14 +13,13 @@ export interface StatusHistoryEntry extends MemberStatusChange {
 }
 
 /**
- * The status history (`members: setStatus`), newest first. `changedByName` is the member linked to
- * whoever made the change; for a user with no member it falls back to the user's name from
- * auth-server. If that list can't be read the entry just has no name.
+ * `changedByName` is the member linked to whoever made the change; for a user with no member it
+ * falls back to the user's name from auth-server. If that list can't be read the entry just has no
+ * name.
  */
-export async function loadStatusHistory(
-  id: string,
-): Promise<StatusHistoryEntry[]> {
-  const history = await getMemberStatusHistory(id);
+export async function withChangedBy<
+  T extends { changedByName: string | null; changedByUserId: string },
+>(history: T[]): Promise<(T & { changedBy: string | null })[]> {
   let names: Map<string, string> | null = null;
 
   if (history.some((change) => change.changedByName === null)) {
@@ -36,4 +35,11 @@ export async function loadStatusHistory(
     changedBy:
       change.changedByName ?? names?.get(change.changedByUserId) ?? null,
   }));
+}
+
+/** The status history (`members: setStatus`), newest first. */
+export async function loadStatusHistory(
+  id: string,
+): Promise<StatusHistoryEntry[]> {
+  return withChangedBy(await getMemberStatusHistory(id));
 }

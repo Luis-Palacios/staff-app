@@ -1624,7 +1624,7 @@
   },
   "GuestStatus": {
     "inactive": "Inactive",
-    "inactiveSince": "Inactive since {date}"
+    "inactiveSince": "Inactive since <strong>{date}</strong>"
   },
   "GuestInactiveReason": {
     "moved_away": "Moved away",
@@ -1632,6 +1632,57 @@
     "joined_another_church": "Joined another church",
     "deceased": "Deceased",
     "other": "Other"
+  },
+  "GuestInactiveBanner": {
+    "title": "{name} is an inactive guest",
+    "body": "Left {date} · <strong>{reason}</strong>. They're not in a guest group and can't be tagged in reports. Leaders still find them when they search, so nobody adds them twice.",
+    "bodyNoReason": "Left {date}. They're not in a guest group and can't be tagged in reports. Leaders still find them when they search, so nobody adds them twice.",
+    "reactivate": "Reactivate…"
+  },
+  "GuestStatusCard": {
+    "dangerTitle": "Mark as inactive",
+    "dangerBody": "For a guest who isn't coming anymore: moved away, joined another church. They leave their guest group today. Nothing is deleted, and they can be reactivated later.",
+    "dangerButton": "Mark as inactive…",
+    "dangerWho": "Only admins and elders can do this. To take them out of one group only, use Remove on the group.",
+    "historyEyebrow": "With us",
+    "history": "Status history",
+    "markedInactive": "Marked inactive",
+    "reactivated": "Reactivated",
+    "by": "{date} · by {name}",
+    "someone": "Someone",
+    "privateHint": "Admins and elders see reasons and notes here. Their timeline shows them to their leaders too, once they're back in a group."
+  },
+  "DeactivateGuestDialog": {
+    "title": "Mark {name} as inactive",
+    "description": "For a guest who isn't coming anymore. Nothing is deleted.",
+    "reason": "Reason",
+    "reasonPlaceholder": "Choose a reason",
+    "date": "Date they left",
+    "dateHint": "Today or earlier.",
+    "note": "Note (optional)",
+    "noteHint": "Admins and elders see the reason and note, and so do their leaders on their timeline if they come back.",
+    "whatHappens": "What happens",
+    "leavesGroup": "Leaves {group} today",
+    "leavesGroupBody": "Their past reports, attendance and notes stay as they are.",
+    "movesToInactive": "Moves to Inactive",
+    "movesToInactiveBody": "Left out of guest lists and the tag picker. Leaders still find them in search, marked Inactive, and can reactivate them when they come back.",
+    "cancel": "Cancel",
+    "submit": "Mark as inactive"
+  },
+  "ReactivateGuestDialog": {
+    "title": "Reactivate {name}",
+    "description": "They're back in Guests as active from today.",
+    "note": "Note (optional)",
+    "notePlaceholder": "For example: moved back and came to church on Sunday",
+    "noteHint": "Shown on their timeline to admins, elders and their leaders.",
+    "groupNotRestored": "They don't go back into their old group. Add them to a guest group from the group's page, or a leader adds them when they come to a meeting.",
+    "cancel": "Cancel",
+    "submit": "Reactivate"
+  },
+  "GuestStatusToast": {
+    "inactive": "{name} marked inactive",
+    "reactivated": "{name} reactivated",
+    "reactivatedAdded": "{name} reactivated and added to the group"
   },
   "GuestFormPage": {
     "newTitle": "Add a guest",

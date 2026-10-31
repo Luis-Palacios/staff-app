@@ -61,8 +61,8 @@ in the progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Permissions, API client, types, actions | ✅ | `8760fd0` |
-| 2. Guests list | ✅ | |
-| 3. Guest detail: inactive state and dialogs | ⬜ | |
+| 2. Guests list | ✅ | `791ec6b` |
+| 3. Guest detail: inactive state and dialogs | ✅ | |
 | 4. Reactivate and add (Group detail, report form) | ⬜ | |
 | 5. Timeline entries | ⬜ | |
 | 6. Design review fixes | ⬜ | |
@@ -77,6 +77,10 @@ in the progress log below.
   under the date, as `Guests-Inactive` draws it (the members list uses a chip). A `noActive` line was added
   beside `noInactive`, since Active can now be empty while Inactive isn't. Rule 8's top bar search has nothing
   to do here: it searches members only and finds no guests today.
+- **Stage 3.** Copy is the boards' in the generic form: *they* in English, the masculine in Spanish. *Status
+  history* falls back to the auth-server user name like members, through `withChangedBy`, now exported from
+  `members/_lib/load-status-history.ts`. *Inactive since* bolds the date, so `GuestStatus.inactiveSince` has a
+  `<strong>` tag. To fix in stage 6: the reason select sits 2px above the date field in the dialog.
 - **Local checks** run against the dev database, migrated by the user, with status changes made through the app
   on the guests named *Prueba* only.
 
