@@ -41,6 +41,7 @@ export function GroupGuestsCard({
   today: string;
 }) {
   const t = useTranslations("GroupGuestsCard");
+  const tToast = useTranslations("GuestStatusToast");
   const locale = useLocale() as Locale;
   const [isPending, startTransition] = useTransition();
   const [adding, setAdding] = useState(false);
@@ -233,7 +234,11 @@ export function GroupGuestsCard({
           variant="group"
           onAdded={(guest) => {
             setAdding(false);
-            showToast(t("toasts.added", { name: guest.name }));
+            showToast(
+              guest.reactivated
+                ? tToast("reactivatedAdded", { name: guest.name })
+                : t("toasts.added", { name: guest.name }),
+            );
           }}
           onOpenChange={setAdding}
         />

@@ -1522,9 +1522,18 @@
       "closed": "Este grupo está cerrado, así que no se puede modificar.",
       "laterReport": "Está en un reporte posterior; quítalo primero de ahí.",
       "generic": "Algo salió mal. Inténtalo de nuevo.",
-      "overlap": "Su tiempo anterior en este grupo se cruza con esta fecha.",
+      "overlap": "Su tiempo anterior en un grupo de invitados se cruza con esta fecha.",
       "inactive": "Este invitado ahora está inactivo. Reactívalo para agregarlo."
-    }
+    },
+    "reactivateAdd": "Reactivar y agregar",
+    "inactiveTitle": "{name} está inactivo.",
+    "inactiveBody": "Al agregarlo se reactiva desde hoy y entra a este grupo. Su historial queda como estaba.",
+    "inactiveNote": "Nota (opcional)",
+    "inactiveNotePlaceholder": "Por ejemplo: volvió a la iglesia este domingo",
+    "inactiveNoteHint": "Se muestra en su historial a administradores, ancianos y sus líderes.",
+    "inactiveLeft": "Salió el {date}",
+    "inactiveLeftLastIn": "Salió el {date} · último grupo {group}",
+    "inactiveCantReactivate": "Inactivo: no puedes reactivar invitados."
   },
   "GuestsPage": {
     "title": "Invitados",

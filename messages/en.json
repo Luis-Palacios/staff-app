@@ -1522,9 +1522,18 @@
       "closed": "This group is closed, so it can’t be changed.",
       "laterReport": "They’re in a later report; remove them from there first.",
       "generic": "Something went wrong. Try again.",
-      "overlap": "Their earlier time in this group overlaps this date.",
+      "overlap": "Their earlier time in a guest group overlaps this date.",
       "inactive": "This guest is inactive now. Reactivate them to add them."
-    }
+    },
+    "reactivateAdd": "Reactivate and add",
+    "inactiveTitle": "{name} is inactive.",
+    "inactiveBody": "Adding them reactivates them from today and puts them in this group. Their history stays as it was.",
+    "inactiveNote": "Note (optional)",
+    "inactiveNotePlaceholder": "For example: came back to church this Sunday",
+    "inactiveNoteHint": "Shown on their timeline to admins, elders and their leaders.",
+    "inactiveLeft": "Left {date}",
+    "inactiveLeftLastIn": "Left {date} · last in {group}",
+    "inactiveCantReactivate": "Inactive: you can't reactivate guests."
   },
   "GuestsPage": {
     "title": "Guests",

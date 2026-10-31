@@ -36,6 +36,7 @@ export const CLIENT_NAMESPACES = [
   "GuestRowMenu",
   "GuestStatus",
   "GuestStatusCard",
+  "GuestStatusToast",
   "GuestsBrowser",
   "GuestsBadge",
   "InviteStatus",

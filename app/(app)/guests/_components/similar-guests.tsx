@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 
 import {
   GuestMeta,
+  GuestName,
   useGuestSearch,
 } from "@/app/(app)/groups/[id]/_components/add-guest-dialog";
 
@@ -56,9 +57,7 @@ export function SimilarGuests({
             className="flex items-center gap-3 rounded-[10px] bg-surface px-3 py-2 text-foreground"
           >
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold text-heading">
-                {guest.name}
-              </span>
+              <GuestName guest={guest} />
               <GuestMeta guest={guest} />
             </span>
             {canOpen && (
