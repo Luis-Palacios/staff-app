@@ -105,7 +105,7 @@ function DeactivateForm({
             <Label className="text-[13px] font-semibold text-heading">
               {t("reason")}
             </Label>
-            <Select.Trigger>
+            <Select.Trigger className="h-10 min-h-10 items-center rounded-control py-0">
               <Select.Value />
               <Select.Indicator />
             </Select.Trigger>

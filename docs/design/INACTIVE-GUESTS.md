@@ -64,8 +64,8 @@ in the progress log below.
 | 2. Guests list | ✅ | `791ec6b` |
 | 3. Guest detail: inactive state and dialogs | ✅ | `72dccd6` |
 | 4. Reactivate and add (Group detail, report form) | ✅ | `94b2233` |
-| 5. Timeline entries | ✅ | |
-| 6. Design review fixes | ⬜ | |
+| 5. Timeline entries | ✅ | `233929d` |
+| 6. Design review fixes | ✅ | see `git log` |
 
 ### Decisions and deviations
 
@@ -80,7 +80,7 @@ in the progress log below.
 - **Stage 3.** Copy is the boards' in the generic form: *they* in English, the masculine in Spanish. *Status
   history* falls back to the auth-server user name like members, through `withChangedBy`, now exported from
   `members/_lib/load-status-history.ts`. *Inactive since* bolds the date, so `GuestStatus.inactiveSince` has a
-  `<strong>` tag. To fix in stage 6: the reason select sits 2px above the date field in the dialog.
+  `<strong>` tag.
 - **Stage 4.** The search step is shared by Group detail and *Someone new came*, so both get it. The primary
   button is *Reactivate and add* in the report too, not *…and mark as came*. The dialog now scrolls inside: the
   note block pushed the button off short phones. `errors.overlap` no longer says *this group*: the API means any
@@ -94,6 +94,13 @@ in the progress log below.
   kinds and the old `rows`, so API stage 5 (drop `rows`) needs nothing here once this is deployed. The status
   row is `surface-secondary/50`, the table header's surface and the board's `thead`: the app's month heading is
   the full token, which matches `bg-default` and hides the reason chip and the tile.
+- **Stage 6, design review.** Checked as an admin: lists and detail in light and dark, 1440 and 1024, phone width
+  at 390 (in an iframe; the browser window wouldn't shrink), Spanish and English. Literal grep clean, no new
+  `dark:` overrides, focus returns to *Reactivate…* after the dialog. Fixed: the reason select matches the date
+  field's 40px height; it still sits 1.5px higher because of the required mark's label. **Not checked:** the
+  leader items of the checklist (no leader session here), so *Reactivate and add* as a leader, a leader's Guest
+  detail, and `GuestDetail-Timeline-Status-Leader` are untried in a browser. Also untried: *Someone new came*
+  in a real report form (same dialog component).
 - **Local checks** run against the dev database, migrated by the user, with status changes made through the app
   on the guests named *Prueba* only.
 
