@@ -1624,7 +1624,7 @@
   },
   "GuestStatus": {
     "inactive": "Inactivo",
-    "inactiveSince": "Inactivo desde el {date}"
+    "inactiveSince": "Inactivo desde el <strong>{date}</strong>"
   },
   "GuestInactiveReason": {
     "moved_away": "Se mudó",
@@ -1632,6 +1632,57 @@
     "joined_another_church": "Se unió a otra iglesia",
     "deceased": "Falleció",
     "other": "Otro"
+  },
+  "GuestInactiveBanner": {
+    "title": "{name} es un invitado inactivo",
+    "body": "Salió el {date} · <strong>{reason}</strong>. No está en un grupo de invitados y no se puede etiquetar en reportes. Los líderes aún lo encuentran al buscar, para que nadie lo agregue dos veces.",
+    "bodyNoReason": "Salió el {date}. No está en un grupo de invitados y no se puede etiquetar en reportes. Los líderes aún lo encuentran al buscar, para que nadie lo agregue dos veces.",
+    "reactivate": "Reactivar…"
+  },
+  "GuestStatusCard": {
+    "dangerTitle": "Marcar como inactivo",
+    "dangerBody": "Para un invitado que ya no viene: se mudó o se unió a otra iglesia. Sale hoy de su grupo de invitados. No se borra nada y se puede reactivar después.",
+    "dangerButton": "Marcar como inactivo…",
+    "dangerWho": "Solo administradores y ancianos pueden hacerlo. Para sacarlo solo de un grupo, usa Quitar en el grupo.",
+    "historyEyebrow": "Con nosotros",
+    "history": "Historial de estado",
+    "markedInactive": "Marcado como inactivo",
+    "reactivated": "Reactivado",
+    "by": "{date} · por {name}",
+    "someone": "Alguien",
+    "privateHint": "Administradores y ancianos ven aquí los motivos y notas. Su historial también se los muestra a sus líderes cuando vuelve a un grupo."
+  },
+  "DeactivateGuestDialog": {
+    "title": "Marcar a {name} como inactivo",
+    "description": "Para un invitado que ya no viene. No se borra nada.",
+    "reason": "Motivo",
+    "reasonPlaceholder": "Elige un motivo",
+    "date": "Fecha en que salió",
+    "dateHint": "Hoy o antes.",
+    "note": "Nota (opcional)",
+    "noteHint": "Administradores y ancianos ven el motivo y la nota, y también sus líderes en su historial si vuelve.",
+    "whatHappens": "Qué pasa",
+    "leavesGroup": "Sale hoy de {group}",
+    "leavesGroupBody": "Sus reportes, asistencia y notas anteriores quedan igual.",
+    "movesToInactive": "Pasa a Inactivos",
+    "movesToInactiveBody": "Fuera de las listas de invitados y del selector de etiquetas. Los líderes aún lo encuentran al buscar, marcado Inactivo, y pueden reactivarlo si vuelve.",
+    "cancel": "Cancelar",
+    "submit": "Marcar como inactivo"
+  },
+  "ReactivateGuestDialog": {
+    "title": "Reactivar a {name}",
+    "description": "Vuelve a Invitados como activo desde hoy.",
+    "note": "Nota (opcional)",
+    "notePlaceholder": "Por ejemplo: regresó y vino a la iglesia el domingo",
+    "noteHint": "Se muestra en su historial a administradores, ancianos y sus líderes.",
+    "groupNotRestored": "No vuelve a su grupo anterior. Agrégalo a un grupo de invitados desde la página del grupo, o un líder lo agrega cuando venga a una reunión.",
+    "cancel": "Cancelar",
+    "submit": "Reactivar"
+  },
+  "GuestStatusToast": {
+    "inactive": "{name} marcado como inactivo",
+    "reactivated": "{name} reactivado",
+    "reactivatedAdded": "{name} se reactivó y se agregó al grupo"
   },
   "GuestFormPage": {
     "newTitle": "Agregar un invitado",

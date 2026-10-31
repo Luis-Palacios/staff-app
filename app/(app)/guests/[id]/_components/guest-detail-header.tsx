@@ -6,6 +6,7 @@ import { buttonVariants } from "@heroui/react";
 import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
+import { GuestInactiveBadge } from "@/components/guest-inactive-badge";
 import { GuestsBadge } from "@/components/guests-badge";
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { title } from "@/components/primitives";
@@ -31,8 +32,10 @@ export function GuestDetailHeader({
   groupHref: string | null;
 }) {
   const t = useTranslations("GuestDetailHeader");
+  const tStatus = useTranslations("GuestStatus");
   const locale = useLocale() as Locale;
-  const { id, name, firstVisitDate, currentGroup } = guest;
+  const { id, name, firstVisitDate, currentGroup, inactiveSince } = guest;
+  const inactive = guest.status === "inactive";
   const back = canList
     ? { href: "/guests", label: t("allGuests") }
     : groupHref && currentGroup
@@ -58,7 +61,12 @@ export function GuestDetailHeader({
       />
       <div className="flex flex-wrap items-center gap-5">
         <InitialsAvatar
-          className="bg-accent text-[22px] text-accent-foreground"
+          className={
+            inactive
+              ? "text-[22px]"
+              : "bg-accent text-[22px] text-accent-foreground"
+          }
+          muted={inactive}
           name={name}
           size="xl"
         />
@@ -66,6 +74,7 @@ export function GuestDetailHeader({
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
             <h1 className={title({ size: "md" })}>{name}</h1>
             <GuestsBadge label={t("badge")} />
+            {inactive && <GuestInactiveBadge />}
           </div>
           <p className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-muted">
             {firstVisitDate && (
@@ -77,12 +86,17 @@ export function GuestDetailHeader({
               </span>
             )}
             <span>
-              {currentGroup
-                ? t.rich("inGroup", {
-                    group: currentGroup.name,
+              {inactive && inactiveSince
+                ? tStatus.rich("inactiveSince", {
+                    date: formatCalendarDate(inactiveSince, locale),
                     strong,
                   })
-                : t("noGroup")}
+                : currentGroup
+                  ? t.rich("inGroup", {
+                      group: currentGroup.name,
+                      strong,
+                    })
+                  : t("noGroup")}
             </span>
           </p>
         </div>
