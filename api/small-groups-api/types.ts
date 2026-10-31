@@ -1,5 +1,9 @@
 import type { ConversationStatus } from "@/api/conversations-api/types";
-import type { SmallGroupRole } from "@/api/members-api/types";
+import type { GuestInactiveReason } from "@/api/guests-api/types";
+import type {
+  MemberInactiveReason,
+  SmallGroupRole,
+} from "@/api/members-api/types";
 
 export type { SmallGroupRole };
 
@@ -281,7 +285,7 @@ export interface TimelineParams {
   from?: string;
   to?: string;
   smallGroupId?: number;
-  /** 1–10 newest visible rows (Recent activity); not with the others. */
+  /** 1–10 newest visible entries of any kind (Recent activity); not with the others. */
   latest?: number;
 }
 
@@ -319,18 +323,41 @@ export interface TimelineRow {
   items: TimelineItem[];
 }
 
+/** A report the person was on or tagged in. */
+export interface TimelineReportEntry {
+  kind: "report";
+  date: string;
+  report: TimelineRow;
+}
+
+/** One change of status; it has no group. */
+export interface TimelineStatusEntry {
+  kind: "status";
+  /** The date they left; the day of reactivation. */
+  date: string;
+  status: "active" | "inactive";
+  /** The member or guest reasons, by person type; null when `status` is active. */
+  reason: MemberInactiveReason | GuestInactiveReason | null;
+  note: string | null;
+  /** The member linked to whoever made the change; null when there is none. */
+  changedBy: { memberId: number; name: string } | null;
+}
+
+export type TimelineEntry = TimelineReportEntry | TimelineStatusEntry;
+
 export interface PersonTimeline {
   person: Person;
   /** Null with `latest`. Date only. */
   from: string | null;
   to: string | null;
-  /** Oldest visible row, any group: whether "Show 3 more months" has anything to show. */
+  /** Oldest visible entry, any kind and group: whether "Show 3 more months" has anything to show. */
   earliestDate: string | null;
-  /** Groups with a visible row at any date, for the group filter. */
+  /** Groups with a visible report at any date, for the group filter. */
   groups: TimelineGroup[];
-  /** In the range and group, after rule 23. */
+  /** Reports only, in the range and group, after rule 23. */
   counts: { notes: number; prayer: number; praise: number; followUp: number };
-  rows: TimelineRow[];
+  /** Newest first, every kind this app knows; `readTimeline` drops the rest. */
+  entries: TimelineEntry[];
 }
 
 /** A section thread's indicator on a shared entry; `unread` and `needsMyReply` are the caller's. */

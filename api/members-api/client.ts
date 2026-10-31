@@ -18,7 +18,7 @@ import type {
 import { cache } from "react";
 
 import { authenticatedFetch } from "@/api/authenticated-fetch";
-import { timelineQuery } from "@/api/small-groups-api/client";
+import { readTimeline, timelineQuery } from "@/api/small-groups-api/client";
 import { getEnv } from "@/lib/env/server";
 
 /**
@@ -175,5 +175,5 @@ export function getMemberTimeline(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     `/members/${encodeURIComponent(String(id))}/timeline${timelineQuery(params)}`,
     { cache: "no-store" },
-  );
+  ).then(readTimeline);
 }

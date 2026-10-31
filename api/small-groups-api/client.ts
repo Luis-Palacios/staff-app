@@ -3,6 +3,7 @@ import type {
   NoMeetingInput,
   NoMeetingWeek,
   NoMeetingWeekMark,
+  PersonTimeline,
   RemoveGuestInput,
   ReportDetail,
   ReportInput,
@@ -10,6 +11,7 @@ import type {
   ReportListParams,
   ReportRoster,
   ReportShared,
+  TimelineEntry,
   ReportSummaryGroup,
   ReportWeek,
   SmallGroupDetail,
@@ -347,6 +349,30 @@ export function deleteNoMeetingWeek(id: number): Promise<void> {
     noMeetingWeekPath(id),
     { method: "DELETE" },
   );
+}
+
+const TIMELINE_KINDS: ReadonlySet<string> = new Set<TimelineEntry["kind"]>([
+  "report",
+  "status",
+]);
+
+/**
+ * Shared by the member and guest timeline calls. Entries of a kind this app doesn't know are dropped
+ * here, before anything renders, so the API can ship a kind before the UI draws it (inactive guests,
+ * rule 15). Fields are picked so the old `rows`, which the API sends until it drops it, stays out.
+ */
+export function readTimeline(timeline: PersonTimeline): PersonTimeline {
+  const { person, from, to, earliestDate, groups, counts, entries } = timeline;
+
+  return {
+    person,
+    from,
+    to,
+    earliestDate,
+    groups,
+    counts,
+    entries: entries.filter((entry) => TIMELINE_KINDS.has(entry.kind)),
+  };
 }
 
 /** Shared by the member and guest timeline calls: the query string for `params`. */

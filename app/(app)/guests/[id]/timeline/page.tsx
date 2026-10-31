@@ -64,6 +64,7 @@ export default async function GuestTimelinePage({
         name={guest.name}
       />
       <TimelineCard
+        firstVisitDate={guest.firstVisitDate}
         kind="guest"
         openGroups={openGroupsOf(permissions, me.leads)}
         query={query}

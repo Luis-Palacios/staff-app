@@ -17,6 +17,7 @@ export function TimelineCard({
   today,
   viewer,
   kind,
+  firstVisitDate,
   openGroups,
 }: {
   timeline: PersonTimeline;
@@ -24,6 +25,8 @@ export function TimelineCard({
   today: string;
   viewer: "elder" | "leader";
   kind: "member" | "guest";
+  /** A guest's first visit, for the end line. */
+  firstVisitDate?: string | null;
   /** The groups whose page and reports the viewer can open. */
   openGroups: OpenGroups;
 }) {
@@ -46,6 +49,7 @@ export function TimelineCard({
         </p>
       </div>
       <TimelineBoard
+        firstVisitDate={firstVisitDate}
         groupId={query.groupId}
         kind={kind}
         openGroups={openGroups}

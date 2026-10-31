@@ -1858,7 +1858,7 @@ declare const messages: {
     "tip": "One item per request: press Enter to start the next. Type @ or use a row's @ button to tag a member or guest, from any group."
   },
   "ReportTimeline": {
-    "eyebrow": "From small group reports",
+    "eyebrow": "Reports and status changes",
     "title": "Timeline",
     "recent": "Recent activity",
     "seeAll": "See full timeline",
@@ -1895,19 +1895,24 @@ declare const messages: {
     "followUp": "For the elders to follow up",
     "viewReport": "View report",
     "showMore": "Show 3 more months",
-    "endMember": "That’s everything since {name}’s first report.",
+    "endMember": "That’s everything since {name}’s first activity.",
     "endGuest": "That’s everything since {name}’s first visit, {date}.",
     "endLeader": "That’s everything you can see for {name}.",
     "subElder": "Every meeting {name} was on the attendance list, and every item a report tagged them in, from any group. Newest first.",
     "subLeader": "Meetings of your groups, and prayer and praise items that tagged {name} in any group’s report.",
     "footElder": "Notes and follow-up are seen by admins, elders and that group’s leaders. Leaders of {name}’s current groups also see prayer and praise from any group.",
     "footLeader": "You see notes and follow-up only from the groups you lead; prayer and praise from any group. {name} never sees this page.",
-    "previewFootElder": "The last 3 reports {name} was on or tagged in. Notes and follow-up are private to elders and the group’s leaders.",
-    "previewFootLeader": "The last 3 reports you can see. Notes and follow-up only from the groups you lead.",
+    "previewFootElder": "The latest activity for {name}. Notes and follow-up are private to elders and the group’s leaders.",
+    "previewFootLeader": "The latest activity you can see. Notes and follow-up only from the groups you lead.",
     "emptyTitle": "Nothing in these dates",
     "emptyBody": "Try a longer range or another group.",
     "showReports": "Show {count, plural, one {# report} other {# reports}}",
-    "errorRange": "Pick a range of up to 2 years that doesn’t end in the future."
+    "errorRange": "Pick a range of up to 2 years that doesn’t end in the future.",
+    "statusChange": "Status change",
+    "markedInactive": "Marked inactive",
+    "reactivated": "Reactivated",
+    "statusBy": "by {name}",
+    "footStatus": "Status changes, with the reason and note, show to everyone who can open this timeline."
   },
   "PersonTabs": {
     "profile": "Profile",

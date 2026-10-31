@@ -13,7 +13,7 @@ import type {
 } from "@/api/guests-api/types";
 
 import { authenticatedFetch } from "@/api/authenticated-fetch";
-import { timelineQuery } from "@/api/small-groups-api/client";
+import { readTimeline, timelineQuery } from "@/api/small-groups-api/client";
 import { getEnv } from "@/lib/env/server";
 
 function guestPath(id: number | string): string {
@@ -113,5 +113,5 @@ export function getGuestTimeline(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     `${guestPath(id)}/timeline${timelineQuery(params)}`,
     { cache: "no-store" },
-  );
+  ).then(readTimeline);
 }

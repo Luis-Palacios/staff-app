@@ -1,67 +1,105 @@
-import type { PersonTimeline } from "@/api/small-groups-api/types";
+import type {
+  PersonTimeline,
+  TimelineEntry,
+} from "@/api/small-groups-api/types";
 import type { OpenGroups } from "@/lib/auth/permissions";
 
 import { Fragment } from "react";
 
 import { TimelineMonth } from "./timeline-month";
-import { TimelineRow } from "./timeline-row";
+import { TimelineRow, TimelineStatusRow } from "./timeline-row";
+
+/** Each kind of entry draws itself; a new kind is one more case here (inactive guests, rule 15). */
+function Entry({
+  entry,
+  person,
+  openGroups,
+  compact,
+}: {
+  entry: TimelineEntry;
+  person: PersonTimeline["person"];
+  openGroups: OpenGroups;
+  compact?: boolean;
+}) {
+  switch (entry.kind) {
+    case "report":
+      return (
+        <TimelineRow
+          compact={compact}
+          openGroups={openGroups}
+          person={person}
+          row={entry.report}
+        />
+      );
+    case "status":
+      return (
+        <TimelineStatusRow compact={compact} entry={entry} person={person} />
+      );
+  }
+}
+
+function entryKey(entry: TimelineEntry, index: number): string {
+  return entry.kind === "report"
+    ? `report-${entry.report.reportId}`
+    : `status-${entry.date}-${index}`;
+}
 
 /**
- * A person's report timeline (rules 21–22): rows grouped under month headings. `preview` is the
- * Recent activity card's body: the same rows with no month headings and no *View report*. The
- * header, filters and footer belong to the page around it (stages 7–8).
+ * A person's timeline (rules 21–22): entries grouped under month headings. `preview` is the Recent
+ * activity card's body: the same entries with no month headings and no *View report*. The header,
+ * filters and footer belong to the page around it (stages 7–8).
  */
 export function ReportTimeline({
   timeline,
   openGroups,
   variant = "full",
 }: {
-  timeline: Pick<PersonTimeline, "person" | "rows">;
+  timeline: Pick<PersonTimeline, "person" | "entries">;
   openGroups: OpenGroups;
   variant?: "full" | "preview";
 }) {
-  const { person, rows } = timeline;
+  const { person, entries } = timeline;
 
   if (variant === "preview") {
     return (
       <ol className="flex flex-col">
-        {rows.map((row) => (
-          <TimelineRow
-            key={row.reportId}
+        {entries.map((entry, index) => (
+          <Entry
+            key={entryKey(entry, index)}
             compact
+            entry={entry}
             openGroups={openGroups}
             person={person}
-            row={row}
           />
         ))}
       </ol>
     );
   }
 
-  const months: { month: string; rows: typeof rows }[] = [];
+  const months: { month: string; entries: TimelineEntry[] }[] = [];
 
-  for (const row of rows) {
-    const key = row.meetingDate.slice(0, 7);
+  for (const entry of entries) {
+    const key = entry.date.slice(0, 7);
     const last = months[months.length - 1];
 
-    if (last && last.month === key) last.rows.push(row);
-    else months.push({ month: key, rows: [row] });
+    if (last && last.month === key) last.entries.push(entry);
+    else months.push({ month: key, entries: [entry] });
   }
 
   return (
     <Fragment>
-      {months.map(({ month, rows: monthRows }) => (
+      {months.map(({ month, entries: monthEntries }) => (
         <TimelineMonth
           key={month}
-          count={monthRows.length}
+          count={monthEntries.filter(({ kind }) => kind === "report").length}
           month={`${month}-01`}
         >
-          {monthRows.map((row) => (
-            <TimelineRow
-              key={row.reportId}
+          {monthEntries.map((entry, index) => (
+            <Entry
+              key={entryKey(entry, index)}
+              entry={entry}
               openGroups={openGroups}
               person={person}
-              row={row}
             />
           ))}
         </TimelineMonth>

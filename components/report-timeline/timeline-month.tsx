@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { formatCalendarMonth } from "@/lib/format-date";
 
-/** A month's heading (eyebrow size, with the number of reports) over its rows. */
+/** A month's heading (eyebrow size, with the number of reports, or *Status change* without any) over its rows. */
 export function TimelineMonth({
   month,
   count,
@@ -27,7 +27,7 @@ export function TimelineMonth({
           {label}
         </h3>
         <span className="text-[13px] tabular-nums text-muted">
-          {t("monthCount", { count })}
+          {count > 0 ? t("monthCount", { count }) : t("statusChange")}
         </span>
       </div>
       <ol className="flex flex-col">{children}</ol>
