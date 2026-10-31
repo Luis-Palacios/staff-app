@@ -104,6 +104,13 @@ in the progress log below.
 - **After stage 6.** The same-day rejoin lets a guest have two periods in one group with the same join date, so
   the group history's React key adds the row's position. Type-checked and linted; not reproduced in a browser,
   since no dev guest has two such periods.
+- **Open checks, second pass.** Tried in the browser as an admin on *Prueba Fecha Ingreso*: the stale-page 409
+  (marked inactive in a second tab, then added: the error, the *Inactive* pill, the note block and *Reactivate and
+  add*), and *Someone new came* in a real report, not submitted (one row, marked as came, the toast; the period
+  starts on the meeting date, the status change is today, even on the date their last period ended). Fixed: *Use
+  this guest* let a caller without `guests: reactivate` pick an inactive guest; it now shows the reason instead.
+  No role reaches that today, so it's type-checked and linted, not seen. **Still not checked:** the leader items
+  of the checklist. `Luis Leader` leads *Nuevos Comienzos* and is the account to use.
 - **Local checks** run against the dev database, migrated by the user, with status changes made through the app
   on the guests named *Prueba* only.
 
