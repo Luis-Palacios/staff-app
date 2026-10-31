@@ -7,8 +7,22 @@ import type {
   AuthToken,
 } from "@/api/auth-api/types";
 
+import { headers } from "next/headers";
+
 import { apiFetch } from "@/api/api-client";
 import { getEnv } from "@/lib/env/server";
+
+// auth-server rate limits per client IP, read from X-Forwarded-For. Without this header every call
+// from this server lands in one bucket shared by all users, so one browser can get everyone 429s.
+// Always the whole header, never its leftmost entry: the client can write anything there, and only
+// the entry the ALB appends on the right can be believed. auth-server walks it from the right.
+function clientIpHeader(forwardedFor: string | null): Record<string, string> {
+  return forwardedFor ? { "x-forwarded-for": forwardedFor } : {};
+}
+
+async function incomingClientIpHeader(): Promise<Record<string, string>> {
+  return clientIpHeader((await headers()).get("x-forwarded-for"));
+}
 
 // Server-to-server: calls auth-server directly, not through the /api/auth proxy (Phase 3) —
 // that proxy exists so a *browser* fetch lands its Set-Cookie same-origin; this runs on the
@@ -18,11 +32,22 @@ import { getEnv } from "@/lib/env/server";
 //
 // `permissions` is what the role can do (auth-server's customSession); a response without it gets
 // none, so a missing field fails closed (rule 10).
-export async function getSession(cookie: string): Promise<AuthSession | null> {
+//
+// proxy.ts passes `forwardedFor`, since next/headers isn't available there. Everyone else leaves it
+// out and the incoming request's header is used.
+export async function getSession(
+  cookie: string,
+  forwardedFor?: string | null,
+): Promise<AuthSession | null> {
   const session = await apiFetch<
     (Omit<AuthSession, "permissions"> & Partial<AuthSession>) | null
   >(getEnv().AUTH_SERVER_URL, "/api/auth/get-session", {
-    headers: { cookie },
+    headers: {
+      cookie,
+      ...(forwardedFor === undefined
+        ? await incomingClientIpHeader()
+        : clientIpHeader(forwardedFor)),
+    },
     cache: "no-store",
   });
 
@@ -32,9 +57,9 @@ export async function getSession(cookie: string): Promise<AuthSession | null> {
 // Mints a short-lived JWT (`role` and `perms` claims, see auth-server's jwt.definePayload) from the
 // incoming session cookie - server-to-server, same reasoning as getSession above: this runs on
 // the server and forwards the cookie header it already has, no browser call involved.
-export function getToken(cookie: string): Promise<AuthToken> {
+export async function getToken(cookie: string): Promise<AuthToken> {
   return apiFetch<AuthToken>(getEnv().AUTH_SERVER_URL, "/api/auth/token", {
-    headers: { cookie },
+    headers: { cookie, ...(await incomingClientIpHeader()) },
     cache: "no-store",
   });
 }
@@ -44,12 +69,14 @@ export function getToken(cookie: string): Promise<AuthToken> {
 // an absent limit/offset means "no limit clause" server-side (verified in better-auth's
 // admin/routes.mjs), not a hidden default page size — a hand-picked cap here would be a
 // regression, not a safety net.
-export function listUsers(cookie: string): Promise<AdminListUsersResponse> {
+export async function listUsers(
+  cookie: string,
+): Promise<AdminListUsersResponse> {
   return apiFetch<AdminListUsersResponse>(
     getEnv().AUTH_SERVER_URL,
     "/api/auth/admin/list-users",
     {
-      headers: { cookie },
+      headers: { cookie, ...(await incomingClientIpHeader()) },
       cache: "no-store",
     },
   );
@@ -60,6 +87,7 @@ export function listUsers(cookie: string): Promise<AdminListUsersResponse> {
 // `createdByUserId === the caller`, so an admin and an elder would each only ever see invites
 // they personally sent). Same session-cookie-gated, server-to-server pattern as listUsers above -
 // the route verifies the forwarded cookie itself, this call doesn't grant anything by itself.
+// No client IP: this route isn't behind better-auth's rate limiter.
 export function listInvites(cookie: string): Promise<AdminListInvitesResponse> {
   return apiFetch<AdminListInvitesResponse>(
     getEnv().AUTH_SERVER_URL,
@@ -73,7 +101,7 @@ export function listInvites(cookie: string): Promise<AdminListInvitesResponse> {
 
 // Session-cookie-gated like listUsers. `admin/get-user` is better-auth's own endpoint, id in the
 // query string; it answers with the bare user object.
-export function getUser(
+export async function getUser(
   cookie: string,
   id: string,
 ): Promise<AdminUserListItem> {
@@ -81,7 +109,7 @@ export function getUser(
     getEnv().AUTH_SERVER_URL,
     `/api/auth/admin/get-user?id=${encodeURIComponent(id)}`,
     {
-      headers: { cookie },
+      headers: { cookie, ...(await incomingClientIpHeader()) },
       cache: "no-store",
     },
   );
@@ -97,17 +125,20 @@ export interface ForwardedRequest {
   acceptLanguage: string | null;
 }
 
-function forwardedHeaders(request: ForwardedRequest): Record<string, string> {
+async function forwardedHeaders(
+  request: ForwardedRequest,
+): Promise<Record<string, string>> {
   return {
     cookie: request.cookie,
     origin: request.origin,
     ...(request.acceptLanguage && {
       "accept-language": request.acceptLanguage,
     }),
+    ...(await incomingClientIpHeader()),
   };
 }
 
-export function createInvite(
+export async function createInvite(
   request: ForwardedRequest,
   input: { email: string; role: AuthRole },
 ): Promise<unknown> {
@@ -116,7 +147,7 @@ export function createInvite(
     "/api/auth/invite/create",
     {
       method: "POST",
-      headers: forwardedHeaders(request),
+      headers: await forwardedHeaders(request),
       body: {
         ...input,
         redirectToAfterUpgrade: `${request.origin}/`,
@@ -126,7 +157,7 @@ export function createInvite(
   );
 }
 
-export function cancelInvite(
+export async function cancelInvite(
   request: ForwardedRequest,
   token: string,
 ): Promise<unknown> {
@@ -135,7 +166,7 @@ export function cancelInvite(
     "/api/auth/invite/cancel",
     {
       method: "POST",
-      headers: forwardedHeaders(request),
+      headers: await forwardedHeaders(request),
       body: { token },
       cache: "no-store",
     },

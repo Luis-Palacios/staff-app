@@ -414,7 +414,7 @@ the only two existing call sites; both now go through `authenticatedFetch` inste
 directly, and dropped back to non-`async` (just returning the wrapper's promise) since it owns the
 `await` internally.
 
-No caching: a fresh JWT (15m expiry, `auth-server`'s `jwt` plugin default) is minted on every
+No caching at this phase (Phase 10 later added a per-request cache): a fresh JWT (15m expiry, `auth-server`'s `jwt` plugin default) is minted on every
 single call to `membership-management`, even multiple calls in the same request. Deliberate for
 now — see the new Phase 10 below, added specifically to revisit this once it's worth the added
 complexity.
@@ -1431,6 +1431,10 @@ Phase 5).
 `[ ]`
 
 **Repo(s):** `staff-app`
+
+**Progress (2026-10-31):** the per-request part is done: `getAuthToken` is `cache()`d, because each
+mint counts against auth-server's rate limit and a page made a median of 3 (management-infra Phase 8,
+client IP finding). The cross-request cache below is still open. A server action still mints per call.
 
 **What:** Phase 4's `lib/authenticated-fetch.ts` mints a brand-new JWT (via `getAuthToken()` →
 `auth-server`'s `GET /api/auth/token`) on *every* call to `membership-management`, including
