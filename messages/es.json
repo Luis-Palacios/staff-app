@@ -1540,8 +1540,8 @@
   },
   "GuestsBrowser": {
     "filterByStatus": "Filtrar invitados",
-    "tabActive": "En un grupo",
-    "tabInactive": "Sin grupo",
+    "tabActive": "Activos",
+    "tabInactive": "Inactivos",
     "tabAll": "Todos",
     "filterLabel": "Buscar invitados",
     "filterPlaceholder": "Nombre o teléfono",
@@ -1567,7 +1567,11 @@
       "guest_inactive": "Marcado como inactivo"
     },
     "neverSeen": "Aún no",
-    "missed": "Faltó {count, plural, one {a la última reunión} other {a las últimas # reuniones}}"
+    "missed": "Faltó {count, plural, one {a la última reunión} other {a las últimas # reuniones}}",
+    "colLeft": "Salió",
+    "colLastGroup": "Último grupo",
+    "noActive": "No hay invitados activos.",
+    "noInactive": "No hay invitados inactivos."
   },
   "GuestDetailHeader": {
     "badge": "Invitado",

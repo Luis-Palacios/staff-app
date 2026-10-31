@@ -1,6 +1,6 @@
 "use client";
 
-import type { GuestListItem } from "@/api/guests-api/types";
+import type { GuestListItem, GuestStatusFilter } from "@/api/guests-api/types";
 import type { Locale } from "@/lib/locale-shared";
 
 import { Table } from "@heroui/react";
@@ -15,16 +15,22 @@ import {
   DataTablePrimaryCell,
   dataTable,
 } from "@/components/data-table";
+import { GuestInactiveBadge } from "@/components/guest-inactive-badge";
 import { formatCalendarDate } from "@/lib/format-date";
 
 export default function GuestsSummaryTable({
   data,
+  tab,
+  emptyLine,
   total,
   page,
   pageSize,
   onPageChange,
 }: {
   data: GuestListItem[];
+  tab: GuestStatusFilter;
+  /** What an empty tab or search says. */
+  emptyLine: string;
   total: number;
   page: number;
   pageSize: number;
@@ -50,9 +56,11 @@ export default function GuestsSummaryTable({
               {t("columnGuest")}
             </Table.Column>
             <Table.Column className={column()}>{t("columnPhone")}</Table.Column>
-            <Table.Column className={column()}>{t("columnGroup")}</Table.Column>
             <Table.Column className={column()}>
-              {t("columnLastSeen")}
+              {tab === "inactive" ? t("colLeft") : t("columnGroup")}
+            </Table.Column>
+            <Table.Column className={column()}>
+              {tab === "inactive" ? t("colLastGroup") : t("columnLastSeen")}
             </Table.Column>
             <Table.Column className={column()}>
               <span className="sr-only">{t("columnActions")}</span>
@@ -60,19 +68,22 @@ export default function GuestsSummaryTable({
           </Table.Header>
           <Table.Body
             renderEmptyState={() => (
-              <p className="px-[22px] py-6 text-sm text-muted">
-                {t("noMatches")}
-              </p>
+              <p className="px-[22px] py-6 text-sm text-muted">{emptyLine}</p>
             )}
           >
             {data.map((guest) => {
               const href = `/guests/${guest.id}`;
+              const inactive = guest.status === "inactive";
 
               return (
                 <Table.Row key={guest.id} className={row()}>
                   <Table.Cell className={cell()}>
                     <DataTablePrimaryCell
+                      badge={
+                        tab === "all" && inactive && <GuestInactiveBadge />
+                      }
                       href={href}
+                      mutedAvatar={inactive}
                       name={guest.name}
                       secondary={
                         guest.firstVisitDate

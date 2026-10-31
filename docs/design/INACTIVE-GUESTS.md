@@ -60,8 +60,8 @@ in the progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Permissions, API client, types, actions | ✅ | |
-| 2. Guests list | ⬜ | |
+| 1. Permissions, API client, types, actions | ✅ | `8760fd0` |
+| 2. Guests list | ✅ | |
 | 3. Guest detail: inactive state and dialogs | ⬜ | |
 | 4. Reactivate and add (Group detail, report form) | ⬜ | |
 | 5. Timeline entries | ⬜ | |
@@ -73,8 +73,12 @@ in the progress log below.
   chip moved to `components/inactive-reason-chip.tsx`, which exports `InactiveReasonChip` (members) and
   `GuestInactiveReasonChip` over one private chip; the timeline needs both. A future date on deactivate
   keeps the existing `ApiErrors.memberFutureDate` text, which names no one.
-- Local runs use the API on the `ig-scratch` database, already migrated and seeded with inactive guests. The
-  dev database stays on the older revision.
+- **Stage 2.** Tabs, *Left* and *Last group* as on the boards. The *Left* cell shows the reason as plain text
+  under the date, as `Guests-Inactive` draws it (the members list uses a chip). A `noActive` line was added
+  beside `noInactive`, since Active can now be empty while Inactive isn't. Rule 8's top bar search has nothing
+  to do here: it searches members only and finds no guests today.
+- **Local checks** run against the dev database, migrated by the user, with status changes made through the app
+  on the guests named *Prueba* only.
 
 ## Token changes
 
