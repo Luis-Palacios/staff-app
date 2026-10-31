@@ -1855,7 +1855,7 @@
     "tip": "Un punto por petición: presiona Enter para empezar el siguiente. Escribe @ o usa el botón @ de la fila para etiquetar a un miembro o invitado, de cualquier grupo."
   },
   "ReportTimeline": {
-    "eyebrow": "De los reportes de grupos",
+    "eyebrow": "Reportes y cambios de estado",
     "title": "Historial",
     "recent": "Actividad reciente",
     "seeAll": "Ver historial completo",
@@ -1892,19 +1892,24 @@
     "followUp": "Para seguimiento de los ancianos",
     "viewReport": "Ver reporte",
     "showMore": "Ver 3 meses más",
-    "endMember": "Eso es todo desde el primer reporte de {name}.",
+    "endMember": "Eso es todo desde la primera actividad de {name}.",
     "endGuest": "Eso es todo desde la primera visita de {name}, el {date}.",
     "endLeader": "Eso es todo lo que puedes ver de {name}.",
     "subElder": "Cada reunión en la que {name} estuvo en la lista de asistencia y cada punto en que un reporte lo etiquetó, de cualquier grupo. Lo más reciente primero.",
     "subLeader": "Las reuniones de tus grupos y las peticiones y alabanzas en que un reporte de cualquier grupo etiquetó a {name}.",
     "footElder": "Las notas y el seguimiento los ven administradores, ancianos y los líderes de ese grupo. Los líderes de los grupos actuales de {name} también ven las peticiones y alabanzas de cualquier grupo.",
     "footLeader": "Ves las notas y el seguimiento solo de los grupos que lideras; las peticiones y alabanzas, de cualquier grupo. {name} nunca ve esta página.",
-    "previewFootElder": "Los últimos 3 reportes en que {name} estuvo o fue etiquetado. Las notas y el seguimiento son privados para ancianos y líderes del grupo.",
-    "previewFootLeader": "Los últimos 3 reportes que puedes ver. Notas y seguimiento solo de los grupos que lideras.",
+    "previewFootElder": "La actividad más reciente de {name}. Las notas y el seguimiento son privados para ancianos y líderes del grupo.",
+    "previewFootLeader": "La actividad más reciente que puedes ver. Notas y seguimiento solo de los grupos que lideras.",
     "emptyTitle": "Nada en estas fechas",
     "emptyBody": "Prueba con un rango más largo u otro grupo.",
     "showReports": "Ver {count, plural, one {# reporte} other {# reportes}}",
-    "errorRange": "Elige un rango de hasta 2 años que no termine en el futuro."
+    "errorRange": "Elige un rango de hasta 2 años que no termine en el futuro.",
+    "statusChange": "Cambio de estado",
+    "markedInactive": "Marcado como inactivo",
+    "reactivated": "Reactivado",
+    "statusBy": "por {name}",
+    "footStatus": "Los cambios de estado, con el motivo y la nota, los ve todo el que puede abrir este historial."
   },
   "PersonTabs": {
     "profile": "Perfil",

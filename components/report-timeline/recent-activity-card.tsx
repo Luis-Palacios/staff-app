@@ -11,7 +11,7 @@ import { card, textLink } from "@/components/primitives";
 import { firstNameOf } from "@/lib/report-items";
 
 /**
- * Recent activity on a Profile tab (rule 20): the 3 newest rows the viewer can see and a link to
+ * Recent activity on a Profile tab (rule 20): the 3 newest entries the viewer can see and a link to
  * the Timeline tab. Hidden when there are none. `viewer` picks the footer: elders see every
  * group, a leader only what rule 23 lets through.
  */
@@ -28,7 +28,7 @@ export function RecentActivityCard({
 }) {
   const t = useTranslations("ReportTimeline");
 
-  if (timeline.rows.length === 0) return null;
+  if (timeline.entries.length === 0) return null;
 
   return (
     <section
@@ -57,6 +57,8 @@ export function RecentActivityCard({
         {viewer === "elder"
           ? t("previewFootElder", { name: firstNameOf(timeline.person.name) })
           : t("previewFootLeader")}
+        {timeline.entries.some(({ kind }) => kind === "status") &&
+          ` ${t("footStatus")}`}
       </p>
     </section>
   );

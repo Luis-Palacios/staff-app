@@ -57,6 +57,7 @@ export function TimelineBoard({
   today,
   viewer,
   kind,
+  firstVisitDate,
   openGroups,
 }: {
   timeline: PersonTimeline;
@@ -66,6 +67,8 @@ export function TimelineBoard({
   today: string;
   viewer: "elder" | "leader";
   kind: "member" | "guest";
+  /** A guest's first visit, for the end line. */
+  firstVisitDate?: string | null;
   openGroups: OpenGroups;
 }) {
   const t = useTranslations("ReportTimeline");
@@ -144,12 +147,15 @@ export function TimelineBoard({
     update({ range: "custom", from: next.from, to: next.to });
   }
 
-  const rows = timeline.rows.filter((row) => {
+  // Status entries show under All only: they have no chip of their own yet (inactive guests, rule 14).
+  const entries = timeline.entries.filter((entry) => {
     if (type === "all") return true;
-    if (type === "notes") return row.observation !== null;
+    if (entry.kind !== "report") return false;
+    if (type === "notes") return entry.report.observation !== null;
 
-    return row.items.some((item) => item.section === type);
+    return entry.report.items.some((item) => item.section === type);
   });
+  const reportCount = entries.filter(({ kind: k }) => k === "report").length;
   const typeCounts: Record<
     Exclude<TypeFilter, "all">,
     number
@@ -163,7 +169,7 @@ export function TimelineBoard({
   };
   const rangeText = formatCalendarSpan(range.from, range.to, locale);
   const summary = t("summary", {
-    count: rows.length,
+    count: reportCount,
     range: group ? `${rangeText} · ${group.name}` : rangeText,
   });
   const canShowMore =
@@ -173,10 +179,10 @@ export function TimelineBoard({
   const endText =
     viewer === "leader"
       ? t("endLeader", { name })
-      : kind === "guest" && timeline.earliestDate
+      : kind === "guest" && firstVisitDate
         ? t("endGuest", {
             name,
-            date: formatCalendarMediumDate(timeline.earliestDate, locale),
+            date: formatCalendarMediumDate(firstVisitDate, locale),
           })
         : t("endMember", { name });
 
@@ -351,7 +357,7 @@ export function TimelineBoard({
         aria-busy={isPending}
         className={clsx("transition-opacity", isPending && "opacity-60")}
       >
-        {rows.length === 0 ? (
+        {entries.length === 0 ? (
           <div className="border-t border-separator px-6 py-8">
             <EmptyState as="h3" icon={ClockIcon} title={t("emptyTitle")}>
               {t("emptyBody")}
@@ -361,7 +367,7 @@ export function TimelineBoard({
           <div className="border-t border-separator">
             <ReportTimeline
               openGroups={openGroups}
-              timeline={{ person: timeline.person, rows }}
+              timeline={{ person: timeline.person, entries }}
             />
           </div>
         )}
@@ -389,6 +395,8 @@ export function TimelineBoard({
             {viewer === "elder"
               ? t("footElder", { name })
               : t("footLeader", { name })}
+            {timeline.entries.some((entry) => entry.kind === "status") &&
+              ` ${t("footStatus")}`}
           </p>
         </div>
       </div>
@@ -462,7 +470,7 @@ export function TimelineBoard({
                 className="h-11 min-h-11 w-full font-semibold"
                 onPress={() => setSheetOpen(false)}
               >
-                {t("showReports", { count: rows.length })}
+                {t("showReports", { count: reportCount })}
               </Button>
             </Modal.Footer>
           </Modal.Dialog>

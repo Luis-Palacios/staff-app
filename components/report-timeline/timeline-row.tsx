@@ -1,13 +1,18 @@
+import type { GuestInactiveReason } from "@/api/guests-api/types";
+import type { MemberInactiveReason } from "@/api/members-api/types";
 import type {
   PersonTimeline,
   ReportSectionKey,
   TimelineItem,
   TimelineRow as Row,
+  TimelineStatusEntry,
 } from "@/api/small-groups-api/types";
 import type { OpenGroups } from "@/lib/auth/permissions";
 import type { Locale } from "@/lib/locale-shared";
 
 import {
+  ArchiveBoxIcon,
+  ArrowUturnLeftIcon,
   AtSymbolIcon,
   LockClosedIcon,
   PencilSquareIcon,
@@ -17,6 +22,10 @@ import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
 import { ReportPersonChip } from "@/app/(app)/groups/reports/_components/report-person-chip";
+import {
+  GuestInactiveReasonChip,
+  InactiveReasonChip,
+} from "@/components/inactive-reason-chip";
 import { textLink } from "@/components/primitives";
 import { ReportSectionTile } from "@/components/report-section-tile";
 import { StatusBadge } from "@/components/status-badge";
@@ -264,6 +273,81 @@ export function TimelineRow({
             {t("viewReport")}
           </NextLink>
         )}
+      </div>
+    </li>
+  );
+}
+
+/**
+ * A change of status in a person's timeline (inactive guests, rule 12): shaded like a month
+ * heading, with no group and no *View report*. Everyone who can open the timeline sees the reason
+ * and note (rule 13). *by …* is left out when no member is linked to whoever made the change.
+ */
+export function TimelineStatusRow({
+  entry,
+  person,
+  compact = false,
+}: {
+  entry: TimelineStatusEntry;
+  person: PersonTimeline["person"];
+  compact?: boolean;
+}) {
+  const t = useTranslations("ReportTimeline");
+  const locale = useLocale() as Locale;
+  const inactive = entry.status === "inactive";
+  const Icon = inactive ? ArchiveBoxIcon : ArrowUturnLeftIcon;
+
+  return (
+    <li className="flex flex-col gap-3 border-b border-separator bg-surface-secondary/50 px-4 py-[18px] last:border-b-0 md:flex-row md:flex-wrap md:gap-x-6 md:px-6">
+      <div
+        className={clsx(
+          "flex shrink-0 flex-col gap-1",
+          compact ? "md:w-[172px]" : "md:w-[190px]",
+        )}
+      >
+        <p className="text-[15px] font-semibold text-heading">
+          {formatCalendarRowDate(entry.date, locale)}
+        </p>
+        <p className="text-[13px] text-muted">{t("statusChange")}</p>
+      </div>
+      <div className="flex min-w-[min(260px,100%)] flex-1 gap-3">
+        <span
+          aria-hidden="true"
+          className={clsx(
+            "flex size-[30px] shrink-0 items-center justify-center rounded-[9px]",
+            inactive
+              ? "bg-default text-muted"
+              : "bg-success-soft text-success-soft-foreground",
+          )}
+        >
+          <Icon className="size-4" strokeWidth={1.7} />
+        </span>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <span className="text-[15px] font-semibold text-heading">
+              {inactive ? t("markedInactive") : t("reactivated")}
+            </span>
+            {person.type === "guest" ? (
+              <GuestInactiveReasonChip
+                reason={entry.reason as GuestInactiveReason | null}
+              />
+            ) : (
+              <InactiveReasonChip
+                reason={entry.reason as MemberInactiveReason | null}
+              />
+            )}
+          </span>
+          {entry.changedBy && (
+            <span className="text-[13px] text-muted">
+              {t("statusBy", { name: entry.changedBy.name })}
+            </span>
+          )}
+          {entry.note && (
+            <p className="mt-0.5 text-pretty break-words text-[15px] leading-[1.55] text-foreground">
+              {entry.note}
+            </p>
+          )}
+        </div>
       </div>
     </li>
   );

@@ -63,8 +63,8 @@ in the progress log below.
 | 1. Permissions, API client, types, actions | ✅ | `8760fd0` |
 | 2. Guests list | ✅ | `791ec6b` |
 | 3. Guest detail: inactive state and dialogs | ✅ | `72dccd6` |
-| 4. Reactivate and add (Group detail, report form) | ✅ | |
-| 5. Timeline entries | ⬜ | |
+| 4. Reactivate and add (Group detail, report form) | ✅ | `94b2233` |
+| 5. Timeline entries | ✅ | |
 | 6. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
@@ -87,6 +87,13 @@ in the progress log below.
   group. **Same-day limit, from the API:** a guest deactivated today can't rejoin a group dated today, because
   `left_at` is today and the end date counts as a day in the group, so it answers 409 overlap and rolls back.
   Not tried in the browser for that reason: the success toast, and the stale-page 409.
+- **Stage 5.** Eyebrow: *Reports and status changes* on the card and the board, always. Recent activity's
+  footer now says *latest activity* instead of *the last 3 reports*, which a status entry made untrue; both
+  footers add the board's status sentence when a status entry is showing. The guest end line reads the real
+  first visit from the guest, because `earliestDate` can now be a status change. `readTimeline` drops unknown
+  kinds and the old `rows`, so API stage 5 (drop `rows`) needs nothing here once this is deployed. The status
+  row is `surface-secondary/50`, the table header's surface and the board's `thead`: the app's month heading is
+  the full token, which matches `bg-default` and hides the reason chip and the tile.
 - **Local checks** run against the dev database, migrated by the user, with status changes made through the app
   on the guests named *Prueba* only.
 
