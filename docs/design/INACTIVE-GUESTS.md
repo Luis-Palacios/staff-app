@@ -85,7 +85,7 @@ in the progress log below.
   button is *Reactivate and add* in the report too, not *…and mark as came*. The dialog now scrolls inside: the
   note block pushed the button off short phones. `errors.overlap` no longer says *this group*: the API means any
   group. A guest marked inactive today can rejoin a group today: the API refused that with a 409 overlap until
-  `membership-management` `791a77d`. Tried in the browser on the dev database: reactivate and add, its toast, and
+  `membership-management` `65aa30a`. Tried in the browser on the dev database: reactivate and add, its toast, and
   the timeline entries it leaves. Not tried: the stale-page 409.
 - **Stage 5.** Eyebrow: *Reports and status changes* on the card and the board, always. Recent activity's
   footer now says *latest activity* instead of *the last 3 reports*, which a status entry made untrue; both
@@ -109,8 +109,14 @@ in the progress log below.
   add*), and *Someone new came* in a real report, not submitted (one row, marked as came, the toast; the period
   starts on the meeting date, the status change is today, even on the date their last period ended). Fixed: *Use
   this guest* let a caller without `guests: reactivate` pick an inactive guest; it now shows the reason instead.
-  No role reaches that today, so it's type-checked and linted, not seen. **Still not checked:** the leader items
-  of the checklist. `Luis Leader` leads *Nuevos Comienzos* and is the account to use.
+  No role reaches that today, so it's type-checked and linted, not seen.
+- **Leader checks.** Tried as `Luis Leader`, who leads *Nuevos Comienzos*, in Spanish, light, at desktop width only:
+  no *Guests* in the nav and `/guests` is a 404, a guest out of scope is a 404, search shows the *Inactive* pill and
+  date but no reason, *Reactivate and add* works with its toast, Guest detail has no *Mark as inactive*, reason, note
+  or *Status history*, and Recent activity and the timeline show status entries with reason and note. The run found
+  that a guest removed today couldn't rejoin until tomorrow (409 overlap, nothing saved); fixed in
+  `membership-management` on `guest-same-day-rejoin`, which needs nothing here. **Not checked as a leader:** dark, 1024
+  and 390, English.
 - **Local checks** run against the dev database, migrated by the user, with status changes made through the app
   on the guests named *Prueba* only.
 
@@ -290,6 +296,6 @@ Run after implementation, against the boards listed above. Record findings in th
 - [ ] Gold never carries text on a light ground; status shows a dot and a word.
 - [ ] Focus ring visible on every control; keyboard order and focus after dialogs make sense.
 - [ ] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
-- [ ] As a leader: no *Mark as inactive*, no reason or note on Guest detail, *Reactivate and add*
+- [x] As a leader: no *Mark as inactive*, no reason or note on Guest detail, *Reactivate and add*
       works, and the timeline of a reactivated guest shows reason and note.
 - [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
