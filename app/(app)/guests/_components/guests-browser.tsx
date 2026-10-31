@@ -91,6 +91,11 @@ export default function GuestsBrowser({
     return () => window.clearTimeout(timer);
   }, [query, status, pathname, router]);
 
+  const emptyLine = q
+    ? t("noMatches")
+    : status === "inactive"
+      ? t("noInactive")
+      : t("noActive");
   const counts: Record<GuestStatusFilter, number> = {
     all: list.counts.all,
     active: list.counts.active,
@@ -148,8 +153,10 @@ export default function GuestsBrowser({
         <div className="hidden md:block">
           <GuestsSummaryTable
             data={list.items}
+            emptyLine={emptyLine}
             page={list.page}
             pageSize={PAGE_SIZE}
+            tab={status}
             total={list.total}
             onPageChange={(page) => navigate({ page })}
           />
@@ -157,12 +164,10 @@ export default function GuestsBrowser({
 
         <div className="grid gap-3 md:hidden">
           {list.items.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted">
-              {t("noMatches")}
-            </p>
+            <p className="py-6 text-center text-sm text-muted">{emptyLine}</p>
           ) : (
             list.items.map((guest) => (
-              <GuestCardSummary key={guest.id} guest={guest} />
+              <GuestCardSummary key={guest.id} guest={guest} tab={status} />
             ))
           )}
         </div>

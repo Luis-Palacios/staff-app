@@ -1543,8 +1543,8 @@ declare const messages: {
   },
   "GuestsBrowser": {
     "filterByStatus": "Filter guests",
-    "tabActive": "In a group",
-    "tabInactive": "Not in a group",
+    "tabActive": "Active",
+    "tabInactive": "Inactive",
     "tabAll": "All",
     "filterLabel": "Search guests",
     "filterPlaceholder": "Name or phone",
@@ -1570,7 +1570,11 @@ declare const messages: {
       "guest_inactive": "Marked inactive"
     },
     "neverSeen": "Not yet",
-    "missed": "Missed the last {count, plural, one {meeting} other {# meetings}}"
+    "missed": "Missed the last {count, plural, one {meeting} other {# meetings}}",
+    "colLeft": "Left",
+    "colLastGroup": "Last group",
+    "noActive": "No active guests.",
+    "noInactive": "No inactive guests."
   },
   "GuestDetailHeader": {
     "badge": "Guest",

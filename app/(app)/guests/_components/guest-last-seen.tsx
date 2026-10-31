@@ -11,7 +11,16 @@ const MISSED_WARNING_FROM = 2;
 export function GuestLastSeen({ guest }: { guest: GuestListItem }) {
   const t = useTranslations("GuestsBrowser");
   const locale = useLocale() as Locale;
-  const { lastAttendedDate, missedStreak } = guest;
+  const { lastAttendedDate, missedStreak, lastGroup } = guest;
+
+  // An inactive guest has no next meeting to miss: this column says where they last were.
+  if (guest.status === "inactive") {
+    return (
+      <StatusBadge tone="neutral" variant="ring-dot">
+        {lastGroup?.name ?? t("noGroup")}
+      </StatusBadge>
+    );
+  }
 
   if (!lastAttendedDate) {
     return <span className="text-subtle">{t("neverSeen")}</span>;
