@@ -62,8 +62,8 @@ in the progress log below.
 | --- | --- | --- |
 | 1. Permissions, API client, types, actions | ✅ | `8760fd0` |
 | 2. Guests list | ✅ | `791ec6b` |
-| 3. Guest detail: inactive state and dialogs | ✅ | |
-| 4. Reactivate and add (Group detail, report form) | ⬜ | |
+| 3. Guest detail: inactive state and dialogs | ✅ | `72dccd6` |
+| 4. Reactivate and add (Group detail, report form) | ✅ | |
 | 5. Timeline entries | ⬜ | |
 | 6. Design review fixes | ⬜ | |
 
@@ -81,6 +81,12 @@ in the progress log below.
   history* falls back to the auth-server user name like members, through `withChangedBy`, now exported from
   `members/_lib/load-status-history.ts`. *Inactive since* bolds the date, so `GuestStatus.inactiveSince` has a
   `<strong>` tag. To fix in stage 6: the reason select sits 2px above the date field in the dialog.
+- **Stage 4.** The search step is shared by Group detail and *Someone new came*, so both get it. The primary
+  button is *Reactivate and add* in the report too, not *…and mark as came*. The dialog now scrolls inside: the
+  note block pushed the button off short phones. `errors.overlap` no longer says *this group*: the API means any
+  group. **Same-day limit, from the API:** a guest deactivated today can't rejoin a group dated today, because
+  `left_at` is today and the end date counts as a day in the group, so it answers 409 overlap and rolls back.
+  Not tried in the browser for that reason: the success toast, and the stale-page 409.
 - **Local checks** run against the dev database, migrated by the user, with status changes made through the app
   on the guests named *Prueba* only.
 

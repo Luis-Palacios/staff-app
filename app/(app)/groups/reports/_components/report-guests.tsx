@@ -90,6 +90,7 @@ export function useReportGuests({
 }): { controls: ReportGuestControls | null; dialogs: ReactNode } {
   const t = useTranslations("ReportForm");
   const tCard = useTranslations("GroupGuestsCard");
+  const tToast = useTranslations("GuestStatusToast");
   const permissions = usePermissions();
   const { guestGroups } = useFeatures();
   const scope = `${groupId}:${date}`;
@@ -122,7 +123,11 @@ export function useReportGuests({
     });
   }
 
-  function handleAdded(guest: { id: number; name: string }) {
+  function handleAdded(guest: {
+    id: number;
+    name: string;
+    reactivated?: boolean;
+  }) {
     setAdding(false);
 
     void reload().then((next) => {
@@ -135,7 +140,11 @@ export function useReportGuests({
       const key = personKey({ type: "guest", id: guest.id });
 
       mark("added", key);
-      showToast(t("guestAdded", { name: guest.name }));
+      showToast(
+        guest.reactivated
+          ? tToast("reactivatedAdded", { name: guest.name })
+          : t("guestAdded", { name: guest.name }),
+      );
       onAdded(next, key);
     });
   }

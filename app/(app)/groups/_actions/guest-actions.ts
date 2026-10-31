@@ -73,7 +73,8 @@ export async function searchGuestsAction(
 
 /**
  * Adds an existing guest, or a new one, to a guest group. 409 `in another group` comes back with
- * `otherGroup`; the UI asks, then calls again with `moveFromOtherGroup: true`.
+ * `otherGroup`; the UI asks, then calls again with `moveFromOtherGroup: true`. An inactive guest
+ * needs `reactivate: true`, which reactivates and adds in one call (rule 6).
  */
 export async function addGuestAction(
   groupId: string,
@@ -81,7 +82,11 @@ export async function addGuestAction(
 ): Promise<AddGuestResult> {
   const forbidden = await forbiddenUnless({
     smallGroups: ["manageMembers"],
-    guests: input.newGuest ? ["search", "create"] : ["search"],
+    guests: [
+      "search",
+      ...(input.newGuest ? (["create"] as const) : []),
+      ...(input.reactivate ? (["reactivate"] as const) : []),
+    ],
   });
 
   if (forbidden) {

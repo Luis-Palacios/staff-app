@@ -9,6 +9,7 @@ import type { Key, SubmitEvent } from "react";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
+  ArrowUturnLeftIcon,
   ExclamationCircleIcon,
   PlusIcon,
   UserPlusIcon,
@@ -20,6 +21,7 @@ import {
   Label,
   ListBox,
   Modal,
+  TextArea,
   TextField,
 } from "@heroui/react";
 import { useLocale, useTranslations } from "next-intl";
@@ -36,11 +38,15 @@ import {
   composePhone,
   DEFAULT_COUNTRY,
 } from "@/app/(app)/members/_lib/phone-countries";
+import { GuestInactiveBadge } from "@/components/guest-inactive-badge";
 import { InitialsAvatar } from "@/components/initials-avatar";
+import { can } from "@/lib/auth/permissions";
+import { usePermissions } from "@/lib/contexts/user-context";
 import { formatCalendarDate } from "@/lib/format-date";
 import { normalizeText } from "@/lib/normalize-text";
 
 const NEW_KEY = "__new__";
+const REACTIVATE_NOTE_MAX = 1000;
 const MIN_QUERY = 2;
 const DEBOUNCE_MS = 250;
 const MAX_MEMBERS = 6;
@@ -56,12 +62,32 @@ interface AddGuestProps {
   joinedAt: string;
   /** Today at the church: the latest first-visit date. */
   today: string;
-  /** Called after the guest was added or moved; `name` is for the toast. */
-  onAdded: (guest: { id: number; name: string }) => void;
+  /** Called after the guest was added or moved; `name` and `reactivated` are for the toast. */
+  onAdded: (guest: { id: number; name: string; reactivated?: boolean }) => void;
   onClose: () => void;
 }
 
-// What a search result says about where the guest is, to recognise them.
+// A search result's name, marked when the guest is inactive (rule 8).
+export function GuestName({
+  guest,
+  inactive = guest.status === "inactive",
+}: {
+  guest: GuestSearchItem;
+  /** Overrides a stale result: the API said they're inactive after this search. */
+  inactive?: boolean;
+}) {
+  return (
+    <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+      <span className="min-w-0 text-sm font-semibold break-words text-heading">
+        {guest.name}
+      </span>
+      {inactive && <GuestInactiveBadge />}
+    </span>
+  );
+}
+
+// What a search result says about where the guest is, to recognise them. For an inactive guest,
+// when they left and their last group; never why (rule 7).
 export function GuestMeta({ guest }: { guest: GuestSearchItem }) {
   const t = useTranslations("AddGuestDialog");
   const locale = useLocale() as Locale;
@@ -69,6 +95,20 @@ export function GuestMeta({ guest }: { guest: GuestSearchItem }) {
 
   if (guest.phoneLast4)
     parts.push(t("phoneLast4", { digits: guest.phoneLast4 }));
+
+  if (guest.status === "inactive" && guest.inactiveSince) {
+    const date = formatCalendarDate(guest.inactiveSince, locale);
+
+    parts.push(
+      guest.lastGroup
+        ? t("inactiveLeftLastIn", { date, group: guest.lastGroup.name })
+        : t("inactiveLeft", { date }),
+    );
+
+    return (
+      <span className="block text-[13px] text-muted">{parts.join(" · ")}</span>
+    );
+  }
 
   if (guest.currentGroup) {
     parts.push(
@@ -185,12 +225,22 @@ function SearchStep({
   const [error, setError] = useState<string | null>(null);
   // Set when the API says the guest is in another group we didn't know about.
   const [lateOther, setLateOther] = useState<OtherGroup | null>(null);
+  // Set when the API says a guest is inactive though this search said active (a stale page).
+  const [lateInactiveId, setLateInactiveId] = useState<number | null>(null);
+  const [reactivateNote, setReactivateNote] = useState("");
+  const canReactivate = can(usePermissions(), { guests: ["reactivate"] });
+  const isInactive = (guest: GuestSearchItem) =>
+    guest.status === "inactive" || guest.id === lateInactiveId;
+  const reactivating = picked !== null && isInactive(picked);
   const text = query.trim();
-  const other: { name: string; date: string } | null = lateOther
-    ? { name: lateOther.name, date: lateOther.joinedAt }
-    : picked?.currentGroup && picked.currentGroup.id !== groupId
-      ? { name: picked.currentGroup.name, date: picked.currentGroup.joinedAt }
-      : null;
+  // An inactive guest is in no group, whatever a stale result says.
+  const other: { name: string; date: string } | null = reactivating
+    ? null
+    : lateOther
+      ? { name: lateOther.name, date: lateOther.joinedAt }
+      : picked?.currentGroup && picked.currentGroup.id !== groupId
+        ? { name: picked.currentGroup.name, date: picked.currentGroup.joinedAt }
+        : null;
   const isMove = other !== null;
 
   // The modal puts focus on the dialog; move it to the search once that has happened.
@@ -211,6 +261,7 @@ function SearchStep({
 
     setLateOther(null);
     setError(null);
+    setReactivateNote("");
     setPicked(guests.find((guest) => String(guest.id) === key) ?? null);
   }
 
@@ -227,13 +278,23 @@ function SearchStep({
         guestId: guest.id,
         joinedAt,
         moveFromOtherGroup: isMove,
+        ...(reactivating && {
+          reactivate: true,
+          reactivateNote: reactivateNote.trim() || null,
+        }),
       });
 
       if (result.ok) {
-        onAdded({ id: result.guestId, name: guest.name });
+        onAdded({
+          id: result.guestId,
+          name: guest.name,
+          reactivated: reactivating,
+        });
 
         return;
       }
+
+      if (result.error === "inactive") setLateInactiveId(guest.id);
 
       if (result.error === "inAnotherGroup" && result.otherGroup) {
         setLateOther(result.otherGroup);
@@ -246,14 +307,20 @@ function SearchStep({
   }
 
   const disabledKeys = guests
-    .filter((guest) => guest.currentGroup?.id === groupId)
+    .filter(
+      (guest) =>
+        (guest.currentGroup?.id === groupId && !isInactive(guest)) ||
+        (isInactive(guest) && !canReactivate),
+    )
     .map((guest) => String(guest.id));
   let submitLabel = variant === "report" ? t("addReport") : t("add");
 
   if (isMove) submitLabel = variant === "report" ? t("moveReport") : t("move");
 
+  if (reactivating) submitLabel = t("reactivateAdd");
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
       <Modal.Header className="flex-col items-start gap-1">
         <Modal.Heading className="font-display text-2xl font-medium text-heading">
           {variant === "report" ? t("reportTitle") : t("title")}
@@ -304,12 +371,15 @@ function SearchStep({
             >
               <InitialsAvatar name={guest.name} />
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold break-words text-heading">
-                  {guest.name}
-                </span>
+                <GuestName guest={guest} inactive={isInactive(guest)} />
                 <GuestMeta guest={guest} />
+                {isInactive(guest) && !canReactivate && (
+                  <span className="block text-[13px] text-muted">
+                    {t("inactiveCantReactivate")}
+                  </span>
+                )}
               </span>
-              {disabledKeys.includes(String(guest.id)) && (
+              {guest.currentGroup?.id === groupId && !isInactive(guest) && (
                 <span className="shrink-0 text-xs font-semibold text-muted">
                   {t("alreadyIn")}
                 </span>
@@ -341,6 +411,46 @@ function SearchStep({
           </p>
         )}
 
+        {reactivating && (
+          <div
+            className="flex flex-col gap-3 rounded-xl bg-surface-secondary px-3.5 py-3 text-[13.5px] leading-normal text-muted"
+            role="note"
+          >
+            <span className="flex gap-3">
+              <ArrowUturnLeftIcon
+                aria-hidden="true"
+                className="mt-px size-[18px] shrink-0"
+                strokeWidth={1.8}
+              />
+              <span>
+                <strong className="font-semibold text-heading">
+                  {t("inactiveTitle", { name: picked.name })}
+                </strong>{" "}
+                {t("inactiveBody")}
+              </span>
+            </span>
+            <TextField
+              fullWidth
+              className="gap-1.5"
+              isDisabled={isPending}
+              maxLength={REACTIVATE_NOTE_MAX}
+              value={reactivateNote}
+              onChange={setReactivateNote}
+            >
+              <Label className="text-[13px] font-semibold text-heading">
+                {t("inactiveNote")}
+              </Label>
+              <TextArea
+                className="text-sm"
+                placeholder={t("inactiveNotePlaceholder")}
+                rows={2}
+              />
+              <p className="text-[12.5px] text-muted">
+                {t("inactiveNoteHint")}
+              </p>
+            </TextField>
+          </div>
+        )}
         {other && picked && (
           <div
             className="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-soft-foreground"
@@ -493,7 +603,11 @@ function NewGuestStep({
   }
 
   return (
-    <form noValidate onSubmit={handleSubmit}>
+    <form
+      noValidate
+      className="flex min-h-0 flex-1 flex-col"
+      onSubmit={handleSubmit}
+    >
       <Modal.Header className="flex-col items-start gap-1">
         <Modal.Heading className="font-display text-2xl font-medium text-heading">
           {t("newTitle")}
@@ -515,9 +629,7 @@ function NewGuestStep({
                   className="flex flex-col items-start gap-2 rounded-[10px] bg-surface px-3 py-2 text-foreground sm:flex-row sm:items-center sm:gap-3"
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-semibold break-words text-heading">
-                      {guest.name}
-                    </span>
+                    <GuestName guest={guest} />
                     <GuestMeta guest={guest} />
                   </span>
                   <Button
@@ -712,7 +824,7 @@ export function AddGuestDialog({
 }) {
   return (
     <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
-      <Modal.Container placement="auto" size="md">
+      <Modal.Container placement="auto" scroll="inside" size="md">
         <Modal.Dialog className="sm:max-w-[520px]">
           <AddGuestFlow {...props} onClose={() => onOpenChange(false)} />
         </Modal.Dialog>
