@@ -33,9 +33,10 @@ export function GuestGroupsCard({
         <p className="text-sm text-muted">{t("empty")}</p>
       ) : (
         <ul className="flex flex-col divide-y divide-separator">
-          {groupHistory.map((period) => (
+          {/* Group and date aren't unique: a guest marked inactive can rejoin the same group that day. */}
+          {groupHistory.map((period, index) => (
             <li
-              key={`${period.smallGroupId}-${period.joinedAt}`}
+              key={`${period.smallGroupId}-${period.joinedAt}-${index}`}
               className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1.5 py-3"
             >
               <span className="flex min-w-0 flex-col">
