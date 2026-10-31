@@ -533,6 +533,7 @@ function NewGuestStep({
   const [members, setMembers] = useState<MemberOption[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [nameError, setNameError] = useState(false);
+  const canReactivate = can(usePermissions(), { guests: ["reactivate"] });
   // Close matches by name and by phone, shown before saving.
   const byName = useGuestSearch(name);
   const byPhone = useGuestSearch(phone.number);
@@ -631,15 +632,22 @@ function NewGuestStep({
                   <span className="min-w-0 flex-1">
                     <GuestName guest={guest} />
                     <GuestMeta guest={guest} />
+                    {guest.status === "inactive" && !canReactivate && (
+                      <span className="block text-[13px] text-muted">
+                        {t("inactiveCantReactivate")}
+                      </span>
+                    )}
                   </span>
-                  <Button
-                    className="font-semibold"
-                    size="sm"
-                    variant="outline"
-                    onPress={() => onUse(guest)}
-                  >
-                    {t("useGuest")}
-                  </Button>
+                  {(guest.status !== "inactive" || canReactivate) && (
+                    <Button
+                      className="font-semibold"
+                      size="sm"
+                      variant="outline"
+                      onPress={() => onUse(guest)}
+                    >
+                      {t("useGuest")}
+                    </Button>
+                  )}
                 </li>
               ))}
             </ul>
