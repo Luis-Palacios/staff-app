@@ -6,8 +6,8 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { AccountStatusCell } from "./account-status-cell";
 import { InactiveBadge } from "./inactive-badge";
-import { InactiveReasonChip } from "./inactive-reason-chip";
 
+import { InactiveReasonChip } from "@/components/inactive-reason-chip";
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { card } from "@/components/primitives";
 import { formatCalendarDate } from "@/lib/format-date";

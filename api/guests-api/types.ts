@@ -4,7 +4,17 @@ import type {
   SmallGroupRole,
 } from "@/api/small-groups-api/types";
 
-export type GuestStatus = "all" | "active" | "inactive";
+export type GuestStatus = "active" | "inactive";
+
+/** The Guests list's tabs. */
+export type GuestStatusFilter = "all" | GuestStatus;
+
+export type GuestInactiveReason =
+  | "moved_away"
+  | "stopped_attending"
+  | "joined_another_church"
+  | "deceased"
+  | "other";
 
 export interface GuestCurrentGroup {
   id: number;
@@ -25,6 +35,11 @@ export interface GuestListItem {
   name: string;
   phone: string | null;
   firstVisitDate: string | null;
+  status: GuestStatus;
+  /** The date they left, from the latest deactivation; null while active. */
+  inactiveSince: string | null;
+  /** Private (rule 9): null without `guests: deactivate`. */
+  inactiveReason: GuestInactiveReason | null;
   /** At most one of these is set; neither for a guest who never was in a group. */
   currentGroup: GuestCurrentGroup | null;
   lastGroup: GuestLastGroup | null;
@@ -43,7 +58,7 @@ export interface GuestList {
 }
 
 export interface GuestListParams {
-  status?: GuestStatus;
+  status?: GuestStatusFilter;
   q?: string;
   page?: number;
   pageSize?: number;
@@ -54,6 +69,9 @@ export interface GuestSearchItem {
   id: number;
   name: string;
   phoneLast4: string | null;
+  status: GuestStatus;
+  /** The date they left; never why (rule 7). */
+  inactiveSince: string | null;
   currentGroup: GuestCurrentGroup | null;
   lastGroup: Pick<GuestLastGroup, "id" | "name" | "leftAt"> | null;
   lastAttendedDate: string | null;
@@ -83,6 +101,21 @@ export interface GuestAttendance {
   observation: string | null;
 }
 
+/** One change of status, as `MemberStatusChange` for a member. */
+export interface GuestStatusChange {
+  status: GuestStatus;
+  /** Null on a reactivation. */
+  reason: GuestInactiveReason | null;
+  /** Date only: the date they left, or the day of reactivation. */
+  effectiveDate: string;
+  note: string | null;
+  changedByUserId: string;
+  /** The member linked to that user, by current name. */
+  changedByName: string | null;
+  /** ISO timestamp. */
+  createdAt: string;
+}
+
 export interface GuestDetail {
   id: number;
   name: string;
@@ -95,6 +128,14 @@ export interface GuestDetail {
   createdBy: GuestRef | null;
   /** ISO timestamp. */
   createdAt: string;
+  status: GuestStatus;
+  /** The date they left, from the latest deactivation; null while active. */
+  inactiveSince: string | null;
+  /** The next three are private (rule 9): null without `guests: deactivate`. */
+  inactiveReason: GuestInactiveReason | null;
+  inactiveNote: string | null;
+  /** Newest first. */
+  statusHistory: GuestStatusChange[] | null;
   currentGroup: GuestCurrentGroup | null;
   lastAttendedDate: string | null;
   /** Every period in a guest group, newest first. */
@@ -110,3 +151,10 @@ export interface GuestCreateInput extends NewGuestInput {
 
 /** Contact, first visit, invited by; never groups. `null` clears an optional field. */
 export type GuestUpdateInput = Partial<NewGuestInput>;
+
+export interface GuestDeactivateInput {
+  reason: GuestInactiveReason;
+  /** The date they left: today or earlier. */
+  effectiveDate: string;
+  note?: string | null;
+}

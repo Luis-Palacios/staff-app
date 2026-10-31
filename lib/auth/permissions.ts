@@ -11,7 +11,14 @@ export interface PermissionStatements {
     | "update"
     | "link"
     | "setStatus";
-  guests: "all" | "view" | "search" | "create" | "update";
+  guests:
+    | "all"
+    | "view"
+    | "search"
+    | "create"
+    | "update"
+    | "deactivate"
+    | "reactivate";
   membershipApplications: "view" | "approve" | "reject";
   smallGroups:
     | "all"

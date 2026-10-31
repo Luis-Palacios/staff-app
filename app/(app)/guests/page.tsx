@@ -1,4 +1,4 @@
-import type { GuestStatus } from "@/api/guests-api/types";
+import type { GuestStatusFilter } from "@/api/guests-api/types";
 
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
@@ -12,7 +12,7 @@ import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { guestsBreadcrumb } from "@/config/breadcrumbs";
 import { hasPermission } from "@/lib/auth/get-permissions";
 
-const STATUSES: readonly GuestStatus[] = ["active", "inactive", "all"];
+const STATUSES: readonly GuestStatusFilter[] = ["active", "inactive", "all"];
 
 export default async function GuestsPage({
   searchParams,

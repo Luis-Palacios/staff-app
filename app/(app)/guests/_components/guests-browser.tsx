@@ -1,6 +1,6 @@
 "use client";
 
-import type { GuestList, GuestStatus } from "@/api/guests-api/types";
+import type { GuestList, GuestStatusFilter } from "@/api/guests-api/types";
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -18,7 +18,7 @@ const TABS = [
   { key: "inactive", labelKey: "tabInactive" },
   { key: "all", labelKey: "tabAll" },
 ] as const satisfies readonly {
-  key: GuestStatus;
+  key: GuestStatusFilter;
   labelKey: "tabActive" | "tabInactive" | "tabAll";
 }[];
 
@@ -27,7 +27,7 @@ const PAGE_SIZE = 25;
 
 function buildHref(
   pathname: string,
-  status: GuestStatus,
+  status: GuestStatusFilter,
   q: string,
   page: number,
 ): string {
@@ -50,7 +50,7 @@ export default function GuestsBrowser({
   q,
 }: {
   list: GuestList;
-  status: GuestStatus;
+  status: GuestStatusFilter;
   q: string;
 }) {
   const t = useTranslations("GuestsBrowser");
@@ -60,7 +60,11 @@ export default function GuestsBrowser({
   const [query, setQuery] = useState(q);
   const lastSent = useRef(q);
 
-  function navigate(next: { status?: GuestStatus; q?: string; page?: number }) {
+  function navigate(next: {
+    status?: GuestStatusFilter;
+    q?: string;
+    page?: number;
+  }) {
     startTransition(() => {
       router.replace(
         buildHref(pathname, next.status ?? status, next.q ?? q, next.page ?? 1),
@@ -87,7 +91,7 @@ export default function GuestsBrowser({
     return () => window.clearTimeout(timer);
   }, [query, status, pathname, router]);
 
-  const counts: Record<GuestStatus, number> = {
+  const counts: Record<GuestStatusFilter, number> = {
     all: list.counts.all,
     active: list.counts.active,
     inactive: list.counts.inactive,

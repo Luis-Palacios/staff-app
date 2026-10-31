@@ -1,4 +1,4 @@
-import type { GuestStatus } from "@/api/guests-api/types";
+import type { GuestStatusFilter } from "@/api/guests-api/types";
 
 import { HandRaisedIcon } from "@heroicons/react/24/outline";
 import { redirect } from "next/navigation";
@@ -18,7 +18,7 @@ export default async function GuestsList({
   page,
   canCreate,
 }: {
-  status: GuestStatus;
+  status: GuestStatusFilter;
   q: string;
   page: number;
   canCreate: boolean;

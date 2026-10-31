@@ -60,7 +60,7 @@ in the progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Permissions, API client, types, actions | ⬜ | |
+| 1. Permissions, API client, types, actions | ✅ | |
 | 2. Guests list | ⬜ | |
 | 3. Guest detail: inactive state and dialogs | ⬜ | |
 | 4. Reactivate and add (Group detail, report form) | ⬜ | |
@@ -69,7 +69,12 @@ in the progress log below.
 
 ### Decisions and deviations
 
-- (none yet)
+- **Stage 1.** `GuestStatus` is now `active | inactive`; the list's filter is `GuestStatusFilter`. The reason
+  chip moved to `components/inactive-reason-chip.tsx`, which exports `InactiveReasonChip` (members) and
+  `GuestInactiveReasonChip` over one private chip; the timeline needs both. A future date on deactivate
+  keeps the existing `ApiErrors.memberFutureDate` text, which names no one.
+- Local runs use the API on the `ig-scratch` database, already migrated and seeded with inactive guests. The
+  dev database stays on the older revision.
 
 ## Token changes
 

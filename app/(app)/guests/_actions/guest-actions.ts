@@ -1,6 +1,10 @@
 "use server";
 
-import type { GuestUpdateInput } from "@/api/guests-api/types";
+import type {
+  GuestDeactivateInput,
+  GuestDetail,
+  GuestUpdateInput,
+} from "@/api/guests-api/types";
 import type {
   GuestFieldErrors,
   GuestFormValues,
@@ -10,7 +14,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { createGuest, updateGuest } from "@/api/guests-api/client";
+import { ApiError } from "@/api/api-client";
+import {
+  createGuest,
+  deactivateGuest,
+  reactivateGuest,
+  updateGuest,
+} from "@/api/guests-api/client";
 import {
   guestChangesSchema,
   guestSchema,
@@ -127,4 +137,72 @@ export async function updateGuestAction(
   revalidatePath("/guests");
   revalidatePath(`/guests/${id}`);
   redirect(`/guests/${id}?saved=updated`);
+}
+
+export type GuestStatusActionResult =
+  | { ok: true; guest: GuestDetail }
+  | {
+      ok: false;
+      /** The API's 409 `code` (`already_inactive`, `already_active`). */
+      code?: string;
+      error: string;
+    };
+
+async function statusFailure(error: unknown): Promise<GuestStatusActionResult> {
+  const code =
+    error instanceof ApiError && error.status === 409
+      ? (error.body as { code?: unknown } | null)?.code
+      : undefined;
+
+  return {
+    ok: false,
+    ...(typeof code === "string" && { code }),
+    error: await getApiErrorMessage(error),
+  };
+}
+
+function revalidateGuestStatus(id: string) {
+  revalidatePath("/guests");
+  revalidatePath(`/guests/${id}`);
+  // Deactivating ends their group period, so the group pages change too.
+  revalidatePath("/groups");
+  revalidatePath("/groups/[id]", "page");
+}
+
+export async function deactivateGuestAction(
+  id: string,
+  input: GuestDeactivateInput,
+): Promise<GuestStatusActionResult> {
+  const forbidden = await forbiddenUnless({ guests: ["deactivate"] });
+
+  if (forbidden) return statusFailure(forbidden);
+
+  try {
+    const guest = await deactivateGuest(id, input);
+
+    revalidateGuestStatus(id);
+
+    return { ok: true, guest };
+  } catch (error) {
+    return statusFailure(error);
+  }
+}
+
+export async function reactivateGuestAction(
+  id: string,
+  note?: string | null,
+): Promise<GuestStatusActionResult> {
+  const forbidden = await forbiddenUnless({ guests: ["reactivate"] });
+
+  if (forbidden) return statusFailure(forbidden);
+
+  try {
+    const guest = await reactivateGuest(id, note);
+
+    revalidateGuestStatus(id);
+
+    return { ok: true, guest };
+  } catch (error) {
+    return statusFailure(error);
+  }
 }

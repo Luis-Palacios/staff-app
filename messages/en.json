@@ -979,7 +979,10 @@
     "memberSelfInactive": "You can't mark your own member as inactive.",
     "memberAlreadyInactive": "This member is already inactive.",
     "memberAlreadyActive": "This member is already active.",
-    "memberFutureDate": "The date they left can't be in the future."
+    "memberFutureDate": "The date they left can't be in the future.",
+    "guestInactive": "This guest is inactive. Reactivate them to add them.",
+    "guestAlreadyInactive": "This guest is already inactive.",
+    "guestAlreadyActive": "This guest is already active."
   },
   "ApplicationStatus": {
     "pending": "Pending",
@@ -1448,7 +1451,8 @@
       "closed": "This group is closed, so it can’t be changed.",
       "laterReport": "They’re in a later report; remove them from there first.",
       "generic": "Something went wrong. Try again.",
-      "overlap": "Their earlier time in this group overlaps this date."
+      "overlap": "Their earlier time in this group overlaps this date.",
+      "inactive": "This guest is inactive now. Reactivate them to add them."
     }
   },
   "GuestRowMenu": {
@@ -1518,7 +1522,8 @@
       "closed": "This group is closed, so it can’t be changed.",
       "laterReport": "They’re in a later report; remove them from there first.",
       "generic": "Something went wrong. Try again.",
-      "overlap": "Their earlier time in this group overlaps this date."
+      "overlap": "Their earlier time in this group overlaps this date.",
+      "inactive": "This guest is inactive now. Reactivate them to add them."
     }
   },
   "GuestsPage": {
@@ -1558,7 +1563,8 @@
     "leftReason": {
       "stopped_coming": "Stopped coming",
       "moved_group": "Moved group",
-      "other": "Other reason"
+      "other": "Other reason",
+      "guest_inactive": "Marked inactive"
     },
     "neverSeen": "Not yet",
     "missed": "Missed the last {count, plural, one {meeting} other {# meetings}}"
@@ -1604,12 +1610,24 @@
     "leftReason": {
       "stopped_coming": "Stopped coming",
       "moved_group": "Moved group",
-      "other": "Other reason"
+      "other": "Other reason",
+      "guest_inactive": "Ended when marked inactive"
     }
   },
   "GuestSavedToast": {
     "created": "Guest added",
     "updated": "Changes saved"
+  },
+  "GuestStatus": {
+    "inactive": "Inactive",
+    "inactiveSince": "Inactive since {date}"
+  },
+  "GuestInactiveReason": {
+    "moved_away": "Moved away",
+    "stopped_attending": "Stopped attending",
+    "joined_another_church": "Joined another church",
+    "deceased": "Deceased",
+    "other": "Other"
   },
   "GuestFormPage": {
     "newTitle": "Add a guest",
