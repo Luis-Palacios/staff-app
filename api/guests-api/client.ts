@@ -4,6 +4,7 @@ import type {
 } from "@/api/small-groups-api/types";
 import type {
   GuestCreateInput,
+  GuestDeactivateInput,
   GuestDetail,
   GuestList,
   GuestListParams,
@@ -76,6 +77,30 @@ export function updateGuest(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     guestPath(id),
     { method: "PATCH", body: changes },
+  );
+}
+
+/** `guests: deactivate`. Ends their group period today. 409 `already_inactive`; 422 for a future date. */
+export function deactivateGuest(
+  id: number | string,
+  input: GuestDeactivateInput,
+): Promise<GuestDetail> {
+  return authenticatedFetch<GuestDetail>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `${guestPath(id)}/deactivate`,
+    { method: "POST", body: input },
+  );
+}
+
+/** `guests: reactivate` and the guest in the caller's scope. Their group isn't restored. 409 `already_active`. */
+export function reactivateGuest(
+  id: number | string,
+  note?: string | null,
+): Promise<GuestDetail> {
+  return authenticatedFetch<GuestDetail>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `${guestPath(id)}/reactivate`,
+    { method: "POST", body: { note: note ?? null } },
   );
 }
 

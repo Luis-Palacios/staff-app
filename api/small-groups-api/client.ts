@@ -141,7 +141,8 @@ export function removeSmallGroupMember(
 /**
  * Adds a guest to a guest group: an existing one (`guestId`) or a new one (`newGuest`, needs
  * `guests: create`). 409 `in another group` carries `otherGroup`; send `moveFromOtherGroup: true`
- * once the user confirmed. Returns the group with the guest in it, and the guest's id.
+ * once the user confirmed. An inactive guest is 409 `guest_inactive` without `reactivate: true`.
+ * Returns the group with the guest in it, and the guest's id.
  */
 export function addSmallGroupGuest(
   groupId: string,

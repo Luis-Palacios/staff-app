@@ -9,6 +9,7 @@ export type GuestErrorKind =
   | "off"
   | "inAnotherGroup"
   | "alreadyInGroup"
+  | "inactive"
   | "closed"
   | "overlap"
   | "laterReport";
@@ -20,6 +21,10 @@ export function getGuestErrorKind(error: unknown): GuestErrorKind | null {
   const detail = JSON.stringify(error.body ?? "").toLowerCase();
 
   if (error.status === 409) {
+    if ((error.body as { code?: unknown } | null)?.code === "guest_inactive") {
+      return "inactive";
+    }
+
     if (detail.includes("guest groups are off")) return "off";
     if (detail.includes("in another group")) return "inAnotherGroup";
     if (detail.includes("already in the small group")) return "alreadyInGroup";

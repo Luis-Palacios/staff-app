@@ -12,7 +12,11 @@ export type Person =
   | { type: "guest"; id: number; name: string };
 
 /** Why a period in a group ended. Null for role changes, group closes and older history. */
-export type LeftReason = "stopped_coming" | "moved_group" | "other";
+export type LeftReason =
+  | "stopped_coming"
+  | "moved_group"
+  | "other"
+  | "guest_inactive";
 
 /** ISO weekday: 1 = Monday … 7 = Sunday. */
 export type Weekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -494,14 +498,17 @@ export type AddGuestInput = {
   /** Date only; defaults to today. The report form sends the meeting date. */
   joinedAt?: string;
   moveFromOtherGroup?: boolean;
+  /** An inactive guest: reactivate and add in one step (needs `guests: reactivate`). */
+  reactivate?: boolean;
+  reactivateNote?: string | null;
 } & (
   | { guestId: number; newGuest?: never }
   | { newGuest: NewGuestInput; guestId?: never }
 );
 
 export interface RemoveGuestInput {
-  /** `moved_group` is only ever set by a move, so it isn't accepted. */
-  leftReason?: Exclude<LeftReason, "moved_group">;
+  /** `moved_group` and `guest_inactive` are only ever set by a move and a deactivation. */
+  leftReason?: Exclude<LeftReason, "moved_group" | "guest_inactive">;
   /** Date only; defaults to today, never before they joined or a report that has them. */
   leftAt?: string;
 }

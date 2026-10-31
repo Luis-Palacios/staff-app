@@ -979,7 +979,10 @@
     "memberSelfInactive": "No puedes marcar a tu propio miembro como inactivo.",
     "memberAlreadyInactive": "Este miembro ya está inactivo.",
     "memberAlreadyActive": "Este miembro ya está activo.",
-    "memberFutureDate": "La fecha en que salió no puede ser futura."
+    "memberFutureDate": "La fecha en que salió no puede ser futura.",
+    "guestInactive": "Este invitado está inactivo. Reactívalo para agregarlo.",
+    "guestAlreadyInactive": "Este invitado ya está inactivo.",
+    "guestAlreadyActive": "Este invitado ya está activo."
   },
   "ApplicationStatus": {
     "pending": "Pendiente",
@@ -1448,7 +1451,8 @@
       "closed": "Este grupo está cerrado, así que no se puede modificar.",
       "laterReport": "Está en un reporte posterior; quítalo primero de ahí.",
       "generic": "Algo salió mal. Inténtalo de nuevo.",
-      "overlap": "Su tiempo anterior en este grupo se cruza con esta fecha."
+      "overlap": "Su tiempo anterior en este grupo se cruza con esta fecha.",
+      "inactive": "Este invitado ahora está inactivo. Reactívalo para agregarlo."
     }
   },
   "GuestRowMenu": {
@@ -1518,7 +1522,8 @@
       "closed": "Este grupo está cerrado, así que no se puede modificar.",
       "laterReport": "Está en un reporte posterior; quítalo primero de ahí.",
       "generic": "Algo salió mal. Inténtalo de nuevo.",
-      "overlap": "Su tiempo anterior en este grupo se cruza con esta fecha."
+      "overlap": "Su tiempo anterior en este grupo se cruza con esta fecha.",
+      "inactive": "Este invitado ahora está inactivo. Reactívalo para agregarlo."
     }
   },
   "GuestsPage": {
@@ -1558,7 +1563,8 @@
     "leftReason": {
       "stopped_coming": "Dejó de venir",
       "moved_group": "Cambió de grupo",
-      "other": "Otro motivo"
+      "other": "Otro motivo",
+      "guest_inactive": "Marcado como inactivo"
     },
     "neverSeen": "Aún no",
     "missed": "Faltó {count, plural, one {a la última reunión} other {a las últimas # reuniones}}"
@@ -1604,12 +1610,24 @@
     "leftReason": {
       "stopped_coming": "Dejó de venir",
       "moved_group": "Cambió de grupo",
-      "other": "Otro motivo"
+      "other": "Otro motivo",
+      "guest_inactive": "Terminó al marcarlo inactivo"
     }
   },
   "GuestSavedToast": {
     "created": "Invitado agregado",
     "updated": "Cambios guardados"
+  },
+  "GuestStatus": {
+    "inactive": "Inactivo",
+    "inactiveSince": "Inactivo desde el {date}"
+  },
+  "GuestInactiveReason": {
+    "moved_away": "Se mudó",
+    "stopped_attending": "Dejó de asistir",
+    "joined_another_church": "Se unió a otra iglesia",
+    "deceased": "Falleció",
+    "other": "Otro"
   },
   "GuestFormPage": {
     "newTitle": "Agregar un invitado",

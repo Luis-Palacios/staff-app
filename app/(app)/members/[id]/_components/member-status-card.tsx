@@ -3,7 +3,7 @@ import type { StatusHistoryEntry } from "@/app/(app)/members/_lib/load-status-hi
 import { LockClosedIcon } from "@heroicons/react/24/outline";
 import { useLocale, useTranslations } from "next-intl";
 
-import { InactiveReasonChip } from "@/app/(app)/members/_components/inactive-reason-chip";
+import { InactiveReasonChip } from "@/components/inactive-reason-chip";
 import { DetailCardHeading } from "@/app/(app)/applications/[id]/_components/detail-card-heading";
 import { card } from "@/components/primitives";
 import { formatCalendarDate } from "@/lib/format-date";
