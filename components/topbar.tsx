@@ -179,6 +179,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
         aria-label={tTopbar("home")}
         className="flex items-center lg:hidden"
         href="/"
+        prefetch={false}
       >
         <EkklesiaioMark size={26} tone="auto" />
       </NextLink>

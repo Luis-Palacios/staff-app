@@ -58,6 +58,9 @@ const isActivePath = (pathname: string, href: string) => {
     : pathname === href || pathname.startsWith(`${href}/`);
 };
 
+// The links to "/" don't prefetch: see generateMetadata in app/(app)/page.tsx.
+const prefetchFor = (href: string) => (href === "/" ? false : undefined);
+
 // Top-level rows (leaf links and group triggers); colors are set per state.
 const rowBase =
   "flex min-h-[42px] items-center gap-3 rounded-[10px] px-3 text-[14.5px] transition-colors";
@@ -103,6 +106,7 @@ const LeafLink = ({
         active ? "bg-navy-800 font-semibold text-white" : rowRest,
       )}
       href={item.href!}
+      prefetch={prefetchFor(item.href!)}
       onClick={onNavigate}
     >
       <Icon className={iconClass(active)} strokeWidth={1.6} />
@@ -173,6 +177,7 @@ const CollapsibleItem = ({
                         : "font-medium text-on-dark hover:bg-white/5 hover:text-white",
                     )}
                     href={child.href}
+                    prefetch={prefetchFor(child.href)}
                     onClick={onNavigate}
                   >
                     {t(child.labelKey)}
@@ -228,6 +233,7 @@ export const Sidebar = ({
             aria-label={t("home")}
             className="flex items-center rounded-lg"
             href="/"
+            prefetch={prefetchFor("/")}
             onClick={onNavigate}
           >
             <EkklesiaioLogo size={21} tone="on-dark" />

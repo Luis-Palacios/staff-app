@@ -20,6 +20,7 @@ export default async function NotFound() {
               className: "font-semibold text-heading",
             })}
             href="/"
+            prefetch={false}
           >
             {t("action")}
           </NextLink>
