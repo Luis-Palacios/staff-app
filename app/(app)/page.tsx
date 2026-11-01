@@ -11,7 +11,9 @@ import { getServerSession } from "@/api/auth-api/helpers/get-server-session";
 import { getPermissions } from "@/lib/auth/get-permissions";
 import { getSmallGroupAccess } from "@/lib/auth/permissions";
 
-// The tab title follows the nav label of the dashboard this role lands on.
+// The tab title follows the nav label of the dashboard this role lands on. Reading the session here
+// costs an extra /get-session whenever a <Link> prefetches this route, and that counts against
+// auth-server's rate limit, so links to "/" that show inside the shell set prefetch={false}.
 export async function generateMetadata(): Promise<Metadata> {
   const [t, permissions] = await Promise.all([
     getTranslations("Nav"),
