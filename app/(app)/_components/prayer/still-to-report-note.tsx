@@ -93,6 +93,7 @@ export function StillToReportNote({
         <NextLink
           className={textLink({ className: "underline-offset-[3px]" })}
           href={href}
+          prefetch={false}
         >
           {scoped ? t("seeMyGroups") : t("seeReportStatus")}
         </NextLink>

@@ -165,6 +165,7 @@ async function PrayerWeek({
           <NextLink
             className={textLink({ className: "text-sm" })}
             href={statusHref}
+            prefetch={false}
           >
             {scoped ? t("myGroupsLink") : t("reportStatusLink")}
           </NextLink>
