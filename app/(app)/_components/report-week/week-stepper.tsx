@@ -36,6 +36,8 @@ export async function WeekStepper({
   const next = addDays(weekStart, 7);
   const weekHref = (week: string) =>
     week === currentSunday ? basePath : `${basePath}?week=${week}`;
+  // Links to the dashboard route don't prefetch: see generateMetadata in app/(app)/page.tsx.
+  const prefetch = basePath === "/" ? false : undefined;
 
   return (
     <div
@@ -47,6 +49,7 @@ export async function WeekStepper({
         aria-label={t("previousWeek")}
         className={buttonClass}
         href={weekHref(previous)}
+        prefetch={prefetch}
         scroll={false}
       >
         <ChevronLeftIcon
@@ -76,6 +79,7 @@ export async function WeekStepper({
           aria-label={t("nextWeek")}
           className={buttonClass}
           href={weekHref(next)}
+          prefetch={prefetch}
           scroll={false}
         >
           <ChevronRightIcon
