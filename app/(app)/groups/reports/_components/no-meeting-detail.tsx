@@ -103,6 +103,7 @@ export async function NoMeetingDetail({
                   groupName: smallGroup.name,
                   date: meetingDate,
                   reportId: report.id,
+                  version: report.version,
                   reason: report.notHeldReason,
                   churchWide,
                 }}

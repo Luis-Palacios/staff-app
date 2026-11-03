@@ -324,9 +324,13 @@ export async function markNoMeeting(
   return { ok: true };
 }
 
-/** Edits the reason of a no meeting (and keeps its date). */
+/**
+ * Edits the reason of a no meeting (and keeps its date), based on `version` (409 `conflict` when
+ * someone saved first).
+ */
 export async function updateNoMeetingReason(
   id: number,
+  version: number,
   groupId: number,
   date: string,
   reason: string,
@@ -350,6 +354,7 @@ export async function updateNoMeetingReason(
       meetingDate: parsed.data.meetingDate,
       // PATCH replaces the report, so an emptied reason has to be an explicit null.
       notHeldReason: parsed.data.notHeldReason ?? null,
+      version,
     });
   } catch (error) {
     return toFailure(error, date);
