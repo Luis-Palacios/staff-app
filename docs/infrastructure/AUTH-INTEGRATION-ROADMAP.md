@@ -1428,13 +1428,18 @@ Phase 5).
 ---
 
 ## Phase 10 — Cache the minted JWT until near expiry
-`[ ]`
+`[x]` (2026-11-02, branch `auth-session-reuse`)
 
 **Repo(s):** `staff-app`
 
-**Progress (2026-10-31):** the per-request part is done: `getAuthToken` is `cache()`d, because each
-mint counts against auth-server's rate limit and a page made a median of 3 (management-infra Phase 8,
-client IP finding). The cross-request cache below is still open. A server action still mints per call.
+**Done:** `getServerSession` and `getAuthToken` are memoized per request with `perRequest`
+(`api/auth-api/helpers/per-request.ts`), keyed on Next's per-request headers object, so they also
+dedupe inside a server action, where `cache()` doesn't. `getAuthToken` keeps a minted JWT across
+requests until a minute before its `exp`, keyed by session id, user id, role and permissions (a
+role change mints a new one; the session is still read every request, so a signed-out or banned
+user never reaches a kept token). `authenticatedFetch` drops the kept token on a 401. Measured on
+report auto-save: 8 saves → 8 `/get-session`, 0 `/token` (was 16 and 8). The text below is the
+original plan.
 
 **What:** Phase 4's `lib/authenticated-fetch.ts` mints a brand-new JWT (via `getAuthToken()` →
 `auth-server`'s `GET /api/auth/token`) on *every* call to `membership-management`, including
