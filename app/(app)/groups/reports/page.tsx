@@ -52,6 +52,9 @@ export default async function ReportsPage({
         title={scoped ? t("myTitle") : t("title")}
       />
       {params.saved === "deleted" && <SavedToast message={tList("deleted")} />}
+      {params.saved === "discarded" && (
+        <SavedToast message={tList("draftDiscarded")} />
+      )}
       {params.saved === "marked" && (
         <SavedToast message={tNoMeeting("markedToast")} />
       )}

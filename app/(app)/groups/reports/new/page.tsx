@@ -91,6 +91,7 @@ export default async function NewReportPage({
             }
           : null
       }
+      memberId={me.member?.id ?? null}
       scoped={access === "scoped"}
       today={today}
     />

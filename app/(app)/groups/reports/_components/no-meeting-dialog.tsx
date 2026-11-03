@@ -39,6 +39,11 @@ export interface NoMeetingTarget {
    * different reason detaches this group from it; the API does that, the dialog says so.
    */
   churchWide?: boolean;
+  /**
+   * Only for `mark`: the caller's draft holds the date (the leader dashboard). Saving replaces it
+   * in one transaction (auto-save rule 18), and the dialog says what is lost.
+   */
+  draft?: { answered: number; total: number };
 }
 
 function NoMeetingForm({
@@ -81,7 +86,9 @@ function NoMeetingForm({
               target.date,
               reason,
             )
-          : await markNoMeeting(target.groupId, target.date, reason);
+          : await markNoMeeting(target.groupId, target.date, reason, {
+              replacesDraft: target.draft !== undefined,
+            });
 
       if (result.ok) {
         onDone();
@@ -138,6 +145,20 @@ function NoMeetingForm({
             </span>
           </div>
         </TextField>
+        {!edit && target.draft && (
+          <p className="flex gap-2.5 rounded-xl bg-danger-soft px-3.5 py-3 text-[13.5px] text-danger-soft-foreground">
+            <InformationCircleIcon
+              aria-hidden="true"
+              className="mt-px size-[18px] shrink-0"
+              strokeWidth={1.7}
+            />
+            {tForm("nmDraftBody", {
+              date: formatCalendarWeekdayDate(target.date, locale),
+              answered: target.draft.answered,
+              total: target.draft.total,
+            })}
+          </p>
+        )}
         {edit && target.churchWide && (
           <p className="flex gap-2.5 rounded-xl bg-accent-soft px-3.5 py-3 text-[13.5px] text-accent-soft-foreground">
             <InformationCircleIcon
@@ -163,8 +184,13 @@ function NoMeetingForm({
         >
           {tForm("cancel")}
         </Button>
-        <Button className="font-semibold" isPending={isPending} onPress={save}>
-          {edit ? t("save") : t("mark")}
+        <Button
+          className="font-semibold"
+          isPending={isPending}
+          variant={!edit && target.draft ? "danger" : "primary"}
+          onPress={save}
+        >
+          {edit ? t("save") : target.draft ? tForm("nmConfirm") : t("mark")}
         </Button>
       </Modal.Footer>
     </>

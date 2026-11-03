@@ -75,6 +75,12 @@ export function CloseGroupCard({ group }: { group: SmallGroupDetail }) {
         onOpenChange={setConfirming}
       >
         {t("dialogBody", { count: group.memberCount })}
+        {/* Closing deletes the group's drafts (auto-save rule 19). */}
+        {(group.draftCount ?? 0) > 0 && (
+          <span className="mt-2 block font-semibold text-heading">
+            {t("closeDiscardsDrafts", { count: group.draftCount ?? 0 })}
+          </span>
+        )}
       </ConfirmDialog>
 
       {failure && (

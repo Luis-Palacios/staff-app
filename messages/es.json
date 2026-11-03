@@ -146,7 +146,8 @@
     "errors": {
       "closed": "Este grupo ya estaba cerrado.",
       "generic": "Algo salió mal. Inténtalo de nuevo."
-    }
+    },
+    "closeDiscardsDrafts": "Cerrarlo también descarta {count, plural, one {1 borrador sin enviar} other {# borradores sin enviar}}."
   },
   "GroupMembers": {
     "addMember": "Agregar miembro",
@@ -309,7 +310,8 @@
     "results": "{count, plural, one {# resultado} other {# resultados}}",
     "noMeeting": "Sin reunión",
     "markedBy": "Marcado por {name}",
-    "draft": "Borrador"
+    "draft": "Borrador",
+    "draftDiscarded": "Borrador descartado"
   },
   "ReportDetail": {
     "groupPage": "Página del grupo",
@@ -676,7 +678,21 @@
     "reviewGuided": "Repasar una persona a la vez",
     "continueHint": "Empieza con {name}, la primera persona con algo pendiente.",
     "reviewHint": "Todas las personas están respondidas. Empieza con la primera, para agregar notas.",
-    "changeMeeting": "Cambiar fecha o lugar"
+    "changeMeeting": "Cambiar fecha o lugar",
+    "submitTitle": "¿Enviar este reporte?",
+    "submitBody": "Los ancianos lo verán en Estado de reportes, en Oración y seguimiento y en el historial de cada persona. Puedes seguir editándolo después; los cambios se ven de inmediato.",
+    "keepEditing": "Seguir editando",
+    "sumAnswered": "Personas respondidas",
+    "sumCame": "Vinieron",
+    "sumNotes": "Notas",
+    "discardTitle": "¿Descartar este borrador?",
+    "discardBody": "Se borra todo lo del borrador del {date}: {answered, number} de {total, number} personas respondidas{notes, plural, =0 {} one {, 1 nota} other {, # notas}}. {others} tampoco lo {count, plural, one {verá} other {verán}}. No se puede deshacer.",
+    "discardBodyAlone": "Se borra todo lo del borrador del {date}: {answered, number} de {total, number} personas respondidas{notes, plural, =0 {} one {, 1 nota} other {, # notas}}. No se puede deshacer.",
+    "keepDraft": "Conservar borrador",
+    "nmDraftTitle": "¿Reemplazar el borrador con sin reunión?",
+    "nmDraftBody": "Empezaste un reporte para el {date} ({answered, number} de {total, number} personas respondidas). Guardar la fecha sin reunión borra ese borrador.",
+    "nmKeep": "Conservar el borrador",
+    "nmConfirm": "Borrar borrador y guardar"
   },
   "GroupReportsCard": {
     "eyebrow": "Reportes",
