@@ -56,7 +56,7 @@ progress log below.
 | 5. Submit, discard and no-meeting dialogs | ✅ | b9be15b |
 | 6. Lists and dashboards | ✅ | d7b0580 |
 | 7. Old browser drafts, clean-up | ✅ | 155d304 |
-| 8. Design review fixes | ✅ | |
+| 8. Design review fixes | ✅ | d0c89d9 |
 
 ### Decisions and deviations
 
