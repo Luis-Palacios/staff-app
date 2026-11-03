@@ -65,6 +65,13 @@ export interface SmallGroupDetail {
   guestCount: number;
   /** Active participants: members, then (guest groups) guests. */
   members: SmallGroupMember[];
+  /** Unsent drafts, for the close dialog; only set for callers who may close the group. */
+  draftCount?: number | null;
+}
+
+/** What closing a group returns: the group, and how many drafts went with it (auto-save rule 19). */
+export interface SmallGroupClosed extends SmallGroupDetail {
+  discardedDrafts: number;
 }
 
 export interface SmallGroupInput {
@@ -81,8 +88,16 @@ export interface ReportPerson {
   name: string;
 }
 
-/** `filed` is held reports only; a no meeting has its own value. */
-export type ReportListStatus = "all" | "filed" | "notHeld" | "notFiled";
+/** A report is a draft until it is submitted; submit is one way (auto-save rules 1, 5). */
+export type ReportStatus = "draft" | "submitted";
+
+/** `filed` is held reports only; a no meeting has its own value; `draft` only the caller's drafts. */
+export type ReportListStatus =
+  | "all"
+  | "filed"
+  | "notHeld"
+  | "notFiled"
+  | "draft";
 
 export interface ReportListParams {
   smallGroupId?: number;
@@ -127,14 +142,46 @@ export interface NotFiledItem {
     closedAt: string | null;
   };
   meetingDate: string;
+  /** A draft the caller can't see is in progress for this meeting; it still isn't filed (rule 15). */
+  hasDraft: boolean;
+  /** Set with `hasDraft`. */
+  draftStartedBy: { name: string } | null;
 }
 
-export type ReportListItem = FiledReportItem | NotFiledItem;
+/**
+ * A draft the caller sees (auto-save rule 14). Its meeting is only this row: the list has no
+ * not-filed row for it, and it isn't in `counts.notFiled`.
+ */
+export interface DraftItem {
+  kind: "draft";
+  id: number;
+  smallGroup: {
+    id: number;
+    name: string;
+    audience: GroupAudience;
+    closedAt: string | null;
+  };
+  meetingDate: string;
+  startedBy: ReportPerson;
+  /** People with both answers. */
+  answeredCount: number;
+  rosterCount: number;
+  /** ISO timestamp with offset. */
+  lastSavedAt: string;
+}
+
+export type ReportListItem = FiledReportItem | NotFiledItem | DraftItem;
 
 export interface ReportList {
   items: ReportListItem[];
   /** For the status control; ignores `status`. */
-  counts: { all: number; filed: number; notHeld: number; notFiled: number };
+  counts: {
+    all: number;
+    filed: number;
+    notHeld: number;
+    notFiled: number;
+    draft: number;
+  };
   total: number;
   page: number;
   pageSize: number;
@@ -163,6 +210,17 @@ export interface ReportSummaryGroup {
   hasLeader: boolean;
   /** Newest first; every meeting date in the 28-day window, filed or not. */
   recentMeetings: ReportRecentMeeting[];
+  /** The newest draft the caller sees (auto-save rule 14). Its date stays in `notFiledDates`. */
+  draft: ReportSummaryDraft | null;
+}
+
+export interface ReportSummaryDraft {
+  id: number;
+  meetingDate: string;
+  answeredCount: number;
+  rosterCount: number;
+  /** ISO timestamp with offset. */
+  lastSavedAt: string;
 }
 
 export interface ReportRecentMeeting {
@@ -212,6 +270,8 @@ export interface ReportWeekGroup {
   meetingDate: string | null;
   /** Dated in the week, newest first. */
   reports: ReportWeekReport[];
+  /** On `notFiled` and `today` rows only: a draft is in progress (a label; rule 15). */
+  hasDraft: boolean;
 }
 
 export interface ReportWeek {
@@ -422,19 +482,39 @@ export interface ReportRoster {
   };
   meetingDate: string;
   churchSunday: string;
-  /** Set when a report already exists for that date (rule 1). */
-  existingReportId: number | null;
-  /** False when that report is a no meeting, which a held report may replace; null without one. */
-  existingReportHeld: boolean | null;
+  /** What already holds the date (rule 1), if anything. */
+  existingReport: ExistingReport | HiddenDraft | null;
   people: ReportRosterPerson[];
+}
+
+/** A submitted report, a no meeting, or a draft the caller sees, on the roster's date. */
+export interface ExistingReport {
+  id: number;
+  status: ReportStatus;
+  /** False for a no meeting, which a held report may replace. */
+  held: boolean;
+  version: number;
+}
+
+/** Someone else's draft holds the date: no id, no content (auto-save rule 17). */
+export interface HiddenDraft {
+  status: "draft";
+  startedBy: { name: string };
+}
+
+export function isHiddenDraft(
+  existing: ExistingReport | HiddenDraft | null,
+): existing is HiddenDraft {
+  return existing !== null && !("id" in existing);
 }
 
 export interface ReportAttendance {
   person: Person;
   name: string;
   role: SmallGroupRole;
-  attendedGroup: boolean;
-  attendedChurch: boolean;
+  /** Null only on a draft (auto-save rule 4). */
+  attendedGroup: boolean | null;
+  attendedChurch: boolean | null;
   missedStreak: number;
   /** Absent when `observationsVisible` is false (rule 9). */
   observation?: string | null;
@@ -458,8 +538,9 @@ export interface ReportDetail {
   noMeetingWeekId: number | null;
   address: string | null;
   sections: ReportSections;
-  submittedBy: ReportPerson;
-  submittedAt: string;
+  /** Null on a draft. */
+  submittedBy: ReportPerson | null;
+  submittedAt: string | null;
   observationsVisible: boolean;
   /** Threads on this report (what a delete takes with it); 0 for a no meeting. */
   conversationCount: number;
@@ -472,11 +553,42 @@ export interface ReportDetail {
     observations?: number;
   };
   permissions: { canEdit: boolean; canDelete: boolean };
+  status: ReportStatus;
+  /** Send it back with the next save or submit (auto-save rule 9). */
+  version: number;
+  startedBy: ReportPerson;
+  /** ISO timestamp with offset. */
+  startedAt: string;
+  /** Null with a date: an edit by an admin with no member. */
+  lastEditedBy: ReportPerson | null;
+  lastEditedAt: string | null;
+}
+
+/** A submitted report: it has its submitter, and every answer (the API checks rule 5). */
+export type SubmittedReportDetail = Omit<ReportDetail, "attendances"> & {
+  status: "submitted";
+  submittedBy: ReportPerson;
+  submittedAt: string;
+  attendances: (ReportAttendance & {
+    attendedGroup: boolean;
+    attendedChurch: boolean;
+  })[];
+};
+
+export function isSubmitted(
+  report: ReportDetail,
+): report is SubmittedReportDetail {
+  return (
+    report.status === "submitted" &&
+    report.submittedBy !== null &&
+    report.submittedAt !== null
+  );
 }
 
 interface ReportAttendanceFields {
-  attendedGroup: boolean;
-  attendedChurch: boolean;
+  /** Null only in a draft (auto-save rule 4); the keys are still required. */
+  attendedGroup: boolean | null;
+  attendedChurch: boolean | null;
   /** Leave out when the caller can't see observations (the API keeps them). */
   observation?: string | null;
 }
@@ -498,6 +610,10 @@ export interface ReportInput {
   attendances: ReportAttendanceInput[];
   /** Create only: delete the date's no meeting and insert this report in one transaction. */
   replacesNoMeeting?: boolean;
+  /** Create only; default `submitted` until the API's contract stage, then `draft`. */
+  status?: ReportStatus;
+  /** Save only: the version the save is based on (409 when the report has moved on). */
+  version?: number;
 }
 
 /** Create or PATCH body for a date the group didn't meet. */
@@ -506,6 +622,10 @@ export interface NoMeetingInput {
   meetingDate: string;
   /** At most 255; leave out or null for none. */
   notHeldReason?: string | null;
+  /** Create only: replace the date's draft, which the caller sees (auto-save rule 18). */
+  replacesDraft?: boolean;
+  /** Save only: the version the save is based on. */
+  version?: number;
 }
 
 /** The fields of a new guest; everything but the name is optional. */

@@ -248,7 +248,8 @@ export function EditReportForm({
     },
   });
   // The report's own date is "taken" by this very report (rule 1 ignores it).
-  const takenBy = ready?.existingReportId ?? null;
+  const existing = ready?.existingReport;
+  const takenBy = existing && "id" in existing ? existing.id : null;
   const dateProblem: DateProblem | null =
     failure && DATE_FAILURES.includes(failure.kind)
       ? {

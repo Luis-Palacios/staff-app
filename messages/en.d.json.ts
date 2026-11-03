@@ -311,7 +311,8 @@ declare const messages: {
     "noMatches": "No reports match these filters.",
     "results": "{count, plural, one {# result} other {# results}}",
     "noMeeting": "No meeting",
-    "markedBy": "Marked by {name}"
+    "markedBy": "Marked by {name}",
+    "draft": "Draft"
   },
   "ReportDetail": {
     "groupPage": "Group page",
@@ -620,7 +621,9 @@ declare const messages: {
     "leavesAfter": "Leaves the group after this report.",
     "stoppedSuggestion": "<strong>Hasn’t come to the last {count, number} meetings.</strong> Still coming?",
     "removeAfter": "Remove after this report",
-    "removeNote": "They stay in this report and leave the group from this meeting on."
+    "removeNote": "They stay in this report and leave the group from this meeting on.",
+    "draftInProgress": "A leader has started a draft for this date.",
+    "draftYours": "There’s a draft for this date."
   },
   "GroupReportsCard": {
     "eyebrow": "Reports",
@@ -635,7 +638,9 @@ declare const messages: {
     "newReport": "New report",
     "loadFailed": "The reports couldn’t load. Try again in a moment.",
     "openLabel": "Open the report for {date}",
-    "fileLabel": "File the report for {date}"
+    "fileLabel": "File the report for {date}",
+    "draftProgress": "{answered, number} of {total, number} answered · Continue",
+    "continueLabel": "Continue the draft for {date}"
   },
   "GroupsDashboard": {
     "description": "How every small group is doing this week.",
@@ -985,7 +990,12 @@ declare const messages: {
     "memberFutureDate": "The date they left can't be in the future.",
     "guestInactive": "This guest is inactive. Reactivate them to add them.",
     "guestAlreadyInactive": "This guest is already inactive.",
-    "guestAlreadyActive": "This guest is already active."
+    "guestAlreadyActive": "This guest is already active.",
+    "reportConflict": "Someone else changed this report. Reload to see their changes.",
+    "reportDraftInProgress": "A leader has started a draft for this date.",
+    "reportAlreadySubmitted": "This report is already submitted.",
+    "reportIncomplete": "Answer both questions for everyone before submitting.",
+    "reportDraftConversation": "Conversations can start once the report is submitted."
   },
   "ApplicationStatus": {
     "pending": "Pending",

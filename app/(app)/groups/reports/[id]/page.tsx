@@ -3,7 +3,7 @@ import type { Locale } from "@/lib/locale-shared";
 import type { ReactNode } from "react";
 import type { ConversationTarget } from "@/lib/conversation-format";
 
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   LockClosedIcon,
   PencilSquareIcon,
@@ -30,6 +30,7 @@ import {
 } from "@/api/conversations-api/client";
 import { getMe } from "@/api/members-api/client";
 import { getSmallGroup } from "@/api/small-groups-api/client";
+import { isSubmitted } from "@/api/small-groups-api/types";
 import { SavedToast } from "@/components/saved-toast";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { StatusBadge } from "@/components/status-badge";
@@ -78,7 +79,12 @@ export default async function ReportDetailPage({
       getTranslations("ReportDetail"),
       getLocale(),
     ]);
-  const report = await loadReport(id);
+  const loaded = await loadReport(id);
+
+  // A draft has no read view: it opens in the editor (auto-save, stage 3).
+  if (!isSubmitted(loaded)) redirect(`/groups/reports/${loaded.id}/edit`);
+
+  const report = loaded;
 
   if (!report.held) {
     return <NoMeetingDetail report={report} />;

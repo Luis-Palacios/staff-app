@@ -27,9 +27,9 @@ const itemSchema = z.object({
 });
 
 /**
- * The body for create and edit, as the server actions check it before calling
- * the API. The form keeps answers as `boolean | null` while a person is still
- * unanswered; only a complete report gets here (rule 3), so a null is invalid.
+ * The body for create and save, as the server actions check it before calling the API. An answer
+ * is null while a person is still unanswered, which only a draft allows (auto-save rule 4): the
+ * API refuses a null on a submitted report with 422 `incomplete`.
  */
 export const reportBodySchema = z.object({
   meetingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -40,19 +40,21 @@ export const reportBodySchema = z.object({
     followUp: z.array(itemSchema),
   }),
   replacesNoMeeting: z.boolean().optional(),
+  status: z.enum(["draft", "submitted"]).optional(),
+  version: z.number().int().positive().optional(),
   // A member's `memberId` or a guest's `guestId`, never both.
   attendances: z.array(
     z.union([
       z.strictObject({
         memberId: z.number().int().positive(),
-        attendedGroup: z.boolean(),
-        attendedChurch: z.boolean(),
+        attendedGroup: z.boolean().nullable(),
+        attendedChurch: z.boolean().nullable(),
         observation: optionalText(TEXT_MAX),
       }),
       z.strictObject({
         guestId: z.number().int().positive(),
-        attendedGroup: z.boolean(),
-        attendedChurch: z.boolean(),
+        attendedGroup: z.boolean().nullable(),
+        attendedChurch: z.boolean().nullable(),
         observation: optionalText(TEXT_MAX),
       }),
     ]),

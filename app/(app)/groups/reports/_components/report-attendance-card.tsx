@@ -1,7 +1,7 @@
 import type { ReportConversations } from "@/api/conversations-api/types";
 import type {
   ReportAttendance,
-  ReportDetail,
+  SubmittedReportDetail,
 } from "@/api/small-groups-api/types";
 import type { Locale } from "@/lib/locale-shared";
 
@@ -68,7 +68,7 @@ export async function ReportAttendanceCard({
   conversations,
   activePersonKey,
 }: {
-  report: ReportDetail;
+  report: SubmittedReportDetail;
   /** Active membership start dates by `personKey`, to say "In the group since" for new people. */
   joinedByPerson: Record<string, string>;
   /** Member pages are for full roles only. */

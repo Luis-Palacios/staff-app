@@ -9,6 +9,7 @@ import { getLocale } from "next-intl/server";
 
 import { getSectionConversation } from "@/api/conversations-api/client";
 import { getSmallGroupReport } from "@/api/small-groups-api/client";
+import { isSubmitted } from "@/api/small-groups-api/types";
 import { ConversationPanel } from "@/app/(app)/groups/reports/_components/conversation-panel";
 import { getEnv } from "@/lib/env/server";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
@@ -38,9 +39,11 @@ export async function prayerPanel({
   ]);
   const items = entry.sections[section];
 
+  // Prayer & follow-up only lists submitted reports (auto-save rule 16).
   if (
     thread === undefined ||
     report === undefined ||
+    !isSubmitted(report) ||
     (items.length === 0 && !thread)
   ) {
     return null;

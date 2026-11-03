@@ -83,26 +83,35 @@ export async function GroupReportsCard({
                             total: item.rosterCount,
                             church: item.attendedChurchCount,
                           })
-                        : t("missing")}
+                        : item.kind === "draft"
+                          ? t("draftProgress", {
+                              answered: item.answeredCount,
+                              total: item.rosterCount,
+                            })
+                          : t("missing")}
                   </span>
                 </span>
                 <StatusBadge
                   tone={
                     item.kind === "notFiled"
                       ? "warning"
-                      : item.held
-                        ? "success"
-                        : "neutral"
+                      : item.kind === "draft"
+                        ? "accent"
+                        : item.held
+                          ? "success"
+                          : "neutral"
                   }
-                  variant={item.kind === "notFiled" ? "ring-dot" : "solid-dot"}
+                  variant={item.kind === "report" ? "solid-dot" : "ring-dot"}
                 >
                   {item.kind === "notFiled"
                     ? tList("notFiled")
-                    : item.held
-                      ? tList("filed")
-                      : item.noMeetingWeekId !== null
-                        ? tWeek("label")
-                        : tList("noMeeting")}
+                    : item.kind === "draft"
+                      ? tList("draft")
+                      : item.held
+                        ? tList("filed")
+                        : item.noMeetingWeekId !== null
+                          ? tWeek("label")
+                          : tList("noMeeting")}
                 </StatusBadge>
                 <ChevronRightIcon
                   aria-hidden="true"
@@ -112,6 +121,21 @@ export async function GroupReportsCard({
             );
             const rowClass =
               "flex items-center gap-3 px-6 py-3 outline-none transition-colors hover:bg-surface-secondary focus-visible:shadow-[var(--shadow-focus)]";
+
+            // A draft the caller sees has no read view: it opens in the editor.
+            if (item.kind === "draft") {
+              return (
+                <li key={`draft-${item.id}`}>
+                  <NextLink
+                    aria-label={t("continueLabel", { date })}
+                    className={rowClass}
+                    href={`/groups/reports/${item.id}/edit`}
+                  >
+                    {row}
+                  </NextLink>
+                </li>
+              );
+            }
 
             if (item.kind === "report") {
               return (
