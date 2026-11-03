@@ -49,8 +49,8 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API types, client and server actions | ✅ | |
-| 2. The save engine (queue, device outbox, status) | ⬜ | |
+| 1. API types, client and server actions | ✅ | 66a4aea |
+| 2. The save engine (queue, device outbox, status) | ✅ | |
 | 3. One editor: indicator, pill, banners, Done, Leave, Discard | ⬜ | |
 | 4. New report → draft, resume, Continue one at a time, roster drift | ⬜ | |
 | 5. Submit, discard and no-meeting dialogs | ⬜ | |
@@ -75,6 +75,18 @@ progress log below.
 - Stage 1: `SubmittedReportDetail` (via `isSubmitted`) types a submitted report's answers as
   booleans, so the read views (detail, no meeting, prayer panel) don't handle nulls they can't
   get. A draft's `/groups/reports/[id]` redirects to `/edit` from this stage on.
+- Stage 2: `ReportAutosave` (class) + `useReportAutosave` (hook) in `_lib/report-autosave.ts`. No
+  test runner yet, so it was exercised with a throwaway script against fake saves (coalescing, one
+  in flight, typing vs. blur, offline then online, conflict keeping the device copy, retry after
+  2 s, create-then-rekey, roster drift); the browser checks (DevTools offline and throttled) are in
+  stage 3, once the editor uses it. Worth a `report-autosave.test.ts` when Vitest lands.
+- Stage 2: the device copy is written on every change (rule 8), not only before each send. It
+  holds the editor's own state next to the body, so tagged people keep their names on restore.
+- Stage 2: a failure that a retry won't fix (date taken, too many items) shows *Couldn't save*
+  without automatic retries; the next change or Retry sends again. `flush()` (for submit) resolves
+  null on any failure instead of waiting through retries.
+- Stage 2: leaving the editor sends a change still waiting for its timer at once instead of
+  leaving it on the device. `report-draft.ts` stays until stage 7 (the browser-draft migration).
 
 ## Token changes
 
