@@ -76,16 +76,12 @@ All eight stages are implemented on the `report-autosave` branch and opened as a
      cards dimmed (rule 17).
    - The close-group dialog's *Closing it also discards N unsent drafts* line (needs a group with
      a draft and someone allowed to close it; closing is destructive, use a throwaway group).
-2. **Before or with the deploy: auth-server rate limits.** Each auto-save makes two
-   `/get-session` calls and one `/token` mint (measured, see stage 8 below). auth-server allows
-   300 per IP and path and only resets after 10 s with no allowed request, so a big roster, or a
-   few leaders on one church Wi-Fi, can get 429s (the editor shows *Couldn't save* and retries;
-   nothing is lost). Pick one:
-   - staff-app: read the session once per server action (`forbiddenUnless` and
-     `authenticatedFetch` each call `getServerSession`, and `cache()` doesn't dedupe inside an
-     action), and reuse a JWT until it is close to expiry instead of minting per call. Touches
-     `api/authenticated-fetch.ts`, `api/auth-api/helpers/*`, `lib/auth/get-permissions.ts`.
-   - auth-server: raise the `/get-session` and `/token` custom rules in `src/lib/auth.ts`.
+2. ✅ **auth-server rate limits** (branch `auth-session-reuse`). The session is now read once per
+   request, server actions included (`perRequest` in `api/auth-api/helpers/per-request.ts`, keyed
+   on Next's per-request headers object), and a JWT is reused until a minute before it expires,
+   keyed by the session, user, role and permissions (`get-auth-token.ts`; a 401 from the API drops
+   it). Measured as in stage 8: 8 saves gave 8 `/get-session` calls and no `/token` mint (it was
+   16 and 8). Opening a page: one of each.
 3. **After staff-app is deployed: membership-management stage 6** (contract): `version` required
    on save and submit, create defaults to `draft`, roster drops `existingReportId` /
    `existingReportHeld`. staff-app already sends `status` and `version` and never reads the old
