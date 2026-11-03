@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReportRosterPerson } from "@/api/small-groups-api/types";
-import type { ReportDraftAnswer } from "@/app/(app)/groups/reports/_lib/report-draft";
+import type { ReportDraftAnswer } from "@/app/(app)/groups/reports/_lib/report-form";
 import type { Locale } from "@/lib/locale-shared";
 
 import { useEffect, useRef, useState } from "react";

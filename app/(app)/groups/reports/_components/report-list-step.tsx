@@ -10,7 +10,7 @@ import type {
   DraftItems,
 } from "@/app/(app)/groups/reports/_lib/report-items-draft";
 import type { TagContext } from "@/app/(app)/groups/reports/_lib/report-tags";
-import type { ReportDraftAnswer } from "@/app/(app)/groups/reports/_lib/report-draft";
+import type { ReportDraftAnswer } from "@/app/(app)/groups/reports/_lib/report-form";
 import type { ReactNode } from "react";
 import type { Locale } from "@/lib/locale-shared";
 

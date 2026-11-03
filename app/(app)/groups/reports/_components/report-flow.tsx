@@ -17,7 +17,7 @@ import type { ChangeKind } from "@/app/(app)/groups/reports/_lib/report-autosave
 import type {
   ReportDraft,
   ReportDraftAnswer,
-} from "@/app/(app)/groups/reports/_lib/report-draft";
+} from "@/app/(app)/groups/reports/_lib/report-form";
 import type { Locale } from "@/lib/locale-shared";
 
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -86,6 +86,10 @@ import {
   loadOutbox,
   useReportAutosave,
 } from "@/app/(app)/groups/reports/_lib/report-autosave";
+import {
+  clearLegacyDraft,
+  loadLegacyDraft,
+} from "@/app/(app)/groups/reports/_lib/legacy-report-draft";
 import { ADDRESS_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
 import { card, title } from "@/components/primitives";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
@@ -372,6 +376,45 @@ export function ReportFlow({
     );
   }
 
+  /**
+   * A new report's group and date, before anything is saved: what this device kept for them comes
+   * back. A change made while the draft couldn't be created yet (offline) is sent again; a browser
+   * draft from before auto-save becomes the server draft once and its entry is removed (rule 21).
+   * Either is dropped when the date already has a report or a draft.
+   */
+  function restoreUnsaved(current: ReportRoster) {
+    const target = { groupId: groupRef.current, date: dateRef.current };
+    const pending = loadOutbox<ReportDraft>(target);
+    const legacy = loadLegacyDraft(target.groupId, target.date);
+
+    if (legacy) clearLegacyDraft(target.groupId, target.date);
+
+    if (current.existingReport !== null) {
+      if (pending) clearOutbox(target);
+
+      return;
+    }
+
+    const form = pending?.form ?? (legacy && { ...legacy, replacing: false });
+
+    if (!form) return;
+
+    draftRef.current = form;
+    setDraft(form);
+
+    // A no meeting being written isn't a draft (rule 1): only the form comes back.
+    if (!form.met || current.people.length === 0) return;
+
+    pushChange("blur");
+    setMode("quick");
+    setStep("quick");
+  }
+
+  useEffect(() => {
+    if (!existing && initialRoster) restoreUnsaved(initialRoster.roster);
+    // Once, for the roster the page loaded with; later rosters restore as they load.
+  }, []);
+
   // Opening a saved report. A change this device made that the server doesn't have yet (the
   // connection dropped, the tab closed) is restored and sent; one based on an older version is a
   // conflict (rule 9). Without one, a draft whose rows no longer match the roster for its date
@@ -494,7 +537,11 @@ export function ReportFlow({
         noMeetingReason: result.noMeetingReason,
       });
 
-      if (savedIdRef.current !== null) pushChange("tap");
+      if (savedIdRef.current !== null) {
+        pushChange("tap");
+      } else {
+        restoreUnsaved(result.roster);
+      }
     });
 
     return () => {

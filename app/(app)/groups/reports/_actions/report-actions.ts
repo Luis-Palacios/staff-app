@@ -360,31 +360,6 @@ export async function updateNoMeetingReason(
   return { ok: true };
 }
 
-export async function updateReportAction(
-  id: number,
-  groupId: number,
-  input: ReportInput,
-): Promise<ReportFailure> {
-  const forbidden = await forbiddenUnless({ smallGroupReports: ["update"] });
-
-  if (forbidden) return toFailure(forbidden, input.meetingDate);
-
-  const parsed = reportBodySchema.safeParse(input);
-
-  if (!parsed.success) {
-    return { ok: false, message: await getApiErrorMessage(null) };
-  }
-
-  try {
-    await updateSmallGroupReport(id, parsed.data);
-  } catch (error) {
-    return toFailure(error, input.meetingDate);
-  }
-
-  revalidateReports(groupId, id);
-  redirect(`/groups/reports/${id}?saved=updated`);
-}
-
 /** Deletes a report, or discards a draft (`draft`: the list says *Draft discarded*). */
 export async function deleteReportAction(
   id: number,

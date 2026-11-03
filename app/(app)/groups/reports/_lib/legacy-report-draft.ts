@@ -1,8 +1,12 @@
 /**
- * The unsent report, kept in the browser so a phone call mid-flow doesn't lose
- * answers. Never the source of truth: every read and write is wrapped, and the
- * flow works without it (private windows, blocked storage).
+ * Reports started before auto-save were kept only in the browser, under
+ * `ekk-report-draft:{group}:{date}`. The first time the new-report screen opens that group and
+ * date with no report there yet, the entry becomes a server draft once and is removed (auto-save
+ * rule 21); a date that already has a report just loses the entry. Nothing else reads or writes
+ * these keys any more.
  */
+
+import type { ReportDraft } from "./report-form";
 
 import {
   type DraftItem,
@@ -11,27 +15,7 @@ import {
   newDraftItem,
 } from "./report-items-draft";
 
-export interface ReportDraftAnswer {
-  attendedGroup: boolean | null;
-  attendedChurch: boolean | null;
-  observation: string;
-}
-
-export interface ReportDraft {
-  address: string;
-  /** The three sections as items (people keep their full name so chips render at once). */
-  items: DraftItems;
-  /** Step 1: did the group meet? Defaults to yes; a no meeting uses only `reason`. */
-  met: boolean;
-  /** Kept when the leader switches back to yes, but only sent for a no meeting. */
-  reason: string;
-  /** The date has a no-meeting mark and the leader chose to replace it on submit. */
-  replacing: boolean;
-  /** Keyed by `personKey`: "member:12" or "guest:4". */
-  answers: Record<string, ReportDraftAnswer>;
-}
-
-export function draftKey(groupId: number | string, meetingDate: string) {
+function legacyKey(groupId: number | string, meetingDate: string) {
   return `ekk-report-draft:${groupId}:${meetingDate}`;
 }
 
@@ -108,12 +92,12 @@ function withMeetingDefaults(draft: ReportDraft): ReportDraft {
   };
 }
 
-export function loadDraft(
+export function loadLegacyDraft(
   groupId: number | string,
   meetingDate: string,
 ): ReportDraft | null {
   try {
-    const raw = window.localStorage.getItem(draftKey(groupId, meetingDate));
+    const raw = window.localStorage.getItem(legacyKey(groupId, meetingDate));
 
     if (!raw) return null;
 
@@ -125,24 +109,12 @@ export function loadDraft(
   }
 }
 
-export function saveDraft(
+export function clearLegacyDraft(
   groupId: number | string,
   meetingDate: string,
-  draft: ReportDraft,
 ) {
   try {
-    window.localStorage.setItem(
-      draftKey(groupId, meetingDate),
-      JSON.stringify(draft),
-    );
-  } catch {
-    // Storage unavailable or full: the draft is a convenience only.
-  }
-}
-
-export function clearDraft(groupId: number | string, meetingDate: string) {
-  try {
-    window.localStorage.removeItem(draftKey(groupId, meetingDate));
+    window.localStorage.removeItem(legacyKey(groupId, meetingDate));
   } catch {
     // Nothing to clear.
   }
