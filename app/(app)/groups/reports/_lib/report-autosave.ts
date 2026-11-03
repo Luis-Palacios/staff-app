@@ -282,6 +282,22 @@ export class ReportAutosave<TForm> {
     this.dirty = false;
   }
 
+  /**
+   * A new report's group or date changed before it was created: its device copy follows. Does
+   * nothing once the report exists (its date then changes through a save).
+   */
+  retarget(target: { groupId: number; date: string }) {
+    if (this.reportId !== null) return;
+
+    const next = outboxKey(target);
+
+    if (next === this.key) return;
+
+    removeOutbox(this.key);
+    this.key = next;
+    this.writeDevice();
+  }
+
   /** The editor learned the report's newer version some other way (submit). */
   setVersion(version: number) {
     this.version = version;

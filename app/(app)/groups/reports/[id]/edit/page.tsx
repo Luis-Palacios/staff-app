@@ -1,4 +1,7 @@
+import type { Me } from "@/api/members-api/types";
 import type { ReportDetail } from "@/api/small-groups-api/types";
+import type { ResumeInfo } from "../../_components/resume-card";
+import type { Locale } from "@/lib/locale-shared";
 
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -8,7 +11,7 @@ import { listReportedDatesAction } from "../../_actions/report-actions";
 import { loadReport } from "../../_lib/load-report";
 
 import { getMe } from "@/api/members-api/client";
-import { getReportRoster } from "@/api/small-groups-api/client";
+import { getReportRoster, getSmallGroup } from "@/api/small-groups-api/client";
 import { getPermissions } from "@/lib/auth/get-permissions";
 import { reportAccess } from "@/lib/auth/permissions";
 import { requirePermission } from "@/lib/auth/get-permissions";
@@ -18,6 +21,7 @@ import {
   formatChurchTime,
   getChurchToday,
 } from "@/lib/church-time";
+import { formatCalendarWeekdayDate } from "@/lib/format-date";
 
 /**
  * "Submitted by X on … · Last edited by Y today at …" (`Edit-Live`), in the church's time zone.
@@ -54,6 +58,43 @@ async function liveMeta(
 }
 
 /**
+ * A draft's resume card (`Draft-Resume`): who started it and when, the last save, and who else can
+ * continue it (the group's current leaders and co-leaders, and whoever started it; auto-save rule
+ * 14), all but the viewer.
+ */
+async function resumeInfo(report: ReportDetail, me: Me): Promise<ResumeInfo> {
+  const locale = (await getLocale()) as Locale;
+  const group = await getSmallGroup(String(report.smallGroup.id)).catch(
+    () => null,
+  );
+  const mine = me.member?.id ?? null;
+  const others = new Map<number, string>();
+
+  for (const row of group?.members ?? []) {
+    if (row.person.type === "member" && row.role !== "member") {
+      others.set(row.person.id, row.person.name);
+    }
+  }
+
+  others.set(report.startedBy.memberId, report.startedBy.name);
+
+  if (mine !== null) others.delete(mine);
+
+  const savedAt = report.lastEditedAt ?? report.startedAt;
+
+  return {
+    startedBy: report.startedBy.name,
+    startedDate: formatCalendarWeekdayDate(
+      churchDateOf(report.startedAt),
+      locale,
+    ),
+    startedTime: formatChurchTime(report.startedAt, locale),
+    savedTime: formatChurchTime(savedAt, locale),
+    others: [...others.values()].map((name) => name.split(" ")[0]),
+  };
+}
+
+/**
  * The one report editor (auto-save stage 3): a draft (the caller's group's, or one they started)
  * and a submitted report both open here, and every change saves as it is made.
  */
@@ -86,10 +127,12 @@ export default async function EditReportPage({
   ]);
   const { access } = reportAccess(permissions, me);
   const group = report.smallGroup;
+  const resume =
+    report.status === "draft" ? await resumeInfo(report, me) : null;
 
   return (
     <ReportFlow
-      existing={{ report, roster, meta }}
+      existing={{ report, roster, meta, resume }}
       groups={[
         {
           id: group.id,

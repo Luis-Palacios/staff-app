@@ -63,6 +63,12 @@ export default async function NewReportPage({
           filedDates: takenDates,
         });
   const rosterResult = await getReportRosterAction(group.id, date);
+  const held = rosterResult.ok ? rosterResult.roster.existingReport : null;
+
+  // The leader's own draft for that date: continue it (auto-save rule 2).
+  if (held && "id" in held && held.status === "draft") {
+    redirect(`/groups/reports/${held.id}/edit`);
+  }
 
   return (
     <ReportFlow

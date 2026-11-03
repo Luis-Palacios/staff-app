@@ -51,8 +51,8 @@ progress log below.
 | --- | --- | --- |
 | 1. API types, client and server actions | ✅ | 66a4aea |
 | 2. The save engine (queue, device outbox, status) | ✅ | 8188520 |
-| 3. One editor: indicator, pill, banners, Done, Leave, Discard | ✅ | |
-| 4. New report → draft, resume, Continue one at a time, roster drift | ⬜ | |
+| 3. One editor: indicator, pill, banners, Done, Leave, Discard | ✅ | d79fe97 |
+| 4. New report → draft, resume, Continue one at a time, roster drift | ✅ | |
 | 5. Submit, discard and no-meeting dialogs | ⬜ | |
 | 6. Lists and dashboards | ⬜ | |
 | 7. Old browser drafts, clean-up | ⬜ | |
@@ -103,6 +103,24 @@ progress log below.
   a no-name variant for an edit by an admin with no member.
 - Stage 3: `StaffAppPageHeader` gained `breadcrumbAside` and `titleAside` slots for the save status
   and the pill.
+- Stage 4: after the first save, `/new` moves to `/groups/reports/{id}/edit` with
+  `window.history.replaceState`, not `router.replace`: the two are different routes, so a router
+  navigation remounts the editor and loses the step. For the same reason creating a draft doesn't
+  revalidate (it re-rendered the page under its new address). A reload then opens `/edit`.
+- Stage 4: the first change is choosing the mode, an address edit or an answer; a no meeting (and
+  its reason) never starts a draft (rule 1). Before the draft exists, its device copy is keyed by
+  group and date and follows a group or date change.
+- Stage 4: opening a draft compares its rows with the roster for its date: when they differ it
+  shows the roster notice and saves the new list at once, instead of waiting for a 422 on the
+  next save. The resume card's "can continue it too" lists first names, as on the canvas.
+- Stage 4: a reopened draft's meeting step (*Change date or place*) keeps the met question and
+  shows **Back to the list** instead of the mode cards (rule 12). The group can't change once the
+  draft exists.
+- Stage 4: tried as a leader in the browser (1440, 390; light, dark; EN, ES): mode choice creates
+  the draft and stays on the quick list, reload opens the resume card with the progress,
+  *Continue one at a time* starts at the first half-answered person with the banner. Not tried:
+  someone else's draft on the date (needs a second leader's sign-in); the code path is the
+  stage 1 date note.
 
 ## Token changes
 

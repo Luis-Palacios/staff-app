@@ -2,7 +2,6 @@
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { Button, Description, Label, TextArea, TextField } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { REASON_MAX } from "@/app/(app)/groups/reports/_lib/report-schema";
@@ -35,7 +34,6 @@ export function NoMeetingCard({
   onCancel: () => void;
 }) {
   const t = useTranslations("ReportForm");
-  const router = useRouter();
 
   return (
     <section aria-labelledby="no-meeting-title" className={card({})}>
@@ -91,12 +89,9 @@ export function NoMeetingCard({
             className="w-full font-semibold sm:w-auto"
             isDisabled={saving}
             variant="outline"
-            onPress={() => {
-              onCancel();
-              router.push("/groups/reports");
-            }}
+            onPress={onCancel}
           >
-            {t("cancel")}
+            {t("leave")}
           </Button>
           <Button
             className="w-full font-semibold sm:w-auto"
