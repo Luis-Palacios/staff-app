@@ -1428,7 +1428,7 @@ Phase 5).
 ---
 
 ## Phase 10 — Cache the minted JWT until near expiry
-`[x]` (2026-11-02, branch `auth-session-reuse`)
+`[x]` (2026-11-02, staff-app PR 97)
 
 **Repo(s):** `staff-app`
 
