@@ -49,21 +49,20 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API types, client and server actions | ✅ | 66a4aea |
-| 2. The save engine (queue, device outbox, status) | ✅ | 8188520 |
-| 3. One editor: indicator, pill, banners, Done, Leave, Discard | ✅ | d79fe97 |
-| 4. New report → draft, resume, Continue one at a time, roster drift | ✅ | 9d25470 |
-| 5. Submit, discard and no-meeting dialogs | ✅ | b9be15b |
-| 6. Lists and dashboards | ✅ | d7b0580 |
-| 7. Old browser drafts, clean-up | ✅ | 155d304 |
-| 8. Design review fixes | ✅ | d0c89d9 |
+| 1. API types, client and server actions | ✅ | 399db51 |
+| 2. The save engine (queue, device outbox, status) | ✅ | 353e20b |
+| 3. One editor: indicator, pill, banners, Done, Leave, Discard | ✅ | b4c434c |
+| 4. New report → draft, resume, Continue one at a time, roster drift | ✅ | 088ada5 |
+| 5. Submit, discard and no-meeting dialogs | ✅ | 40d67b4 |
+| 6. Lists and dashboards | ✅ | d6471b1 |
+| 7. Old browser drafts, clean-up | ✅ | 25fa65a |
+| 8. Design review fixes | ✅ | 71eefde |
 
 ### Status and what's pending (read this first in a new session)
 
-All eight stages are implemented on the `report-autosave` branch and opened as a PR against
-`main`. What is left, in order:
+All eight stages are merged to `main` (PR 96). What is left, in order:
 
-1. **Before merging: the elder side, untried.** The first session was signed in only as a small
+1. **The elder side, untried** (it was meant to happen before merging; it didn't). The first session was signed in only as a small
    group leader. Sign in as an elder (and as a second leader), re-run membership-management's seed
    so GP - #4 and GP - #1 have drafts (`uv run python -m membership_management.cli.main`, see its
    README; the local DB had no drafts when stage 6 was tried), then check:
@@ -76,7 +75,7 @@ All eight stages are implemented on the `report-autosave` branch and opened as a
      cards dimmed (rule 17).
    - The close-group dialog's *Closing it also discards N unsent drafts* line (needs a group with
      a draft and someone allowed to close it; closing is destructive, use a throwaway group).
-2. ✅ **auth-server rate limits** (branch `auth-session-reuse`). The session is now read once per
+2. ✅ **auth-server rate limits** (branch `auth-session-reuse`, its own PR; roadmap Phase 10). The session is now read once per
    request, server actions included (`perRequest` in `api/auth-api/helpers/per-request.ts`, keyed
    on Next's per-request headers object), and a JWT is reused until a minute before it expires,
    keyed by the session, user, role and permissions (`get-auth-token.ts`; a 401 from the API drops
@@ -97,9 +96,6 @@ Smaller follow-ups, none blocking:
   conflict keeping the device copy, retry backoff, create-then-rekey, roster drift, `canSend`
   holding a submitted report). The class takes `save`, `create` and `isOnline` as options, so it
   needs no React or network.
-- **API handoff log:** `membership-management/docs/REPORT-AUTOSAVE-API-HANDOFF.md` lists stage
-  commits (71d5a6d, f29d7eb, 8b09227, 580e187, 26a5cbd) that aren't the ones on its `main`
-  (29c6180, c6010fc, 2c8db35, 173c3c5, 9e58a17). Fix in that repo.
 - **Done scroll:** after **Done** the report detail sometimes keeps the editor's scroll position
   instead of starting at the top.
 - **Phone sheet:** the confirm dialogs' bottom sheet keeps HeroUI's side margins rather than
@@ -236,8 +232,7 @@ Where things live (for a new session):
     a 40-person roster, or a few leaders on the same church Wi-Fi filling reports together, can
     pass 300 without a 10 s pause and get 429s. The editor then shows *Couldn't save* and retries
     (2, 5, 15, 30 s); the 15 s wait lets the window reset, so nothing is lost, but it can recur.
-  - Not changed here (auth design): reading the session once per action, and reusing a JWT until
-    it nears expiry, would bring a save to one session read and usually no mint.
+  - Fixed afterwards (pending item 2): one session read per save and usually no mint.
 
 ## Token changes
 
