@@ -25,6 +25,7 @@ import {
   ArrowLeftIcon,
   CalendarDaysIcon,
   CheckIcon,
+  PaperAirplaneIcon,
   DevicePhoneMobileIcon,
   ExclamationCircleIcon,
   InformationCircleIcon,
@@ -48,6 +49,7 @@ import { MeetingDatePicker } from "./meeting-date-picker";
 import { MeetingStep } from "./meeting-step";
 import { PersonStep } from "./person-step";
 import { ReportBanner } from "./report-banner";
+import { ReportConfirmDialog } from "./report-confirm-dialog";
 import { ReportFooterStatus } from "./report-footer-status";
 import { useReportGuests } from "./report-guests";
 import { isMarked, ReportListStep } from "./report-list-step";
@@ -95,6 +97,7 @@ import {
   formatCalendarFullDate,
   formatCalendarShortDate,
   formatCalendarShortWeekdayDate,
+  formatCalendarWeekdayDate,
 } from "@/lib/format-date";
 
 /** What the roster call said about the chosen group and date. */
@@ -182,6 +185,7 @@ export function ReportFlow({
   initialDates,
   initialRoster,
   existing,
+  memberId,
 }: {
   groups: FlowGroup[];
   scoped: boolean;
@@ -191,6 +195,8 @@ export function ReportFlow({
   initialDates: ReportedDates;
   initialRoster: Extract<RosterState, { status: "ready" }> | null;
   existing?: ExistingReport;
+  /** The viewer's member, left out of "who else sees this draft". */
+  memberId: number | null;
 }) {
   const t = useTranslations("ReportForm");
   const locale = useLocale() as Locale;
@@ -243,6 +249,9 @@ export function ReportFlow({
   const [reloading, setReloading] = useState(false);
   // Names added by a roster reload (rule 11), for the notice; null when it didn't change.
   const [rosterChange, setRosterChange] = useState<string[] | null>(null);
+  const [dialog, setDialog] = useState<
+    "submit" | "discard" | "noMeeting" | null
+  >(null);
   // *Continue one at a time* started here: the "Picking up where you left off" banner.
   const [resumedAt, setResumedAt] = useState<number | null>(null);
   // The group and date the roster below belongs to, so the first render doesn't ask again.
@@ -612,9 +621,16 @@ export function ReportFlow({
       const version = await autosave.engine.flush();
 
       // The save status and banner say why it didn't save.
-      if (version === null) return;
+      if (version === null) {
+        setDialog(null);
+
+        return;
+      }
 
       const result = await submitReportAction(id, groupRef.current, version);
+
+      // Success redirects to the report; anything else is shown on the editor.
+      setDialog(null);
 
       // Success redirects to the report.
       if (result.kind === "conflict" && result.conflict) {
@@ -646,11 +662,27 @@ export function ReportFlow({
     autosave.engine.dispose();
     clearOutbox({ reportId: id });
     startSubmit(async () => {
-      setFailure(await deleteReportAction(id, groupRef.current));
+      const result = await deleteReportAction(id, groupRef.current, {
+        draft: true,
+      });
+
+      setDialog(null);
+      setFailure(result);
     });
   }
 
+  /** Save the no meeting; on a date with the leader's draft, ask first (rule 18). */
   function saveNoMeeting() {
+    if (savedIdRef.current !== null) {
+      setDialog("noMeeting");
+
+      return;
+    }
+
+    markDateNoMeeting();
+  }
+
+  function markDateNoMeeting() {
     const id = savedIdRef.current;
 
     setFailure(null);
@@ -670,6 +702,7 @@ export function ReportFlow({
         return;
       }
 
+      setDialog(null);
       setFailure(result);
     });
   }
@@ -785,6 +818,35 @@ export function ReportFlow({
   ).length;
   const remaining = people.length - markedCount;
   const firstOpen = firstOpenIndex(people, draft.answers);
+  const cameCount = people.filter(
+    (row) => draft.answers[personKey(row.person)]?.attendedGroup === true,
+  ).length;
+  const noteCount = people.filter((row) =>
+    draft.answers[personKey(row.person)]?.observation.trim(),
+  ).length;
+  // Who else sees the draft and loses it with a discard: the group's leaders and co-leaders on
+  // the list, and whoever started it (rule 14), but not the viewer.
+  const draftViewers = new Map<number, string>();
+
+  for (const row of people) {
+    if (row.person.type === "member" && row.role !== "member") {
+      draftViewers.set(row.person.id, row.name.split(" ")[0]);
+    }
+  }
+
+  if (existing) {
+    draftViewers.set(
+      existing.report.startedBy.memberId,
+      existing.report.startedBy.name.split(" ")[0],
+    );
+  }
+
+  if (memberId !== null) draftViewers.delete(memberId);
+
+  const others = new Intl.ListFormat(locale, { type: "conjunction" }).format([
+    ...draftViewers.values(),
+  ]);
+  const weekdayDate = formatCalendarWeekdayDate(date, locale);
   const tagContext = tagContextOf({
     groupId,
     groupName: group.name,
@@ -932,7 +994,7 @@ export function ReportFlow({
           className="gap-1.5 px-3 font-semibold text-danger"
           isDisabled={isSubmitting}
           variant="ghost"
-          onPress={discardDraft}
+          onPress={() => setDialog("discard")}
         >
           <TrashIcon
             aria-hidden="true"
@@ -973,8 +1035,8 @@ export function ReportFlow({
               savedId === null ||
               save.status === "conflict"
             }
-            isPending={isSubmitting}
-            onPress={submitDraft}
+            isPending={isSubmitting && dialog === null}
+            onPress={() => setDialog("submit")}
           >
             <CheckIcon
               aria-hidden="true"
@@ -1284,6 +1346,71 @@ export function ReportFlow({
         )}
 
       {guestActions.dialogs}
+
+      <ReportConfirmDialog
+        body={t("submitBody")}
+        cancelLabel={t("keepEditing")}
+        confirmLabel={t("submit")}
+        icon={PaperAirplaneIcon}
+        isOpen={dialog === "submit"}
+        isPending={isSubmitting}
+        summary={[
+          {
+            value: `${markedCount} / ${people.length}`,
+            label: t("sumAnswered"),
+          },
+          { value: String(cameCount), label: t("sumCame") },
+          { value: String(noteCount), label: t("sumNotes") },
+        ]}
+        title={t("submitTitle")}
+        tone="accent"
+        onConfirm={submitDraft}
+        onOpenChange={(open) => setDialog(open ? "submit" : null)}
+      />
+      <ReportConfirmDialog
+        body={
+          draftViewers.size > 0
+            ? t("discardBody", {
+                date: weekdayDate,
+                answered: markedCount,
+                total: people.length,
+                notes: noteCount,
+                others,
+                count: draftViewers.size,
+              })
+            : t("discardBodyAlone", {
+                date: weekdayDate,
+                answered: markedCount,
+                total: people.length,
+                notes: noteCount,
+              })
+        }
+        cancelLabel={t("keepDraft")}
+        confirmLabel={t("discard")}
+        icon={TrashIcon}
+        isOpen={dialog === "discard"}
+        isPending={isSubmitting}
+        title={t("discardTitle")}
+        tone="danger"
+        onConfirm={discardDraft}
+        onOpenChange={(open) => setDialog(open ? "discard" : null)}
+      />
+      <ReportConfirmDialog
+        body={t("nmDraftBody", {
+          date: weekdayDate,
+          answered: markedCount,
+          total: people.length,
+        })}
+        cancelLabel={t("nmKeep")}
+        confirmLabel={t("nmConfirm")}
+        icon={TrashIcon}
+        isOpen={dialog === "noMeeting"}
+        isPending={isSubmitting}
+        title={t("nmDraftTitle")}
+        tone="danger"
+        onConfirm={markDateNoMeeting}
+        onOpenChange={(open) => setDialog(open ? "noMeeting" : null)}
+      />
     </div>
   );
 }

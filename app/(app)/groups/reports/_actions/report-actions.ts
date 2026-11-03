@@ -385,9 +385,11 @@ export async function updateReportAction(
   redirect(`/groups/reports/${id}?saved=updated`);
 }
 
+/** Deletes a report, or discards a draft (`draft`: the list says *Draft discarded*). */
 export async function deleteReportAction(
   id: number,
   groupId: number,
+  options: { draft?: boolean } = {},
 ): Promise<ReportFailure> {
   const forbidden = await forbiddenUnless({ smallGroupReports: ["delete"] });
 
@@ -400,7 +402,7 @@ export async function deleteReportAction(
   }
 
   revalidateReports(groupId, id);
-  redirect("/groups/reports?saved=deleted");
+  redirect(`/groups/reports?saved=${options.draft ? "discarded" : "deleted"}`);
 }
 
 /** Dates that already have a report (`filed`) or a no-meeting mark, for one group. */

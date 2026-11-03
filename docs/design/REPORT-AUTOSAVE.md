@@ -52,8 +52,8 @@ progress log below.
 | 1. API types, client and server actions | ✅ | 66a4aea |
 | 2. The save engine (queue, device outbox, status) | ✅ | 8188520 |
 | 3. One editor: indicator, pill, banners, Done, Leave, Discard | ✅ | d79fe97 |
-| 4. New report → draft, resume, Continue one at a time, roster drift | ✅ | |
-| 5. Submit, discard and no-meeting dialogs | ⬜ | |
+| 4. New report → draft, resume, Continue one at a time, roster drift | ✅ | 9d25470 |
+| 5. Submit, discard and no-meeting dialogs | ✅ | |
 | 6. Lists and dashboards | ⬜ | |
 | 7. Old browser drafts, clean-up | ⬜ | |
 | 8. Design review fixes | ⬜ | |
@@ -121,6 +121,18 @@ progress log below.
   *Continue one at a time* starts at the first half-answered person with the banner. Not tried:
   someone else's draft on the date (needs a second leader's sign-in); the code path is the
   stage 1 date note.
+- Stage 5: one `ReportConfirmDialog` (HeroUI `AlertDialog`, `placement="auto"`: centred 500 px on
+  desktop, bottom sheet on phones with the action on top) serves submit, discard and the
+  no-meeting replace. The phone sheet keeps HeroUI's side margins rather than running edge to edge.
+- Stage 5: the discard body names the other people who see the draft from the roster's leaders
+  and co-leaders plus whoever started it (the viewer left out); with nobody else it drops that
+  sentence (`discardBodyAlone`).
+- Stage 5: the dashboard's No meeting dialog takes an optional `draft` on its target: it then says
+  the draft is deleted and sends `replacesDraft`. Stage 6 passes it.
+- Stage 5: tried in the browser (dark, ES; 1440 and 390): discard sheet with focus on *Keep
+  draft*; submit with the three tiles, then the report with the *submitted* toast; a draft
+  replaced by a no meeting after the confirm. The test reports were deleted afterwards. The close
+  group line wasn't tried (it would close a group).
 
 ## Token changes
 

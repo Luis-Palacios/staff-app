@@ -145,6 +145,7 @@ export default async function EditReportPage({
       initialDates={reported}
       initialGroupId={group.id}
       initialRoster={null}
+      memberId={me.member?.id ?? null}
       scoped={access === "scoped"}
       today={today}
     />

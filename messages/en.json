@@ -146,7 +146,8 @@
     "errors": {
       "closed": "This group was already closed.",
       "generic": "Something went wrong. Try again."
-    }
+    },
+    "closeDiscardsDrafts": "Closing it also discards {count, plural, one {1 unsent draft} other {# unsent drafts}}."
   },
   "GroupMembers": {
     "addMember": "Add member",
@@ -309,7 +310,8 @@
     "results": "{count, plural, one {# result} other {# results}}",
     "noMeeting": "No meeting",
     "markedBy": "Marked by {name}",
-    "draft": "Draft"
+    "draft": "Draft",
+    "draftDiscarded": "Draft discarded"
   },
   "ReportDetail": {
     "groupPage": "Group page",
@@ -676,7 +678,21 @@
     "reviewGuided": "Go through one at a time",
     "continueHint": "Starts at {name}, the first person with something left to answer.",
     "reviewHint": "Everyone is answered. Starts at the first person, for adding notes.",
-    "changeMeeting": "Change date or place"
+    "changeMeeting": "Change date or place",
+    "submitTitle": "Submit this report?",
+    "submitBody": "The elders will see it on Report status, in Prayer & follow-up and on each person’s timeline. You can still edit it afterwards; changes show right away.",
+    "keepEditing": "Keep editing",
+    "sumAnswered": "People answered",
+    "sumCame": "Came",
+    "sumNotes": "Notes",
+    "discardTitle": "Discard this draft?",
+    "discardBody": "Everything in the {date} draft is deleted: {answered, number} of {total, number} people answered{notes, plural, =0 {} one {, 1 note} other {, # notes}}. {others} won’t see it either{count, plural, other {}}. This can’t be undone.",
+    "discardBodyAlone": "Everything in the {date} draft is deleted: {answered, number} of {total, number} people answered{notes, plural, =0 {} one {, 1 note} other {, # notes}}. This can’t be undone.",
+    "keepDraft": "Keep draft",
+    "nmDraftTitle": "Replace the draft with no meeting?",
+    "nmDraftBody": "You started a report for {date} ({answered, number} of {total, number} people answered). Saving the date as no meeting deletes that draft.",
+    "nmKeep": "Keep the draft",
+    "nmConfirm": "Delete draft and save"
   },
   "GroupReportsCard": {
     "eyebrow": "Reports",
