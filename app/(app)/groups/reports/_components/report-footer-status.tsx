@@ -12,9 +12,12 @@ export function ReportFooterStatus({
   remaining,
   failure,
   reloading,
+  doneHint,
   onReload,
 }: {
   remaining: number;
+  /** Shown once everyone is marked, in place of "Everyone is marked" (a submitted report's). */
+  doneHint?: string;
   failure: { message: string; kind?: string } | null;
   reloading: boolean;
   onReload: () => void;
@@ -52,7 +55,9 @@ export function ReportFooterStatus({
             : "text-[13px] text-muted"
         }
       >
-        {remaining > 0 ? t("remaining", { count: remaining }) : t("allMarked")}
+        {remaining > 0
+          ? t("remaining", { count: remaining })
+          : (doneHint ?? t("allMarked"))}
       </p>
     </div>
   );

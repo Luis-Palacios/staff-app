@@ -50,8 +50,8 @@ progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. API types, client and server actions | ✅ | 66a4aea |
-| 2. The save engine (queue, device outbox, status) | ✅ | |
-| 3. One editor: indicator, pill, banners, Done, Leave, Discard | ⬜ | |
+| 2. The save engine (queue, device outbox, status) | ✅ | 8188520 |
+| 3. One editor: indicator, pill, banners, Done, Leave, Discard | ✅ | |
 | 4. New report → draft, resume, Continue one at a time, roster drift | ⬜ | |
 | 5. Submit, discard and no-meeting dialogs | ⬜ | |
 | 6. Lists and dashboards | ⬜ | |
@@ -87,6 +87,22 @@ progress log below.
   null on any failure instead of waiting through retries.
 - Stage 2: leaving the editor sends a change still waiting for its timer at once instead of
   leaving it on the device. `report-draft.ts` stays until stage 7 (the browser-draft migration).
+- Stage 3: tried in the browser on a submitted report (leader, 1440 and 390, light and dark, EN and
+  ES): tap → *Saving…* → *Saved · time*; typing waits for the pause and a blur sends at once; a
+  second tab on an older version gets the conflict banner, and Reload shows the other change and
+  drops the device copy; offline (faked `navigator.onLine` + `offline` event, since the extension
+  can't switch DevTools' network) keeps the change on the device, `beforeunload` warns, and a
+  reload restores and sends it.
+- Stage 3: a submitted report can't be saved with someone unanswered (rule 5), which happens when
+  its date or roster changes. The change then waits on the device and the status reads *Not
+  saved · answer everyone* (`saveHeld`, not on the canvas); it goes out once everyone is answered.
+- Stage 3: Submit and Discard act at once here; their confirm dialogs come in stage 5. A draft
+  opens on the list with the same date and place card as a submitted report until stage 4 adds
+  the resume card.
+- Stage 3: Report detail's subtitle adds *Last edited by X · time* (rule 10). The conflict copy has
+  a no-name variant for an edit by an admin with no member.
+- Stage 3: `StaffAppPageHeader` gained `breadcrumbAside` and `titleAside` slots for the save status
+  and the pill.
 
 ## Token changes
 

@@ -56,6 +56,11 @@ export type SaveState =
    * next change (or Retry) tries again. `message` is already translated.
    */
   | { status: "error"; retrying: boolean; message: string }
+  /**
+   * A submitted report with someone unanswered (its date or roster changed): it can't be saved
+   * until everyone is answered (rule 5), so the change waits on the device.
+   */
+  | { status: "held" }
   /** Someone saved first (rule 9): nothing is sent until the leader reloads. */
   | { status: "conflict"; conflict: ReportConflict };
 
@@ -131,6 +136,8 @@ export interface AutosaveOptions<TForm> {
   reportId: number | null;
   /** The server version the editor opened; ignored without `reportId`. */
   version: number;
+  /** When the opened report was last saved, for the first "Saved · time". */
+  savedAt?: string | null;
   /** Group and date of a new report: the outbox key until it has an id. */
   newTarget?: { groupId: number; date: string };
   save: (
@@ -150,6 +157,8 @@ export interface AutosaveOptions<TForm> {
   onRosterChanged?: () => Promise<{ body: ReportInput; form: TForm } | null>;
   /** Any other failure the editor handles itself (a date taken, a draft in progress). */
   onFailure?: (failure: ReportFailure) => void;
+  /** False holds the change on the device (a submitted report with someone unanswered). */
+  canSend?: (body: ReportInput) => boolean;
   /** For tests; defaults to `navigator.onLine`. */
   isOnline?: () => boolean;
 }
@@ -183,6 +192,7 @@ export class ReportAutosave<TForm> {
   constructor(private readonly options: AutosaveOptions<TForm>) {
     this.reportId = options.reportId;
     this.version = options.version;
+    this.state = { status: "saved", savedAt: options.savedAt ?? null };
     this.key =
       options.reportId !== null
         ? outboxKey({ reportId: options.reportId })
@@ -233,6 +243,11 @@ export class ReportAutosave<TForm> {
     }
 
     this.schedule(kind);
+  }
+
+  /** A field lost focus: typing waiting for its pause goes out now (rule 6). */
+  blur() {
+    if (this.dueKind === "text") this.schedule("blur");
   }
 
   /** Retry now (the Retry and Try again buttons, the `online` event). */
@@ -353,6 +368,9 @@ export class ReportAutosave<TForm> {
       return;
     }
 
+    // A save due at once is already pending.
+    if (kind === "blur" && this.dueKind === "blur") return;
+
     this.clearTimer();
     this.dueKind = kind;
 
@@ -395,6 +413,13 @@ export class ReportAutosave<TForm> {
 
     if (!this.online()) {
       this.setState({ status: "offline" });
+      this.resolveWaiters(null);
+
+      return;
+    }
+
+    if (this.options.canSend && !this.options.canSend(this.latest.body)) {
+      this.setState({ status: "held" });
       this.resolveWaiters(null);
 
       return;
@@ -563,6 +588,7 @@ export function useReportAutosave<TForm>(options: AutosaveOptions<TForm>) {
         onRosterChanged: () =>
           latest.current.onRosterChanged?.() ?? Promise.resolve(null),
         onFailure: (failure) => latest.current.onFailure?.(failure),
+        canSend: (body) => latest.current.canSend?.(body) ?? true,
       }),
   );
 

@@ -22,3 +22,19 @@ export function formatChurchDateTime(iso: string, locale: string): string {
     timeZone: getEnv().CHURCH_TIMEZONE,
   }).format(date);
 }
+
+export function formatChurchTime(iso: string, locale: string): string {
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat(locale, {
+    timeStyle: "short",
+    timeZone: getEnv().CHURCH_TIMEZONE,
+  }).format(date);
+}
+
+/** The church's calendar date ("YYYY-MM-DD") of a timestamp. */
+export function churchDateOf(iso: string): string {
+  return getChurchToday(new Date(iso));
+}
