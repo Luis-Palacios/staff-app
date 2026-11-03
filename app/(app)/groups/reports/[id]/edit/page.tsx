@@ -63,8 +63,11 @@ export default async function EditReportPage({
       />
       <EditReportForm
         editMeta={t("editMeta", {
-          name: report.submittedBy.name,
-          dateTime: formatChurchDateTime(report.submittedAt, locale),
+          name: (report.submittedBy ?? report.startedBy).name,
+          dateTime: formatChurchDateTime(
+            report.submittedAt ?? report.startedAt,
+            locale,
+          ),
         })}
         filedDates={reported.filed}
         initialRoster={roster}

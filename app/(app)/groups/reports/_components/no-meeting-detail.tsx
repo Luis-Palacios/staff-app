@@ -1,4 +1,4 @@
-import type { ReportDetail } from "@/api/small-groups-api/types";
+import type { SubmittedReportDetail } from "@/api/small-groups-api/types";
 import type { Locale } from "@/lib/locale-shared";
 
 import {
@@ -34,7 +34,11 @@ import {
 
 // The detail page of a date marked as no meeting (`held === false`): the reason, the actions and,
 // for someone who can file, the way to replace the mark with a report.
-export async function NoMeetingDetail({ report }: { report: ReportDetail }) {
+export async function NoMeetingDetail({
+  report,
+}: {
+  report: SubmittedReportDetail;
+}) {
   const [t, tWeek, locale, me, permissions] = await Promise.all([
     getTranslations("ReportDetail"),
     getTranslations("NoMeetingWeek"),

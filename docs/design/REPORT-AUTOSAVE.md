@@ -49,7 +49,7 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API types, client and server actions | ⬜ | |
+| 1. API types, client and server actions | ✅ | |
 | 2. The save engine (queue, device outbox, status) | ⬜ | |
 | 3. One editor: indicator, pill, banners, Done, Leave, Discard | ⬜ | |
 | 4. New report → draft, resume, Continue one at a time, roster drift | ⬜ | |
@@ -60,8 +60,21 @@ progress log below.
 
 ### Decisions and deviations
 
-- [Anything decided during implementation, or where the build intentionally differs from the
-  canvas, and why.]
+- Stage 1: the API differs from this doc in a few places (from its handoff's "Decisions and
+  deviations"): 409s with extra fields also carry a `code`, still matched on the `detail` phrase;
+  the list has no not-filed row for a meeting whose draft the caller sees, and `notFiled` excludes
+  it (the summary's `notFiledDates` keeps the date); submit can answer 422 `attendance`;
+  `existingReport` of a submitted report also has `version`. Types follow the API's commits
+  2c8db35 and 173c3c5. The roster's old `existingReportId` / `existingReportHeld` are left out of
+  the type (they go in the API's stage 6), so nothing reads them.
+- Stage 1: `saveReportAction` doesn't revalidate. A server action that revalidates re-renders the
+  open page on the server, which for auto-save would be one page render (session, JWT, report,
+  roster) per save. Leaving the editor (`leaveReportAction`, submit, discard) revalidates instead.
+- Stage 1: failures that a retry may fix (the API unreachable, 5xx, 429) come back as `kind:
+  "network"`; the engine retries them. A redirect from the session check is rethrown.
+- Stage 1: `SubmittedReportDetail` (via `isSubmitted`) types a submitted report's answers as
+  booleans, so the read views (detail, no meeting, prayer panel) don't handle nulls they can't
+  get. A draft's `/groups/reports/[id]` redirects to `/edit` from this stage on.
 
 ## Token changes
 

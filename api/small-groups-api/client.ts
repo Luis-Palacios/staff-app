@@ -14,6 +14,7 @@ import type {
   TimelineEntry,
   ReportSummaryGroup,
   ReportWeek,
+  SmallGroupClosed,
   SmallGroupDetail,
   SmallGroupInput,
   SmallGroupRole,
@@ -72,9 +73,9 @@ export function updateSmallGroup(
   );
 }
 
-/** Ends every membership today. 409 when already closed. */
-export function closeSmallGroup(id: string): Promise<SmallGroupDetail> {
-  return authenticatedFetch<SmallGroupDetail>(
+/** Ends every membership today and discards the group's drafts. 409 when already closed. */
+export function closeSmallGroup(id: string): Promise<SmallGroupClosed> {
+  return authenticatedFetch<SmallGroupClosed>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
     groupPath(id, "/close"),
     { method: "POST" },
@@ -301,7 +302,22 @@ export function updateSmallGroupReport(
   );
 }
 
-/** 204; the attendance rows go with it. */
+/**
+ * Submits a draft, one way (auto-save rule 5): the caller's member becomes the submitter. 409
+ * `changed since` on a stale `version`, `already submitted`; 422 `incomplete`, `attendance`.
+ */
+export function submitSmallGroupReport(
+  id: number | string,
+  version: number,
+): Promise<ReportDetail> {
+  return authenticatedFetch<ReportDetail>(
+    getEnv().APPLICATIONS_MEMBERSHIP_API_URL,
+    `${reportPath(id)}/submit`,
+    { method: "POST", body: { version } },
+  );
+}
+
+/** 204; the attendance rows go with it. A draft can be deleted by anyone who sees it (rule 14). */
 export function deleteSmallGroupReport(id: number | string): Promise<void> {
   return authenticatedFetch<void>(
     getEnv().APPLICATIONS_MEMBERSHIP_API_URL,

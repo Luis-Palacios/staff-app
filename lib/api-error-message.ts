@@ -15,7 +15,17 @@ export type ReportErrorKind =
   | "rosterChanged"
   | "notLeaderOnDate"
   | "tag"
-  | "items";
+  | "items"
+  /** 409 `changed since`: someone saved first (auto-save rule 9). */
+  | "conflict"
+  /** 409 `draft is in progress`: someone else's draft holds the date (rule 17). */
+  | "draftInProgress"
+  /** 409 `already submitted`: submit on a submitted report. */
+  | "alreadySubmitted"
+  /** 422 `incomplete`: submit with an answer missing (rule 5). */
+  | "incomplete"
+  /** 409 on a conversation write to a draft (rule 16). */
+  | "draftConversation";
 
 /** Matched on status and a phrase of `detail`, never shown. Null for any other error. */
 export function getReportErrorKind(error: unknown): ReportErrorKind | null {
@@ -24,6 +34,11 @@ export function getReportErrorKind(error: unknown): ReportErrorKind | null {
   const detail = JSON.stringify(error.body ?? "").toLowerCase();
 
   if (error.status === 409) {
+    // Bodies with extra fields also carry a `code`; the spec matches on the detail phrase.
+    if (detail.includes("changed since")) return "conflict";
+    if (detail.includes("draft is in progress")) return "draftInProgress";
+    if (detail.includes("already submitted")) return "alreadySubmitted";
+    if (detail.includes("on a draft")) return "draftConversation";
     if (detail.includes("already a report")) return "exists";
     if (detail.includes("link your account to a member")) return "needsMember";
     if (detail.includes("closed")) return "closed";
@@ -38,6 +53,7 @@ export function getReportErrorKind(error: unknown): ReportErrorKind | null {
 
     if (detail.includes("to tag") || detail.includes("be tagged")) return "tag";
 
+    if (detail.includes("incomplete")) return "incomplete";
     if (detail.includes("future")) return "future";
     if (detail.includes("attendance")) return "rosterChanged";
     if (detail.includes("didn't lead")) return "notLeaderOnDate";
@@ -56,6 +72,43 @@ export function getExistingReportId(error: unknown): number | null {
     ?.existingReportId;
 
   return typeof id === "number" ? id : null;
+}
+
+/** Who saved the report last, from a 409 `changed since` (auto-save rule 9). */
+export interface ReportConflict {
+  /** The report's version now. */
+  version: number | null;
+  /** Null for an admin with no member. */
+  lastEditedBy: { memberId: number; name: string } | null;
+  /** ISO timestamp with offset. */
+  lastEditedAt: string | null;
+}
+
+export function getReportConflict(error: unknown): ReportConflict | null {
+  if (getReportErrorKind(error) !== "conflict") return null;
+
+  const body = (error as ApiError).body as Record<string, unknown> | null;
+  const by = body?.lastEditedBy as Record<string, unknown> | null | undefined;
+
+  return {
+    version: typeof body?.version === "number" ? body.version : null,
+    lastEditedBy:
+      by && typeof by.memberId === "number" && typeof by.name === "string"
+        ? { memberId: by.memberId, name: by.name }
+        : null,
+    lastEditedAt:
+      typeof body?.lastEditedAt === "string" ? body.lastEditedAt : null,
+  };
+}
+
+/** The name in a 409 `draft is in progress` (`startedBy.name`); null for any other error. */
+export function getDraftStarter(error: unknown): string | null {
+  if (getReportErrorKind(error) !== "draftInProgress") return null;
+
+  const by = ((error as ApiError).body as { startedBy?: { name?: unknown } })
+    ?.startedBy;
+
+  return typeof by?.name === "string" ? by.name : null;
 }
 
 /** True when a duplicate-date 409 says the existing report is a held one (`existingReportHeld`). */
@@ -105,6 +158,16 @@ export async function getApiErrorMessage(
         return (await getTranslations("ReportItems"))("errorTag");
       case "items":
         return (await getTranslations("ReportItems"))("errorLimit");
+      case "conflict":
+        return t("reportConflict");
+      case "draftInProgress":
+        return t("reportDraftInProgress");
+      case "alreadySubmitted":
+        return t("reportAlreadySubmitted");
+      case "incomplete":
+        return t("reportIncomplete");
+      case "draftConversation":
+        return t("reportDraftConversation");
     }
   }
 

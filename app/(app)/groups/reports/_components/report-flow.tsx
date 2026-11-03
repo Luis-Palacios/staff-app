@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReportRoster } from "@/api/small-groups-api/types";
 import type { ReportFailure } from "@/app/(app)/groups/reports/_actions/report-actions";
 import type { DateProblem } from "@/app/(app)/groups/reports/_components/date-problem-note";
 import type {
@@ -30,6 +29,7 @@ import { useReportGuests } from "./report-guests";
 import { isMarked, ReportListStep } from "./report-list-step";
 import { ReportStepper } from "./report-stepper";
 
+import { isHiddenDraft, type ReportRoster } from "@/api/small-groups-api/types";
 import {
   createReportAction,
   getReportRosterAction,
@@ -296,7 +296,16 @@ export function ReportFlow({
     // A successful submit redirects and never comes back, so the draft goes first and returns on failure.
     clearDraft(groupId, date);
     startSubmit(async () => {
-      const result = await createReportAction(groupId, input);
+      const result = await createReportAction(groupId, {
+        ...input,
+        status: "submitted",
+      });
+
+      if (result.ok) {
+        router.push(`/groups/reports/${result.id}?saved=submitted`);
+
+        return;
+      }
 
       saveDraft(groupId, date, draftRef.current);
       setFailure(result);
@@ -382,11 +391,13 @@ export function ReportFlow({
       }
     },
   });
-  const existingId = ready?.roster.existingReportId ?? null;
+  const existing = ready?.roster.existingReport ?? null;
+  // Someone else's draft holds the date: no id to open (auto-save rule 17).
+  const hiddenDraft = isHiddenDraft(existing);
+  const visible = existing && !isHiddenDraft(existing) ? existing : null;
   // A no meeting on the date can be replaced by a report; a held report there is a duplicate.
-  const noMeetingId =
-    ready?.roster.existingReportHeld === false ? existingId : null;
-  const exists = noMeetingId === null ? existingId : null;
+  const noMeetingId = visible && !visible.held ? visible.id : null;
+  const exists = visible?.held ? visible.id : null;
   const replacing = noMeetingId !== null && draft.replacing;
   const noMeetingOnDate: NoMeetingOnDate | null =
     ready && noMeetingId !== null
@@ -405,10 +416,17 @@ export function ReportFlow({
       : null;
   const rosterProblem: DateProblem | null =
     ready && exists !== null
-      ? { message: ready.existsMessage ?? "", existingReportId: exists }
-      : roster.status === "error"
-        ? { message: roster.message, existingReportId: null }
-        : null;
+      ? {
+          message:
+            ready.existsMessage ??
+            (visible?.status === "draft" ? t("draftYours") : ""),
+          existingReportId: exists,
+        }
+      : hiddenDraft
+        ? { message: t("draftInProgress"), existingReportId: null }
+        : roster.status === "error"
+          ? { message: roster.message, existingReportId: null }
+          : null;
   const dateProblem = dateFailure ?? rosterProblem;
   const noPeople = ready !== null && people.length === 0;
   const sundayLabel = ready
@@ -485,11 +503,15 @@ export function ReportFlow({
           canChoose={
             ready !== null &&
             exists === null &&
+            !hiddenDraft &&
             !noPeople &&
             (noMeetingOnDate === null || replacing)
           }
           canSaveNoMeeting={
-            ready !== null && exists === null && noMeetingOnDate === null
+            ready !== null &&
+            exists === null &&
+            !hiddenDraft &&
+            noMeetingOnDate === null
           }
           date={date}
           dateProblem={dateProblem}

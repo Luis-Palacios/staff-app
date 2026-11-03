@@ -308,7 +308,8 @@
     "noMatches": "Ningún reporte coincide con estos filtros.",
     "results": "{count, plural, one {# resultado} other {# resultados}}",
     "noMeeting": "Sin reunión",
-    "markedBy": "Marcado por {name}"
+    "markedBy": "Marcado por {name}",
+    "draft": "Borrador"
   },
   "ReportDetail": {
     "groupPage": "Página del grupo",
@@ -617,7 +618,9 @@
     "leavesAfter": "Sale del grupo después de este reporte.",
     "stoppedSuggestion": "<strong>No ha venido a las últimas {count, number} reuniones.</strong> ¿Sigue viniendo?",
     "removeAfter": "Quitar después de este reporte",
-    "removeNote": "Se queda en este reporte y sale del grupo desde esta reunión."
+    "removeNote": "Se queda en este reporte y sale del grupo desde esta reunión.",
+    "draftInProgress": "Un líder ya empezó un borrador para esta fecha.",
+    "draftYours": "Hay un borrador para esta fecha."
   },
   "GroupReportsCard": {
     "eyebrow": "Reportes",
@@ -632,7 +635,9 @@
     "newReport": "Nuevo reporte",
     "loadFailed": "No se pudieron cargar los reportes. Inténtalo de nuevo en un momento.",
     "openLabel": "Abrir el reporte del {date}",
-    "fileLabel": "Enviar el reporte del {date}"
+    "fileLabel": "Enviar el reporte del {date}",
+    "draftProgress": "{answered, number} de {total, number} respondidas · Continuar",
+    "continueLabel": "Continuar el borrador del {date}"
   },
   "GroupsDashboard": {
     "description": "Cómo van todos los grupos pequeños esta semana.",
@@ -982,7 +987,12 @@
     "memberFutureDate": "La fecha en que salió no puede ser futura.",
     "guestInactive": "Este invitado está inactivo. Reactívalo para agregarlo.",
     "guestAlreadyInactive": "Este invitado ya está inactivo.",
-    "guestAlreadyActive": "Este invitado ya está activo."
+    "guestAlreadyActive": "Este invitado ya está activo.",
+    "reportConflict": "Otra persona cambió este reporte. Recarga para ver sus cambios.",
+    "reportDraftInProgress": "Un líder ya empezó un borrador para esta fecha.",
+    "reportAlreadySubmitted": "Este reporte ya se envió.",
+    "reportIncomplete": "Responde las dos preguntas de cada persona antes de enviar.",
+    "reportDraftConversation": "Las conversaciones pueden empezar cuando el reporte se envíe."
   },
   "ApplicationStatus": {
     "pending": "Pendiente",
