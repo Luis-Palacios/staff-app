@@ -298,10 +298,19 @@ export default async function ReportDetailPage({
             href: `/groups/reports/${report.id}`,
           },
         ]}
-        description={t("submittedBy", {
-          name: report.submittedBy.name,
-          dateTime: formatChurchDateTime(report.submittedAt, locale),
-        })}
+        description={
+          report.lastEditedAt
+            ? t("submittedAndEdited", {
+                name: report.submittedBy.name,
+                dateTime: formatChurchDateTime(report.submittedAt, locale),
+                editor: report.lastEditedBy?.name ?? t("editedByAdmin"),
+                editedAt: formatChurchDateTime(report.lastEditedAt, locale),
+              })
+            : t("submittedBy", {
+                name: report.submittedBy.name,
+                dateTime: formatChurchDateTime(report.submittedAt, locale),
+              })
+        }
         eyebrow={
           <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
             <NextLink className="hover:underline" href={groupHref}>

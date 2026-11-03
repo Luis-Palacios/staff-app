@@ -97,6 +97,7 @@ function PersonRow({
   answer,
   observationsVisible,
   tintUnanswered,
+  showOpen,
   noteOpen,
   focusNote,
   guests,
@@ -109,6 +110,8 @@ function PersonRow({
   answer: ReportDraftAnswer | undefined;
   observationsVisible: boolean;
   tintUnanswered: boolean;
+  /** Say which answer is still missing when only one is (a resumed draft, auto-save rule 12). */
+  showOpen: boolean;
   noteOpen: boolean;
   /** True when the user just opened this note, so focus moves into it. */
   focusNote: boolean;
@@ -128,6 +131,15 @@ function PersonRow({
   const suggest = suggestsStopped(person.person, person.missedStreak);
   const missed = person.missedStreak >= MISSED_STREAK_MIN && !suggest;
   const joined = !missed && joinedRecently(person, meetingDate);
+  const groupOpen = answer?.attendedGroup == null;
+  const churchOpen = answer?.attendedChurch == null;
+  // One of the two missing: say which, in place of the role (`Draft-Resume`).
+  const openHint =
+    showOpen && !added && groupOpen !== churchOpen
+      ? groupOpen
+        ? t("meetingOpen")
+        : t("churchOpen")
+      : null;
   const colChurch = t("colChurch", { sunday: shortSundayLabel });
   const noteLabel = noteOpen
     ? t("hideNote")
@@ -154,22 +166,24 @@ function PersonRow({
           <span
             className={clsx(
               "text-xs",
-              missed
+              missed || openHint
                 ? "font-semibold text-warning-soft-foreground"
                 : "text-muted",
             )}
           >
             {added
               ? t("addedJustNow")
-              : missed
-                ? t("missedStreak", { count: person.missedStreak })
-                : joined
-                  ? t("joinedSince", {
-                      date: formatCalendarShortDate(person.joinedAt, locale),
-                    })
-                  : isGuest
-                    ? t("participant")
-                    : tRole(person.role)}
+              : openHint
+                ? openHint
+                : missed
+                  ? t("missedStreak", { count: person.missedStreak })
+                  : joined
+                    ? t("joinedSince", {
+                        date: formatCalendarShortDate(person.joinedAt, locale),
+                      })
+                    : isGuest
+                      ? t("participant")
+                      : tRole(person.role)}
           </span>
         </div>
       </div>
@@ -266,6 +280,7 @@ export function ReportListStep({
   shortSundayLabel,
   observationsVisible,
   tintUnanswered,
+  showOpen = false,
   items,
   tagContext,
   audience,
@@ -282,6 +297,8 @@ export function ReportListStep({
   shortSundayLabel: string;
   observationsVisible: boolean;
   tintUnanswered: boolean;
+  /** Say which answer is missing under a half-answered person's name. */
+  showOpen?: boolean;
   items: DraftItems;
   tagContext: TagContext;
   /** A guest group splits the list into Guests and Leaders and members. */
@@ -336,6 +353,7 @@ export function ReportListStep({
           observationsVisible={observationsVisible}
           person={person}
           shortSundayLabel={shortSundayLabel}
+          showOpen={showOpen}
           tintUnanswered={tintUnanswered}
           onChange={(patch) => onAnswer(key, patch)}
           onToggleNote={() => toggleNote(key)}
