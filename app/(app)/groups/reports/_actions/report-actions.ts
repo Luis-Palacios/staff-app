@@ -211,7 +211,10 @@ export async function createReportAction(
     return toFailure(error, input.meetingDate);
   }
 
-  revalidateReports(groupId, created.id);
+  // A draft is created by the editor's first change, and the editor stays open: revalidating
+  // would re-render it on the server under its new address and drop the leader's step. The lists
+  // are dynamic and show it on the next visit.
+  if (parsed.data.status !== "draft") revalidateReports(groupId, created.id);
 
   return { ok: true, id: created.id, version: created.version };
 }

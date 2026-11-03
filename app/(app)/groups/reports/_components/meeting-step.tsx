@@ -9,6 +9,7 @@ import {
   UserIcon,
 } from "@heroicons/react/24/outline";
 import {
+  Button,
   Description,
   InputGroup,
   Label,
@@ -17,7 +18,6 @@ import {
   TextField,
 } from "@heroui/react";
 import clsx from "clsx";
-import NextLink from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
 import {
@@ -105,7 +105,9 @@ function ModeCard({
 
 /**
  * Step 1 of the new report: group, date, address and how to take attendance. The mode cards
- * stay inert while the date has a report already (rule 1) or the roster isn't loaded.
+ * stay inert while the date has a report already (rule 1) or the roster isn't loaded. A saved
+ * draft comes back here for *Change date or place* (`onBackToList`): its mode isn't asked again
+ * (auto-save rule 12), so the cards give way to a way back to the list.
  */
 export function MeetingStep({
   groups,
@@ -137,6 +139,7 @@ export function MeetingStep({
   onAddressChange,
   onChooseMode,
   onCancel,
+  onBackToList,
 }: {
   groups: FlowGroup[];
   scoped: boolean;
@@ -168,7 +171,9 @@ export function MeetingStep({
   onSaveNoMeeting: () => void;
   onAddressChange: (address: string) => void;
   onChooseMode: (mode: AttendanceMode) => void;
+  /** Back to My reports; a saved draft is kept (auto-save rule 13). */
   onCancel: () => void;
+  onBackToList?: () => void;
 }) {
   const t = useTranslations("ReportForm");
   const tDays = useTranslations("Weekdays");
@@ -307,7 +312,20 @@ export function MeetingStep({
         />
       )}
 
-      {meeting && (
+      {meeting && onBackToList && (
+        <div>
+          <Button
+            className="w-full gap-2 font-semibold sm:w-auto"
+            isDisabled={dateProblem !== null || rosterLoading}
+            onPress={onBackToList}
+          >
+            <ListBulletIcon aria-hidden="true" className="size-5" />
+            {t("backToList")}
+          </Button>
+        </div>
+      )}
+
+      {meeting && !onBackToList && (
         <section aria-labelledby="how-title" className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <h2
@@ -347,13 +365,13 @@ export function MeetingStep({
 
       {meeting && (
         <div>
-          <NextLink
-            className="text-sm font-semibold text-heading underline underline-offset-4"
-            href="/groups/reports"
+          <button
+            className="text-sm font-semibold text-heading underline underline-offset-4 outline-none focus-visible:shadow-[var(--shadow-focus)]"
+            type="button"
             onClick={onCancel}
           >
-            {t("cancel")}
-          </NextLink>
+            {t("leave")}
+          </button>
         </div>
       )}
     </div>

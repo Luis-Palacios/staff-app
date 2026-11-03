@@ -12,7 +12,12 @@ import type {
   FlowGroup,
   NoMeetingOnDate,
 } from "@/app/(app)/groups/reports/_components/meeting-step";
+import type { ResumeInfo } from "@/app/(app)/groups/reports/_components/resume-card";
 import type { ChangeKind } from "@/app/(app)/groups/reports/_lib/report-autosave";
+import type {
+  ReportDraft,
+  ReportDraftAnswer,
+} from "@/app/(app)/groups/reports/_lib/report-draft";
 import type { Locale } from "@/lib/locale-shared";
 
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -34,7 +39,6 @@ import {
   Label,
   TextField,
 } from "@heroui/react";
-import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -48,6 +52,7 @@ import { ReportFooterStatus } from "./report-footer-status";
 import { useReportGuests } from "./report-guests";
 import { isMarked, ReportListStep } from "./report-list-step";
 import { ReportStepper } from "./report-stepper";
+import { ResumeCard } from "./resume-card";
 import { ReportStatusPill, SaveStatus } from "./save-status";
 
 import { isHiddenDraft } from "@/api/small-groups-api/types";
@@ -63,20 +68,13 @@ import {
   type ReportedDates,
 } from "@/app/(app)/groups/reports/_actions/report-actions";
 import { formatChurchSunday } from "@/app/(app)/groups/reports/_lib/format-church-sunday";
-import { toReportInput } from "@/app/(app)/groups/reports/_lib/report-body";
 import { defaultMeetingDate } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import { guestsFirst, personKey } from "@/app/(app)/groups/reports/_lib/person";
 import { emptyDraftItems } from "@/app/(app)/groups/reports/_lib/report-items-draft";
 import { tagContextOf } from "@/app/(app)/groups/reports/_lib/report-tags";
 import {
-  clearDraft,
-  loadDraft,
-  saveDraft,
-  type ReportDraft,
-  type ReportDraftAnswer,
-} from "@/app/(app)/groups/reports/_lib/report-draft";
-import {
   addedPeople,
+  firstOpenIndex,
   formFromReport,
   itemsChangeKind,
   toReportBody,
@@ -111,7 +109,7 @@ type RosterState =
     }
   | { status: "error"; message: string };
 
-/** `list`: a saved report (draft or submitted) on its full list, with the date and place on top. */
+/** `list`: a report opened from the server, on its full list (with the resume card for a draft). */
 type Step = "meeting" | "people" | "group" | "review" | "quick" | "list";
 
 /** A report the editor opens: a draft or a submitted one, and the roster for its date. */
@@ -120,6 +118,8 @@ export interface ExistingReport {
   roster: ReportRoster;
   /** "Submitted by … · Last edited by …"; null for a draft. */
   meta: string | null;
+  /** A draft's resume card; null for a submitted report. */
+  resume: ResumeInfo | null;
 }
 
 const TOTAL_STEPS = 4;
@@ -167,10 +167,11 @@ function isTextField(target: EventTarget): boolean {
 }
 
 /**
- * The one report editor. A new report: the meeting, one person at a time, the group, then the full
- * list to review and submit. A saved report (`existing`, a draft or a submitted one) opens on its
- * full list, and every change saves as it is made (auto-save): the save status says where the
- * latest change is, and there is no Save button.
+ * The one report editor (auto-save). A new report: the meeting, one person at a time, the group,
+ * then the full list to review and submit; its first change after the group and date are chosen
+ * creates the draft, and the address becomes the draft's (`/edit`) without leaving the screen.
+ * A saved report (`existing`, a draft or a submitted one) opens on its full list. Every change
+ * saves as it is made: the save status says where the latest change is, and there is no Save.
  */
 export function ReportFlow({
   groups,
@@ -220,11 +221,17 @@ export function ReportFlow({
       ? formFromReport(existing.report)
       : emptyDraft(group.meetingAddress ?? ""),
   );
-  // The latest draft, roster and date, readable between renders: two quick taps must not overwrite
-  // each other, and a save built after a roster reload must use the new roster.
+  // The latest draft, roster, group and date, readable between renders: two quick taps must not
+  // overwrite each other, and a save built after a roster reload must use the new roster.
   const draftRef = useRef(draft);
-  const rosterRef = useRef<ReportRoster | null>(existing?.roster ?? null);
+  const rosterRef = useRef<ReportRoster | null>(
+    existing?.roster ?? initialRoster?.roster ?? null,
+  );
   const dateRef = useRef(date);
+  const groupRef = useRef(groupId);
+  // The report's id once it exists: from the server, or after a new report's first save.
+  const [savedId, setSavedId] = useState(existing?.report.id ?? null);
+  const savedIdRef = useRef(savedId);
   const [mode, setMode] = useState<AttendanceMode | null>(null);
   const [step, setStep] = useState<Step>(existing ? "list" : "meeting");
   const [personIndex, setPersonIndex] = useState(0);
@@ -236,27 +243,44 @@ export function ReportFlow({
   const [reloading, setReloading] = useState(false);
   // Names added by a roster reload (rule 11), for the notice; null when it didn't change.
   const [rosterChange, setRosterChange] = useState<string[] | null>(null);
+  // *Continue one at a time* started here: the "Picking up where you left off" banner.
+  const [resumedAt, setResumedAt] = useState<number | null>(null);
   // The group and date the roster below belongs to, so the first render doesn't ask again.
   const loadedFor = useRef<string | null>(
     initialRoster || existing ? `${initialGroupId}:${initialDate}` : null,
   );
-  const previousGroup = useRef(initialGroupId);
-  const reportId = existing?.report.id ?? null;
   const submitted = existing?.report.status === "submitted";
   const observationsVisible = existing?.report.observationsVisible ?? true;
+  // A draft opened from the server: its list is the review, and the mode isn't asked again.
+  const resumedDraft = existing !== undefined && !submitted;
+  const listStep: Step = existing ? "list" : "review";
 
   function readyRoster(next: ReportRoster) {
     rosterRef.current = next;
+    setRoster((current) => ({
+      status: "ready",
+      roster: next,
+      existsMessage:
+        current.status === "ready" &&
+        current.roster.meetingDate === next.meetingDate
+          ? current.existsMessage
+          : null,
+      noMeetingReason:
+        current.status === "ready" ? current.noMeetingReason : null,
+    }));
   }
 
   /** The roster for the date again, after a 422 `attendance`: rebuild the report on it. */
   async function rosterForSave() {
     const before = rosterRef.current;
-    const result = await getReportRosterAction(groupId, dateRef.current);
+    const result = await getReportRosterAction(
+      groupRef.current,
+      dateRef.current,
+    );
 
     if (!result.ok) return null;
 
-    readyRoster(result.roster);
+    rosterRef.current = result.roster;
     setRoster({
       status: "ready",
       roster: result.roster,
@@ -278,24 +302,54 @@ export function ReportFlow({
   }
 
   const autosave = useReportAutosave<ReportDraft>({
-    reportId,
+    reportId: existing?.report.id ?? null,
     version: existing?.report.version ?? 0,
     savedAt: existing
       ? (existing.report.lastEditedAt ??
         existing.report.submittedAt ??
         existing.report.startedAt)
       : null,
+    newTarget: { groupId: initialGroupId, date: initialDate },
     save: saveReportAction,
+    // The draft's first save; the date's no meeting goes in the same transaction when replacing.
+    create: (body) =>
+      createReportAction(groupRef.current, {
+        ...body,
+        ...(draftRef.current.replacing && { replacesNoMeeting: true }),
+      }),
+    onCreated: (id) => {
+      savedIdRef.current = id;
+      setSavedId(id);
+      // A reload from here resumes the draft. Not a navigation: the leader stays on their step.
+      window.history.replaceState(null, "", `/groups/reports/${id}/edit`);
+    },
     canSend: (body) => !submitted || isComplete(body),
     onRosterChanged: rosterForSave,
     onFailure: setFailure,
   });
 
-  /** Sends the report as it is now (a saved report only). Waits while the roster is loading. */
+  /**
+   * Whether a new report may become a draft now (rule 6: the first change after group and date):
+   * the group met, someone is on the list, and nothing else holds the date.
+   */
+  function canStartDraft(current: ReportRoster): boolean {
+    const held = current.existingReport;
+
+    if (!draftRef.current.met || current.people.length === 0) return false;
+
+    if (held === null) return true;
+
+    // Someone else's draft, a report, or a no meeting the leader hasn't chosen to replace.
+    return !isHiddenDraft(held) && !held.held && draftRef.current.replacing;
+  }
+
+  /** Saves the report as it is now. A new one waits for its roster and a date it can take. */
   function pushChange(kind: ChangeKind) {
     const current = rosterRef.current;
 
-    if (reportId === null || !current) return;
+    if (!current) return;
+
+    if (savedIdRef.current === null && !canStartDraft(current)) return;
 
     autosave.change(
       toReportBody(
@@ -309,16 +363,15 @@ export function ReportFlow({
     );
   }
 
-  // A saved report: pick up a change this device made that the server doesn't have yet (the
-  // connection dropped, or the tab closed before it synced). Storage is only readable here.
+  // Opening a saved report. A change this device made that the server doesn't have yet (the
+  // connection dropped, the tab closed) is restored and sent; one based on an older version is a
+  // conflict (rule 9). Without one, a draft whose rows no longer match the roster for its date
+  // (someone joined or left with an earlier date) gets the new list and a notice (rule 11).
   useEffect(() => {
     if (!existing) return;
 
     const { report } = existing;
     const saved = loadOutbox<ReportDraft>({ reportId: report.id });
-
-    if (!saved) return;
-
     const serverBody = toReportBody(
       formFromReport(report),
       existing.roster,
@@ -326,59 +379,66 @@ export function ReportFlow({
       report.observationsVisible,
     ).body;
 
-    // The server already has it (the response was lost on the way back).
-    if (JSON.stringify(saved.body) === JSON.stringify(serverBody)) {
-      clearOutbox({ reportId: report.id });
+    if (saved && JSON.stringify(saved.body) !== JSON.stringify(serverBody)) {
+      if (saved.baseVersion === report.version) {
+        draftRef.current = saved.form;
+        setDraft(saved.form);
+        autosave.engine.resume(saved.body, saved.form);
 
-      return;
-    }
+        // The change moved the date: show it, with that date's roster.
+        if (saved.body.meetingDate !== report.meetingDate) {
+          setDate(saved.body.meetingDate);
+        }
 
-    if (saved.baseVersion === report.version) {
-      draftRef.current = saved.form;
-      setDraft(saved.form);
-      autosave.engine.resume(saved.body, saved.form);
-
-      // The change moved the date: show it, with that date's roster.
-      if (saved.body.meetingDate !== report.meetingDate) {
-        setDate(saved.body.meetingDate);
+        return;
       }
 
+      autosave.engine.markConflict({
+        version: report.version,
+        lastEditedBy: report.lastEditedBy,
+        lastEditedAt: report.lastEditedAt,
+      });
+
       return;
     }
 
-    // Someone saved after this device's change was made: it isn't merged (rule 9).
-    autosave.engine.markConflict({
-      version: report.version,
-      lastEditedBy: report.lastEditedBy,
-      lastEditedAt: report.lastEditedAt,
-    });
-    // Runs once per report; the engine and the report don't change while the editor is open.
+    // The server already has it (the response was lost on the way back).
+    if (saved) clearOutbox({ reportId: report.id });
+
+    const onReport = new Set(
+      report.attendances.map((row) => personKey(row.person)),
+    );
+    const onRoster = existing.roster.people.map((row) => personKey(row.person));
+
+    if (
+      onRoster.length !== onReport.size ||
+      onRoster.some((key) => !onReport.has(key))
+    ) {
+      setRosterChange(
+        existing.roster.people
+          .filter((row) => !onReport.has(personKey(row.person)))
+          .map((row) => row.name),
+      );
+      pushChange("blur");
+    }
+    // Runs once: the engine and the report don't change while the editor is open.
   }, []);
 
-  // Every group or date change: restore a new report's browser draft for that pair, then ask who
-  // belongs on the report. A saved report sends its change once the new date's roster is in.
+  // Every group or date change: ask who belongs on the report. A new report starts over on the
+  // meeting step, and opens the leader's own draft when the date has one (rule 2); a saved report
+  // sends its new date once that date's roster is in.
   useEffect(() => {
     const key = `${groupId}:${date}`;
 
     dateRef.current = date;
+    groupRef.current = groupId;
+    autosave.engine.retarget({ groupId, date });
 
-    if (!existing) {
-      const saved = loadDraft(groupId, date);
-
-      if (saved) {
-        draftRef.current = saved;
-        setDraft(saved);
-      } else if (previousGroup.current !== groupId) {
-        draftRef.current = emptyDraft(group.meetingAddress ?? "");
-        setDraft(draftRef.current);
-      } else if (draftRef.current.replacing) {
-        // "Replace the no-meeting mark" belongs to one date; the next one starts with its own prompt.
-        draftRef.current = { ...draftRef.current, replacing: false };
-        setDraft(draftRef.current);
-      }
+    if (draftRef.current.replacing) {
+      // "Replace the no-meeting mark" belongs to one date; the next one starts with its own prompt.
+      draftRef.current = { ...draftRef.current, replacing: false };
+      setDraft(draftRef.current);
     }
-
-    previousGroup.current = groupId;
 
     if (loadedFor.current === key) return;
 
@@ -389,7 +449,7 @@ export function ReportFlow({
     setRoster({ status: "loading" });
     setFailure(null);
 
-    if (!existing) {
+    if (savedIdRef.current === null) {
       setMode(null);
       setStep("meeting");
     }
@@ -397,28 +457,43 @@ export function ReportFlow({
     void getReportRosterAction(groupId, date).then((result) => {
       if (cancelled) return;
 
-      if (result.ok) readyRoster(result.roster);
+      if (!result.ok) {
+        setRoster({ status: "error", message: result.message });
 
-      setRoster(
-        result.ok
-          ? {
-              status: "ready",
-              roster: result.roster,
-              existsMessage: result.existsMessage,
-              noMeetingReason: result.noMeetingReason,
-            }
-          : { status: "error", message: result.message },
-      );
+        return;
+      }
 
-      if (result.ok && existing) pushChange("tap");
+      const held = result.roster.existingReport;
+
+      // The leader's own draft for this date: continue it rather than start another (rule 2).
+      if (
+        savedIdRef.current === null &&
+        held &&
+        !isHiddenDraft(held) &&
+        held.status === "draft"
+      ) {
+        router.push(`/groups/reports/${held.id}/edit`);
+
+        return;
+      }
+
+      rosterRef.current = result.roster;
+      setRoster({
+        status: "ready",
+        roster: result.roster,
+        existsMessage: result.existsMessage,
+        noMeetingReason: result.noMeetingReason,
+      });
+
+      if (savedIdRef.current !== null) pushChange("tap");
     });
 
     return () => {
       cancelled = true;
       loadedFor.current = null;
     };
-    // pushChange and existing read refs and props that don't change while the editor is open.
-  }, [groupId, date, group.meetingAddress]);
+    // pushChange, router and the engine read refs or never change while the editor is open.
+  }, [groupId, date]);
 
   // A new step starts at the top of the page.
   useEffect(() => {
@@ -426,16 +501,9 @@ export function ReportFlow({
   }, [step]);
 
   function edit(patch: Partial<ReportDraft>, kind: ChangeKind = "tap") {
-    const next = { ...draftRef.current, ...patch };
-
-    draftRef.current = next;
-    setDraft(next);
-
-    if (existing) {
-      pushChange(kind);
-    } else {
-      saveDraft(groupId, date, next);
-    }
+    draftRef.current = { ...draftRef.current, ...patch };
+    setDraft(draftRef.current);
+    pushChange(kind);
   }
 
   function answer(key: string, patch: Partial<ReportDraftAnswer>) {
@@ -465,7 +533,7 @@ export function ReportFlow({
   }
 
   function changeGroup(nextId: number) {
-    if (nextId === groupId) return;
+    if (nextId === groupId || savedId !== null) return;
 
     const next = groups.find((option) => option.id === nextId);
 
@@ -478,6 +546,8 @@ export function ReportFlow({
 
       setFiledDates(filed);
       setNoMeetingDates(noMeeting);
+      draftRef.current = emptyDraft(next.meetingAddress ?? "");
+      setDraft(draftRef.current);
       setGroupId(nextId);
       setDate(
         defaultMeetingDate({
@@ -499,11 +569,17 @@ export function ReportFlow({
   function chooseMode(next: AttendanceMode) {
     setMode(next);
 
-    if (next === "quick" && roster.status === "ready") setStep("quick");
+    if (roster.status !== "ready") return;
 
-    if (next === "guided" && roster.status === "ready") {
-      const firstOpen = guestsFirst(roster.roster.people).findIndex(
-        (person) => !isMarked(draft.answers[personKey(person.person)]),
+    // Choosing how to take attendance is the first change: the draft starts here.
+    pushChange("tap");
+
+    if (next === "quick") setStep("quick");
+
+    if (next === "guided") {
+      const firstOpen = firstOpenIndex(
+        guestsFirst(roster.roster.people),
+        draftRef.current.answers,
       );
 
       setPersonIndex(firstOpen === -1 ? 0 : firstOpen);
@@ -511,58 +587,25 @@ export function ReportFlow({
     }
   }
 
-  function cancel() {
-    clearDraft(groupId, date);
-  }
-
   /** Done, Back to My reports: send what's pending, refresh the lists, then go. */
   function leave(href: string) {
-    if (reportId === null) return;
+    const id = savedIdRef.current;
 
     startLeaving(async () => {
-      await autosave.engine.flush();
-      await leaveReportAction(reportId, groupId);
+      if (id !== null) {
+        await autosave.engine.flush();
+        await leaveReportAction(id, groupRef.current);
+      }
+
       router.push(href);
     });
   }
 
-  /** A new report, filed in one go (until the new-report flow saves drafts, stage 4). */
-  function submitNew() {
-    if (roster.status !== "ready") return;
-
-    const body = toReportInput(draft, roster.roster, date, true);
-
-    if (!body) return;
-
-    // Only while the date still holds the mark does the API get asked to replace it.
-    const input = replacing ? { ...body, replacesNoMeeting: true } : body;
-
-    setFailure(null);
-    // A successful submit redirects and never comes back, so the draft goes first and returns on failure.
-    clearDraft(groupId, date);
-    startSubmit(async () => {
-      const result = await createReportAction(groupId, {
-        ...input,
-        status: "submitted",
-      });
-
-      if (result.ok) {
-        router.push(`/groups/reports/${result.id}?saved=submitted`);
-
-        return;
-      }
-
-      saveDraft(groupId, date, draftRef.current);
-      setFailure(result);
-
-      // A date problem is fixed on the meeting step; anything else stays on the review.
-      if (DATE_FAILURES.includes(result.kind)) setStep("meeting");
-    });
-  }
-
-  /** Submit a draft (rule 5): the pending save goes first, and submit uses its version. */
+  /** Submit the draft (rule 5): the pending save goes first, and submit uses its version. */
   function submitDraft() {
-    if (reportId === null) return;
+    const id = savedIdRef.current;
+
+    if (id === null) return;
 
     setFailure(null);
     startSubmit(async () => {
@@ -571,7 +614,7 @@ export function ReportFlow({
       // The save status and banner say why it didn't save.
       if (version === null) return;
 
-      const result = await submitReportAction(reportId, groupId, version);
+      const result = await submitReportAction(id, groupRef.current, version);
 
       // Success redirects to the report.
       if (result.kind === "conflict" && result.conflict) {
@@ -596,22 +639,32 @@ export function ReportFlow({
 
   /** Discard the draft: nothing more is sent, and the device copy goes with it. */
   function discardDraft() {
-    if (reportId === null) return;
+    const id = savedIdRef.current;
+
+    if (id === null) return;
 
     autosave.engine.dispose();
-    clearOutbox({ reportId });
+    clearOutbox({ reportId: id });
     startSubmit(async () => {
-      setFailure(await deleteReportAction(reportId, groupId));
+      setFailure(await deleteReportAction(id, groupRef.current));
     });
   }
 
   function saveNoMeeting() {
+    const id = savedIdRef.current;
+
     setFailure(null);
     startSubmit(async () => {
-      const result = await markNoMeeting(groupId, date, draft.reason);
+      // The leader's draft for the date goes in the same transaction (rule 18).
+      if (id !== null) autosave.engine.dispose();
+
+      const result = await markNoMeeting(groupId, date, draft.reason, {
+        replacesDraft: id !== null,
+      });
 
       if (result.ok) {
-        clearDraft(groupId, date);
+        if (id !== null) clearOutbox({ reportId: id });
+
         router.push("/groups/reports?saved=marked");
 
         return;
@@ -628,15 +681,10 @@ export function ReportFlow({
 
       if (!result.ok) return;
 
-      readyRoster(result.roster);
       // Answers stay keyed by member, so people still on the roster keep theirs.
-      setRoster({
-        status: "ready",
-        roster: result.roster,
-        existsMessage: result.existsMessage,
-        noMeetingReason: result.noMeetingReason,
-      });
+      readyRoster(result.roster);
       setFailure(null);
+      pushChange("tap");
     });
   }
 
@@ -648,13 +696,8 @@ export function ReportFlow({
     if (!result.ok) return null;
 
     readyRoster(result.roster);
-    setRoster({
-      status: "ready",
-      roster: result.roster,
-      existsMessage: result.existsMessage,
-      noMeetingReason: result.noMeetingReason,
-    });
-    pushChange("tap");
+
+    if (savedIdRef.current !== null) pushChange("tap");
 
     return result.roster;
   }
@@ -692,12 +735,14 @@ export function ReportFlow({
   const visible =
     existingOnDate &&
     !isHiddenDraft(existingOnDate) &&
-    existingOnDate.id !== reportId
+    existingOnDate.id !== savedId
       ? existingOnDate
       : null;
   // A no meeting on the date can be replaced by a new report; a held report there is a duplicate.
-  const noMeetingId = visible && !visible.held && !existing ? visible.id : null;
-  const exists = visible && (visible.held || existing) ? visible.id : null;
+  const noMeetingId =
+    visible && !visible.held && savedId === null ? visible.id : null;
+  const exists =
+    visible && (visible.held || savedId !== null) ? visible.id : null;
   const replacing = noMeetingId !== null && draft.replacing;
   const noMeetingOnDate: NoMeetingOnDate | null =
     ready && noMeetingId !== null
@@ -739,6 +784,7 @@ export function ReportFlow({
     isMarked(draft.answers[personKey(person.person)]),
   ).length;
   const remaining = people.length - markedCount;
+  const firstOpen = firstOpenIndex(people, draft.answers);
   const tagContext = tagContextOf({
     groupId,
     groupName: group.name,
@@ -750,7 +796,7 @@ export function ReportFlow({
     : step === "review"
       ? t("reviewTitle")
       : t("newTitle");
-  // The quick list has no number, and neither has saving a no meeting from step 1 or a saved report.
+  // The quick list has no number, and neither has saving a no meeting from step 1 or a saved list.
   const numbered =
     step === "quick" ||
     step === "list" ||
@@ -761,13 +807,19 @@ export function ReportFlow({
   const blocking =
     failure !== null && !DATE_FAILURES.includes(failure.kind) ? failure : null;
   const save = autosave.state;
-  const statusWord = existing
+  // The save status shows once the report exists (or its first save is on its way).
+  const showSave =
+    savedId !== null || save.status !== "saved" || save.savedAt !== null;
+  // The pill is hidden on a new report's meeting step (`AutoSave` boards).
+  const showPill = savedId !== null || step !== "meeting";
+  const statusWord = showPill
     ? submitted
       ? t("submittedPill")
       : t("draftPill")
     : null;
-  const closeHref =
-    existing && submitted ? `/groups/reports/${reportId}` : "/groups/reports";
+  const flowGroups = savedId === null ? groups : [group];
+  const toList = "/groups/reports";
+  const closeHref = submitted ? `/groups/reports/${savedId}` : toList;
   const banner =
     save.status === "conflict" ? (
       <ReportBanner
@@ -807,7 +859,8 @@ export function ReportFlow({
         title={t("offlineTitle")}
         tone="warning"
       />
-    ) : rosterChange !== null && (step === "list" || step === "quick") ? (
+    ) : rosterChange !== null &&
+      (step === "list" || step === "quick" || step === "review") ? (
       <ReportBanner
         body={
           rosterChange.length > 0
@@ -823,31 +876,58 @@ export function ReportFlow({
         title={t("rosterTitle")}
         tone="accent"
       />
+    ) : step === "people" && resumedAt === personIndex && person ? (
+      <ReportBanner
+        body={t("resumedBody", { name: person.name })}
+        icon={InformationCircleIcon}
+        title={t("resumedTitle")}
+        tone="accent"
+      />
     ) : null;
-  const breadcrumbs = existing
-    ? submitted
+  const breadcrumbs =
+    submitted && existing
       ? [
           groupsBreadcrumb,
           groupsReportsBreadcrumb,
           {
             label: `${group.name}, ${formatCalendarShortDate(existing.report.meetingDate, locale)}`,
-            href: `/groups/reports/${reportId}`,
+            href: `/groups/reports/${savedId}`,
           },
-          { label: heading, href: `/groups/reports/${reportId}/edit` },
+          { label: heading, href: `/groups/reports/${savedId}/edit` },
         ]
       : [
           groupsBreadcrumb,
           groupsReportsBreadcrumb,
-          { label: heading, href: `/groups/reports/${reportId}/edit` },
-        ]
-    : [
-        groupsBreadcrumb,
-        groupsReportsBreadcrumb,
-        { label: heading, href: "/groups/reports/new" },
-      ];
-  const listFooter = existing ? (
+          {
+            label: heading,
+            href:
+              savedId === null
+                ? "/groups/reports/new"
+                : `/groups/reports/${savedId}/edit`,
+          },
+        ];
+  // Back from the new flow's review or quick list; a reopened report's list has nowhere to go back.
+  const backButton =
+    step === "review" || step === "quick" ? (
+      <Button
+        className="flex-1 gap-2 font-semibold sm:flex-none"
+        isDisabled={isSubmitting}
+        variant="outline"
+        onPress={() =>
+          step === "quick"
+            ? setStep("meeting")
+            : reviewFrom === "group"
+              ? setStep("group")
+              : setStep("people")
+        }
+      >
+        <ArrowLeftIcon aria-hidden="true" className="size-4" strokeWidth={2} />
+        {t("back")}
+      </Button>
+    ) : null;
+  const listFooter = (
     <>
-      {!submitted && (
+      {savedId !== null && !submitted && (
         <Button
           className="gap-1.5 px-3 font-semibold text-danger"
           isDisabled={isSubmitting}
@@ -870,11 +950,12 @@ export function ReportFlow({
         onReload={reloadPeople}
       />
       <div className="flex w-full flex-wrap gap-3 sm:w-auto">
+        {backButton}
         {submitted ? (
           <Button
             className="flex-1 gap-2 font-semibold sm:flex-none"
             isPending={isLeaving}
-            onPress={() => leave(`/groups/reports/${reportId}`)}
+            onPress={() => leave(`/groups/reports/${savedId}`)}
           >
             <CheckIcon
               aria-hidden="true"
@@ -886,7 +967,12 @@ export function ReportFlow({
         ) : (
           <Button
             className="flex-1 gap-2 font-semibold sm:flex-none"
-            isDisabled={remaining > 0 || noPeople || save.status === "conflict"}
+            isDisabled={
+              remaining > 0 ||
+              noPeople ||
+              savedId === null ||
+              save.status === "conflict"
+            }
             isPending={isSubmitting}
             onPress={submitDraft}
           >
@@ -898,45 +984,6 @@ export function ReportFlow({
             {t("submit")}
           </Button>
         )}
-      </div>
-    </>
-  ) : (
-    <>
-      <ReportFooterStatus
-        failure={blocking}
-        reloading={reloading}
-        remaining={remaining}
-        onReload={reloadPeople}
-      />
-      <div className="flex w-full flex-wrap gap-3 sm:w-auto">
-        <Button
-          className="flex-1 gap-2 font-semibold sm:flex-none"
-          isDisabled={isSubmitting}
-          variant="outline"
-          onPress={() =>
-            step === "quick"
-              ? setStep("meeting")
-              : reviewFrom === "group"
-                ? setStep("group")
-                : setStep("people")
-          }
-        >
-          <ArrowLeftIcon
-            aria-hidden="true"
-            className="size-4"
-            strokeWidth={2}
-          />
-          {t("back")}
-        </Button>
-        <Button
-          className="flex-1 gap-2 font-semibold sm:flex-none"
-          isDisabled={remaining > 0 || noPeople}
-          isPending={isSubmitting}
-          onPress={submitNew}
-        >
-          <CheckIcon aria-hidden="true" className="size-4" strokeWidth={2.2} />
-          {t("submit")}
-        </Button>
       </div>
     </>
   );
@@ -951,14 +998,14 @@ export function ReportFlow({
     >
       {/* Phone: a focused task header replaces the top bar. */}
       <header className="fixed inset-x-0 top-0 z-40 flex h-16 items-center gap-1 border-b border-border bg-background pl-2 pr-3 md:hidden">
-        <NextLink
+        <button
           aria-label={t("close")}
-          className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary"
-          href={closeHref}
-          onClick={existing ? undefined : cancel}
+          className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-muted outline-none hover:bg-surface-secondary focus-visible:shadow-[var(--shadow-focus)]"
+          type="button"
+          onClick={() => leave(closeHref)}
         >
           <XMarkIcon aria-hidden="true" className="size-6" strokeWidth={1.8} />
-        </NextLink>
+        </button>
         <div className="flex min-w-0 flex-1 flex-col">
           <span className={title({ size: "sm", className: "text-xl" })}>
             {heading}
@@ -967,7 +1014,7 @@ export function ReportFlow({
             {[
               statusWord,
               group.name,
-              existing && numbered !== null
+              showSave && numbered !== null
                 ? t("stepCount", { current: numbered, total: TOTAL_STEPS })
                 : null,
             ]
@@ -975,7 +1022,7 @@ export function ReportFlow({
               .join(" · ")}
           </span>
         </div>
-        {existing ? (
+        {showSave ? (
           <SaveStatus
             state={save}
             submitted={submitted}
@@ -999,7 +1046,7 @@ export function ReportFlow({
             )
           }
           breadcrumbAside={
-            existing ? (
+            showSave ? (
               <SaveStatus
                 state={save}
                 submitted={submitted}
@@ -1012,12 +1059,24 @@ export function ReportFlow({
           eyebrow={group.name}
           title={heading}
           titleAside={
-            existing ? <ReportStatusPill submitted={submitted} /> : undefined
+            showPill ? <ReportStatusPill submitted={submitted} /> : undefined
           }
         />
       </div>
 
-      {banner && <div className="mb-5">{banner}</div>}
+      {banner && (
+        <div
+          className={
+            step === "people"
+              ? "mb-5 max-w-[600px]"
+              : step === "group"
+                ? "mb-5 max-w-[720px]"
+                : "mb-5"
+          }
+        >
+          {banner}
+        </div>
+      )}
 
       {step === "meeting" && (
         <MeetingStep
@@ -1039,7 +1098,7 @@ export function ReportFlow({
           dateProblem={dateProblem}
           filedDates={filedDates}
           group={group}
-          groups={groups}
+          groups={flowGroups}
           met={draft.met}
           mode={mode}
           noMeetingDates={noMeetingDates}
@@ -1052,15 +1111,21 @@ export function ReportFlow({
           scoped={scoped}
           today={today}
           onAddressChange={(address) => edit({ address }, "text")}
-          onCancel={cancel}
+          onBackToList={resumedDraft ? () => setStep("list") : undefined}
+          onCancel={() => leave(toList)}
           onChooseMode={chooseMode}
           onDateChange={changeDate}
           onGroupChange={changeGroup}
           onMetChange={(met) => {
             setFailure(null);
-            edit({ met });
+            // Not a draft change: a no meeting is never a draft (rule 1).
+            draftRef.current = { ...draftRef.current, met };
+            setDraft(draftRef.current);
           }}
-          onReasonChange={(reason) => edit({ reason }, "text")}
+          onReasonChange={(reason) => {
+            draftRef.current = { ...draftRef.current, reason };
+            setDraft(draftRef.current);
+          }}
           onReplace={() => edit({ replacing: true })}
           onSaveNoMeeting={saveNoMeeting}
           onUndoReplace={() => edit({ replacing: false })}
@@ -1078,7 +1143,7 @@ export function ReportFlow({
           total={people.length}
           onBack={() =>
             personIndex === 0
-              ? setStep("meeting")
+              ? setStep(resumedDraft ? "list" : "meeting")
               : setPersonIndex(personIndex - 1)
           }
           onChange={(patch) => answer(personKey(person.person), patch)}
@@ -1092,7 +1157,7 @@ export function ReportFlow({
           }}
           onSkip={() => {
             setReviewFrom("people");
-            setStep("review");
+            setStep(listStep);
           }}
         />
       )}
@@ -1105,7 +1170,7 @@ export function ReportFlow({
           onChange={changeItems}
           onNext={() => {
             setReviewFrom("group");
-            setStep("review");
+            setStep(listStep);
           }}
         />
       )}
@@ -1137,7 +1202,27 @@ export function ReportFlow({
                 </Button>
               </div>
             )}
-            {step === "list" && existing && (
+            {step === "list" && resumedDraft && existing.resume && (
+              <ResumeCard
+                address={draft.address}
+                answered={markedCount}
+                date={date}
+                done={people.map((row) =>
+                  isMarked(draft.answers[personKey(row.person)]),
+                )}
+                firstOpenName={firstOpen === -1 ? null : people[firstOpen].name}
+                info={existing.resume}
+                onChangeMeeting={() => setStep("meeting")}
+                onContinue={() => {
+                  const start = firstOpen === -1 ? 0 : firstOpen;
+
+                  setPersonIndex(start);
+                  setResumedAt(firstOpen === -1 ? null : start);
+                  setStep("people");
+                }}
+              />
+            )}
+            {step === "list" && submitted && existing && (
               <section
                 aria-label={t("meetingDetails")}
                 className={card({ className: "p-5" })}
