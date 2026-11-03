@@ -2,8 +2,8 @@ import type { ApiFetchOptions } from "@/api/api-client";
 
 import { ApiError, apiFetch } from "@/api/api-client";
 import {
-  forgetAuthToken,
   getAuthToken,
+  replaceAuthToken,
 } from "@/api/auth-api/helpers/get-auth-token";
 import { requireStaffSession } from "@/api/auth-api/helpers/require-staff-session";
 
@@ -20,21 +20,31 @@ export async function authenticatedFetch<TResponse>(
 ): Promise<TResponse> {
   await requireStaffSession();
 
-  const token = await getAuthToken();
-
-  try {
-    return await apiFetch<TResponse>(baseUrl, path, {
+  const send = (token: string | undefined) =>
+    apiFetch<TResponse>(baseUrl, path, {
       ...options,
       headers: {
         Authorization: `Bearer ${token}`,
         ...options.headers,
       },
     });
+
+  const current = await getAuthToken();
+
+  try {
+    return await send(current?.token);
   } catch (error) {
-    // A kept token the API no longer accepts (signing key rotated, say): mint a fresh one next time.
-    if (error instanceof ApiError && error.status === 401) {
-      await forgetAuthToken();
+    // A kept token the API no longer accepts (signing key rotated, say): mint a fresh one and send
+    // once more. The API checks the token before doing anything, so the retry can't apply a change
+    // twice. A token minted for this request isn't retried: a new one wouldn't fare better.
+    if (
+      !current?.reused ||
+      !(error instanceof ApiError) ||
+      error.status !== 401
+    ) {
+      throw error;
     }
-    throw error;
   }
+
+  return send((await replaceAuthToken())?.token);
 }

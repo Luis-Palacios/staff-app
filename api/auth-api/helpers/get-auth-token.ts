@@ -20,6 +20,12 @@ interface KeptToken {
   expiresAt: number;
 }
 
+export interface RequestToken {
+  token: string;
+  /** Kept from an earlier request rather than minted for this one. */
+  reused: boolean;
+}
+
 const kept = new Map<string, KeptToken>();
 
 function keyFor({ session, user, permissions }: AuthSession): string {
@@ -66,38 +72,51 @@ function keep(key: string, token: string): void {
   kept.set(key, { token, expiresAt });
 }
 
-/** Stop reusing the current session's token (say, after the API rejected it). */
-export async function forgetAuthToken(): Promise<void> {
-  const session = await getServerSession();
+async function mint(
+  cookie: string,
+  session: AuthSession,
+): Promise<RequestToken> {
+  const { token } = await getToken(cookie);
 
-  if (session) kept.delete(keyFor(session));
+  keep(keyFor(session), token);
+
+  return { token, reused: false };
 }
 
 export const getAuthToken = perRequest(
-  async (incoming): Promise<string | null> => {
+  async (incoming): Promise<RequestToken | null> => {
     const cookie = incoming.get("cookie");
+    const session = cookie ? await getServerSession() : null;
 
-    if (!cookie) {
+    if (!cookie || !session) {
       return null;
     }
 
-    const session = await getServerSession();
-
-    if (!session) {
-      return null;
-    }
-
-    const key = keyFor(session);
-    const reusable = kept.get(key);
+    const reusable = kept.get(keyFor(session));
 
     if (reusable && reusable.expiresAt - REUSE_MARGIN_MS > Date.now()) {
-      return reusable.token;
+      return { token: reusable.token, reused: true };
     }
 
-    const { token } = await getToken(cookie);
+    return mint(cookie, session);
+  },
+);
 
-    keep(key, token);
+/**
+ * Mints a token in place of a kept one the API rejected (its signing key rotated, say). Once per
+ * request: a page whose parallel calls all got a 401 shares the one new token.
+ */
+export const replaceAuthToken = perRequest(
+  async (incoming): Promise<RequestToken | null> => {
+    const cookie = incoming.get("cookie");
+    const session = cookie ? await getServerSession() : null;
 
-    return token;
+    if (!cookie || !session) {
+      return null;
+    }
+
+    kept.delete(keyFor(session));
+
+    return mint(cookie, session);
   },
 );
