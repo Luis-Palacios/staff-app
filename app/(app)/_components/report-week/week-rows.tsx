@@ -7,7 +7,10 @@ import type {
 import type { Locale } from "@/lib/locale-shared";
 import type { WeekBadgeStyle } from "./week-status";
 
-import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
+import {
+  ChatBubbleBottomCenterTextIcon,
+  PencilSquareIcon,
+} from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import NextLink from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -42,6 +45,11 @@ export interface WeekRowView {
   leaders: string | null;
   badge: WeekBadgeStyle & { label: string };
   when: string | null;
+  /**
+   * *Draft started* under a due or today row's date (rule 15): a label only, with no link or
+   * content; the status stays Due / Today.
+   */
+  draftStarted: string | null;
   /** A no meeting's reason. */
   reason: string | null;
   /**
@@ -128,6 +136,10 @@ export async function buildWeekRows(week: ReportWeek): Promise<WeekRowView[]> {
           : null,
       badge: { ...WEEK_STATUS_BADGE[status], label: t(`status.${key}`) },
       when,
+      draftStarted:
+        group.hasDraft && (status === "notFiled" || status === "today")
+          ? t("draftStarted")
+          : null,
       reason: noMeeting ? noMeeting.notHeldReason : null,
       churchWide:
         noMeeting && noMeeting.noMeetingWeekId !== null
@@ -215,6 +227,16 @@ export function WeekStatusCell({
       {row.when && (
         <span className="whitespace-nowrap text-[13px] text-muted">
           {row.when}
+        </span>
+      )}
+      {row.draftStarted && (
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold text-accent-soft-foreground">
+          <PencilSquareIcon
+            aria-hidden="true"
+            className="size-3.5"
+            strokeWidth={1.8}
+          />
+          {row.draftStarted}
         </span>
       )}
       {!inCard && row.reason && (

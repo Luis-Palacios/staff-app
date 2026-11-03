@@ -21,6 +21,7 @@ const STATUSES: readonly ReportListStatus[] = [
   "filed",
   "notHeld",
   "notFiled",
+  "draft",
 ];
 
 type SearchParams = Record<string, string | string[] | undefined>;

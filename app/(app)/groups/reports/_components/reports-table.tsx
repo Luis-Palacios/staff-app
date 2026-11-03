@@ -3,7 +3,7 @@
 import type { ReportListItem } from "@/api/small-groups-api/types";
 import type { Locale } from "@/lib/locale-shared";
 
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { ChevronRightIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { Table, buttonVariants } from "@heroui/react";
 import clsx from "clsx";
 import NextLink from "next/link";
@@ -48,6 +48,11 @@ export default function ReportsTable({
       {t("notFiled")}
     </StatusBadge>
   );
+  const draftBadge = (
+    <StatusBadge tone="accent" variant="ring-dot">
+      {t("draft")}
+    </StatusBadge>
+  );
 
   return (
     <Table
@@ -86,12 +91,19 @@ export default function ReportsTable({
               const key = `${item.kind}-${item.smallGroup.id}-${item.meetingDate}`;
               const filed = item.kind === "report";
               const noMeeting = item.kind === "report" && !item.held;
+              // Someone else's draft: the meeting stays not filed, and nobody files over it (rule 17).
+              const draftStarter =
+                item.kind === "notFiled" && item.hasDraft
+                  ? (item.draftStartedBy?.name ?? "")
+                  : null;
 
               return (
                 <Table.Row
                   key={key}
                   className={row({
-                    className: clsx(!filed && "bg-warning-soft/40"),
+                    className: clsx(
+                      item.kind === "notFiled" && "bg-warning-soft/40",
+                    ),
                   })}
                 >
                   <Table.Cell className={cell()}>
@@ -101,13 +113,28 @@ export default function ReportsTable({
                       </span>
                       {/* Below xl the submitter column is hidden and folds under the date. */}
                       <span className="text-[12.5px] text-muted xl:hidden">
-                        {item.kind === "report"
-                          ? item.held
-                            ? t("by", { name: item.submittedBy.name })
-                            : item.noMeetingWeekId !== null
-                              ? tWeek("label")
-                              : t("noMeeting")
-                          : notFiledBadge}
+                        {item.kind === "report" ? (
+                          item.held ? (
+                            t("by", { name: item.submittedBy.name })
+                          ) : item.noMeetingWeekId !== null ? (
+                            tWeek("label")
+                          ) : (
+                            t("noMeeting")
+                          )
+                        ) : item.kind === "draft" ? (
+                          <span className="font-semibold text-accent-soft-foreground">
+                            {t("draftProgress", {
+                              answered: item.answeredCount,
+                              total: item.rosterCount,
+                            })}
+                          </span>
+                        ) : draftStarter !== null ? (
+                          <span className="font-semibold text-warning-soft-foreground">
+                            {t("notFiledDraft")}
+                          </span>
+                        ) : (
+                          notFiledBadge
+                        )}
                       </span>
                     </span>
                   </Table.Cell>
@@ -160,8 +187,26 @@ export default function ReportsTable({
                   <Table.Cell
                     className={cell({ className: "hidden xl:table-cell" })}
                   >
-                    {item.kind !== "report" ? (
-                      notFiledBadge
+                    {item.kind === "draft" ? (
+                      <span className="flex flex-col items-start gap-1">
+                        {draftBadge}
+                        <span className="text-[12.5px] text-muted">
+                          {t("startedBy", {
+                            name: item.startedBy.name,
+                            answered: item.answeredCount,
+                            total: item.rosterCount,
+                          })}
+                        </span>
+                      </span>
+                    ) : item.kind === "notFiled" ? (
+                      <span className="flex flex-col items-start gap-1">
+                        {notFiledBadge}
+                        {draftStarter !== null && (
+                          <span className="text-[12.5px] text-muted">
+                            {t("draftStartedBy", { name: draftStarter })}
+                          </span>
+                        )}
+                      </span>
                     ) : item.held ? (
                       item.submittedBy.name
                     ) : (
@@ -186,8 +231,30 @@ export default function ReportsTable({
                           date,
                         })}
                       />
+                    ) : item.kind === "draft" ? (
+                      <NextLink
+                        aria-label={t("continueLabel", {
+                          group: item.smallGroup.name,
+                          date,
+                        })}
+                        className={buttonVariants({
+                          size: "sm",
+                          variant: "primary",
+                          className:
+                            "h-[34px] gap-1.5 px-3 text-[13px] font-semibold md:h-[34px]",
+                        })}
+                        href={`/groups/reports/${item.id}/edit`}
+                      >
+                        {t("continue")}
+                        <ChevronRightIcon
+                          aria-hidden="true"
+                          className="size-3.5"
+                          strokeWidth={2}
+                        />
+                      </NextLink>
                     ) : (
-                      canSubmit && (
+                      canSubmit &&
+                      draftStarter === null && (
                         <span className="inline-flex items-center justify-end gap-2">
                           <NoMeetingButton
                             ariaLabel={t("noMeetingLabel", {

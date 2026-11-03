@@ -354,6 +354,10 @@ export default function ReportsBrowser({
       counts={data.counts}
       options={[
         { key: "all", label: t("all") },
+        // Only the drafts the caller sees (a leader's); shown while there are any.
+        ...(data.counts.draft > 0 || filters.status === "draft"
+          ? [{ key: "draft" as const, label: t("draft") }]
+          : []),
         { key: "filed", label: t("filed") },
         { key: "notHeld", label: t("noMeeting") },
         { key: "notFiled", label: t("notFiled") },

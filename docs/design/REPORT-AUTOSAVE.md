@@ -53,8 +53,8 @@ progress log below.
 | 2. The save engine (queue, device outbox, status) | ✅ | 8188520 |
 | 3. One editor: indicator, pill, banners, Done, Leave, Discard | ✅ | d79fe97 |
 | 4. New report → draft, resume, Continue one at a time, roster drift | ✅ | 9d25470 |
-| 5. Submit, discard and no-meeting dialogs | ✅ | |
-| 6. Lists and dashboards | ⬜ | |
+| 5. Submit, discard and no-meeting dialogs | ✅ | b9be15b |
+| 6. Lists and dashboards | ✅ | |
 | 7. Old browser drafts, clean-up | ⬜ | |
 | 8. Design review fixes | ⬜ | |
 
@@ -127,12 +127,26 @@ progress log below.
 - Stage 5: the discard body names the other people who see the draft from the roster's leaders
   and co-leaders plus whoever started it (the viewer left out); with nobody else it drops that
   sentence (`discardBodyAlone`).
-- Stage 5: the dashboard's No meeting dialog takes an optional `draft` on its target: it then says
-  the draft is deleted and sends `replacesDraft`. Stage 6 passes it.
 - Stage 5: tried in the browser (dark, ES; 1440 and 390): discard sheet with focus on *Keep
   draft*; submit with the three tiles, then the report with the *submitted* toast; a draft
   replaced by a no meeting after the confirm. The test reports were deleted afterwards. The close
   group line wasn't tried (it would close a group).
+- Stage 6: the API never lists a not-filed row next to a draft row the caller sees, so a leader's
+  draft is only its draft row (with **Continue**) everywhere; no list offers *No meeting* on a
+  date that holds the caller's draft. The stage 5 change that let the dashboard's No meeting
+  dialog replace a draft had no caller, so it was taken out again; replacing a draft with a no
+  meeting happens in the editor.
+- Stage 6: the leader dashboard drops the draft's date from the card's not-filed lines (the
+  summary keeps it in `notFiledDates`) and shows the draft line there instead. *Draft* is a status
+  chip only while the caller has drafts (or the filter is on).
+- Stage 6: someone else's draft: Reports' not-filed row adds *Draft started by X* (narrow: *Not
+  filed · draft started*), the phone card says *No report yet. X has started a draft.*, and none
+  of them, nor Group detail, offers File report or No meeting (rule 17).
+- Stage 6: tried as a leader (1440, 390; dark; ES): My reports row and card, the Draft chip, the
+  dashboard card, Group detail's Recent meetings, discard and its toast. Not tried: the elder
+  views (`Reports-Drafts-Elder`, `LeaderDashboard-Elder-Drafts`), which need an elder's sign-in;
+  the local DB also had no drafts from the seed (it hadn't been re-run), so there was no other
+  leader's draft to show.
 
 ## Token changes
 
