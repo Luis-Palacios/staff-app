@@ -20,8 +20,8 @@ detail have Profile · Timeline tabs showing the reports a person was on or tagg
 application's baptism and class events). See `docs/design/REPORT-TAGS.md`.
 Reports auto-save: a report is a draft until submitted, every change saves to the server (device
 copy first), and new, draft and submitted reports share one editor (`report-flow.tsx`) at
-`/groups/reports/[id]/edit`. See `docs/design/REPORT-AUTOSAVE.md`, whose "Status and what's
-pending" section lists what is left.
+`/groups/reports/[id]/edit`. See `docs/design/REPORT-AUTOSAVE.md` (done; its "Status" lists the
+open follow-ups).
 
 See `docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring this app together
 with the sibling `auth-server` (better-auth) and `membership-management` (FastAPI) repos —
