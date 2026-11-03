@@ -16,9 +16,9 @@ has a separate edit form with Save and Cancel:
 button anywhere; submit is one-way; a draft counts as Due / Not filed for elders; leaving keeps
 the draft, only **Discard draft** deletes it; conflicts reload, they don't merge.
 
-**Depends on the API:** `membership-management/docs/REPORT-AUTOSAVE-API-HANDOFF.md` stages 1–4
-(`report-autosave` branch, running locally). If a stage needs something that isn't there yet, say
-so and stop; stub nothing in committed code.
+**Depends on the API:** `membership-management/docs/REPORT-AUTOSAVE-API-HANDOFF.md` stages 1–5,
+merged to its `main` (migration head `b7d2c4a91e30`). If something needs an API change that isn't
+there yet, say so and stop; stub nothing in committed code.
 
 Work through it **stage by stage**, one reviewable commit per stage, on the **`report-autosave`**
 branch. Each stage must lint (`pnpm lint`), type-check (`pnpm exec tsc --noEmit`) and work in light
@@ -57,6 +57,72 @@ progress log below.
 | 6. Lists and dashboards | ✅ | d7b0580 |
 | 7. Old browser drafts, clean-up | ✅ | 155d304 |
 | 8. Design review fixes | ✅ | d0c89d9 |
+
+### Status and what's pending (read this first in a new session)
+
+All eight stages are implemented on the `report-autosave` branch and opened as a PR against
+`main`. What is left, in order:
+
+1. **Before merging: the elder side, untried.** The first session was signed in only as a small
+   group leader. Sign in as an elder (and as a second leader), re-run membership-management's seed
+   so GP - #4 and GP - #1 have drafts (`uv run python -m membership_management.cli.main`, see its
+   README; the local DB had no drafts when stage 6 was tried), then check:
+   - `Reports-Drafts-Elder`: the not-filed row says *Draft started by X*, with no File report or
+     No meeting; phone card *No report yet. X has started a draft.*
+   - `LeaderDashboard-Elder-Drafts`: *Draft started* (pencil) under due and today rows; status,
+     order, counts and Needs follow-up unchanged.
+   - A second leader of the same group sees the draft and can continue it; a leader of another
+     group gets *A leader has started a draft for this date.* on `/new` for that date, with the mode
+     cards dimmed (rule 17).
+   - The close-group dialog's *Closing it also discards N unsent drafts* line (needs a group with
+     a draft and someone allowed to close it; closing is destructive, use a throwaway group).
+2. **Before or with the deploy: auth-server rate limits.** Each auto-save makes two
+   `/get-session` calls and one `/token` mint (measured, see stage 8 below). auth-server allows
+   300 per IP and path and only resets after 10 s with no allowed request, so a big roster, or a
+   few leaders on one church Wi-Fi, can get 429s (the editor shows *Couldn't save* and retries;
+   nothing is lost). Pick one:
+   - staff-app: read the session once per server action (`forbiddenUnless` and
+     `authenticatedFetch` each call `getServerSession`, and `cache()` doesn't dedupe inside an
+     action), and reuse a JWT until it is close to expiry instead of minting per call. Touches
+     `api/authenticated-fetch.ts`, `api/auth-api/helpers/*`, `lib/auth/get-permissions.ts`.
+   - auth-server: raise the `/get-session` and `/token` custom rules in `src/lib/auth.ts`.
+3. **After staff-app is deployed: membership-management stage 6** (contract): `version` required
+   on save and submit, create defaults to `draft`, roster drops `existingReportId` /
+   `existingReportHeld`. staff-app already sends `status` and `version` and never reads the old
+   roster fields, so it needs no change; confirm against that stage's commit when it lands.
+4. **Then: close out the spec.** Tick the API's stage 6, trim `../docs/specs/report-autosave.md`
+   to its decisions (members-management repo, its own commit), and trim this file's stage notes
+   to what the code doesn't say.
+
+Smaller follow-ups, none blocking:
+
+- **Tests:** no runner yet. When Vitest lands, add `report-autosave.test.ts` for the
+  `ReportAutosave` class (coalescing, one save in flight, typing vs. blur, offline then online,
+  conflict keeping the device copy, retry backoff, create-then-rekey, roster drift, `canSend`
+  holding a submitted report). The class takes `save`, `create` and `isOnline` as options, so it
+  needs no React or network.
+- **API handoff log:** `membership-management/docs/REPORT-AUTOSAVE-API-HANDOFF.md` lists stage
+  commits (71d5a6d, f29d7eb, 8b09227, 580e187, 26a5cbd) that aren't the ones on its `main`
+  (29c6180, c6010fc, 2c8db35, 173c3c5, 9e58a17). Fix in that repo.
+- **Done scroll:** after **Done** the report detail sometimes keeps the editor's scroll position
+  instead of starting at the top.
+- **Phone sheet:** the confirm dialogs' bottom sheet keeps HeroUI's side margins rather than
+  running edge to edge as on the canvas.
+- **Local data from the first session:** draft 81 (Nuevos Comienzos, Oct 23) is an old browser
+  draft migrated by stage 7, with test answers on top; discard it if unwanted. Report 52 was edited
+  and put back (its version went up).
+
+Where things live (for a new session):
+
+- Save engine and hook: `app/(app)/groups/reports/_lib/report-autosave.ts` (`ReportAutosave`,
+  `useReportAutosave`, device outbox `ekk-report-outbox:{id}` / `ekk-report-outbox:new:{group}:{date}`).
+- Form ↔ API body: `_lib/report-form.ts` (`ReportDraft` types, `formFromReport`, `toReportBody`).
+- Old browser drafts (migration only): `_lib/legacy-report-draft.ts`.
+- The one editor: `_components/report-flow.tsx` (new, draft and submitted), with
+  `save-status.tsx`, `report-banner.tsx`, `resume-card.tsx`, `report-confirm-dialog.tsx`.
+- Server actions: `_actions/report-actions.ts` (`createReportAction`, `saveReportAction`,
+  `submitReportAction`, `leaveReportAction`, `deleteReportAction`, `markNoMeeting`).
+- Error kinds (status + `detail` phrase): `lib/api-error-message.ts`.
 
 ### Decisions and deviations
 
