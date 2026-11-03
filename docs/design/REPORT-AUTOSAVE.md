@@ -55,8 +55,8 @@ progress log below.
 | 4. New report → draft, resume, Continue one at a time, roster drift | ✅ | 9d25470 |
 | 5. Submit, discard and no-meeting dialogs | ✅ | b9be15b |
 | 6. Lists and dashboards | ✅ | d7b0580 |
-| 7. Old browser drafts, clean-up | ✅ | |
-| 8. Design review fixes | ⬜ | |
+| 7. Old browser drafts, clean-up | ✅ | 155d304 |
+| 8. Design review fixes | ✅ | |
 
 ### Decisions and deviations
 
@@ -156,6 +156,26 @@ progress log below.
   step restores a change kept on the device while a new draft couldn't be created (offline).
 - Stage 7: tried with a real old entry in this browser (`ekk-report-draft:7:2026-10-23`): it became
   draft 81 with its answer and address, and the entry was removed. That draft is still there.
+- Stage 8 (review): no color literals or new `dark:` overrides in the changed files; every status
+  is a dot and a word; the save status is a polite live region and conflict and error banners are
+  alerts; the global gold halo covers the plain text buttons. Checked the error state at 1024 in
+  light (API stopped): pill with Retry, alert banner, and it saved by itself once the API was back.
+  Fixed: a server action that throws on the server (an auth-server 429, say) showed *Saved on
+  this device*; it now shows *Couldn't save* and keeps retrying. Dialogs were widened to 500 px
+  and the submit tiles got a visible box in dark.
+- Stage 8, rate limits (measured with a temporary log in `getSession` / `getToken`, removed): 16
+  taps 400 ms apart gave 16 PATCHes, 32 `/get-session` and 16 `/token` calls. Each auto-save is a
+  server action that reads the session twice (`forbiddenUnless`, then `authenticatedFetch`'s
+  `requireStaffSession`; `cache()` doesn't dedupe inside a server action) and mints one JWT.
+  - API PATCH (120/minute per user): fine. Taps 300 ms apart coalesce, so even a fast leader stays
+    near 40 saves for a 20-person roster.
+  - auth-server `/get-session` and `/token` (300 per IP and path, reset only after 10 s with no
+    allowed request): one report is now roughly 2 × saves session reads instead of 2. A leader on
+    a 40-person roster, or a few leaders on the same church Wi-Fi filling reports together, can
+    pass 300 without a 10 s pause and get 429s. The editor then shows *Couldn't save* and retries
+    (2, 5, 15, 30 s); the 15 s wait lets the window reset, so nothing is lost, but it can recur.
+  - Not changed here (auth design): reading the session once per action, and reusing a JWT until
+    it nears expiry, would bring a save to one session read and usually no mint.
 
 ## Token changes
 

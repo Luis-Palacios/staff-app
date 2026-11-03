@@ -454,11 +454,17 @@ export class ReportAutosave<TForm> {
         this.reportId === null
           ? await this.createDraft(snapshot.body)
           : await this.options.save(this.reportId, this.version, snapshot.body);
-    } catch {
-      // The server action itself couldn't be reached: offline, or the connection dropped.
+    } catch (error) {
+      // The server action couldn't be reached (offline, the connection dropped: a TypeError from
+      // fetch), or it threw on the server (auth-server answering 429, say). Both are retried; only
+      // the first is "Saved on this device".
       this.inFlight = false;
       this.dirty = true;
-      this.setState({ status: "offline" });
+      this.setState(
+        !this.online() || error instanceof TypeError
+          ? { status: "offline" }
+          : { status: "error", retrying: true, message: "" },
+      );
       this.resolveWaiters(null);
       this.scheduleRetry();
 
