@@ -54,6 +54,10 @@ function keep(key: string, token: string): void {
 
   if (expiresAt === null) return;
 
+  // set() on an existing key keeps its old place in the Map's order: delete first, so a replaced
+  // token moves to the newest end and an update doesn't evict anyone.
+  kept.delete(key);
+
   if (kept.size >= MAX_KEPT) {
     const now = Date.now();
 
