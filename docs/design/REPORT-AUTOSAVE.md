@@ -62,25 +62,31 @@ progress log below.
 
 All eight stages are merged to `main` (PR 96). What is left, in order:
 
-1. **The elder side, untried** (it was meant to happen before merging; it didn't). The first session was signed in only as a small
-   group leader. Sign in as an elder (and as a second leader), re-run membership-management's seed
-   so GP - #4 and GP - #1 have drafts (`uv run python -m membership_management.cli.main`, see its
-   README; the local DB had no drafts when stage 6 was tried), then check:
-   - `Reports-Drafts-Elder`: the not-filed row says *Draft started by X*, with no File report or
-     No meeting; phone card *No report yet. X has started a draft.*
-   - `LeaderDashboard-Elder-Drafts`: *Draft started* (pencil) under due and today rows; status,
-     order, counts and Needs follow-up unchanged.
-   - A second leader of the same group sees the draft and can continue it; a leader of another
-     group gets *A leader has started a draft for this date.* on `/new` for that date, with the mode
-     cards dimmed (rule 17).
-   - The close-group dialog's *Closing it also discards N unsent drafts* line (needs a group with
-     a draft and someone allowed to close it; closing is destructive, use a throwaway group).
-2. ✅ **auth-server rate limits** (branch `auth-session-reuse`, its own PR; roadmap Phase 10). The session is now read once per
+1. ✅ **The elder side** (2026-11-03, after the merge). A GP - #5 draft for Oct 31 (report 82),
+   started by its leader (user *Luis Reyes*, an elder whose member is Freddy), viewed by an elder
+   with no member (*Luis Zeta 4*) and by an admin who leads no group (*Luis Palacios*):
+   - `Reports-Drafts-Elder`: the not-filed row reads *Draft started by Freddy Sequeira Reyes*, with
+     no File report or No meeting while the other not-filed rows keep them; phone card *No report
+     yet. Freddy Sequeira Reyes has started a draft.* ✅
+   - `LeaderDashboard-Elder-Drafts` (last week): *Draft started* with the pencil under the row;
+     status, counts and Needs follow-up unchanged, desktop and phone. ✅
+   - Group detail ▸ Recent meetings: the date stays not filed, with the draft line. ✅
+   - `/new` for that group and date: *A leader has started a draft for this date.*, mode cards
+     dimmed, and *Save no meeting* disabled too (rule 17). ✅
+   - Close-group dialog: *Closing it also discards 1 unsent draft.* (opened and cancelled). ✅
+   - Not tried: a second leader of the same group continuing the draft (GP - #5's co-leader has no
+     sign-in). GP - #1's leader and co-leader both have one (*Luis Zeta*, *Luis Zeta 3*): start a
+     draft as one, continue it as the other.
+   - Seen: a draft on a day that isn't the group's meeting day shows nowhere for others (see the
+     follow-ups below).
+   The API's seed only runs on an empty DB (`--reset` wipes every members table, links included),
+   so it wasn't re-run; the draft was made in the app instead.
+2. ✅ **auth-server rate limits** (PR 97; roadmap Phase 10). The session is now read once per
    request, server actions included (`perRequest` in `api/auth-api/helpers/per-request.ts`, keyed
    on Next's per-request headers object), and a JWT is reused until a minute before it expires,
    keyed by the session, user, role and permissions (`get-auth-token.ts`; on a 401 from the API
-   it mints a new one and sends once more). Measured as in stage 8: 8 saves gave 8 `/get-session` calls and no `/token` mint (it was
-   16 and 8). Opening a page: one of each.
+   it mints a new one and sends once more). Measured as in stage 8: 8 saves gave 8 `/get-session`
+   calls and no `/token` mint (it was 16 and 8). Opening a page: one of each.
 3. **After staff-app is deployed: membership-management stage 6** (contract): `version` required
    on save and submit, create defaults to `draft`, roster drops `existingReportId` /
    `existingReportHeld`. staff-app already sends `status` and `version` and never reads the old
@@ -100,9 +106,16 @@ Smaller follow-ups, none blocking:
   instead of starting at the top.
 - **Phone sheet:** the confirm dialogs' bottom sheet keeps HeroUI's side margins rather than
   running edge to edge as on the canvas.
-- **Local data from the first session:** draft 81 (Nuevos Comienzos, Oct 23) is an old browser
-  draft migrated by stage 7, with test answers on top; discard it if unwanted. Report 52 was edited
-  and put back (its version went up).
+- **Off-day drafts are invisible to others** (decide; API): only the group's expected meeting dates
+  get a not-filed row, and `/new` allows any past date (the picker only marks meeting days). A
+  draft on an off day (a meeting moved to Friday, or draft 81, Nuevos Comienzos, Oct 23) shows
+  nowhere for elders or other viewers until it is submitted, so rule 15's *Draft started* has no
+  row to go on. A submitted report on an off day does get its own row. If it matters, the API's
+  list would add a row for someone else's draft on a date with no expected meeting.
+- **Local test data:** draft 81 (Nuevos Comienzos, Oct 23) is an old browser draft migrated by
+  stage 7, with test answers on top; draft 82 (GP - #5, Oct 31) was made for the elder check.
+  Discard them if unwanted (as Luis Reyes for 82). Report 52 was edited and put back (its version
+  went up).
 
 Where things live (for a new session):
 
