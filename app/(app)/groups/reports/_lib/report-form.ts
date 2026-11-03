@@ -10,7 +10,6 @@ import type {
   ReportSectionKey,
   ReportSectionsInput,
 } from "@/api/small-groups-api/types";
-import type { ReportDraft } from "./report-draft";
 
 import { personKey } from "./person";
 import {
@@ -21,6 +20,26 @@ import {
   newDraftItem,
   toItemInput,
 } from "./report-items-draft";
+
+export interface ReportDraftAnswer {
+  attendedGroup: boolean | null;
+  attendedChurch: boolean | null;
+  observation: string;
+}
+
+export interface ReportDraft {
+  address: string;
+  /** The three sections as items (people keep their full name so chips render at once). */
+  items: DraftItems;
+  /** Step 1: did the group meet? Defaults to yes; a no meeting uses only `reason`. */
+  met: boolean;
+  /** Kept when the leader switches back to yes, but only sent for a no meeting. */
+  reason: string;
+  /** The date has a no-meeting mark and the leader chose to replace it on submit. */
+  replacing: boolean;
+  /** Keyed by `personKey`: "member:12" or "guest:4". */
+  answers: Record<string, ReportDraftAnswer>;
+}
 
 /** The report's items as the form holds them: a person keeps their name, never `viewable`. */
 function itemsOf(report: ReportDetail): DraftItems {

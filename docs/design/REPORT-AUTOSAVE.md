@@ -54,8 +54,8 @@ progress log below.
 | 3. One editor: indicator, pill, banners, Done, Leave, Discard | ✅ | d79fe97 |
 | 4. New report → draft, resume, Continue one at a time, roster drift | ✅ | 9d25470 |
 | 5. Submit, discard and no-meeting dialogs | ✅ | b9be15b |
-| 6. Lists and dashboards | ✅ | |
-| 7. Old browser drafts, clean-up | ⬜ | |
+| 6. Lists and dashboards | ✅ | d7b0580 |
+| 7. Old browser drafts, clean-up | ✅ | |
 | 8. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
@@ -147,6 +147,15 @@ progress log below.
   views (`Reports-Drafts-Elder`, `LeaderDashboard-Elder-Drafts`), which need an elder's sign-in;
   the local DB also had no drafts from the seed (it hadn't been re-run), so there was no other
   leader's draft to show.
+- Stage 7: `report-draft.ts` is gone. Its form types (`ReportDraft`, `ReportDraftAnswer`) moved to
+  `report-form.ts`; its reader is `legacy-report-draft.ts`, which only the migration uses (the
+  one place `ekk-report-draft` still appears). `report-body.ts` and `updateReportAction` are gone.
+- Stage 7: the migration runs when the new-report screen has the roster for a group and date
+  (on load and after each change). An old entry for a date with no report becomes the draft and
+  the editor opens on its list; a date that has a report or draft only loses the entry. The same
+  step restores a change kept on the device while a new draft couldn't be created (offline).
+- Stage 7: tried with a real old entry in this browser (`ekk-report-draft:7:2026-10-23`): it became
+  draft 81 with its answer and address, and the entry was removed. That draft is still there.
 
 ## Token changes
 
