@@ -78,8 +78,8 @@ All eight stages are merged to `main` (PR 96). What is left, in order:
 2. ✅ **auth-server rate limits** (branch `auth-session-reuse`, its own PR; roadmap Phase 10). The session is now read once per
    request, server actions included (`perRequest` in `api/auth-api/helpers/per-request.ts`, keyed
    on Next's per-request headers object), and a JWT is reused until a minute before it expires,
-   keyed by the session, user, role and permissions (`get-auth-token.ts`; a 401 from the API drops
-   it). Measured as in stage 8: 8 saves gave 8 `/get-session` calls and no `/token` mint (it was
+   keyed by the session, user, role and permissions (`get-auth-token.ts`; on a 401 from the API
+   it mints a new one and sends once more). Measured as in stage 8: 8 saves gave 8 `/get-session` calls and no `/token` mint (it was
    16 and 8). Opening a page: one of each.
 3. **After staff-app is deployed: membership-management stage 6** (contract): `version` required
    on save and submit, create defaults to `draft`, roster drops `existingReportId` /

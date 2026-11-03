@@ -1437,7 +1437,8 @@ Phase 5).
 dedupe inside a server action, where `cache()` doesn't. `getAuthToken` keeps a minted JWT across
 requests until a minute before its `exp`, keyed by session id, user id, role and permissions (a
 role change mints a new one; the session is still read every request, so a signed-out or banned
-user never reaches a kept token). `authenticatedFetch` drops the kept token on a 401. Measured on
+user never reaches a kept token). When the API answers 401 to a kept token, `authenticatedFetch` mints a
+new one (`replaceAuthToken`, once per request, shared by parallel calls) and sends once more. Measured on
 report auto-save: 8 saves → 8 `/get-session`, 0 `/token` (was 16 and 8). The text below is the
 original plan.
 
