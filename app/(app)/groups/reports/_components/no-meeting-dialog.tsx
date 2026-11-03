@@ -78,6 +78,16 @@ function NoMeetingForm({
   }, []);
 
   function save() {
+    // An edit must never fall back to marking: that would try to create a second report on the date.
+    if (
+      edit &&
+      (target.reportId === undefined || target.version === undefined)
+    ) {
+      throw new Error(
+        "Editing a no meeting needs the report's id and version.",
+      );
+    }
+
     setError(null);
     startTransition(async () => {
       const result =
