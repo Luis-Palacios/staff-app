@@ -89,8 +89,11 @@ All eight stages are merged to `main` (PR 96). What is left, in order:
    calls and no `/token` mint (it was 16 and 8). Opening a page: one of each.
 3. **After staff-app is deployed: membership-management stage 6** (contract): `version` required
    on save and submit, create defaults to `draft`, roster drops `existingReportId` /
-   `existingReportHeld`. staff-app already sends `status` and `version` and never reads the old
-   roster fields, so it needs no change; confirm against that stage's commit when it lands.
+   `existingReportHeld`. staff-app sends `status` on every create and never reads the old roster
+   fields. One save went without `version`: editing a no meeting's reason
+   (`updateNoMeetingReason`). It now sends the report's version from the no-meeting page, and a
+   409 there turns the dialog's Save into **Reload** (branch `no-meeting-reason-version`). That must
+   be deployed before stage 6. Confirm against that stage's commit when it lands.
 4. **Then: close out the spec.** Tick the API's stage 6, trim `../docs/specs/report-autosave.md`
    to its decisions (members-management repo, its own commit), and trim this file's stage notes
    to what the code doesn't say.

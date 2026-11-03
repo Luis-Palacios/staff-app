@@ -12,6 +12,7 @@ import {
   TextArea,
   TextField,
 } from "@heroui/react";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 import {
@@ -32,6 +33,8 @@ export interface NoMeetingTarget {
   date: string;
   /** Only for `edit`: the no-meeting report to change. */
   reportId?: number;
+  /** Only for `edit`: the report's version, which the save is based on (409 when it moved on). */
+  version?: number;
   /** Only for `edit`: the reason to start from. */
   reason?: string | null;
   /**
@@ -58,6 +61,10 @@ function NoMeetingForm({
   const locale = useLocale() as Locale;
   const [reason, setReason] = useState(target.reason ?? "");
   const [error, setError] = useState<string | null>(null);
+  // Someone saved the report first (auto-save rule 9): the only way on is a reload, which shows
+  // their reason and the new version. The typed reason isn't merged.
+  const [stale, setStale] = useState(false);
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const field = useRef<HTMLTextAreaElement>(null);
   const edit = kind === "edit";
@@ -74,9 +81,10 @@ function NoMeetingForm({
     setError(null);
     startTransition(async () => {
       const result =
-        edit && target.reportId !== undefined
+        edit && target.reportId !== undefined && target.version !== undefined
           ? await updateNoMeetingReason(
               target.reportId,
+              target.version,
               target.groupId,
               target.date,
               reason,
@@ -90,6 +98,7 @@ function NoMeetingForm({
       }
 
       setError(result.message);
+      setStale(result.kind === "conflict");
     });
   }
 
@@ -118,7 +127,7 @@ function NoMeetingForm({
       <Modal.Body className="flex flex-col gap-3 overflow-visible p-1">
         <TextField
           className="gap-1.5"
-          isDisabled={isPending}
+          isDisabled={isPending || stale}
           maxLength={REASON_MAX}
           name="reason"
           value={reason}
@@ -163,9 +172,25 @@ function NoMeetingForm({
         >
           {tForm("cancel")}
         </Button>
-        <Button className="font-semibold" isPending={isPending} onPress={save}>
-          {edit ? t("save") : t("mark")}
-        </Button>
+        {stale ? (
+          <Button
+            className="font-semibold"
+            onPress={() => {
+              onClose();
+              router.refresh();
+            }}
+          >
+            {tForm("reload")}
+          </Button>
+        ) : (
+          <Button
+            className="font-semibold"
+            isPending={isPending}
+            onPress={save}
+          >
+            {edit ? t("save") : t("mark")}
+          </Button>
+        )}
       </Modal.Footer>
     </>
   );
