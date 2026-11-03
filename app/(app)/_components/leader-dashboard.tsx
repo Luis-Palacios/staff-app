@@ -4,6 +4,7 @@ import type { Locale } from "@/lib/locale-shared";
 import {
   ChevronRightIcon,
   ClockIcon,
+  PencilSquareIcon,
   PlusIcon,
   UserGroupIcon,
   LinkIcon,
@@ -25,7 +26,7 @@ import { GuestsBadge } from "@/components/guests-badge";
 import { card, textLink, title } from "@/components/primitives";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { StatusBadge } from "@/components/status-badge";
-import { getChurchToday } from "@/lib/church-time";
+import { formatChurchTime, getChurchToday } from "@/lib/church-time";
 import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
 import { WEEKDAY_KEYS } from "@/lib/weekdays";
 
@@ -43,7 +44,11 @@ async function GroupCard({
     getTranslations("SmallGroupRole"),
     getTranslations("Weekdays"),
   ]);
-  const { smallGroup, role, lastReport, notFiledDates } = summary;
+  const { smallGroup, role, lastReport, draft } = summary;
+  // The draft's date stays in `notFiledDates` (rule 15); here it is the draft line instead.
+  const notFiledDates = summary.notFiledDates.filter(
+    (date) => date !== draft?.meetingDate,
+  );
   const meetsToday =
     smallGroup.meetingDay !== null &&
     weekdayOf(today) === smallGroup.meetingDay;
@@ -121,6 +126,33 @@ async function GroupCard({
           )}
         </div>
 
+        {draft && (
+          <div className="flex items-center gap-2.5 rounded-xl bg-accent-soft px-3 py-2.5 text-[13.5px] font-semibold text-accent-soft-foreground">
+            <PencilSquareIcon
+              aria-hidden="true"
+              className="size-[18px] shrink-0"
+              strokeWidth={1.7}
+            />
+            <span className="min-w-0 flex-1">
+              {draft.meetingDate === today
+                ? t("draftToday", {
+                    answered: draft.answeredCount,
+                    total: draft.rosterCount,
+                    time: formatChurchTime(draft.lastSavedAt, locale),
+                  })
+                : t("draftLine", {
+                    date: formatCalendarShortWeekdayDate(
+                      draft.meetingDate,
+                      locale,
+                    ),
+                    answered: draft.answeredCount,
+                    total: draft.rosterCount,
+                    time: formatChurchTime(draft.lastSavedAt, locale),
+                  })}
+            </span>
+          </div>
+        )}
+
         {notFiledDates.map((date) => (
           <div
             key={date}
@@ -161,14 +193,26 @@ async function GroupCard({
             variant: "primary",
             className: "flex-1 gap-2 font-semibold",
           })}
-          href={`/groups/reports/new?groupId=${smallGroup.id}`}
+          href={
+            draft
+              ? `/groups/reports/${draft.id}/edit`
+              : `/groups/reports/new?groupId=${smallGroup.id}`
+          }
         >
-          <PlusIcon
-            aria-hidden="true"
-            className="size-[18px]"
-            strokeWidth={1.8}
-          />
-          {t("newReport")}
+          {draft ? (
+            <PencilSquareIcon
+              aria-hidden="true"
+              className="size-[18px]"
+              strokeWidth={1.8}
+            />
+          ) : (
+            <PlusIcon
+              aria-hidden="true"
+              className="size-[18px]"
+              strokeWidth={1.8}
+            />
+          )}
+          {draft ? t("continueDraft") : t("newReport")}
         </NextLink>
         <NextLink
           className={buttonVariants({

@@ -311,7 +311,14 @@
     "noMeeting": "Sin reunión",
     "markedBy": "Marcado por {name}",
     "draft": "Borrador",
-    "draftDiscarded": "Borrador descartado"
+    "draftDiscarded": "Borrador descartado",
+    "continue": "Continuar",
+    "continueLabel": "Continuar el borrador: {group}, {date}",
+    "startedBy": "Empezado por {name} · {answered, number} de {total, number} respondidas",
+    "draftProgress": "Borrador · {answered, number} de {total, number} respondidas",
+    "draftStartedBy": "Borrador empezado por {name}",
+    "notFiledDraft": "No enviado · borrador empezado",
+    "missingDraft": "Aún no tiene reporte. {name} empezó un borrador."
   },
   "ReportDetail": {
     "groupPage": "Página del grupo",
@@ -772,7 +779,8 @@
     "followUpLoadFailed": "No se pudo revisar qué grupos están atrasados.",
     "view": "Ver",
     "legendNoMeeting": "Sin reunión",
-    "meetingNoMeeting": "{date} sin reunión"
+    "meetingNoMeeting": "{date} sin reunión",
+    "draftStarted": "Borrador empezado"
   },
   "PrayerDashboard": {
     "title": "Oración y seguimiento",
@@ -844,7 +852,10 @@
     "noMeetingLabel": "Marcar el {date} sin reunión",
     "openGroup": "Abrir grupo",
     "newReport": "Nuevo reporte",
-    "loadFailed": "No se pudieron cargar tus grupos. Inténtalo de nuevo en un momento."
+    "loadFailed": "No se pudieron cargar tus grupos. Inténtalo de nuevo en un momento.",
+    "draftLine": "Borrador del {date} · {answered, number} de {total, number} respondidas · guardado {time}",
+    "draftToday": "Borrador de la reunión de hoy · {answered, number} de {total, number} respondidas · guardado {time}",
+    "continueDraft": "Continuar borrador"
   },
   "DashboardPage": {
     "description": "Esto es lo que necesita tu atención esta semana.",

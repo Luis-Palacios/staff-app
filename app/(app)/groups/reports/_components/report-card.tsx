@@ -33,6 +33,11 @@ export default function ReportCard({
   const tWeek = useTranslations("NoMeetingWeek");
   const locale = useLocale() as Locale;
   const date = formatCalendarMediumDate(item.meetingDate, locale);
+  // Someone else's draft: the meeting stays not filed, and nobody files over it (rule 17).
+  const draftStarter =
+    item.kind === "notFiled" && item.hasDraft
+      ? (item.draftStartedBy?.name ?? "")
+      : null;
 
   const openLink =
     item.kind === "report" ? (
@@ -82,7 +87,11 @@ export default function ReportCard({
             <p className="text-[13px] text-muted">{leader ?? t("noLeader")}</p>
           )}
         </div>
-        {item.kind === "report" ? (
+        {item.kind === "draft" ? (
+          <StatusBadge tone="accent" variant="ring-dot">
+            {t("draft")}
+          </StatusBadge>
+        ) : item.kind === "report" ? (
           item.held ? (
             <StatusBadge tone="success">{t("filed")}</StatusBadge>
           ) : (
@@ -96,7 +105,36 @@ export default function ReportCard({
           </StatusBadge>
         )}
       </div>
-      {item.kind === "report" && !item.held ? (
+      {item.kind === "draft" ? (
+        <div className="flex items-center justify-between gap-3 border-t border-separator pt-2.5">
+          <span className="text-[13px] text-muted">
+            {t("startedBy", {
+              name: item.startedBy.name,
+              answered: item.answeredCount,
+              total: item.rosterCount,
+            })}
+          </span>
+          <NextLink
+            aria-label={t("continueLabel", {
+              group: item.smallGroup.name,
+              date,
+            })}
+            className={buttonVariants({
+              variant: "primary",
+              className:
+                "h-10 shrink-0 gap-1.5 px-3.5 text-[13.5px] font-semibold",
+            })}
+            href={`/groups/reports/${item.id}/edit`}
+          >
+            {t("continue")}
+            <ChevronRightIcon
+              aria-hidden="true"
+              className="size-3.5"
+              strokeWidth={2}
+            />
+          </NextLink>
+        </div>
+      ) : item.kind === "report" && !item.held ? (
         <>
           {item.notHeldReason && (
             <p className="text-[13.5px] italic text-muted">
@@ -135,9 +173,11 @@ export default function ReportCard({
       ) : (
         <>
           <p className="text-[13.5px] text-warning-soft-foreground">
-            {t("missingNote")}
+            {draftStarter !== null
+              ? t("missingDraft", { name: draftStarter })
+              : t("missingNote")}
           </p>
-          {canSubmit && (
+          {canSubmit && draftStarter === null && (
             <div className="grid grid-cols-2 gap-2">
               <NextLink
                 aria-label={t("fileReportLabel", {

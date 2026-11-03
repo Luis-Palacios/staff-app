@@ -88,7 +88,11 @@ export async function GroupReportsCard({
                               answered: item.answeredCount,
                               total: item.rosterCount,
                             })
-                          : t("missing")}
+                          : item.hasDraft
+                            ? tList("missingDraft", {
+                                name: item.draftStartedBy?.name ?? "",
+                              })
+                            : t("missing")}
                   </span>
                 </span>
                 <StatusBadge
@@ -153,14 +157,15 @@ export async function GroupReportsCard({
 
             // A not-filed meeting links to filing it, or can be marked as no meeting, when the
             // caller can. The button sits beside the link: a button can't live inside one.
+            // Someone else's draft holds the date: nobody files over it (auto-save rule 17).
+            const canFile = canSubmit && open && !item.hasDraft;
+
             return (
               <li
                 key={`missing-${item.meetingDate}`}
-                className={
-                  canSubmit && open ? "flex items-center pr-6" : undefined
-                }
+                className={canFile ? "flex items-center pr-6" : undefined}
               >
-                {canSubmit && open ? (
+                {canFile ? (
                   <>
                     <NextLink
                       aria-label={t("fileLabel", { date })}

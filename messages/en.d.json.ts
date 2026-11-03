@@ -314,7 +314,14 @@ declare const messages: {
     "noMeeting": "No meeting",
     "markedBy": "Marked by {name}",
     "draft": "Draft",
-    "draftDiscarded": "Draft discarded"
+    "draftDiscarded": "Draft discarded",
+    "continue": "Continue",
+    "continueLabel": "Continue the draft: {group}, {date}",
+    "startedBy": "Started by {name} · {answered, number} of {total, number} answered",
+    "draftProgress": "Draft · {answered, number} of {total, number} answered",
+    "draftStartedBy": "Draft started by {name}",
+    "notFiledDraft": "Not filed · draft started",
+    "missingDraft": "No report yet. {name} has started a draft."
   },
   "ReportDetail": {
     "groupPage": "Group page",
@@ -775,7 +782,8 @@ declare const messages: {
     "followUpLoadFailed": "Couldn’t check which groups are behind.",
     "view": "View",
     "legendNoMeeting": "No meeting",
-    "meetingNoMeeting": "{date} no meeting"
+    "meetingNoMeeting": "{date} no meeting",
+    "draftStarted": "Draft started"
   },
   "PrayerDashboard": {
     "title": "Prayer & follow-up",
@@ -847,7 +855,10 @@ declare const messages: {
     "noMeetingLabel": "Mark {date} as no meeting",
     "openGroup": "Open group",
     "newReport": "New report",
-    "loadFailed": "Your groups couldn’t load. Try again in a moment."
+    "loadFailed": "Your groups couldn’t load. Try again in a moment.",
+    "draftLine": "Draft for {date} · {answered, number} of {total, number} answered · saved {time}",
+    "draftToday": "Draft for today’s meeting · {answered, number} of {total, number} answered · saved {time}",
+    "continueDraft": "Continue draft"
   },
   "DashboardPage": {
     "description": "Here's what needs your attention this week.",
