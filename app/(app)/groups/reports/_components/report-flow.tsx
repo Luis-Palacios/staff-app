@@ -73,6 +73,7 @@ import { formatChurchSunday } from "@/app/(app)/groups/reports/_lib/format-churc
 import { defaultMeetingDate } from "@/app/(app)/groups/reports/_lib/meeting-dates";
 import { guestsFirst, personKey } from "@/app/(app)/groups/reports/_lib/person";
 import { emptyDraftItems } from "@/app/(app)/groups/reports/_lib/report-items-draft";
+import { firstNameOf } from "@/lib/report-items";
 import { tagContextOf } from "@/app/(app)/groups/reports/_lib/report-tags";
 import {
   addedPeople,
@@ -679,7 +680,6 @@ export function ReportFlow({
       // Success redirects to the report; anything else is shown on the editor.
       setDialog(null);
 
-      // Success redirects to the report.
       if (result.kind === "conflict" && result.conflict) {
         autosave.engine.markConflict(result.conflict);
 
@@ -877,14 +877,14 @@ export function ReportFlow({
 
   for (const row of people) {
     if (row.person.type === "member" && row.role !== "member") {
-      draftViewers.set(row.person.id, row.name.split(" ")[0]);
+      draftViewers.set(row.person.id, firstNameOf(row.name));
     }
   }
 
   if (existing) {
     draftViewers.set(
       existing.report.startedBy.memberId,
-      existing.report.startedBy.name.split(" ")[0],
+      firstNameOf(existing.report.startedBy.name),
     );
   }
 

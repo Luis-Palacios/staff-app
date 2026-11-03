@@ -22,6 +22,7 @@ import {
   getChurchToday,
 } from "@/lib/church-time";
 import { formatCalendarWeekdayDate } from "@/lib/format-date";
+import { firstNameOf } from "@/lib/report-items";
 
 /**
  * "Submitted by X on … · Last edited by Y today at …" (`Edit-Live`), in the church's time zone.
@@ -90,7 +91,7 @@ async function resumeInfo(report: ReportDetail, me: Me): Promise<ResumeInfo> {
     ),
     startedTime: formatChurchTime(report.startedAt, locale),
     savedTime: formatChurchTime(savedAt, locale),
-    others: [...others.values()].map((name) => name.split(" ")[0]),
+    others: [...others.values()].map(firstNameOf),
   };
 }
 
