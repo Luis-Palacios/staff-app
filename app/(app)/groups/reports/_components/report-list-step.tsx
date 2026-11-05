@@ -16,9 +16,11 @@ import type { Locale } from "@/lib/locale-shared";
 
 import { useState } from "react";
 import {
+  BuildingLibraryIcon,
   HandRaisedIcon,
   PencilSquareIcon,
   PlusIcon,
+  UserGroupIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
 import { Label, TextArea, TextField } from "@heroui/react";
@@ -45,14 +47,29 @@ import { InitialsAvatar } from "@/components/initials-avatar";
 import { card, title } from "@/components/primitives";
 import { formatCalendarShortDate } from "@/lib/format-date";
 
-/** Name, two Yes/No pairs and a note toggle per row (from `md`); the same row stacks below it. */
+/**
+ * Name, two Yes/No pairs and a note toggle per row (from `md`); the same row stacks below it.
+ * The header and every row are separate grids, so the answer columns have a fixed width
+ * (`--answer-col`, set on the card) to keep them lined up under their titles.
+ */
 const rowGrid = (withNotes: boolean) =>
   clsx(
     "md:grid md:items-center md:gap-x-5",
     withNotes
-      ? "md:grid-cols-[minmax(0,1fr)_auto_auto_128px]"
-      : "md:grid-cols-[minmax(0,1fr)_auto_auto]",
+      ? "md:grid-cols-[minmax(0,1fr)_var(--answer-col)_var(--answer-col)_128px]"
+      : "md:grid-cols-[minmax(0,1fr)_var(--answer-col)_var(--answer-col)]",
   );
+
+/**
+ * The tint of the column header and block headings: `surface-secondary` at 50% over the card,
+ * mixed into one opaque colour because both strips stick and the rows scroll underneath them.
+ */
+const stripBackground =
+  "bg-[color-mix(in_oklab,var(--surface-secondary)_50%,var(--surface))]";
+
+// The two questions, with the icons the report's summary tiles use for the same totals.
+const MeetingIcon = UserGroupIcon;
+const ChurchIcon = BuildingLibraryIcon;
 
 export function isMarked(answer: ReportDraftAnswer | undefined) {
   return (
@@ -62,7 +79,57 @@ export function isMarked(answer: ReportDraftAnswer | undefined) {
   );
 }
 
-// The title strip of one block of a guest group's attendance: icon, name and how many.
+// One question in a row: its icon and title above the pair on a phone; from `md` the title is in
+// the column header, and the icon stays beside the pair so the two pairs never look alike.
+function AnswerColumn({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: typeof HandRaisedIcon;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <span className="flex items-center gap-1.5 text-xs font-semibold text-muted md:hidden">
+        <Icon
+          aria-hidden="true"
+          className="size-4 shrink-0"
+          strokeWidth={1.8}
+        />
+        {title}
+      </span>
+      <div className="flex items-center gap-2">
+        <Icon
+          aria-hidden="true"
+          className="hidden size-4 shrink-0 text-muted md:block"
+          strokeWidth={1.8}
+        />
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+// A column title in the header, its icon lined up with the icon beside each row's pair.
+function ColumnTitle({
+  icon: Icon,
+  children,
+}: {
+  icon: typeof HandRaisedIcon;
+  children: ReactNode;
+}) {
+  return (
+    <span className="flex min-w-0 items-center gap-2">
+      <Icon aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.8} />
+      <span className="truncate">{children}</span>
+    </span>
+  );
+}
+
+// The title strip of one block of a guest group's attendance: icon, name and how many. It sticks
+// while its block scrolls past: under the top bar on a phone, under the column header from `md`.
 function BlockHeading({
   id,
   icon: Icon,
@@ -76,7 +143,11 @@ function BlockHeading({
 }) {
   return (
     <h3
-      className="flex items-center gap-2 border-y border-separator bg-surface-secondary/50 px-4 py-2.5 text-sm font-semibold text-heading first:border-t-0 sm:px-5"
+      className={clsx(
+        "sticky top-(--topbar-height) z-10 flex items-center gap-2 border-y border-separator px-4 py-2.5 text-sm font-semibold text-heading first:border-t-0 sm:px-5",
+        "md:top-[calc(var(--topbar-height)+var(--attendance-header-height))]",
+        stripBackground,
+      )}
       id={id}
     >
       <Icon
@@ -189,10 +260,7 @@ function PersonRow({
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:contents">
-        <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-muted md:hidden">
-            {t("colMeeting")}
-          </span>
+        <AnswerColumn icon={MeetingIcon} title={t("colMeeting")}>
           <YesNoButtons
             label={`${first}: ${t("colMeeting")}`}
             noLabel={t("no")}
@@ -201,11 +269,8 @@ function PersonRow({
             yesLabel={t("yes")}
             onChange={(value) => onChange({ attendedGroup: value })}
           />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-muted md:hidden">
-            {colChurch}
-          </span>
+        </AnswerColumn>
+        <AnswerColumn icon={ChurchIcon} title={colChurch}>
           <YesNoButtons
             label={`${first}: ${colChurch}`}
             noLabel={t("no")}
@@ -214,7 +279,7 @@ function PersonRow({
             yesLabel={t("yes")}
             onChange={(value) => onChange({ attendedChurch: value })}
           />
-        </div>
+        </AnswerColumn>
       </div>
 
       {observationsVisible && (
@@ -363,9 +428,14 @@ export function ReportListStep({
 
   return (
     <div className="flex flex-col gap-5">
+      {/* `overflow-clip`, not `overflow-hidden`: both round the corners, but `hidden` makes the
+          card its own scroll box, and then the headers below would never stick to the page. */}
       <section
         aria-labelledby="attendance-title"
-        className={card({ className: "overflow-hidden" })}
+        className={card({
+          className:
+            "overflow-clip [--answer-col:176px] [--attendance-header-height:2.5rem]",
+        })}
       >
         <div className="flex items-end justify-between gap-3 px-4 pb-3 pt-5 sm:px-5">
           <div className="flex flex-col gap-1">
@@ -383,18 +453,21 @@ export function ReportListStep({
             {t("marked", { count: marked, total: people.length })}
           </p>
         </div>
+        {/* Sticks under the top bar so the two Yes/No columns stay named on a long list. Phones
+            don't show it: each row titles its own pairs there. */}
         <div
           aria-hidden="true"
           className={clsx(
-            "hidden border-y border-separator bg-surface-secondary/50 px-5 py-2.5 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-muted",
+            "sticky top-(--topbar-height) z-20 hidden h-(--attendance-header-height) whitespace-nowrap border-y border-separator px-5 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-muted",
+            stripBackground,
             rowGrid(observationsVisible),
           )}
         >
           <span>{t("colMember")}</span>
-          <span className="w-[146px]">{t("colMeeting")}</span>
-          <span className="w-[146px]">
+          <ColumnTitle icon={MeetingIcon}>{t("colMeeting")}</ColumnTitle>
+          <ColumnTitle icon={ChurchIcon}>
             {t("colChurch", { sunday: shortSundayLabel })}
-          </span>
+          </ColumnTitle>
           <span>{observationsVisible ? t("colNote") : ""}</span>
         </div>
         {audience === "guests" ? (

@@ -166,7 +166,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
   return (
     // Below lg: tighter gaps and padding (OptionB-Phone) so the church label
     // fits at 390px; the 44px buttons carry their own padding on the left.
-    <header className="sticky top-0 z-30 flex min-h-16 flex-wrap items-center gap-2 border-b border-border bg-background/88 py-2.5 pr-4 pl-2 backdrop-blur lg:min-h-[72px] lg:gap-3 lg:px-8 lg:py-3.5">
+    <header className="sticky top-0 z-30 flex min-h-(--topbar-height) flex-wrap items-center gap-2 border-b border-border bg-background/88 py-2.5 pr-4 pl-2 backdrop-blur lg:gap-3 lg:px-8 lg:py-3.5">
       <button
         aria-label={tTopbar("openMenu")}
         className="flex size-11 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary lg:hidden"
