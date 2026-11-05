@@ -50,7 +50,8 @@ import { formatCalendarShortDate } from "@/lib/format-date";
 /**
  * Name, two Yes/No pairs and a note toggle per row (from `md`); the same row stacks below it.
  * The header and every row are separate grids, so the answer columns have a fixed width
- * (`--answer-col`, set on the card) to keep them lined up under their titles.
+ * (`--answer-col`, set on the card) to keep them lined up under their titles: the pair alone below
+ * `xl`, the pair and its icon from `xl`.
  */
 const rowGrid = (withNotes: boolean) =>
   clsx(
@@ -80,7 +81,8 @@ export function isMarked(answer: ReportDraftAnswer | undefined) {
 }
 
 // One question in a row: its icon and title above the pair on a phone; from `md` the title is in
-// the column header, and the icon stays beside the pair so the two pairs never look alike.
+// the column header. From `xl` the icon also sits beside the pair so the two pairs never look
+// alike; between `md` and `xl` there is no room for it without squeezing the names.
 function AnswerColumn({
   icon: Icon,
   title,
@@ -103,7 +105,7 @@ function AnswerColumn({
       <div className="flex items-center gap-2">
         <Icon
           aria-hidden="true"
-          className="hidden size-4 shrink-0 text-muted md:block"
+          className="hidden size-4 shrink-0 text-muted xl:block"
           strokeWidth={1.8}
         />
         <div className="min-w-0 flex-1">{children}</div>
@@ -112,7 +114,7 @@ function AnswerColumn({
   );
 }
 
-// A column title in the header, its icon lined up with the icon beside each row's pair.
+// A column title in the header; from `xl` its icon lines up with the icon beside each row's pair.
 function ColumnTitle({
   icon: Icon,
   children,
@@ -122,7 +124,11 @@ function ColumnTitle({
 }) {
   return (
     <span className="flex min-w-0 items-center gap-2">
-      <Icon aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.8} />
+      <Icon
+        aria-hidden="true"
+        className="hidden size-4 shrink-0 xl:block"
+        strokeWidth={1.8}
+      />
       <span className="truncate">{children}</span>
     </span>
   );
@@ -434,7 +440,7 @@ export function ReportListStep({
         aria-labelledby="attendance-title"
         className={card({
           className:
-            "overflow-clip [--answer-col:176px] [--attendance-header-height:2.5rem]",
+            "overflow-clip [--answer-col:146px] [--attendance-header-height:2.5rem] xl:[--answer-col:176px]",
         })}
       >
         <div className="flex items-end justify-between gap-3 px-4 pb-3 pt-5 sm:px-5">
