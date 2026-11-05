@@ -34,7 +34,9 @@ export const AppShell = ({
   }, [isSidebarOpen]);
 
   return (
-    <div className="flex min-h-screen">
+    // `--topbar-height` is the sticky top bar's height. Anything else that sticks while the page
+    // scrolls (the report list's headers) docks below it with `top-(--topbar-height)`.
+    <div className="flex min-h-screen [--topbar-height:4rem] lg:[--topbar-height:72px]">
       <Sidebar
         context={context}
         conversationsWaiting={conversationsWaiting}
