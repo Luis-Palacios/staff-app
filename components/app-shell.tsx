@@ -1,5 +1,6 @@
 "use client";
 
+import type { ConversationsSignal } from "@/components/sidebar";
 import type { ChurchContext } from "@/config/site";
 import type { Locale } from "@/lib/locale-shared";
 
@@ -12,15 +13,15 @@ type AppShellProps = {
   children: React.ReactNode;
   context: ChurchContext;
   locale: Locale;
-  /** Conversations waiting for the caller's reply: the sidebar badge (0 hides it). */
-  conversationsWaiting: number;
+  /** The sidebar's Conversations number and unread dot. */
+  conversations: ConversationsSignal;
 };
 
 export const AppShell = ({
   children,
   context,
   locale,
-  conversationsWaiting,
+  conversations,
 }: AppShellProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -39,7 +40,7 @@ export const AppShell = ({
     <div className="flex min-h-screen [--topbar-height:4rem] lg:[--topbar-height:72px]">
       <Sidebar
         context={context}
-        conversationsWaiting={conversationsWaiting}
+        conversations={conversations}
         isOpen={isSidebarOpen}
         onNavigate={() => setIsSidebarOpen(false)}
       />

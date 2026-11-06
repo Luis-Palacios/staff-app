@@ -171,8 +171,16 @@ export function listConversations(
   return request<ConversationInbox>(`/report-conversations${suffix}`);
 }
 
-/** The sidebar badge. Answers 0, never 403, outside the audience. Cached per render. */
+/** `GET /report-conversations/counts` (`ConversationBadgeSchema`). */
+export interface ConversationCounts {
+  /** Needs my reply: the sidebar's gold number. */
+  needsMyReply: number;
+  /** Any thread unread, over the caller's whole view: the dot while the number is 0 (rule 17). */
+  hasUnread: boolean;
+}
+
+/** The sidebar's number and dot. Answers `{ 0, false }`, never 403, outside the audience. Cached per render. */
 export const getConversationCounts = cache(
-  (): Promise<{ needsMyReply: number }> =>
-    request<{ needsMyReply: number }>("/report-conversations/counts"),
+  (): Promise<ConversationCounts> =>
+    request<ConversationCounts>("/report-conversations/counts"),
 );

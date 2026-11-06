@@ -46,13 +46,18 @@ log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API type and the layout's read | ⬜ | |
+| 1. API type and the layout's read | ✅ | (this commit) |
 | 2. The dot on the sidebar item | ⬜ | |
 | 3. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
 
-- [Filled in per stage.]
+- **API type:** no generator here; `ConversationCounts` in `api/conversations-api/client.ts` is
+  hand-written to `ConversationBadgeSchema` (`{ needsMyReply, hasUnread }`).
+- **Stage 1:** the layout turns the one counts read into a `ConversationsSignal` (`{ waiting,
+  unread }`, exported from `components/sidebar.tsx`) and passes it through `AppShell` as
+  `conversations`, replacing `conversationsWaiting`. Outside the audience or on any failure it's
+  `{ 0, false }`. No visible change: the sidebar still reads only `waiting`.
 
 ## Token changes
 

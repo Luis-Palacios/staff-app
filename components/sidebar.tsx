@@ -72,11 +72,22 @@ const rowRest = "font-medium text-on-dark hover:bg-white/5 hover:text-white";
 const iconClass = (active: boolean) =>
   clsx("size-5 shrink-0", active ? "text-gold-500" : "text-muted-on-dark");
 
+/**
+ * What the Conversations item shows: the gold number while something waits for the caller's reply,
+ * else a light dot while a thread is unread (report conversations rule 17), else nothing.
+ */
+export interface ConversationsSignal {
+  /** Needs my reply: the gold number (0 hides it). */
+  waiting: number;
+  /** A thread has a comment by someone else the caller hasn't opened. */
+  unread: boolean;
+}
+
 interface SidebarProps {
   /** The ministry and church shown under the logo. */
   context: ChurchContext;
-  /** Needs-my-reply count for the Conversations badge. */
-  conversationsWaiting: number;
+  /** The Conversations item's number and unread dot. */
+  conversations: ConversationsSignal;
   isOpen: boolean;
   onNavigate: () => void;
 }
@@ -194,7 +205,7 @@ const CollapsibleItem = ({
 
 export const Sidebar = ({
   context,
-  conversationsWaiting,
+  conversations,
   isOpen,
   onNavigate,
 }: SidebarProps) => {
@@ -261,7 +272,7 @@ export const Sidebar = ({
             ) : (
               <LeafLink
                 key={item.labelKey}
-                badge={item.conversations ? conversationsWaiting : 0}
+                badge={item.conversations ? conversations.waiting : 0}
                 item={item}
                 pathname={pathname}
                 onNavigate={onNavigate}
