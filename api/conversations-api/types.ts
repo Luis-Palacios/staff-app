@@ -12,7 +12,8 @@ export type ConversationStatus = "open" | "resolved";
 /** Elders' side = the author had `smallGroups: all` when writing; leaders' side otherwise. */
 export type ConversationSide = "elders" | "leaders";
 
-export type ConversationInboxTab = "reply" | "open" | "resolved";
+/** `unread` (rule 17): a comment by someone else since you last opened the thread, any status. */
+export type ConversationInboxTab = "reply" | "unread" | "open" | "resolved";
 
 /** What a thread is about: a member's or a guest's attendance row, or one of the report's texts.
  *  Both persons are `type: "attendance"`; read `person` on the row, or check
@@ -102,9 +103,14 @@ export interface ConversationInboxItem {
 export interface ConversationInbox {
   items: ConversationInboxItem[];
   /** The whole inbox, whatever `smallGroupId` is. */
-  counts: { reply: number; open: number; resolved: number };
+  counts: { reply: number; unread: number; open: number; resolved: number };
   /** Rows in the filtered tab, for "Show more". */
   total: number;
+}
+
+/** `POST /report-conversations/read-all`: the threads that were unread and no longer are. */
+export interface MarkAllReadResult {
+  marked: number;
 }
 
 export interface ConversationInboxParams {
