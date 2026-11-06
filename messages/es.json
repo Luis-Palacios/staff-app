@@ -485,6 +485,7 @@
     "charsLeft": "{count} caracteres restantes",
     "openMyProfile": "Abrir Mi perfil",
     "badgeLabel": "{count} esperan tu respuesta",
+    "unreadDotLabel": ", actividad sin leer",
     "eyebrow": "Reportes de grupos pequeños",
     "title": "Conversaciones",
     "subtitleElder": "Preguntas y seguimiento sobre personas en los reportes de todos los grupos.",

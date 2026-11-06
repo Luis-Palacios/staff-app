@@ -488,6 +488,7 @@ declare const messages: {
     "charsLeft": "{count} characters left",
     "openMyProfile": "Open My profile",
     "badgeLabel": "{count} waiting for your reply",
+    "unreadDotLabel": ", unread activity",
     "eyebrow": "Small group reports",
     "title": "Conversations",
     "subtitleElder": "Questions and follow-ups about people in every group’s reports.",
