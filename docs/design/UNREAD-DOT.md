@@ -47,8 +47,10 @@ log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. API type and the layout's read | ✅ | `3e09938` |
-| 2. The dot on the sidebar item | ✅ | (this commit) |
-| 3. Design review fixes | ⬜ | |
+| 2. The dot on the sidebar item | ✅ | `a558c88` |
+| 3. Design review fixes | ✅ | (this commit; review only, no code fixes) |
+
+**Status: done** (2026-11-05), on branch `unread-dot`, not merged yet.
 
 ### Decisions and deviations
 
@@ -72,6 +74,32 @@ log below.
   es (Spanish fits). The theme and language were put back after.
 - **Collapsed sidebar:** the app has no collapsed (icon-only) rail: the sidebar is full width from
   `lg` and off-canvas below it (the mobile nav, checked at 390). Nothing to do there.
+- **How it was tried by role (stage 3):** with Luis's OK, a scratch members database
+  (`udot-staff-check`: migrated, API seed run) behind a second API on `:8002`, with
+  `APPLICATIONS_MEMBERSHIP_API_URL` in `.env` pointed at it for the check and restored after; the
+  scratch database was dropped. auth-server has no seed users, so three throwaway users were added
+  to the **dev auth database** (`udot-elder@`, `udot-leader@`, `udot-user@example.test`, roles
+  elder, smallGroupLeader, user; created verified, straight in the DB with better-auth's
+  `hashPassword`, so no verification email was sent). They're still there. In the scratch DB only,
+  the elder was linked to member 33, the leader to member 49 (leader of group 2), the admin to
+  member 9 (to comment). Elder, leader and outsider were signed in with curl against auth-server,
+  and the sidebar read from the server-rendered `/members` HTML; admin was the real session in
+  Chrome.
+  - **Number, no dot:** elder 4 / leader 1 at the start (both also unread); later leader 3 waiting
+    with unread threads: number only, "N waiting for your reply".
+  - **Dot only:** leader after replying to their one waiting thread (two threads a co-leader had
+    answered still unread): dot, "Conversations, unread activity" / "Conversaciones, actividad sin
+    leer". Elder after replying to their 5 waiting threads: dot. Admin, then 0 waiting and 10
+    unread: dot, in Chrome.
+  - **Nothing:** leader after *Mark all read* (2 marked), elder after *Mark all read* (5 marked).
+  - **After *Mark all as read*** in the UI (admin, 10 marked): the dot went away with the toast,
+    no reload (the action's revalidation re-renders the layout).
+  - **After the newest comment is deleted:** admin commented on a thread whose last word was
+    already the elders' (elder: 0 waiting, dot), then deleted it (inline confirm): the elder's dot
+    went away, nothing waiting.
+  - **Outside the audience** (`user`): no Conversations item, no counts read (the layout skips it).
+  - **Dashboard blocks:** unchanged code; the leader's lists the 3 waiting threads, the elder's
+    none while they had only unread ones.
 
 ## Token changes
 
@@ -137,18 +165,18 @@ as the board's `dotLabel`.)
 
 Run after implementation, against the boards listed above. Record findings in the progress log.
 
-- [ ] `Sidebar` board, `conversations` = waiting / unread / none, matches at rest and active, in
+- [x] `Sidebar` board, `conversations` = waiting / unread / none, matches at rest and active, in
       light and dark (the rail is the same; the page around it isn't).
-- [ ] 1440 / 1024 / 390 and the mobile nav: the dot and the number sit in the same place, nothing
+- [x] 1440 / 1024 / 390 and the mobile nav: the dot and the number sit in the same place, nothing
       shifts the label.
-- [ ] No color, font, radius or shadow literals in the changed files
+- [x] No color, font, radius or shadow literals in the changed files
       (`git diff main --name-only | xargs grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\('`), and no new
       `dark:` overrides a token could replace.
-- [ ] The dot is never gold and never shows with the number.
-- [ ] Screen reader name: "Conversations, unread activity" / "Conversaciones, actividad sin leer";
+- [x] The dot is never gold and never shows with the number.
+- [x] Screen reader name: "Conversations, unread activity" / "Conversaciones, actividad sin leer";
       with the number, "{count} waiting for your reply".
-- [ ] Admin, elder, leader and someone outside the audience: number (no dot), unread only (dot),
+- [x] Admin, elder, leader and someone outside the audience: number (no dot), unread only (dot),
       nothing, after *Mark all as read*, after the newest comment is deleted.
-- [ ] Dashboard blocks unchanged.
-- [ ] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
-- [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+- [x] Dashboard blocks unchanged.
+- [x] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
+- [x] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
