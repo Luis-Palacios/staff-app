@@ -21,7 +21,13 @@ import { StatusTabs } from "@/components/status-tabs";
 
 const PAGE_SIZE = 25;
 const ALL_GROUPS = "all";
-const TABS = ["reply", "open", "resolved"] as const;
+const TABS = ["reply", "unread", "open", "resolved"] as const;
+const TAB_LABELS = {
+  reply: "tabReply",
+  unread: "tabUnread",
+  open: "tabOpen",
+  resolved: "tabResolved",
+} as const;
 
 export interface ConversationGroupOption {
   id: number;
@@ -68,7 +74,7 @@ function ConversationList({
   }
 
   if (items.length === 0) {
-    if (tab === "reply") {
+    if (tab === "reply" || tab === "unread") {
       return (
         <EmptyState
           action={
@@ -80,9 +86,13 @@ function ConversationList({
             </NextLink>
           }
           icon={CheckCircleIcon}
-          title={t("emptyTitle")}
+          title={tab === "unread" ? t("emptyUnreadTitle") : t("emptyTitle")}
         >
-          {elder ? t("emptyElder") : t("emptyLeader")}
+          {tab === "unread"
+            ? t("emptyUnread")
+            : elder
+              ? t("emptyElder")
+              : t("emptyLeader")}
         </EmptyState>
       );
     }
@@ -168,21 +178,12 @@ export function ConversationsBrowser({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <StatusTabs
           ariaLabel={t("tabsLabel")}
           counts={data.counts}
           highlighted={["reply"]}
-          options={TABS.map((key) => ({
-            key,
-            label: t(
-              key === "reply"
-                ? "tabReply"
-                : key === "open"
-                  ? "tabOpen"
-                  : "tabResolved",
-            ),
-          }))}
+          options={TABS.map((key) => ({ key, label: t(TAB_LABELS[key]) }))}
           value={tab}
           onChange={(next) => update({ tab: next === "reply" ? null : next })}
         />
@@ -228,6 +229,11 @@ export function ConversationsBrowser({
           </Select.Popover>
         </Select.Root>
       </div>
+      {tab === "unread" && data.items.length > 0 && (
+        <p className="-mt-1 max-w-[680px] text-[13.5px] leading-normal text-muted">
+          {elder ? t("unreadHintElder") : t("unreadHintLeader")}
+        </p>
+      )}
       <div
         aria-busy={isPending}
         className={isPending ? "opacity-60 transition-opacity" : undefined}
