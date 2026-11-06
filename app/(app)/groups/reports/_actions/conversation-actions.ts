@@ -17,6 +17,7 @@ import {
   deleteComment,
   editComment,
   listConversations,
+  markAllConversationsRead,
   markConversationRead,
   reopenConversation,
   resolveConversation,
@@ -198,6 +199,38 @@ export async function markConversationReadAction(
     return { ok: true };
   } catch {
     return { ok: false };
+  }
+}
+
+export type MarkAllReadActionResult =
+  | { ok: true; marked: number }
+  | { ok: false; message: string };
+
+/**
+ * *Mark all as read* on the Unread tab, within the group filter when one is set. Revalidates
+ * everything that shows an unread dot: the inbox, the dashboards' rows and the reports' indicators.
+ * The badge and the dashboard blocks count *Needs my reply*, which reading doesn't change.
+ */
+export async function markAllConversationsReadAction(
+  smallGroupId: number | null,
+): Promise<MarkAllReadActionResult> {
+  const t = await getTranslations("Conversations");
+
+  if (await forbidden()) return { ok: false, message: t("markAllError") };
+
+  try {
+    const { marked } = await markAllConversationsRead(
+      smallGroupId ?? undefined,
+    );
+
+    revalidatePath("/conversations");
+    revalidatePath("/");
+    revalidatePath("/dashboard/prayer");
+    revalidatePath("/groups/reports/[id]", "page");
+
+    return { ok: true, marked };
+  } catch {
+    return { ok: false, message: t("markAllError") };
   }
 }
 

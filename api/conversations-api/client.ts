@@ -3,6 +3,7 @@ import type {
   ConversationInbox,
   ConversationInboxParams,
   ConversationThread,
+  MarkAllReadResult,
   ReportConversations,
 } from "@/api/conversations-api/types";
 import type { Person, ReportSectionKey } from "@/api/small-groups-api/types";
@@ -138,6 +139,21 @@ export function reopenConversation(id: number): Promise<ConversationThread> {
 /** 204. Called when the panel opens, never by a GET. */
 export function markConversationRead(id: number): Promise<void> {
   return request<void>(`/report-conversations/${id}/read`, { method: "POST" });
+}
+
+/**
+ * *Mark all as read* (rule 17): every thread in the caller's view, and in `smallGroupId` when set,
+ * read up to its latest activity. A group outside the view marks nothing (no 404).
+ */
+export function markAllConversationsRead(
+  smallGroupId?: number,
+): Promise<MarkAllReadResult> {
+  const suffix =
+    smallGroupId === undefined ? "" : `?smallGroupId=${smallGroupId}`;
+
+  return request<MarkAllReadResult>(`/report-conversations/read-all${suffix}`, {
+    method: "POST",
+  });
 }
 
 /** The inbox; `tab` defaults to `reply` on the API. */
