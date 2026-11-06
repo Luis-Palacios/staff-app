@@ -48,14 +48,51 @@ log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API types, client and server action | ⬜ | |
-| 2. The *Unread* tab, its hint and empty state | ⬜ | |
-| 3. *Mark all as read* and its toast | ⬜ | |
-| 4. Design review fixes | ⬜ | |
+| 1. API types, client and server action | ✅ | `4e38e51` |
+| 2. The *Unread* tab, its hint and empty state | ✅ | `ae51196` |
+| 3. *Mark all as read* and its toast | ✅ | `60ffe8a` |
+| 4. Design review fixes | ✅ | (this commit: review only, no code fixes) |
+
+**Status: done** (2026-11-05).
 
 ### Decisions and deviations
 
-- (filled in per stage)
+- **API types:** there's no generator in this repo; `api/conversations-api/types.ts` is hand-written.
+  "Regenerating" was checking it against the running local API's `/openapi.json` (on `main`, with
+  migration `096025ed70a6`): `tab` enum `reply|unread|open|resolved`, `InboxCountsSchema.unread`,
+  `POST /report-conversations/read-all?smallGroupId=` → `MarkAllReadSchema { marked }`. Nothing else
+  in the inbox shapes had drifted.
+- **How it was tried:** the dev database has no conversations, so (with Luis's OK) a scratch
+  database (`unread-tab-check`: migrated, API seed run) behind a second API on `:8002`, with
+  `.env.local` pointed at it for the check and restored after; the scratch database was dropped.
+  Signed in as admin: 10 unread (the seed's comments are all by other users), *Needs my reply* 4,
+  badge 4. *Mark all as read* with `group=2` marked 3 (toast "3 conversations marked as read"), the
+  tab went 10 → 7, the other groups' threads stayed; then without a filter it marked 7, the tab went
+  to 0 with the empty state, the button went away and focus landed on the list. *Needs my reply*,
+  the sidebar badge (4) and the dashboard's "Waiting for your reply" block (4, same three rows) were
+  unchanged; only the unread dots on those rows cleared, as the threads are now read.
+- **Widths:** Chrome ignored window resizes, so 390 and 1024 were checked by loading the page in
+  same-origin iframes of exactly those widths (media queries follow the frame), 1440 (well, 1512) in
+  the window. 390: tab track scrolls inside itself, filter and button full width, stacked. 1024:
+  tabs on the first row, filter and button wrap to the second. Light/dark and en/es all checked.
+- **Leader view** (`Conversations-Unread-Dark-ES`) wasn't seen signed in as a leader (no leader
+  account to sign in with); it's the same component with the leader hint (`unreadHintLeader`) and
+  the existing "All my groups".
+- **Selected tab's count pill** uses `StatusTabs`' accent, as every tab does since Part 1 (navy in
+  light, gold in dark). The board keeps *Unread*'s count neutral even when selected. Left as is: it's
+  the shared component's rule, and an unselected *Unread* count is neutral in both themes.
+- **Toast** is the shell's `showToast` (bottom centre), not bottom right as on the board; same as
+  every other toast in the app.
+- **After marking**, the board's *Marked* state also shows *Needs my reply* at 0; in the app it stays
+  as it was (rule 12: reading doesn't answer anything). That's the rule, the board's mock data just
+  zeroed both.
+- **Group filter label** stays above the select (the app's pattern since Part 1), not inline as on
+  the board.
+- **List reset:** `ConversationList` now restarts from the server's first page whenever the page
+  data changes (React's "adjust state when a prop changes"), not only on a tab or group change, so
+  the list empties after *Mark all as read* even though its key doesn't change.
+- **Revalidation:** the action revalidates `/conversations`, `/`, `/dashboard/prayer` and every
+  report page (`/groups/reports/[id]`), since all of them show unread dots.
 
 ## Token changes
 
@@ -147,13 +184,14 @@ API's text is never shown.
 
 Run after implementation, against the boards listed above. Record findings in the progress log.
 
-- [ ] Every board matches in light and dark: layout, spacing, type, states.
-- [ ] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways.
-- [ ] No color, font, radius or shadow literals in the changed files
+- [x] Every board matches in light and dark: layout, spacing, type, states (deviations above).
+- [x] 1440 / 1024 / 390: nothing clipped, nothing scrolls sideways.
+- [x] No color, font, radius or shadow literals in the changed files
       (`git diff main --name-only | xargs grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\('`), and no new
       `dark:` overrides a token could replace.
-- [ ] Gold never carries text on a light ground; only *Needs my reply*'s count is gold.
-- [ ] Focus ring visible on every control; focus after *Mark all as read* lands on the list.
-- [ ] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
-- [ ] Sidebar badge and dashboard blocks unchanged.
-- [ ] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
+- [x] Gold never carries text on a light ground; only *Needs my reply*'s count is gold (but see the
+      selected-tab pill in dark, above).
+- [x] Focus ring visible on every control; focus after *Mark all as read* lands on the list.
+- [x] English and Spanish both fit; no hard-coded strings (`react/jsx-no-literals` is clean).
+- [x] Sidebar badge and dashboard blocks unchanged.
+- [x] `pnpm lint` and `pnpm exec tsc --noEmit` pass.
