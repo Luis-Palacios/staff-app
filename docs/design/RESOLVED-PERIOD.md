@@ -24,7 +24,8 @@ becomes a long list with no way to narrow it by time:
   shift.
 - Order unchanged: newest activity first.
 
-**Status: done on the branch** (2026-11-06), stages 1–3 on `resolved-period`, not merged yet.
+**Status: done** (2026-11-06). Merged to `main` (PR #106, rebased; hashes in the log are the
+merged ones: handoff `131f337`).
 
 **Depends on the API:** `membership-management/docs/RESOLVED-PERIOD-API-HANDOFF.md`, **done** and on
 `main` (PR #70, no migration). Nothing is stubbed.
@@ -46,9 +47,9 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Period, API param and the select | ✅ | `77de84c` |
-| 2. Count line and empty state | ✅ | `ac64d77` |
-| 3. Design review fixes | ✅ | (this commit; review only, no code fixes) |
+| 1. Period, API param and the select | ✅ | `fcbf0f0` |
+| 2. Count line and empty state | ✅ | `0872189` |
+| 3. Design review fixes | ✅ | `12ce805` (review only, no code fixes) |
 
 ### Decisions and deviations
 
