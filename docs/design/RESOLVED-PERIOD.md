@@ -44,8 +44,8 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Period, API param and the select | ✅ | (this commit) |
-| 2. Count line and empty state | ⬜ | |
+| 1. Period, API param and the select | ✅ | `77de84c` |
+| 2. Count line and empty state | ✅ | (this commit) |
 | 3. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
@@ -61,6 +61,14 @@ progress log below.
   before the group select. Looked at with the dev data as admin (1512 wide, light, en): *Resolved*
   badge 3 (all time), *Last 30 days* lists 2; *All time* lists 3 and sets `?period=all`; switching
   to *Open* drops `period` and hides the select.
+- **Stage 2:** the count line is the first child of the list (`text-[13.5px] text-muted`, the
+  *Unread* hint's type), only on *Resolved* with rows; the copy is ICU `plural` in both languages
+  (English reads the same for one and many, Spanish needs *resuelta* / *resueltas*). The empty state
+  stays the plain `<p>` of the other non-reply tabs, with the *See all time* link in the
+  *Unread* empty state's link style. Looked at: *Last 30 days* "2 resolved in the last 30 days";
+  group `GP - #2` (nothing resolved) "Nothing resolved in the last 30 days. See all time", the
+  link going to `?tab=resolved&period=all&group=2`, which shows the existing "No conversations here
+  yet."
 
 ## Token changes
 

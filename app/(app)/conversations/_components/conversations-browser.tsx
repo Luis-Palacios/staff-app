@@ -45,6 +45,18 @@ const PERIOD_LABELS = {
   year: "periodYear",
   all: "periodAll",
 } as const;
+// Rule 15 (Part 1d): the list's own number, from `total`; the tab's badge stays all time.
+const RESOLVED_COUNT = {
+  "30d": "resolvedCount30d",
+  "3m": "resolvedCount3m",
+  year: "resolvedCountYear",
+  all: "resolvedCountAll",
+} as const;
+const EMPTY_RESOLVED = {
+  "30d": "emptyResolved30d",
+  "3m": "emptyResolved3m",
+  year: "emptyResolvedYear",
+} as const;
 
 // Two ticks, as on the canvas: Heroicons has no "read" double check.
 function DoubleCheckIcon(props: SVGProps<SVGSVGElement>) {
@@ -76,6 +88,7 @@ function ConversationList({
   data,
   tab,
   groupId,
+  period,
   resolvedSince,
   timeZone,
   elder,
@@ -83,6 +96,7 @@ function ConversationList({
   data: ConversationInbox;
   tab: ConversationInboxTab;
   groupId: number | null;
+  period: ResolvedPeriod | null;
   resolvedSince: string | null;
   timeZone: string;
   elder: boolean;
@@ -144,11 +158,34 @@ function ConversationList({
       );
     }
 
+    if (period !== null && period !== "all") {
+      const allTime = new URLSearchParams({ tab: "resolved", period: "all" });
+
+      if (groupId !== null) allTime.set("group", String(groupId));
+
+      return (
+        <p className="py-6 text-sm text-muted">
+          {t(EMPTY_RESOLVED[period])}{" "}
+          <NextLink
+            className="font-semibold text-link underline decoration-gold-500 underline-offset-4"
+            href={`?${allTime}`}
+          >
+            {t("seeAllTime")}
+          </NextLink>
+        </p>
+      );
+    }
+
     return <p className="py-6 text-sm text-muted">{t("emptyOther")}</p>;
   }
 
   return (
     <div className="flex flex-col gap-3">
+      {period !== null && (
+        <p className="text-[13.5px] leading-normal text-muted">
+          {t(RESOLVED_COUNT[period], { count: data.total })}
+        </p>
+      )}
       <ul
         className={card({
           className: "divide-y divide-separator overflow-hidden",
@@ -372,6 +409,7 @@ export function ConversationsBrowser({
           data={data}
           elder={elder}
           groupId={groupId}
+          period={period}
           resolvedSince={resolvedSince}
           tab={tab}
           timeZone={timeZone}
