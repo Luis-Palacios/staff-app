@@ -46,8 +46,8 @@ log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API type and the layout's read | ✅ | (this commit) |
-| 2. The dot on the sidebar item | ⬜ | |
+| 1. API type and the layout's read | ✅ | `3e09938` |
+| 2. The dot on the sidebar item | ✅ | (this commit) |
 | 3. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
@@ -58,6 +58,20 @@ log below.
   unread }`, exported from `components/sidebar.tsx`) and passes it through `AppShell` as
   `conversations`, replacing `conversationsWaiting`. Outside the audience or on any failure it's
   `{ 0, false }`. No visible change: the sidebar still reads only `waiting`.
+- **Stage 2:** `LeafLink` takes `dot` beside `badge` and draws it only while `badge` is 0: an 8px
+  `bg-heading-on-dark` circle, `aria-hidden`, `mr-[7px]` (so with the row's 12px padding its right
+  edge sits 19px in, centred where the 22px pill sits), plus a `sr-only` span with
+  `Conversations.unreadDotLabel`, as the board's `dotLabel`. The badge's markup is unchanged.
+- **How stage 2 was looked at:** the dev data (admin) has 4 waiting and 9 unread, so the real state
+  is the number with no dot (checked: "Conversations" + the badge's "4 waiting for your reply", no
+  dot). The dot itself was looked at with a temporary, uncommitted override in the layout (`waiting
+  0, unread true`), reverted before the commit: 8×8, `rgb(244, 246, 249)` (`heading-on-dark`),
+  vertically centred, on the active row (navy-800) and at rest; accessible name "Conversations,
+  unread activity" / "Conversaciones, actividad sin leer"; 1512 (window), 1024 and 390 in
+  same-origin iframes as in `UNREAD-TAB.md`, the 390 off-canvas nav opened; light and dark; en and
+  es (Spanish fits). The theme and language were put back after.
+- **Collapsed sidebar:** the app has no collapsed (icon-only) rail: the sidebar is full width from
+  `lg` and off-canvas below it (the mobile nav, checked at 390). Nothing to do there.
 
 ## Token changes
 

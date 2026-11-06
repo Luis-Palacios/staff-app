@@ -95,12 +95,15 @@ interface SidebarProps {
 const LeafLink = ({
   item,
   badge = 0,
+  dot = false,
   pathname,
   onNavigate,
 }: {
   item: NavItem;
   /** A count shown as a gold pill; 0 hides it. */
   badge?: number;
+  /** A light dot with no number, shown only while `badge` is 0 (one signal at a time). */
+  dot?: boolean;
   pathname: string;
   onNavigate: () => void;
 }) => {
@@ -129,6 +132,16 @@ const LeafLink = ({
         >
           {badge}
         </span>
+      )}
+      {badge === 0 && dot && (
+        <>
+          {/* Centred where the 22px pill sits. Light, never gold: it never reads as "waiting". */}
+          <span
+            aria-hidden="true"
+            className="mr-[7px] size-2 shrink-0 rounded-full bg-heading-on-dark"
+          />
+          <span className="sr-only">{tConv("unreadDotLabel")}</span>
+        </>
       )}
     </NextLink>
   );
@@ -273,6 +286,7 @@ export const Sidebar = ({
               <LeafLink
                 key={item.labelKey}
                 badge={item.conversations ? conversations.waiting : 0}
+                dot={item.conversations ? conversations.unread : false}
                 item={item}
                 pathname={pathname}
                 onNavigate={onNavigate}
