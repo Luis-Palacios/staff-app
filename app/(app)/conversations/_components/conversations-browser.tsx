@@ -4,6 +4,7 @@ import type {
   ConversationInbox,
   ConversationInboxTab,
 } from "@/api/conversations-api/types";
+import type { ResolvedPeriod } from "@/lib/resolved-period";
 import type { SVGProps } from "react";
 
 import { useRef, useState, useTransition } from "react";
@@ -24,6 +25,10 @@ import { card } from "@/components/primitives";
 import { EmptyState } from "@/components/empty-state";
 import { StatusTabs } from "@/components/status-tabs";
 import { showToast } from "@/components/toast-host";
+import {
+  DEFAULT_RESOLVED_PERIOD,
+  RESOLVED_PERIODS,
+} from "@/lib/resolved-period";
 
 const PAGE_SIZE = 25;
 const ALL_GROUPS = "all";
@@ -33,6 +38,12 @@ const TAB_LABELS = {
   unread: "tabUnread",
   open: "tabOpen",
   resolved: "tabResolved",
+} as const;
+const PERIOD_LABELS = {
+  "30d": "period30d",
+  "3m": "period3m",
+  year: "periodYear",
+  all: "periodAll",
 } as const;
 
 // Two ticks, as on the canvas: Heroicons has no "read" double check.
@@ -58,18 +69,21 @@ export interface ConversationGroupOption {
   closed: boolean;
 }
 
-// The rows of one tab and group. Keyed by both in the parent, so changing either starts over; the
-// first page comes from the server and "Show more" asks for the next 25.
+// The rows of one tab, group and period. Keyed by all three in the parent, so changing any starts
+// over; the first page comes from the server and "Show more" asks for the next 25, with the same
+// `resolvedSince` instant as the first page.
 function ConversationList({
   data,
   tab,
   groupId,
+  resolvedSince,
   timeZone,
   elder,
 }: {
   data: ConversationInbox;
   tab: ConversationInboxTab;
   groupId: number | null;
+  resolvedSince: string | null;
   timeZone: string;
   elder: boolean;
 }) {
@@ -92,6 +106,7 @@ function ConversationList({
       const result = await listConversationsAction({
         tab,
         ...(groupId !== null && { smallGroupId: groupId }),
+        ...(resolvedSince !== null && { resolvedSince }),
         limit: PAGE_SIZE,
         offset: items.length,
       });
@@ -168,12 +183,14 @@ function ConversationList({
   );
 }
 
-// Tabs and the group filter live in the URL (`?tab=` and `?group=`), so a view can be linked and the
-// back button works. A change runs in a transition: the current rows stay until the new ones arrive.
+// Tabs and the filters live in the URL (`?tab=`, `?group=`, and on Resolved `?period=`), so a view can
+// be linked and the back button works. A change runs in a transition: the current rows stay until the new ones arrive.
 export function ConversationsBrowser({
   data,
   tab,
   groupId,
+  period,
+  resolvedSince,
   groups,
   timeZone,
   elder,
@@ -181,6 +198,10 @@ export function ConversationsBrowser({
   data: ConversationInbox;
   tab: ConversationInboxTab;
   groupId: number | null;
+  /** The Resolved tab's period (rule 15, Part 1d); `null` on the other tabs. */
+  period: ResolvedPeriod | null;
+  /** The instant the page computed for `period`, reused by "Show more"; `null` for none. */
+  resolvedSince: string | null;
   groups: ConversationGroupOption[];
   timeZone: string;
   /** Full roles see every group; leaders their own. Words the copy. */
@@ -235,9 +256,48 @@ export function ConversationsBrowser({
           highlighted={["reply"]}
           options={TABS.map((key) => ({ key, label: t(TAB_LABELS[key]) }))}
           value={tab}
-          onChange={(next) => update({ tab: next === "reply" ? null : next })}
+          onChange={(next) =>
+            // A period belongs to Resolved only; the group is kept.
+            update({ tab: next === "reply" ? null : next, period: null })
+          }
         />
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end md:w-auto">
+          {period !== null && (
+            <Select.Root
+              className="w-full gap-1.5 md:w-[200px]"
+              selectedKey={period}
+              onSelectionChange={(key) =>
+                update({
+                  period:
+                    key === DEFAULT_RESOLVED_PERIOD || key === null
+                      ? null
+                      : String(key),
+                })
+              }
+            >
+              <Label className="text-[13px] font-semibold text-heading">
+                {t("period")}
+              </Label>
+              <Select.Trigger className="h-10 min-h-10 items-center rounded-control py-0">
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  {RESOLVED_PERIODS.map((key) => (
+                    <ListBox.Item
+                      key={key}
+                      id={key}
+                      textValue={t(PERIOD_LABELS[key])}
+                    >
+                      {t(PERIOD_LABELS[key])}
+                      <ListBox.ItemIndicator />
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select.Root>
+          )}
           <Select.Root
             className="w-full gap-1.5 md:w-[300px]"
             selectedKey={groupId === null ? ALL_GROUPS : String(groupId)}
@@ -308,10 +368,11 @@ export function ConversationsBrowser({
         tabIndex={-1}
       >
         <ConversationList
-          key={`${tab}-${groupId ?? "all"}`}
+          key={`${tab}-${groupId ?? "all"}-${period ?? "none"}`}
           data={data}
           elder={elder}
           groupId={groupId}
+          resolvedSince={resolvedSince}
           tab={tab}
           timeZone={timeZone}
         />

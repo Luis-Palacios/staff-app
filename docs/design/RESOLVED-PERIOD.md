@@ -44,13 +44,23 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Period, API param and the select | ⬜ | |
+| 1. Period, API param and the select | ✅ | (this commit) |
 | 2. Count line and empty state | ⬜ | |
 | 3. Design review fixes | ⬜ | |
 
 ### Decisions and deviations
 
-(Filled in as the stages land.)
+- **API type:** no generator; `resolvedSince?: string` added by hand to `ConversationInboxParams`.
+- **Stage 1:** `lib/resolved-period.ts` uses `@internationalized/date`'s `fromDate(at, timeZone)`, so
+  the instant comes out as `toAbsoluteString()` (`…T18:30:00.000Z`, milliseconds included; the API's
+  `AwareDatetime` takes it). `node --test lib/resolved-period.test.ts`: 5 tests pass (default and
+  unknown period, 30 days, 3 calendar months incl. May 31 → Feb 28, *This year* at Managua
+  midnight incl. the UTC-already-next-year evening, *All time* `null`). The page computes the
+  instant only for `tab=resolved` and passes `period` / `resolvedSince` to the browser; the list's
+  key now includes the period. The select is the group select's markup, `md:w-[200px]`, placed
+  before the group select. Looked at with the dev data as admin (1512 wide, light, en): *Resolved*
+  badge 3 (all time), *Last 30 days* lists 2; *All time* lists 3 and sets `?period=all`; switching
+  to *Open* drops `period` and hides the select.
 
 ## Token changes
 

@@ -14,6 +14,7 @@ import {
   canSeeConversationsInbox,
   getSmallGroupAccess,
 } from "@/lib/auth/permissions";
+import { parseResolvedPeriod, resolvedSinceFor } from "@/lib/resolved-period";
 
 const PAGE_SIZE = 25;
 const TABS: readonly ConversationInboxTab[] = [
@@ -50,9 +51,16 @@ export default async function ConversationsPage({
     ? requestedGroup
     : null;
   const elder = getSmallGroupAccess(permissions) === "full";
+  // Rule 15 (Part 1d): only the Resolved tab has a period. The instant is computed once here and
+  // reused by "Show more", so the pages of one view never shift.
+  const period =
+    tab === "resolved" ? parseResolvedPeriod(first(params.period)) : null;
+  const resolvedSince =
+    period === null ? null : resolvedSinceFor(period, getEnv().CHURCH_TIMEZONE);
   const data = await listConversations({
     tab,
     ...(groupId !== null && { smallGroupId: groupId }),
+    ...(resolvedSince !== null && { resolvedSince }),
     limit: PAGE_SIZE,
   });
 
@@ -72,6 +80,8 @@ export default async function ConversationsPage({
           name,
           closed: closedAt !== null,
         }))}
+        period={period}
+        resolvedSince={resolvedSince}
         tab={tab}
         timeZone={getEnv().CHURCH_TIMEZONE}
       />
