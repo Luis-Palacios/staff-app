@@ -118,4 +118,6 @@ export interface ConversationInboxParams {
   smallGroupId?: number;
   limit?: number;
   offset?: number;
+  /** Only with `tab: "resolved"` (422 otherwise): threads resolved at or after this ISO instant. */
+  resolvedSince?: string;
 }
