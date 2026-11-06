@@ -48,12 +48,12 @@ log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API types, client and server action | ✅ | `4e38e51` |
-| 2. The *Unread* tab, its hint and empty state | ✅ | `ae51196` |
-| 3. *Mark all as read* and its toast | ✅ | `60ffe8a` |
-| 4. Design review fixes | ✅ | (this commit: review only, no code fixes) |
+| 1. API types, client and server action | ✅ | `cfdfd96` |
+| 2. The *Unread* tab, its hint and empty state | ✅ | `cf6e18e` |
+| 3. *Mark all as read* and its toast | ✅ | `a41386a` |
+| 4. Design review fixes | ✅ | `e8fe58c` (review only, no code fixes) |
 
-**Status: done** (2026-11-05).
+**Status: done** (2026-11-05). Merged to `main` (PR #104, rebased; hashes above are the merged ones).
 
 ### Decisions and deviations
 
