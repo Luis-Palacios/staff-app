@@ -513,6 +513,8 @@
     "seeOpen": "Ver conversaciones abiertas",
     "showMore": "Mostrar más",
     "listError": "No se pudo cargar más. Inténtalo de nuevo.",
+    "markAll": "Marcar todo como leído",
+    "markedToast": "{count, plural, =0 {Ya estaba todo leído} one {# conversación marcada como leída} other {# conversaciones marcadas como leídas}}",
     "markAllError": "No se pudieron marcar como leídas. Inténtalo de nuevo.",
     "waitingTitle": "Esperan tu respuesta",
     "waitingElder": "Los líderes respondieron estas conversaciones sobre personas de sus grupos.",
