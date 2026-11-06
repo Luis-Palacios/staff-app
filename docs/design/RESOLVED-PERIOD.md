@@ -24,6 +24,8 @@ becomes a long list with no way to narrow it by time:
   shift.
 - Order unchanged: newest activity first.
 
+**Status: done on the branch** (2026-11-06), stages 1–3 on `resolved-period`, not merged yet.
+
 **Depends on the API:** `membership-management/docs/RESOLVED-PERIOD-API-HANDOFF.md`, **done** and on
 `main` (PR #70, no migration). Nothing is stubbed.
 
@@ -45,8 +47,8 @@ progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 1. Period, API param and the select | ✅ | `77de84c` |
-| 2. Count line and empty state | ✅ | (this commit) |
-| 3. Design review fixes | ⬜ | |
+| 2. Count line and empty state | ✅ | `ac64d77` |
+| 3. Design review fixes | ✅ | (this commit; review only, no code fixes) |
 
 ### Decisions and deviations
 
@@ -69,6 +71,16 @@ progress log below.
   group `GP - #2` (nothing resolved) "Nothing resolved in the last 30 days. See all time", the
   link going to `?tab=resolved&period=all&group=2`, which shows the existing "No conversations here
   yet."
+- **Stage 3 (review):** as admin on the dev data, in Chrome. Dark at 1512: the select, its popover
+  (checked item), the count line and rows read correctly. Spanish, dark and light: *Resueltas en*,
+  *Últimos 30 días*, "2 resueltas en los últimos 30 días", "Nada resuelto en los últimos 30 días.
+  Ver todas"; nothing truncates. 1024 and 390 in same-origin iframes (the window wouldn't resize):
+  at 1024 the two selects wrap under the tabs side by side (200 / 300 px); at 390 they stack full
+  width, period first; the tab strip scrolls sideways at 390 as it already did. No code fixes.
+  The theme and language were put back after (English is now an explicit choice in the account
+  menu rather than the browser default). **Not looked at as a leader** in the UI: the page has no
+  leader-specific branch for this filter, and the API side was tried per role
+  (`membership-management/docs/RESOLVED-PERIOD-API-HANDOFF.md`).
 
 ## Token changes
 
