@@ -16,7 +16,12 @@ import {
 } from "@/lib/auth/permissions";
 
 const PAGE_SIZE = 25;
-const TABS: readonly ConversationInboxTab[] = ["reply", "open", "resolved"];
+const TABS: readonly ConversationInboxTab[] = [
+  "reply",
+  "unread",
+  "open",
+  "resolved",
+];
 
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
