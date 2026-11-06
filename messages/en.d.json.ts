@@ -516,6 +516,8 @@ declare const messages: {
     "seeOpen": "See open conversations",
     "showMore": "Show more",
     "listError": "Couldn’t load more. Try again.",
+    "markAll": "Mark all as read",
+    "markedToast": "{count, plural, =0 {Everything was already read} one {# conversation marked as read} other {# conversations marked as read}}",
     "markAllError": "Couldn’t mark them as read. Try again.",
     "waitingTitle": "Waiting for your reply",
     "waitingElder": "Leaders answered these conversations about people in their groups.",

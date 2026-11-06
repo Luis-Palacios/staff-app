@@ -4,20 +4,26 @@ import type {
   ConversationInbox,
   ConversationInboxTab,
 } from "@/api/conversations-api/types";
+import type { SVGProps } from "react";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { Button, Label, ListBox, Select } from "@heroui/react";
+import clsx from "clsx";
 import NextLink from "next/link";
 import { useTranslations } from "next-intl";
 
 import { ConversationRow } from "./conversation-row";
 
-import { listConversationsAction } from "@/app/(app)/groups/reports/_actions/conversation-actions";
+import {
+  listConversationsAction,
+  markAllConversationsReadAction,
+} from "@/app/(app)/groups/reports/_actions/conversation-actions";
 import { card } from "@/components/primitives";
 import { EmptyState } from "@/components/empty-state";
 import { StatusTabs } from "@/components/status-tabs";
+import { showToast } from "@/components/toast-host";
 
 const PAGE_SIZE = 25;
 const ALL_GROUPS = "all";
@@ -28,6 +34,23 @@ const TAB_LABELS = {
   open: "tabOpen",
   resolved: "tabResolved",
 } as const;
+
+// Two ticks, as on the canvas: Heroicons has no "read" double check.
+function DoubleCheckIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.8}
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="m2.25 12.75 4.5 4.5 9-10.5M10.5 15.75l1.5 1.5 9.75-10.5" />
+    </svg>
+  );
+}
 
 export interface ConversationGroupOption {
   id: number;
@@ -52,8 +75,17 @@ function ConversationList({
 }) {
   const t = useTranslations("Conversations");
   const [items, setItems] = useState(data.items);
+  const [shown, setShown] = useState(data);
   const [failed, setFailed] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  // New server data for the same tab and group (after *Mark all as read*, or any revalidation)
+  // starts the list over from its first page.
+  if (shown !== data) {
+    setShown(data);
+    setItems(data.items);
+    setFailed(false);
+  }
 
   function showMore() {
     startTransition(async () => {
@@ -158,6 +190,24 @@ export function ConversationsBrowser({
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
+  const [isMarking, startMarking] = useTransition();
+  const listRef = useRef<HTMLDivElement>(null);
+  const showMarkAll = tab === "unread" && data.items.length > 0;
+
+  // The action revalidates, so the page comes back with the tab emptied and the count down; focus
+  // moves to the list because the button it was on goes away.
+  function markAllRead() {
+    startMarking(async () => {
+      const result = await markAllConversationsReadAction(groupId);
+
+      if (result.ok) {
+        showToast(t("markedToast", { count: result.marked }));
+        listRef.current?.focus();
+      } else {
+        showToast(result.message, "danger");
+      }
+    });
+  }
 
   function update(changes: Record<string, string | null>) {
     const params = new URLSearchParams(window.location.search);
@@ -187,47 +237,60 @@ export function ConversationsBrowser({
           value={tab}
           onChange={(next) => update({ tab: next === "reply" ? null : next })}
         />
-        <Select.Root
-          className="w-full gap-1.5 md:w-[300px]"
-          selectedKey={groupId === null ? ALL_GROUPS : String(groupId)}
-          onSelectionChange={(key) =>
-            update({
-              group: key === ALL_GROUPS || key === null ? null : String(key),
-            })
-          }
-        >
-          <Label className="text-[13px] font-semibold text-heading">
-            {t("group")}
-          </Label>
-          <Select.Trigger className="h-10 min-h-10 items-center rounded-control py-0">
-            <Select.Value />
-            <Select.Indicator />
-          </Select.Trigger>
-          <Select.Popover>
-            <ListBox>
-              <ListBox.Item id={ALL_GROUPS} textValue={t("allGroups")}>
-                {elder ? t("allGroups") : t("allMyGroups")}
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-              {groups.map((group) => {
-                const label = group.closed
-                  ? `${group.name} · ${t("closed")}`
-                  : group.name;
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end md:w-auto">
+          <Select.Root
+            className="w-full gap-1.5 md:w-[300px]"
+            selectedKey={groupId === null ? ALL_GROUPS : String(groupId)}
+            onSelectionChange={(key) =>
+              update({
+                group: key === ALL_GROUPS || key === null ? null : String(key),
+              })
+            }
+          >
+            <Label className="text-[13px] font-semibold text-heading">
+              {t("group")}
+            </Label>
+            <Select.Trigger className="h-10 min-h-10 items-center rounded-control py-0">
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                <ListBox.Item id={ALL_GROUPS} textValue={t("allGroups")}>
+                  {elder ? t("allGroups") : t("allMyGroups")}
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+                {groups.map((group) => {
+                  const label = group.closed
+                    ? `${group.name} · ${t("closed")}`
+                    : group.name;
 
-                return (
-                  <ListBox.Item
-                    key={group.id}
-                    id={String(group.id)}
-                    textValue={label}
-                  >
-                    {label}
-                    <ListBox.ItemIndicator />
-                  </ListBox.Item>
-                );
-              })}
-            </ListBox>
-          </Select.Popover>
-        </Select.Root>
+                  return (
+                    <ListBox.Item
+                      key={group.id}
+                      id={String(group.id)}
+                      textValue={label}
+                    >
+                      {label}
+                      <ListBox.ItemIndicator />
+                    </ListBox.Item>
+                  );
+                })}
+              </ListBox>
+            </Select.Popover>
+          </Select.Root>
+          {showMarkAll && (
+            <Button
+              className="h-10 w-full shrink-0 rounded-control font-semibold sm:w-auto"
+              isPending={isMarking}
+              variant="outline"
+              onPress={markAllRead}
+            >
+              <DoubleCheckIcon aria-hidden="true" className="size-[18px]" />
+              {t("markAll")}
+            </Button>
+          )}
+        </div>
       </div>
       {tab === "unread" && data.items.length > 0 && (
         <p className="-mt-1 max-w-[680px] text-[13.5px] leading-normal text-muted">
@@ -235,8 +298,14 @@ export function ConversationsBrowser({
         </p>
       )}
       <div
-        aria-busy={isPending}
-        className={isPending ? "opacity-60 transition-opacity" : undefined}
+        ref={listRef}
+        aria-busy={isPending || isMarking}
+        className={clsx(
+          // Focusable for the moment after *Mark all as read*.
+          "outline-none",
+          (isPending || isMarking) && "opacity-60 transition-opacity",
+        )}
+        tabIndex={-1}
       >
         <ConversationList
           key={`${tab}-${groupId ?? "all"}`}
