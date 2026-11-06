@@ -46,11 +46,11 @@ log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. API type and the layout's read | ✅ | `3e09938` |
-| 2. The dot on the sidebar item | ✅ | `a558c88` |
-| 3. Design review fixes | ✅ | (this commit; review only, no code fixes) |
+| 1. API type and the layout's read | ✅ | `d220c2e` |
+| 2. The dot on the sidebar item | ✅ | `1d48ab9` |
+| 3. Design review fixes | ✅ | `ce78879` (review only, no code fixes) |
 
-**Status: done** (2026-11-05), on branch `unread-dot`, not merged yet.
+**Status: done** (2026-11-05). Merged to `main` (PR #105, rebased; hashes above are the merged ones).
 
 ### Decisions and deviations
 
