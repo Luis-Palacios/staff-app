@@ -1,8 +1,6 @@
 import { headers } from "next/headers";
-import { getTranslations } from "next-intl/server";
 
-import InviteCardSummary from "./invite-card-summary";
-import InvitesSummaryTable from "./invites-summary-table";
+import InvitesBrowser from "./invites-browser";
 
 import { listInvites } from "@/api/auth-api/client";
 
@@ -11,29 +9,8 @@ export default async function InvitesList({
 }: {
   currentUserId: string;
 }) {
-  const t = await getTranslations("InvitesTable");
   const cookie = (await headers()).get("cookie") ?? "";
   const { invites } = await listInvites(cookie);
 
-  return (
-    <>
-      <div className="hidden md:block">
-        <InvitesSummaryTable currentUserId={currentUserId} data={invites} />
-      </div>
-
-      <div className="grid gap-3 md:hidden">
-        {invites.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted">{t("empty")}</p>
-        ) : (
-          invites.map((invite) => (
-            <InviteCardSummary
-              key={invite.id}
-              currentUserId={currentUserId}
-              invite={invite}
-            />
-          ))
-        )}
-      </div>
-    </>
-  );
+  return <InvitesBrowser currentUserId={currentUserId} invites={invites} />;
 }

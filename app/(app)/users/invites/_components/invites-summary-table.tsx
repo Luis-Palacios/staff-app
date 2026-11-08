@@ -22,9 +22,11 @@ import { LocalTime } from "@/components/local-time";
 export default function InvitesSummaryTable({
   data,
   currentUserId,
+  emptyLabel,
 }: {
   data: AdminInviteListItem[];
   currentUserId: string;
+  emptyLabel: string;
 }) {
   const t = useTranslations("InvitesTable");
   const { root, column, row, cell } = dataTable();
@@ -53,7 +55,7 @@ export default function InvitesSummaryTable({
           </Table.Header>
           <Table.Body
             renderEmptyState={() => (
-              <p className="px-[22px] py-6 text-sm text-muted">{t("empty")}</p>
+              <p className="px-[22px] py-6 text-sm text-muted">{emptyLabel}</p>
             )}
           >
             {data.map((invite) => {
