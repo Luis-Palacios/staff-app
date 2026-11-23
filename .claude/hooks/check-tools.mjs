@@ -14,6 +14,7 @@ const text =
 process.stdout.write(
   JSON.stringify({
     systemMessage: text,
+    additionalContext: `${text} Tell the user once.`,
     hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: `${text} Tell the user once.` },
   }),
 );

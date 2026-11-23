@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect-generated.mjs\"",
+            "command": "node -e \"import(require('node:url').pathToFileURL(require('node:path').resolve(process.env.CLAUDE_PROJECT_DIR || '.', '.claude/hooks/protect-generated.mjs')).href)\"",
             "timeout": 10
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/branch-name.mjs\"",
+            "command": "node -e \"import(require('node:url').pathToFileURL(require('node:path').resolve(process.env.CLAUDE_PROJECT_DIR || '.', '.claude/hooks/branch-name.mjs')).href)\"",
             "timeout": 10
           }
         ]
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check.mjs\"",
+            "command": "node -e \"import(require('node:url').pathToFileURL(require('node:path').resolve(process.env.CLAUDE_PROJECT_DIR || '.', '.claude/hooks/check.mjs')).href)\"",
             "timeout": 60
           }
         ]
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check.mjs\"",
+            "command": "node -e \"import(require('node:url').pathToFileURL(require('node:path').resolve(process.env.CLAUDE_PROJECT_DIR || '.', '.claude/hooks/check.mjs')).href)\"",
             "timeout": 180
           }
         ]
@@ -51,7 +51,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-tools.mjs\" typescript-language-server",
+            "command": "node -e \"import(require('node:url').pathToFileURL(require('node:path').resolve(process.env.CLAUDE_PROJECT_DIR || '.', '.claude/hooks/check-tools.mjs')).href)\" hook typescript-language-server",
             "timeout": 10
           }
         ]
