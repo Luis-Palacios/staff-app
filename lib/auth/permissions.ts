@@ -189,6 +189,15 @@ export function canWatchGroups(
 }
 
 /**
+ * What the weekly report reminder email needs (report-reminder-emails rules 10 and 13): the
+ * permissions to open a group and submit its report. Leading an open group is checked separately.
+ */
+export const REPORT_REMINDER_CHECK = {
+  smallGroups: ["view"],
+  smallGroupReports: ["create"],
+} as const satisfies PermissionCheck;
+
+/**
  * Whether the Conversations nav item, page and badge exist for this caller. Without a group in hand
  * "leads a group" is read from the access level: scoped access is the leaders' (rule 6).
  */

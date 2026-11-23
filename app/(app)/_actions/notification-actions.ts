@@ -10,6 +10,7 @@ import {
 import { getApiErrorMessage } from "@/lib/api-error-message";
 import { forbiddenUnless, getPermissions } from "@/lib/auth/get-permissions";
 import {
+  REPORT_REMINDER_CHECK,
   WATCH_GROUPS_CHECK,
   canSeeConversationsInbox,
   canWatchGroups,
@@ -73,6 +74,29 @@ export async function setSubmittedReportEmails(
     revalidatePath("/groups/[id]", "page");
 
     return { ok: true, value: preferences.email.reportSubmitted };
+  } catch (error) {
+    return toFailure(error);
+  }
+}
+
+/** My profile's "Weekly report reminders" switch. The API takes any signed-in user; the switch
+ *  shows to people who lead a group and can submit reports, so the action asks for the latter. */
+export async function setReportReminderEmails(
+  enabled: boolean,
+): Promise<ToggleResult> {
+  const denied = await forbiddenUnless(REPORT_REMINDER_CHECK);
+
+  if (denied) return toFailure(denied);
+
+  try {
+    const preferences = await updateNotificationPreferences({
+      email: { reportReminder: enabled },
+    });
+
+    // Independent of Watching (rule 14), so only My profile needs to refresh.
+    revalidatePath("/users/me");
+
+    return { ok: true, value: preferences.email.reportReminder };
   } catch (error) {
     return toFailure(error);
   }

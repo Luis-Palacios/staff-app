@@ -1,10 +1,12 @@
 // Shapes of membership-management's notification routes (camelCase, as sent).
 
-/** One flag per kind of email: leaders' comments and conversations (`reportConversation`), and
- *  a report being submitted in a watched group (`reportSubmitted`). */
+/** One flag per kind of email: leaders' comments and conversations (`reportConversation`), a
+ *  report being submitted in a watched group (`reportSubmitted`), and the weekly reminder to a
+ *  group's leaders to submit the report (`reportReminder`). */
 export interface EmailKinds {
   reportConversation: boolean;
   reportSubmitted: boolean;
+  reportReminder: boolean;
 }
 
 /** `GET`/`PUT /me/notification-preferences`. `email` is the caller's choice per kind; `available`
