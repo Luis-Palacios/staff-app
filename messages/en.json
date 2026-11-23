@@ -1215,6 +1215,20 @@
     "linkSelfHint": "Opens your account in Users, where you can pick your member.",
     "askToLink": "Ask an admin or elder to link your account to your member record."
   },
+  "NotificationSettings": {
+    "eyebrow": "Email",
+    "title": "Notifications",
+    "conversationEmails": "Conversation emails",
+    "conversationEmailsHint": "Get an email when someone comments in a conversation you’re part of, or asks about someone in a group you lead.",
+    "watchedGroupsTitle": "Watched groups",
+    "watchedGroupsHint": "Get an email when a leader comments in a group you watch. Unwatching doesn’t stop emails for conversations you’ve commented in.",
+    "emailsOffHint": "Turn on conversation emails to choose groups.",
+    "watchedGroupsLoadFailed": "Couldn’t load your groups. Reload the page to try again.",
+    "closedGroup": "Closed",
+    "watching": "Watching",
+    "watchingHint": "Get an email when a leader comments in this group’s reports.",
+    "emailsOffGroupHint": "Conversation emails are off. Turn them on in <link>My profile</link> to watch groups."
+  },
   "InviteStaffLink": {
     "label": "Invite staff"
   },

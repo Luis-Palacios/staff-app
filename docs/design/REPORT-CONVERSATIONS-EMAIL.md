@@ -79,8 +79,8 @@ predates the branch naming rule). Each stage: `pnpm lint`, `pnpm exec tsc --noEm
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 0. Handoff rewritten to the Nov 2026 design | ✅ | (this commit) |
-| 1. Preferences and watch client; My profile switch and Watched groups; Watching on `/groups/[id]` | ⬜ | |
+| 0. Handoff rewritten to the Nov 2026 design | ✅ | `76cb749` |
+| 1. Preferences and watch client; My profile switch and Watched groups; Watching on `/groups/[id]` | ✅ | (this commit) |
 | 2. Panel note: who gets an email | ⬜ | |
 | 3. Email links: sign-in return and the phone panel (`?person=`, `?guest=`, `?section=`) | ⬜ | |
 | 4. Language: save the pick on the user; `getSession()` forwards `accept-language` | ⬜ | |
@@ -94,6 +94,36 @@ predates the branch naming rule). Each stage: `pnpm lint`, `pnpm exec tsc --noEm
   `?section=` as well as `?person=`; Stage 4 adds `accept-language` in `getSession()` (spec, *Added
   Nov 21, 2026*). Watch switches are disabled (not hidden) while the global switch is off. Where the
   Watching switch sits on `/groups/[id]` is decided in Stage 1 from the canvas.
+- Stage 1 (Nov 22, 2026): Luis waived the step-by-step mode for this repo's front-end ("I mostly
+  wanted to learn the back-end"); Claude Code writes each stage whole, still one commit per stage
+  when Luis says it's done.
+- Stage 1: the canvas has **no boards** for the Watching switch or the My profile list (the watcher
+  email variants are there, as `reason: watcher` on `Email-NewComment` / `Email-NewReply`). Built
+  from the existing cards: My profile gets a **Notifications** card (eyebrow "Email") in the right
+  column, under *Sign-in details* (not linked: under *Member profile*), holding the global switch and,
+  for watchers, the *Watched groups* list; `/groups/[id]` gets the same card, with the Watching
+  switch only, under *When & where*. Shown for closed groups too (rule 13).
+- Stage 1: the full-scope audience is `WATCH_GROUPS_CHECK` / `canWatchGroups()` in
+  `lib/auth/permissions.ts` (the four permissions of the API's shared check); the watch action uses
+  the same check with `forbiddenUnless()`. The preferences action checks `canSeeConversationsInbox`,
+  the same condition that shows the switch (the API itself takes any signed-in user).
+- Stage 1: one client namespace, **`NotificationSettings`**, for both pages, instead of the guessed
+  `MyProfile.*` / `GroupDetail.*`. `saveFailed` dropped: a failed save shows
+  `getApiErrorMessage()`'s text (as the rest of the app). Added `eyebrow`, `watchedGroupsLoadFailed`
+  and `emailsOffGroupHint` (with a link to My profile).
+- Stage 1: failures: a failed preferences call hides the card (the kill switch is unknown); a failed
+  watched-groups call keeps the card with an error in place of the list; on the group page either
+  failure leaves the card out. Files: `api/notifications-api/`, `app/(app)/_actions/notification-actions.ts`,
+  `components/setting-switch.tsx` (`SettingSwitch`, `useSavedToggle`: optimistic, reverts on
+  failure, a toggle waits while a save runs), `users/me/_components/my-notifications.tsx` +
+  `notifications-card.tsx`, `groups/[id]/_components/group-watch-card.tsx`.
+- Stage 1: HeroUI dims a disabled switch's `Description`, which made the group page's "emails are
+  off… My profile" hint unreadable; that hint is `SettingSwitch`'s `note` (outside the switch, normal
+  muted contrast). A disabled watch switch still shows its saved position. Dark mode's off track
+  is low-contrast against the card: HeroUI's `--default`, left as is (a token change, not this spec).
+- Stage 1 checks (browser-verifier; the window wouldn't resize, so 1024/390 ran in same-origin
+  iframes): admin (all 7 groups, persistence, emails-off disabling, group page card and link, ES,
+  dark), group 1's leader (only the global switch, no card on `/groups/1`, 390, dark). Console clean.
 
 ## Stage 1: Preferences and watch client; My profile; group page
 
@@ -161,16 +191,14 @@ throttling, opt-outs and unwatching; a general sentence is always true). Note th
 
 | Key | English | Español |
 | --- | --- | --- |
-| `MyProfile.notificationsTitle` | Notifications | Notificaciones |
-| `MyProfile.conversationEmails` | Conversation emails | Correos de conversaciones |
-| `MyProfile.conversationEmailsHint` | Get an email when someone comments in a conversation you’re part of, or asks about someone in a group you lead. | Recibe un correo cuando alguien comente en una conversación en la que participas, o pregunte por alguien de un grupo que lideras. |
-| `MyProfile.watchedGroupsTitle` | Watched groups | Grupos que sigues |
-| `MyProfile.watchedGroupsHint` | Get an email when a leader comments in a group you watch. Unwatching doesn’t stop emails for conversations you’ve commented in. | Recibe un correo cuando un líder comente en un grupo que sigues. Dejar de seguirlo no detiene los correos de las conversaciones en las que comentaste. |
-| `MyProfile.emailsOffHint` | Turn on conversation emails to choose groups. | Activa los correos de conversaciones para elegir grupos. |
-| `MyProfile.closedGroup` | Closed | Cerrado |
-| `MyProfile.saveFailed` | Couldn’t save. Try again. | No se pudo guardar. Inténtalo de nuevo. |
-| `GroupDetail.watching` | Watching | Siguiendo |
-| `GroupDetail.watchingHint` | Get an email when a leader comments in this group’s reports. | Recibe un correo cuando un líder comente en los reportes de este grupo. |
+Stage 1 (as built): `NotificationSettings` (client namespace) holds `eyebrow` (Email · Correo),
+`title` (Notifications · Notificaciones), `conversationEmails`, `conversationEmailsHint`,
+`watchedGroupsTitle`, `watchedGroupsHint`, `emailsOffHint`, `watchedGroupsLoadFailed`,
+`closedGroup`, `watching`, `watchingHint`, `emailsOffGroupHint`; text in `messages/en.json` /
+`es.json`.
+
+| Key | English | Español |
+| --- | --- | --- |
 | `Conversations.emailNoteNew` / `emailNoteLeaderNew` / `emailNoteReply` / `emailNoteResolved` | (table in Stage 2) | (table in Stage 2) |
 
 Use the real namespace names where these guessed ones differ; note it.

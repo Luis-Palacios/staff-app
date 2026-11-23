@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 
 import { MyAccountCard } from "./_components/my-account-card";
 import { MyMemberCard } from "./_components/my-member-card";
+import { MyNotifications } from "./_components/my-notifications";
 import { MyProfileHeader } from "./_components/my-profile-header";
 import { loadMyProfile } from "./_lib/load-my-profile";
 
@@ -37,11 +38,14 @@ export default async function MyProfilePage({
         <MyProfileHeader member={null} user={user} />
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <MyAccountCard stacked user={user} />
-          <MyMemberCard
-            canLink={canManageLinks(permissions)}
-            churchName={church.name}
-            userId={user.id}
-          />
+          <div className="flex min-w-0 flex-col gap-5">
+            <MyMemberCard
+              canLink={canManageLinks(permissions)}
+              churchName={church.name}
+              userId={user.id}
+            />
+            <MyNotifications permissions={permissions} />
+          </div>
         </div>
       </>
     );
@@ -66,6 +70,7 @@ export default async function MyProfilePage({
             variant="self"
           />
           <MyAccountCard user={user} />
+          <MyNotifications permissions={permissions} />
         </div>
       </div>
       {saved === "updated" && <SavedToast message={tSaved("updated")} />}

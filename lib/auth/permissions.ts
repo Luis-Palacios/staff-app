@@ -173,6 +173,22 @@ export function canSeeConversations(
 }
 
 /**
+ * Who watches groups for conversation emails (report-conversations rule 18): the full-scope
+ * observation audience, elders and admins. The same four permissions the API's shared read check
+ * needs for every group, so the Watching switches show exactly when its watch routes answer.
+ */
+export const WATCH_GROUPS_CHECK = {
+  smallGroups: ["all", "view"],
+  smallGroupReports: ["view", "viewObservations"],
+} as const satisfies PermissionCheck;
+
+export function canWatchGroups(
+  permissions: Permissions | null | undefined,
+): boolean {
+  return can(permissions, WATCH_GROUPS_CHECK);
+}
+
+/**
  * Whether the Conversations nav item, page and badge exist for this caller. Without a group in hand
  * "leads a group" is read from the access level: scoped access is the leaders' (rule 6).
  */

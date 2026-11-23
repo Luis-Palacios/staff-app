@@ -1215,6 +1215,20 @@
     "linkSelfHint": "Abre tu cuenta en Usuarios, donde puedes elegir tu miembro.",
     "askToLink": "Pide a un administrador o anciano que vincule tu cuenta con tu registro de miembro."
   },
+  "NotificationSettings": {
+    "eyebrow": "Correo",
+    "title": "Notificaciones",
+    "conversationEmails": "Correos de conversaciones",
+    "conversationEmailsHint": "Recibe un correo cuando alguien comente en una conversación en la que participas, o pregunte por alguien de un grupo que lideras.",
+    "watchedGroupsTitle": "Grupos que sigues",
+    "watchedGroupsHint": "Recibe un correo cuando un líder comente en un grupo que sigues. Dejar de seguirlo no detiene los correos de las conversaciones en las que comentaste.",
+    "emailsOffHint": "Activa los correos de conversaciones para elegir grupos.",
+    "watchedGroupsLoadFailed": "No se pudieron cargar tus grupos. Recarga la página para intentarlo de nuevo.",
+    "closedGroup": "Cerrado",
+    "watching": "Siguiendo",
+    "watchingHint": "Recibe un correo cuando un líder comente en los reportes de este grupo.",
+    "emailsOffGroupHint": "Los correos de conversaciones están desactivados. Actívalos en <link>Mi perfil</link> para seguir grupos."
+  },
   "InviteStaffLink": {
     "label": "Invitar al personal"
   },

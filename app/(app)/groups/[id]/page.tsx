@@ -1,3 +1,5 @@
+import type { Permissions } from "@/lib/auth/permissions";
+
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
@@ -7,14 +9,49 @@ import { GroupDetailsCard } from "./_components/group-details-card";
 import { GroupReportsCard } from "./_components/group-reports-card";
 import { GroupGuestsCard } from "./_components/group-guests-card";
 import { GroupMembersCard } from "./_components/group-members-card";
+import { GroupWatchCard } from "./_components/group-watch-card";
 
 import { getMe } from "@/api/members-api/client";
+import {
+  getNotificationPreferences,
+  getWatchedGroups,
+} from "@/api/notifications-api/client";
 import { loadGroup } from "@/app/(app)/groups/_lib/load-group";
 import { SavedToast } from "@/components/saved-toast";
 import { getChurchToday } from "@/lib/church-time";
 import { getPermissions } from "@/lib/auth/get-permissions";
-import { can, reportAccess } from "@/lib/auth/permissions";
+import { can, canWatchGroups, reportAccess } from "@/lib/auth/permissions";
 import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
+import { settle } from "@/lib/settle";
+
+/**
+ * The Watching card's data, or null to leave it out: only the full-scope audience, only while
+ * emails are on at the server. A failed call leaves the card out rather than the page.
+ */
+async function loadWatch(
+  permissions: Permissions,
+  groupId: number,
+): Promise<{ watching: boolean; conversationEmails: boolean } | null> {
+  if (!canWatchGroups(permissions)) return null;
+
+  const [preferences, watched] = await Promise.all([
+    settle(getNotificationPreferences()),
+    settle(getWatchedGroups()),
+  ]);
+
+  if (!preferences.ok || !preferences.value.emailsEnabled || !watched.ok) {
+    return null;
+  }
+
+  const row = watched.value.items.find((item) => item.smallGroupId === groupId);
+
+  return row
+    ? {
+        watching: row.watching,
+        conversationEmails: preferences.value.conversationEmails,
+      }
+    : null;
+}
 
 export default async function GroupDetailPage({
   params,
@@ -39,6 +76,7 @@ export default async function GroupDetailPage({
   // New report needs a linked member (rule 5); a closed group never takes one (rule 8).
   const permissions = await getPermissions();
   const { canSubmit } = reportAccess(permissions, me);
+  const watch = await loadWatch(permissions, group.id);
 
   return (
     <>
@@ -64,6 +102,13 @@ export default async function GroupDetailPage({
         )}
         <div className="flex min-w-0 flex-[2_1_340px] flex-col gap-5">
           <GroupDetailsCard group={group} />
+          {watch && (
+            <GroupWatchCard
+              conversationEmails={watch.conversationEmails}
+              groupId={group.id}
+              watching={watch.watching}
+            />
+          )}
           <GroupReportsCard canSubmit={canSubmit} group={group} />
           {!group.closedAt && can(permissions, { smallGroups: ["close"] }) && (
             <CloseGroupCard group={group} />

@@ -56,6 +56,7 @@ export const CLIENT_NAMESPACES = [
   "NeedsRolePage",
   "NewInviteForm",
   "NoMeetingDialog",
+  "NotificationSettings",
   "NoMeetingWeek",
   "PasswordField",
   "RemoveGuestDialog",
