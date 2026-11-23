@@ -45,8 +45,8 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
 | --- | --- | --- |
 | 0. This handoff | ✅ | `87401c1` |
 | 1. API client, types, entry view model and messages | ✅ | `8daeb3b` |
-| 2. Bell, count, refresh and app badge | ✅ | (next commit) |
-| 3. The popover | ⬜ | |
+| 2. Bell, count, refresh and app badge | ✅ | `08867e9` |
+| 3. The popover | ✅ | (next commit) |
 | 4. `/notifications` page and `/notifications/open/[id]` | ⬜ | |
 | 5. Watching switches (rule 7) and docs | ⬜ | |
 
@@ -67,6 +67,16 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
   bell is a link to `/notifications` at every width. The layout hides the bell when its read fails.
   The gold count is raw brand `gold-500` / `navy-900` (as the sidebar's badge), its ring
   `border-background`, turning `surface-secondary` on hover and while open.
+- **Stage 3:** HeroUI `Popover` used controlled (`isOpen`, `triggerRef`) around a plain `<button>`,
+  with `shouldCloseOnInteractOutside` ignoring the bell so a second click closes instead of
+  reopening. The bell renders the link (`lg:hidden`) and the button (`max-lg:hidden`) together; an
+  open popover closes if the window narrows below 1024 px. *Mark all read* shows while the bell
+  counts anything (it marks every entry, not only the ten shown). The list is read each time the
+  popover opens. The double-check icon moved from the Conversations inbox to `components/icons.tsx`.
+  The rows' icons are Heroicons (the paths the boards draw), not `components/icons.tsx`. `bg-focus-row`
+  stands in for the board's unread tint (see *Token changes*). **Not looked at in a browser** (no
+  browser checks in this stage's brief): the popover's open/close, focus return and placement are for
+  the browser check.
 - **Build on this machine:** `pnpm build` needs `SWC_NATIVE_BINDING_CACHE` pointing at a short path
   that isn't under `AppData\Local` (SWC refuses a cache whose parent grants rights to an app
   container SID, and the lock path overflows 260 characters under `node_modules`); used

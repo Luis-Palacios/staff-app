@@ -5,7 +5,6 @@ import type {
   ConversationInboxTab,
 } from "@/api/conversations-api/types";
 import type { ResolvedPeriod } from "@/lib/resolved-period";
-import type { SVGProps } from "react";
 
 import { useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,6 +22,7 @@ import {
 } from "@/app/(app)/groups/reports/_actions/conversation-actions";
 import { card } from "@/components/primitives";
 import { EmptyState } from "@/components/empty-state";
+import { DoubleCheckIcon } from "@/components/icons";
 import { StatusTabs } from "@/components/status-tabs";
 import { showToast } from "@/components/toast-host";
 import {
@@ -57,23 +57,6 @@ const EMPTY_RESOLVED = {
   "3m": "emptyResolved3m",
   year: "emptyResolvedYear",
 } as const;
-
-// Two ticks, as on the canvas: Heroicons has no "read" double check.
-function DoubleCheckIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.8}
-      viewBox="0 0 24 24"
-      {...props}
-    >
-      <path d="m2.25 12.75 4.5 4.5 9-10.5M10.5 15.75l1.5 1.5 9.75-10.5" />
-    </svg>
-  );
-}
 
 export interface ConversationGroupOption {
   id: number;
