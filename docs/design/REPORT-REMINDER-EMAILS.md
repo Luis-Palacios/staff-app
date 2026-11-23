@@ -1,6 +1,6 @@
 # Report reminder emails: Weekly report reminders switch (staff-app)
 
-> **Status (Nov 23, 2026):** built on `feature/report-reminder-emails`, not yet browser-checked.
+> **Status (Nov 23, 2026):** built on `feature/report-reminder-emails` and browser-checked locally.
 > Spec: `../docs/specs/report-reminder-emails.md` (rules 12–14, *Contracts → staff-app*,
 > *Implementation order* step 2). membership-management's preferences contract is merged on `main`.
 
@@ -36,6 +36,28 @@ Branch **`feature/report-reminder-emails`**. Each stage: `pnpm lint`, `pnpm exec
 | 2. My profile switch and copy | ✅ | `78c83fb` |
 | Review fix: `leadsGroup` from open-group periods, not `leadIds` | ✅ | commit after `6fb4743` |
 
+### Browser checks (Nov 23, 2026, local, `browser-verifier`)
+
+Signed in as an Admin linked to a member who leads GP - #6 (open). `CONVERSATION_EMAILS_ENABLED`
+on, `REPORT_SUBMITTED_EMAILS_ENABLED` off.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | Kill switch on: card shows *Conversations*, *Weekly report reminders* (on by default) and the Watched groups list; no *Submitted reports* | PASS |
+| 2 | English copy, exact (curly apostrophes) | PASS |
+| 3 | Spanish copy, exact | PASS |
+| 4 | Toggle off → reload → off; on → reload → on; no error text | PASS |
+| 5 | Watching list: reminders on/off never changes its enabled state or hint; conversations off disables it ("Turn on conversation or report emails to choose groups."), and reminders don't re-enable it | PASS |
+| 6 | Layout: no horizontal scroll at 390/454/1024 (same-origin iframes, es); Spanish hint wraps inside the row; dark theme | PASS (partial: the window couldn't be resized, light mode not seen) |
+| 7 | Kill switch off (API restarted): no *Weekly report reminders*, *Conversations* and Watching unchanged | PASS |
+| 8 | Console errors / failed requests | PASS (none) |
+
+Not checked: the switch's pending frame, light mode, real 390/1440 viewports, roles other than
+Admin, a non-leader, and a former leader of a closed group (the case the review fix covers; it
+follows from `member.smallGroups` holding only current periods). The first kill-switch-off run
+"failed" because `fastapi dev` printed *Reloading* after `main.py` was touched but kept the old
+process serving; a full restart of the API fixed it (environment, not code).
+
 ### Decisions and deviations
 
 - A shared `REPORT_REMINDER_CHECK` (`smallGroups: view` + `smallGroupReports: create`) in
@@ -50,7 +72,9 @@ Branch **`feature/report-reminder-emails`**. Each stage: `pnpm lint`, `pnpm exec
   Watching list behave as before. New required prop `leadsGroup`.
 - `pnpm build` could not run in the implementing session (SWC native cache ACL error on the
   machine), so `messages/en.d.json.ts` was updated by hand with the two new keys; a normal build
-  regenerates it identically. `pnpm build` is still to be run.
+  regenerates it identically. `pnpm build` was then run from the user's own terminal (the SWC
+  error comes from the agent sandbox, not the code): it passes, and `pnpm dev` left
+  `messages/en.d.json.ts` unchanged.
 
 ## Stage 1: types and server action
 
