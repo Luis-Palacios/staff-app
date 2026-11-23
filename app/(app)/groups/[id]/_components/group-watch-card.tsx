@@ -10,17 +10,18 @@ import { SettingSwitch, useSavedToggle } from "@/components/setting-switch";
 
 /**
  * The group's Watching switch (report-conversations rules 18–21), for the full-scope audience while
- * emails are on at the server; the page decides that. With Conversation emails off in My profile
- * the switch is disabled and the hint says where to turn emails on.
+ * a kind of email is on at the server; the page decides that. With both email switches off in My
+ * profile the switch is disabled and the hint says where to turn emails on.
  */
 export function GroupWatchCard({
   groupId,
   watching,
-  conversationEmails,
+  emailsOn,
 }: {
   groupId: number;
   watching: boolean;
-  conversationEmails: boolean;
+  /** At least one kind of email is on (available at the server and chosen by the caller). */
+  emailsOn: boolean;
 }) {
   const t = useTranslations("NotificationSettings");
   const watch = useSavedToggle(
@@ -40,13 +41,13 @@ export function GroupWatchCard({
         {t("title")}
       </DetailCardHeading>
       <SettingSwitch
-        description={conversationEmails ? t("watchingHint") : undefined}
+        description={emailsOn ? t("watchingHint") : undefined}
         error={watch.error}
-        isDisabled={!conversationEmails}
+        isDisabled={!emailsOn}
         isSelected={watch.isSelected}
         label={t("watching")}
         note={
-          conversationEmails
+          emailsOn
             ? undefined
             : t.rich("emailsOffGroupHint", {
                 link: (chunks) => (

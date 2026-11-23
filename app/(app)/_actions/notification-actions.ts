@@ -12,6 +12,7 @@ import { forbiddenUnless, getPermissions } from "@/lib/auth/get-permissions";
 import {
   WATCH_GROUPS_CHECK,
   canSeeConversationsInbox,
+  canWatchGroups,
 } from "@/lib/auth/permissions";
 
 /** A switch's save: the value the server now holds, or text for the inline error. */
@@ -23,33 +24,55 @@ async function toFailure(error: unknown): Promise<ToggleResult> {
   return { ok: false, message: await getApiErrorMessage(error) };
 }
 
-/** My profile's "Conversation emails". The API takes any signed-in user; the switch only shows to
- *  people who can see conversations, so the action asks the same. */
+function forbidden(): Promise<ToggleResult> {
+  return toFailure(
+    new ApiError({
+      status: 403,
+      statusText: "Forbidden",
+      url: "",
+      method: "",
+      body: null,
+    }),
+  );
+}
+
+/** My profile's "Conversations" email switch. The API takes any signed-in user; the switch only
+ *  shows to people who can see conversations, so the action asks the same. */
 export async function setConversationEmails(
   enabled: boolean,
 ): Promise<ToggleResult> {
-  if (!canSeeConversationsInbox(await getPermissions())) {
-    return toFailure(
-      new ApiError({
-        status: 403,
-        statusText: "Forbidden",
-        url: "",
-        method: "",
-        body: null,
-      }),
-    );
-  }
+  if (!canSeeConversationsInbox(await getPermissions())) return forbidden();
 
   try {
     const preferences = await updateNotificationPreferences({
-      conversationEmails: enabled,
+      email: { reportConversation: enabled },
     });
 
-    // The group pages disable their Watching switch while this is off.
+    // The group pages disable their Watching switch while both emails are off.
     revalidatePath("/users/me");
     revalidatePath("/groups/[id]", "page");
 
-    return { ok: true, value: preferences.conversationEmails };
+    return { ok: true, value: preferences.email.reportConversation };
+  } catch (error) {
+    return toFailure(error);
+  }
+}
+
+/** My profile's "Submitted reports" email switch, for the watch audience only. */
+export async function setSubmittedReportEmails(
+  enabled: boolean,
+): Promise<ToggleResult> {
+  if (!canWatchGroups(await getPermissions())) return forbidden();
+
+  try {
+    const preferences = await updateNotificationPreferences({
+      email: { reportSubmitted: enabled },
+    });
+
+    revalidatePath("/users/me");
+    revalidatePath("/groups/[id]", "page");
+
+    return { ok: true, value: preferences.email.reportSubmitted };
   } catch (error) {
     return toFailure(error);
   }

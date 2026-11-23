@@ -1225,16 +1225,18 @@ declare const messages: {
   "NotificationSettings": {
     "eyebrow": "Email",
     "title": "Notifications",
-    "conversationEmails": "Conversation emails",
+    "conversationEmails": "Conversations",
     "conversationEmailsHint": "Get an email when someone comments in a conversation you’re part of, or asks about someone in a group you lead.",
+    "submittedEmails": "Submitted reports",
+    "submittedEmailsHint": "Get an email when a report is submitted in a group you watch.",
     "watchedGroupsTitle": "Watched groups",
-    "watchedGroupsHint": "Get an email when a leader comments in a group you watch. Unwatching doesn’t stop emails for conversations you’ve commented in.",
-    "emailsOffHint": "Turn on conversation emails to choose groups.",
+    "watchedGroupsHint": "You get emails about leaders’ comments and submitted reports in the groups you watch. Unwatching doesn’t stop emails for conversations you’ve commented in.",
+    "emailsOffHint": "Turn on conversation or report emails to choose groups.",
     "watchedGroupsLoadFailed": "Couldn’t load your groups. Reload the page to try again.",
     "closedGroup": "Closed",
     "watching": "Watching",
-    "watchingHint": "Get an email when a leader comments in this group’s reports.",
-    "emailsOffGroupHint": "Conversation emails are off. Turn them on in <link>My profile</link> to watch groups.",
+    "watchingHint": "Get an email when a leader comments in this group’s reports or a report is submitted.",
+    "emailsOffGroupHint": "Turn on conversation or report emails in <link>My profile</link> to choose groups.",
     "saveFailed": "Couldn’t save. Try again."
   },
   "InviteStaffLink": {

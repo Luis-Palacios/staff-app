@@ -29,7 +29,7 @@ import {
   listReportConversations,
 } from "@/api/conversations-api/client";
 import { getMe } from "@/api/members-api/client";
-import { getEmailsEnabled } from "@/api/notifications-api/client";
+import { getConversationEmailsAvailable } from "@/api/notifications-api/client";
 import { getSmallGroup } from "@/api/small-groups-api/client";
 import { isSubmitted } from "@/api/small-groups-api/types";
 import { SavedToast } from "@/components/saved-toast";
@@ -144,7 +144,7 @@ export default async function ReportDetailPage({
   // Only asked when a panel can open; started now and awaited with the thread (never rejects).
   const emailsEnabledPromise =
     conversations !== null && (target !== null || sectionKey !== null)
-      ? getEmailsEnabled()
+      ? getConversationEmailsAvailable()
       : Promise.resolve(false);
   const panelProps = {
     closeHref: `/groups/reports/${report.id}`,

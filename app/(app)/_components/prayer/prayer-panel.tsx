@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 import { getLocale } from "next-intl/server";
 
 import { getSectionConversation } from "@/api/conversations-api/client";
-import { getEmailsEnabled } from "@/api/notifications-api/client";
+import { getConversationEmailsAvailable } from "@/api/notifications-api/client";
 import { getSmallGroupReport } from "@/api/small-groups-api/client";
 import { isSubmitted } from "@/api/small-groups-api/types";
 import { ConversationPanel } from "@/app/(app)/groups/reports/_components/conversation-panel";
@@ -37,7 +37,7 @@ export async function prayerPanel({
     // For who submitted it and the leaders' roles, as Report detail words them.
     getSmallGroupReport(String(entry.reportId)).catch(() => undefined),
     getLocale(),
-    getEmailsEnabled(),
+    getConversationEmailsAvailable(),
   ]);
   const items = entry.sections[section];
 

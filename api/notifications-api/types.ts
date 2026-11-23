@@ -1,10 +1,17 @@
 // Shapes of membership-management's notification routes (camelCase, as sent).
 
-/** `GET`/`PUT /me/notification-preferences`. `emailsEnabled` is the server's kill switch: when
- *  false, every email and watch switch is hidden. */
+/** One flag per kind of email: leaders' comments and conversations (`reportConversation`), and
+ *  a report being submitted in a watched group (`reportSubmitted`). */
+export interface EmailKinds {
+  reportConversation: boolean;
+  reportSubmitted: boolean;
+}
+
+/** `GET`/`PUT /me/notification-preferences`. `email` is the caller's choice per kind; `available`
+ *  is each kind's server kill switch: while false, that kind's switch is hidden. */
 export interface NotificationPreferences {
-  conversationEmails: boolean;
-  emailsEnabled: boolean;
+  email: EmailKinds;
+  available: EmailKinds;
 }
 
 /** One row of `GET /me/watched-groups` (every group, open first, then by name). */

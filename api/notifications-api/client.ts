@@ -1,5 +1,6 @@
 import type { ApiFetchOptions } from "@/api/api-client";
 import type {
+  EmailKinds,
   GroupWatch,
   NotificationPreferences,
   WatchedGroups,
@@ -21,25 +22,26 @@ function request<TResponse>(
   );
 }
 
-/** The caller's "Conversation emails" choice and the server's kill switch. Any signed-in user.
+/** The caller's email choice and the server's kill switch, per kind of email. Any signed-in user.
  *  Cached per render: My profile, the group page and the panel note all read it. */
 export const getNotificationPreferences = cache(
   (): Promise<NotificationPreferences> =>
     request<NotificationPreferences>("/me/notification-preferences"),
 );
 
-/** Whether emails are on at the server, for the panel's composer note. A failed call counts as off:
- *  the note then says who sees the conversation, which is always true. */
-export const getEmailsEnabled = cache(
+/** Whether conversation emails are on at the server, for the panel's composer note. A failed call
+ *  counts as off: the note then says who sees the conversation, which is always true. */
+export const getConversationEmailsAvailable = cache(
   (): Promise<boolean> =>
     getNotificationPreferences().then(
-      (preferences) => preferences.emailsEnabled,
+      (preferences) => preferences.available.reportConversation,
       () => false,
     ),
 );
 
+/** Any subset of the two keys; the server answers 422 for anything else. */
 export function updateNotificationPreferences(input: {
-  conversationEmails: boolean;
+  email: Partial<EmailKinds>;
 }): Promise<NotificationPreferences> {
   return request<NotificationPreferences>("/me/notification-preferences", {
     method: "PUT",

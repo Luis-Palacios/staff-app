@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import {
   setConversationEmails,
+  setSubmittedReportEmails,
   setWatching,
 } from "@/app/(app)/_actions/notification-actions";
 import { DetailCardHeading } from "@/app/(app)/applications/[id]/_components/detail-card-heading";
@@ -47,25 +48,37 @@ function WatchedGroupRow({
 }
 
 /**
- * My profile's email settings: "Conversation emails" for everyone who sees conversations, and for
- * the full-scope audience (`watchedGroups` not undefined) a Watching switch per group. The page
- * renders this only while emails are on at the server (`emailsEnabled`). The watch switches are
- * disabled, not hidden, while Conversation emails is off: the choice is kept for later.
+ * My profile's email settings: a switch per kind of email, "Conversations" and (for the full-scope
+ * audience) "Submitted reports", each `undefined` while the server has that kind off. For the
+ * audience (`watchedGroups` not undefined) a Watching switch per group follows. The watch switches
+ * are disabled, not hidden, while every shown email switch is off: the choice is kept for later.
  */
 export function NotificationsCard({
   conversationEmails,
+  submittedEmails,
   watchedGroups,
 }: {
-  conversationEmails: boolean;
+  /** `undefined`: the switch is hidden (kind off at the server). */
+  conversationEmails?: boolean;
+  /** `undefined`: hidden (not a watcher, or kind off at the server). */
+  submittedEmails?: boolean;
   /** `undefined`: not a watcher; `null`: the list failed to load. */
   watchedGroups?: WatchedGroup[] | null;
 }) {
   const t = useTranslations("NotificationSettings");
-  const emails = useSavedToggle(
-    conversationEmails,
+  const conversations = useSavedToggle(
+    conversationEmails ?? false,
     setConversationEmails,
     t("saveFailed"),
   );
+  const submitted = useSavedToggle(
+    submittedEmails ?? false,
+    setSubmittedReportEmails,
+    t("saveFailed"),
+  );
+  const emailsOn =
+    (conversationEmails !== undefined && conversations.isSelected) ||
+    (submittedEmails !== undefined && submitted.isSelected);
 
   return (
     <section
@@ -78,14 +91,26 @@ export function NotificationsCard({
         <DetailCardHeading eyebrow={t("eyebrow")} id="my-notifications-title">
           {t("title")}
         </DetailCardHeading>
-        <SettingSwitch
-          description={t("conversationEmailsHint")}
-          error={emails.error}
-          isSelected={emails.isSelected}
-          label={t("conversationEmails")}
-          pending={emails.pending}
-          onChange={emails.toggle}
-        />
+        {conversationEmails !== undefined && (
+          <SettingSwitch
+            description={t("conversationEmailsHint")}
+            error={conversations.error}
+            isSelected={conversations.isSelected}
+            label={t("conversationEmails")}
+            pending={conversations.pending}
+            onChange={conversations.toggle}
+          />
+        )}
+        {submittedEmails !== undefined && (
+          <SettingSwitch
+            description={t("submittedEmailsHint")}
+            error={submitted.error}
+            isSelected={submitted.isSelected}
+            label={t("submittedEmails")}
+            pending={submitted.pending}
+            onChange={submitted.toggle}
+          />
+        )}
       </div>
       {watchedGroups !== undefined && (
         <div className="flex flex-col border-t border-separator">
@@ -94,7 +119,7 @@ export function NotificationsCard({
               {t("watchedGroupsTitle")}
             </h3>
             <p className="text-[13.5px] text-muted">
-              {emails.isSelected ? t("watchedGroupsHint") : t("emailsOffHint")}
+              {emailsOn ? t("watchedGroupsHint") : t("emailsOffHint")}
             </p>
           </div>
           {watchedGroups === null ? (
@@ -106,7 +131,7 @@ export function NotificationsCard({
               {watchedGroups.map((group) => (
                 <WatchedGroupRow
                   key={group.smallGroupId}
-                  emailsOn={emails.isSelected}
+                  emailsOn={emailsOn}
                   group={group}
                 />
               ))}

@@ -26,12 +26,12 @@ import { settle } from "@/lib/settle";
 
 /**
  * The Watching card's data, or null to leave it out: only the full-scope audience, only while
- * emails are on at the server. A failed call leaves the card out rather than the page.
+ * a kind of email is on at the server. A failed call leaves the card out rather than the page.
  */
 async function loadWatch(
   permissions: Permissions,
   groupId: number,
-): Promise<{ watching: boolean; conversationEmails: boolean } | null> {
+): Promise<{ watching: boolean; emailsOn: boolean } | null> {
   if (!canWatchGroups(permissions)) return null;
 
   const [preferences, watched] = await Promise.all([
@@ -39,16 +39,21 @@ async function loadWatch(
     settle(getWatchedGroups()),
   ]);
 
-  if (!preferences.ok || !preferences.value.emailsEnabled || !watched.ok) {
-    return null;
-  }
+  if (!preferences.ok || !watched.ok) return null;
+
+  const { email, available } = preferences.value;
+
+  // A kind that is off at the server can't send, whatever the caller chose.
+  if (!available.reportConversation && !available.reportSubmitted) return null;
 
   const row = watched.value.items.find((item) => item.smallGroupId === groupId);
 
   return row
     ? {
         watching: row.watching,
-        conversationEmails: preferences.value.conversationEmails,
+        emailsOn:
+          (available.reportConversation && email.reportConversation) ||
+          (available.reportSubmitted && email.reportSubmitted),
       }
     : null;
 }
@@ -104,7 +109,7 @@ export default async function GroupDetailPage({
           <GroupDetailsCard group={group} />
           {watch && (
             <GroupWatchCard
-              conversationEmails={watch.conversationEmails}
+              emailsOn={watch.emailsOn}
               groupId={group.id}
               watching={watch.watching}
             />

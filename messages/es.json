@@ -1222,16 +1222,18 @@
   "NotificationSettings": {
     "eyebrow": "Correo",
     "title": "Notificaciones",
-    "conversationEmails": "Correos de conversaciones",
+    "conversationEmails": "Conversaciones",
     "conversationEmailsHint": "Recibe un correo cuando alguien comente en una conversación en la que participas, o pregunte por alguien de un grupo que lideras.",
+    "submittedEmails": "Reportes enviados",
+    "submittedEmailsHint": "Recibe un correo cuando se envíe un reporte en un grupo que sigues.",
     "watchedGroupsTitle": "Grupos que sigues",
-    "watchedGroupsHint": "Recibe un correo cuando un líder comente en un grupo que sigues. Dejar de seguirlo no detiene los correos de las conversaciones en las que comentaste.",
-    "emailsOffHint": "Activa los correos de conversaciones para elegir grupos.",
+    "watchedGroupsHint": "Recibes correos sobre los comentarios de los líderes y los reportes enviados en los grupos que sigues. Dejar de seguir un grupo no detiene los correos de conversaciones en las que comentaste.",
+    "emailsOffHint": "Activa los correos de conversaciones o de reportes para elegir grupos.",
     "watchedGroupsLoadFailed": "No se pudieron cargar tus grupos. Recarga la página para intentarlo de nuevo.",
     "closedGroup": "Cerrado",
     "watching": "Siguiendo",
-    "watchingHint": "Recibe un correo cuando un líder comente en los reportes de este grupo.",
-    "emailsOffGroupHint": "Los correos de conversaciones están desactivados. Actívalos en <link>Mi perfil</link> para seguir grupos.",
+    "watchingHint": "Recibe un correo cuando un líder comente en los reportes de este grupo o se envíe un reporte.",
+    "emailsOffGroupHint": "Activa los correos de conversaciones o de reportes en <link>Mi perfil</link> para elegir grupos.",
     "saveFailed": "No se pudo guardar. Inténtalo de nuevo."
   },
   "InviteStaffLink": {
