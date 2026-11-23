@@ -48,7 +48,7 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
 | 2. Bell, count, refresh and app badge | ✅ | `08867e9` |
 | 3. The popover | ✅ | `46ef29b` |
 | 4. `/notifications` page and `/notifications/open/[id]` | ✅ | `daeb250` |
-| 5. Watching switches (rule 7) and docs | ✅ | the commit that follows `daeb250` (`git log -- docs/design/NOTIFICATIONS.md`) |
+| 5. Watching switches (rule 7) and docs | ✅ | `c3e6361` |
 
 **Status: built, not yet checked in a browser or design-reviewed** (Nov 23, 2026). `pnpm lint`,
 `pnpm exec tsc --noEmit` and `pnpm build` pass. The design review checklist below is still open.
