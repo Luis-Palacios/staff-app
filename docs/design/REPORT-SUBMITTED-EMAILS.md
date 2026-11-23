@@ -1,7 +1,7 @@
 # Report submitted emails: Email notifications section and Watching copy (staff-app)
 
-> **Status (Nov 22, 2026):** Stage 1 built on `feature/report-submitted-emails`, browser checks
-> pending. Spec: `../docs/specs/report-submitted-emails.md` (rules 9–10, *Contracts → staff-app*).
+> **Status (Nov 22, 2026):** Stage 1 built on `feature/report-submitted-emails` and browser-checked
+> locally as an admin (see *Browser checks*). Spec: `../docs/specs/report-submitted-emails.md` (rules 9–10, *Contracts → staff-app*).
 > membership-management's side (new preferences contract, second kill switch) is merged on `main`
 > (PR #73); auth-server's template is merged (PR #36).
 
@@ -30,7 +30,16 @@ Branch **`feature/report-submitted-emails`**. Each stage: `pnpm lint`, `pnpm exe
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 1. Preferences contract, two switches, Watching copy | ✅ built, browser checks pending | `7503b8b` |
+| 1. Preferences contract, two switches, Watching copy | ✅ | `7503b8b` |
+
+### Browser checks (Nov 22, 2026, local, both kill switches on)
+
+Passed as an admin (watch audience), en and es, 1440 and 1024 px, dark mode at 1024: the card's
+switches and hints, saved positions after reload, Watching switches disabled only with both off
+(My profile and `/groups/1`, with the My profile link), conversation and prayer panel notes
+unchanged, no horizontal scroll. Not covered: a leader's view (no impersonation in Users; the
+`canWatchGroups` gate is unchanged from Part 2), true 390 px (the window stops at 454 px), the PUT
+body (server actions hide it), console errors on the first pages.
 
 ### Decisions and deviations
 
