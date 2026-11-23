@@ -1236,7 +1236,7 @@
     "closedGroup": "Cerrado",
     "watching": "Siguiendo",
     "watchingHint": "Recibe un correo cuando un líder comente en los reportes de este grupo o se envíe un reporte.",
-    "watchingHintInApp": "Recibe una notificación (y un correo, si están activados) cuando un líder comente en los reportes de este grupo o se envíe un reporte. Dejar de seguir solo afecta lo que llegue después.",
+    "watchingHintInApp": "Recibe una notificación (y un correo, si los correos están activados) cuando un líder comente en los reportes de este grupo o se envíe un reporte. Dejar de seguir solo afecta lo que llegue después.",
     "emailsOffGroupHint": "Activa los correos de conversaciones o de reportes en <link>Mi perfil</link> para elegir grupos.",
     "saveFailed": "No se pudo guardar. Inténtalo de nuevo."
   },

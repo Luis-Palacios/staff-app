@@ -2,7 +2,7 @@
 
 import type { NotificationView } from "@/lib/notifications/view-types";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ArrowRightIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import { Popover, useMediaQuery } from "@heroui/react";
 import { Skeleton } from "@heroui/react/skeleton";
@@ -70,17 +70,16 @@ export function NotificationPopover({
     if (!isDesktop) setIsOpen(false);
   }, [isDesktop]);
 
-  // Reads the list each time it opens, so it is never older than the click.
-  useEffect(() => {
-    if (!isOpen) return;
+  // Each read takes a number; only the latest one may write, so a slow reply (from an earlier
+  // open or a *Try again*) never overwrites a newer list, and closing drops any read in flight.
+  const latestRead = useRef(0);
 
-    let cancelled = false;
+  const load = useCallback(() => {
+    const read = ++latestRead.current;
 
-    setStatus((current) => (current === "ready" ? current : "loading"));
-    setMarkFailed(false);
     loadNotifications({ limit: POPOVER_SIZE })
       .then((result) => {
-        if (cancelled) return;
+        if (read !== latestRead.current) return;
 
         if (result.ok) {
           setItems(result.page.items);
@@ -90,26 +89,26 @@ export function NotificationPopover({
         }
       })
       .catch(() => {
-        if (!cancelled) setStatus("error");
+        if (read === latestRead.current) setStatus("error");
       });
+  }, []);
+
+  // Reads the list each time it opens, so it is never older than the click.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    setStatus((current) => (current === "ready" ? current : "loading"));
+    setMarkFailed(false);
+    load();
 
     return () => {
-      cancelled = true;
+      latestRead.current += 1;
     };
-  }, [isOpen]);
+  }, [isOpen, load]);
 
   function reload() {
     setStatus("loading");
-    loadNotifications({ limit: POPOVER_SIZE })
-      .then((result) => {
-        if (result.ok) {
-          setItems(result.page.items);
-          setStatus("ready");
-        } else {
-          setStatus("error");
-        }
-      })
-      .catch(() => setStatus("error"));
+    load();
   }
 
   function markAll() {

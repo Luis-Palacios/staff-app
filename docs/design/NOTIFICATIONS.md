@@ -100,6 +100,22 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
   container SID, and the lock path overflows 260 characters under `node_modules`); used
   `C:\Users\luisz\.sc`. Not a repo change.
 
+### Review (spec-reviewer, Opus): no blockers. Fixed on the branch
+
+- **Open route, cross-site:** a link from another site (`Sec-Fetch-Site: cross-site`) redirects to
+  `/notifications` without marking anything read, since ids are sequential. Same-origin and `none`
+  (typed, bookmarked, a push click in Part 2) pass; a browser without the header passes as before.
+- **Popover, late replies:** every list read takes a number and only the latest may write, so a slow
+  reply from an earlier open or *Try again* never overwrites a newer list; closing drops reads in
+  flight.
+- **Copy:** the Watching hint read "(and an email, if they’re on)" / "si están activados" (singular
+  noun, plural verb); now "if emails are on" / "si los correos están activados".
+- **Accepted:** *Mark all read* on the page revalidates it and returns the list to its first page
+  after *Show more* (the rows are all read then anyway). An entry with an unknown template is skipped
+  in the list but still in the API's `unread` count (the spec's "skipped"; only happens across a
+  deploy that adds a template). One file (`components/icons.tsx`) was appended with a heredoc
+  instead of Edit; the content is what an Edit would have made.
+
 ## Token changes
 
 None expected: the boards use the existing tokens (`accent-soft`, `success-soft`, `warning-soft`,

@@ -25,12 +25,18 @@ function redirectTo(path: string): Response {
  * prefetch would mark the entry read before anyone opened it.
  */
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<Response> {
   const { id } = await params;
 
   if (!/^[1-9]\d{0,15}$/.test(id)) return redirectTo(LIST);
+
+  // A link from another site must not mark the caller's entries read (ids are sequential). Same
+  // origin (the list, the popover) and `none` (typed, bookmarked, a clicked push in Part 2) pass;
+  // a browser that sends no header is let through, as before.
+  if (request.headers.get("sec-fetch-site") === "cross-site")
+    return redirectTo(LIST);
 
   try {
     const { path } = await markNotificationRead(Number(id));

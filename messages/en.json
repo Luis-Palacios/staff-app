@@ -1236,7 +1236,7 @@
     "closedGroup": "Closed",
     "watching": "Watching",
     "watchingHint": "Get an email when a leader comments in this group’s reports or a report is submitted.",
-    "watchingHintInApp": "Get a notification (and an email, if they’re on) when a leader comments in this group’s reports or a report is submitted. Unwatching only affects what comes next.",
+    "watchingHintInApp": "Get a notification (and an email, if emails are on) when a leader comments in this group’s reports or a report is submitted. Unwatching only affects what comes next.",
     "emailsOffGroupHint": "Turn on conversation or report emails in <link>My profile</link> to choose groups.",
     "saveFailed": "Couldn’t save. Try again."
   },
