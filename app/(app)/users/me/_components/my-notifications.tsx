@@ -4,6 +4,7 @@ import { NotificationsCard } from "./notifications-card";
 
 import {
   getNotificationPreferences,
+  getUnreadCount,
   getWatchedGroups,
 } from "@/api/notifications-api/client";
 import {
@@ -20,7 +21,9 @@ import { settle } from "@/lib/settle";
  * the Watched groups list for the watch audience among them; *Weekly report reminders* for
  * someone who leads an open group (`leadsGroup`) and can submit reports. With no switch to show
  * the card is left out. A failed preferences call hides the card (the kill switches are unknown);
- * a failed watched-groups call keeps it, with an error in place of the list.
+ * a failed watched-groups call keeps it, with an error in place of the list. While in-app
+ * notifications are on (the bell's `unread-count`, since the preferences have no flag for it) the
+ * Watching switches are never disabled (notifications rule 7).
  */
 export async function MyNotifications({
   permissions,
@@ -39,6 +42,7 @@ export async function MyNotifications({
   const watcher = canSeeConversations && canWatchGroups(permissions);
   // Both start at once; the list is only read when a watch-related kind of email is on.
   const watched = watcher ? settle(getWatchedGroups()) : null;
+  const unread = settle(getUnreadCount());
   const preferences = await settle(getNotificationPreferences());
 
   if (!preferences.ok) return null;
@@ -54,12 +58,14 @@ export async function MyNotifications({
   // switch shown, a card that holds only *Weekly report reminders* leaves it out.
   const list =
     watched && (showConversations || showSubmitted) ? await watched : null;
+  const inApp = await unread.then((count) => count.ok && count.value.enabled);
 
   return (
     <NotificationsCard
       conversationEmails={
         showConversations ? email.reportConversation : undefined
       }
+      inApp={inApp}
       reminderEmails={showReminders ? email.reportReminder : undefined}
       submittedEmails={showSubmitted ? email.reportSubmitted : undefined}
       watchedGroups={

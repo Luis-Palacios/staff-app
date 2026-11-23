@@ -1230,11 +1230,13 @@
     "reminderEmailsHint": "Recibe un recordatorio semanal para enviar el reporte de tu grupo pequeño si aún no ha sido enviado.",
     "watchedGroupsTitle": "Grupos que sigues",
     "watchedGroupsHint": "Recibes correos sobre los comentarios de los líderes y los reportes enviados en los grupos que sigues. Dejar de seguir un grupo no detiene los correos de conversaciones en las que comentaste.",
+    "watchedGroupsHintInApp": "Recibes notificaciones (y correos, si están activados) sobre los comentarios de los líderes y los reportes enviados en los grupos que sigues. Dejar de seguir un grupo no afecta las conversaciones en las que comentaste ni las notificaciones que ya tienes.",
     "emailsOffHint": "Activa los correos de conversaciones o de reportes para elegir grupos.",
     "watchedGroupsLoadFailed": "No se pudieron cargar tus grupos. Recarga la página para intentarlo de nuevo.",
     "closedGroup": "Cerrado",
     "watching": "Siguiendo",
     "watchingHint": "Recibe un correo cuando un líder comente en los reportes de este grupo o se envíe un reporte.",
+    "watchingHintInApp": "Recibe una notificación (y un correo, si están activados) cuando un líder comente en los reportes de este grupo o se envíe un reporte. Dejar de seguir solo afecta lo que llegue después.",
     "emailsOffGroupHint": "Activa los correos de conversaciones o de reportes en <link>Mi perfil</link> para elegir grupos.",
     "saveFailed": "No se pudo guardar. Inténtalo de nuevo."
   },

@@ -23,6 +23,14 @@ copy first), and new, draft and submitted reports share one editor (`report-flow
 `/groups/reports/[id]/edit`. See `docs/design/REPORT-AUTOSAVE.md` (done; its "Status" lists the
 open follow-ups).
 
+In-app notifications: a bell in the top bar (`components/notifications/`; a popover from 1024 px, a
+link below), the `/notifications` page, and `/notifications/open/[id]`, the only way an entry opens
+(a route handler that marks it read and redirects; links to it use `prefetch={false}`). Entry text
+is made on the server from the API's `template` + `data` (`lib/notifications/entry.ts`, the
+`Notifications` namespace); the bell's count is client state read again on navigation and focus.
+Everything is hidden while `GET /me/notifications/unread-count` says `enabled: false`. See
+`docs/design/NOTIFICATIONS.md` (Part 1; Web Push is Part 2, not built).
+
 See `docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring this app together
 with the sibling `auth-server` (better-auth) and `membership-management` (FastAPI) repos —
 pick up at whichever phase is still marked `[ ]`.
@@ -77,7 +85,7 @@ There is **no test runner** configured. If asked to add tests, confirm the frame
   (navy brand rail in both modes: logo, `ChurchContextCard`, Heroicons-outline nav
   items, collapsible groups via HeroUI `Disclosure`, off-canvas + backdrop below
   `lg`) and `components/topbar.tsx` (search with Ctrl/⌘ K hint, segmented
-  `ThemeSwitch`, account menu (header, Language, My profile, Sign out); below `lg`
+  `ThemeSwitch`, notification bell, account menu (header, Language, My profile, Sign out); below `lg`
   hamburger + mark + a read-only ministry › church label; below `sm` search collapses
   behind an icon and the theme options move into the account menu).
 - **Brand components** — `components/brand/` holds `EkklesiaioMark` /

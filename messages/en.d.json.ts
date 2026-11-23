@@ -1233,11 +1233,13 @@ declare const messages: {
     "reminderEmailsHint": "Get a weekly reminder to submit your small group’s report if it hasn’t been submitted yet.",
     "watchedGroupsTitle": "Watched groups",
     "watchedGroupsHint": "You get emails about leaders’ comments and submitted reports in the groups you watch. Unwatching doesn’t stop emails for conversations you’ve commented in.",
+    "watchedGroupsHintInApp": "You get notifications (and emails, if they’re on) about leaders’ comments and submitted reports in the groups you watch. Unwatching doesn’t affect conversations you’ve commented in, or notifications you already have.",
     "emailsOffHint": "Turn on conversation or report emails to choose groups.",
     "watchedGroupsLoadFailed": "Couldn’t load your groups. Reload the page to try again.",
     "closedGroup": "Closed",
     "watching": "Watching",
     "watchingHint": "Get an email when a leader comments in this group’s reports or a report is submitted.",
+    "watchingHintInApp": "Get a notification (and an email, if they’re on) when a leader comments in this group’s reports or a report is submitted. Unwatching only affects what comes next.",
     "emailsOffGroupHint": "Turn on conversation or report emails in <link>My profile</link> to choose groups.",
     "saveFailed": "Couldn’t save. Try again."
   },

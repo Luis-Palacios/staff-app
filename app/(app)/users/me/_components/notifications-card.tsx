@@ -17,10 +17,11 @@ import { StatusBadge } from "@/components/status-badge";
 
 function WatchedGroupRow({
   group,
-  emailsOn,
+  enabled,
 }: {
   group: WatchedGroup;
-  emailsOn: boolean;
+  /** In-app notifications are on, or an email switch is: Watching has something to control. */
+  enabled: boolean;
 }) {
   const t = useTranslations("NotificationSettings");
   const watch = useSavedToggle(
@@ -38,7 +39,7 @@ function WatchedGroupRow({
           ) : undefined
         }
         error={watch.error}
-        isDisabled={!emailsOn}
+        isDisabled={!enabled}
         isSelected={watch.isSelected}
         label={group.name}
         pending={watch.pending}
@@ -54,12 +55,15 @@ function WatchedGroupRow({
  * while hidden. The reminder switch doesn't affect the Watching list. For the
  * audience (`watchedGroups` not undefined) a Watching switch per group follows. The watch switches
  * are disabled, not hidden, while every shown email switch is off: the choice is kept for later.
+ * Not while in-app notifications are on (`inApp`, notifications rule 7): Watching then covers the
+ * in-app list too, so it is never disabled.
  */
 export function NotificationsCard({
   conversationEmails,
   submittedEmails,
   reminderEmails,
   watchedGroups,
+  inApp,
 }: {
   /** `undefined`: the switch is hidden (kind off at the server). */
   conversationEmails?: boolean;
@@ -70,6 +74,8 @@ export function NotificationsCard({
   reminderEmails?: boolean;
   /** `undefined`: not a watcher; `null`: the list failed to load. */
   watchedGroups?: WatchedGroup[] | null;
+  /** In-app notifications are on at the server (the bell's `unread-count.enabled`). */
+  inApp: boolean;
 }) {
   const t = useTranslations("NotificationSettings");
   const conversations = useSavedToggle(
@@ -90,6 +96,7 @@ export function NotificationsCard({
   const emailsOn =
     (conversationEmails !== undefined && conversations.isSelected) ||
     (submittedEmails !== undefined && submitted.isSelected);
+  const watchEnabled = inApp || emailsOn;
 
   return (
     <section
@@ -140,7 +147,11 @@ export function NotificationsCard({
               {t("watchedGroupsTitle")}
             </h3>
             <p className="text-[13.5px] text-muted">
-              {emailsOn ? t("watchedGroupsHint") : t("emailsOffHint")}
+              {inApp
+                ? t("watchedGroupsHintInApp")
+                : emailsOn
+                  ? t("watchedGroupsHint")
+                  : t("emailsOffHint")}
             </p>
           </div>
           {watchedGroups === null ? (
@@ -152,7 +163,7 @@ export function NotificationsCard({
               {watchedGroups.map((group) => (
                 <WatchedGroupRow
                   key={group.smallGroupId}
-                  emailsOn={emailsOn}
+                  enabled={watchEnabled}
                   group={group}
                 />
               ))}

@@ -14,6 +14,7 @@ import { GroupWatchCard } from "./_components/group-watch-card";
 import { getMe } from "@/api/members-api/client";
 import {
   getNotificationPreferences,
+  getUnreadCount,
   getWatchedGroups,
 } from "@/api/notifications-api/client";
 import { loadGroup } from "@/app/(app)/groups/_lib/load-group";
@@ -27,16 +28,20 @@ import { settle } from "@/lib/settle";
 /**
  * The Watching card's data, or null to leave it out: only the full-scope audience, only while
  * a kind of email is on at the server. A failed call leaves the card out rather than the page.
+ * `inApp` is whether in-app notifications are on (notifications rule 7): the switch is then never
+ * disabled, whatever the caller's email switches say. The preferences have no in-app flag, so it
+ * comes from the bell's `unread-count`; a failed read counts as off.
  */
 async function loadWatch(
   permissions: Permissions,
   groupId: number,
-): Promise<{ watching: boolean; emailsOn: boolean } | null> {
+): Promise<{ watching: boolean; emailsOn: boolean; inApp: boolean } | null> {
   if (!canWatchGroups(permissions)) return null;
 
-  const [preferences, watched] = await Promise.all([
+  const [preferences, watched, unread] = await Promise.all([
     settle(getNotificationPreferences()),
     settle(getWatchedGroups()),
+    settle(getUnreadCount()),
   ]);
 
   if (!preferences.ok || !watched.ok) return null;
@@ -54,6 +59,7 @@ async function loadWatch(
         emailsOn:
           (available.reportConversation && email.reportConversation) ||
           (available.reportSubmitted && email.reportSubmitted),
+        inApp: unread.ok && unread.value.enabled,
       }
     : null;
 }
@@ -111,6 +117,7 @@ export default async function GroupDetailPage({
             <GroupWatchCard
               emailsOn={watch.emailsOn}
               groupId={group.id}
+              inApp={watch.inApp}
               watching={watch.watching}
             />
           )}

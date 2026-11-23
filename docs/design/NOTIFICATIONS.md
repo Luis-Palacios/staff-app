@@ -47,8 +47,11 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
 | 1. API client, types, entry view model and messages | ✅ | `8daeb3b` |
 | 2. Bell, count, refresh and app badge | ✅ | `08867e9` |
 | 3. The popover | ✅ | `46ef29b` |
-| 4. `/notifications` page and `/notifications/open/[id]` | ✅ | (next commit) |
-| 5. Watching switches (rule 7) and docs | ⬜ | |
+| 4. `/notifications` page and `/notifications/open/[id]` | ✅ | `daeb250` |
+| 5. Watching switches (rule 7) and docs | ✅ | the commit that follows `daeb250` (`git log -- docs/design/NOTIFICATIONS.md`) |
+
+**Status: built, not yet checked in a browser or design-reviewed** (Nov 23, 2026). `pnpm lint`,
+`pnpm exec tsc --noEmit` and `pnpm build` pass. The design review checklist below is still open.
 
 ### Decisions and deviations
 
@@ -86,6 +89,12 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
   *Mark all read* are server actions; *Mark all read* also tells the bell (a window event) to read
   the count again. The page's rows show the clock time; the board's Spanish "9:41 a. m." is
   `Intl`'s "9:41" in 24 hours here.
+- **Stage 5:** the group page and My profile read `unread-count.enabled` (a failed read counts as
+  off) and pass `inApp`; `GroupWatchCard` and `NotificationsCard` enable the switches when `inApp ||
+  emailsOn`, with new hints (`watchingHintInApp`, `watchedGroupsHintInApp` in `NotificationSettings`)
+  that don't say "email" only. The card stays hidden when no kind is on at the server (nothing is
+  written then, so Watching has nothing to control). The unwatch is unchanged: the API only stops
+  future entries. The card's title and eyebrow ("Email") are Part 2's grid, unchanged here.
 - **Build on this machine:** `pnpm build` needs `SWC_NATIVE_BINDING_CACHE` pointing at a short path
   that isn't under `AppData\Local` (SWC refuses a cache whose parent grants rights to an app
   container SID, and the lock path overflows 260 characters under `node_modules`); used
