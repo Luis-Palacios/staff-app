@@ -50,10 +50,10 @@ async function handleSessionCookieOnPublicPath(request: NextRequest) {
   let session;
 
   try {
-    session = await getSession(
-      request.headers.get("cookie") ?? "",
-      request.headers.get("x-forwarded-for"),
-    );
+    session = await getSession(request.headers.get("cookie") ?? "", {
+      forwardedFor: request.headers.get("x-forwarded-for"),
+      acceptLanguage: request.headers.get("accept-language"),
+    });
   } catch (error) {
     // Logged because the visitor sees nothing wrong, so a run of 429s would otherwise go unnoticed.
     // eslint-disable-next-line no-console

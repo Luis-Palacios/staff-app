@@ -5,7 +5,12 @@ import type { PermissionCheck } from "@/lib/auth/permissions";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 
-import { cancelInvite, createInvite, listUsers } from "@/api/auth-api/client";
+import {
+  cancelInvite,
+  createInvite,
+  incomingForwardedRequest,
+  listUsers,
+} from "@/api/auth-api/client";
 import {
   linkMemberUser,
   listMembers,
@@ -184,18 +189,6 @@ export async function unlinkMemberUserAction(
   return ok;
 }
 
-async function forwardedRequest() {
-  const incoming = await headers();
-  const host = incoming.get("x-forwarded-host") ?? incoming.get("host");
-  const protocol = incoming.get("x-forwarded-proto") ?? "http";
-
-  return {
-    cookie: incoming.get("cookie") ?? "",
-    origin: incoming.get("origin") ?? `${protocol}://${host}`,
-    acceptLanguage: incoming.get("accept-language"),
-  };
-}
-
 /** Invites the member's email with the chosen role (the dialog defaults to User). */
 export async function inviteMemberAction(
   email: string,
@@ -220,7 +213,7 @@ export async function inviteMemberAction(
       return { ok: false, error: "", code: "userExists" };
     }
 
-    await createInvite(await forwardedRequest(), {
+    await createInvite(await incomingForwardedRequest(), {
       email,
       role,
     });
@@ -244,7 +237,7 @@ export async function cancelMemberInviteAction(
   if (denied) return denied;
 
   try {
-    await cancelInvite(await forwardedRequest(), token);
+    await cancelInvite(await incomingForwardedRequest(), token);
   } catch (error) {
     return failure(error);
   }

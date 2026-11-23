@@ -33,20 +33,28 @@ async function incomingClientIpHeader(): Promise<Record<string, string>> {
 // `permissions` is what the role can do (auth-server's customSession); a response without it gets
 // none, so a missing field fails closed (rule 10).
 //
-// proxy.ts passes `forwardedFor`, since next/headers isn't available there. Everyone else leaves it
-// out and the incoming request's header is used.
+// `accept-language` goes along (with the `ekk_locale` cookie inside `cookie`): when the call extends
+// the session, auth-server fills the user's empty `locale` from them, which is the only way a user
+// who never uses the language picker gets one (conversation emails, Part 2).
+//
+// proxy.ts passes `incoming`, since next/headers isn't available there. Everyone else leaves it out
+// and the incoming request's headers are used.
 export async function getSession(
   cookie: string,
-  forwardedFor?: string | null,
+  incoming?: { forwardedFor: string | null; acceptLanguage: string | null },
 ): Promise<AuthSession | null> {
+  const acceptLanguage = incoming
+    ? incoming.acceptLanguage
+    : (await headers()).get("accept-language");
   const session = await apiFetch<
     (Omit<AuthSession, "permissions"> & Partial<AuthSession>) | null
   >(getEnv().AUTH_SERVER_URL, "/api/auth/get-session", {
     headers: {
       cookie,
-      ...(forwardedFor === undefined
-        ? await incomingClientIpHeader()
-        : clientIpHeader(forwardedFor)),
+      ...(incoming
+        ? clientIpHeader(incoming.forwardedFor)
+        : await incomingClientIpHeader()),
+      ...(acceptLanguage && { "accept-language": acceptLanguage }),
     },
     cache: "no-store",
   });
@@ -125,6 +133,19 @@ export interface ForwardedRequest {
   acceptLanguage: string | null;
 }
 
+/** The incoming request's cookie, Origin and accept-language, for a server action's POST. */
+export async function incomingForwardedRequest(): Promise<ForwardedRequest> {
+  const incoming = await headers();
+  const host = incoming.get("x-forwarded-host") ?? incoming.get("host");
+  const protocol = incoming.get("x-forwarded-proto") ?? "http";
+
+  return {
+    cookie: incoming.get("cookie") ?? "",
+    origin: incoming.get("origin") ?? `${protocol}://${host}`,
+    acceptLanguage: incoming.get("accept-language"),
+  };
+}
+
 async function forwardedHeaders(
   request: ForwardedRequest,
 ): Promise<Record<string, string>> {
@@ -171,4 +192,19 @@ export async function cancelInvite(
       cache: "no-store",
     },
   );
+}
+
+// better-auth's POST /update-user for the signed-in user's own `locale` (auth-server's
+// `user.additionalFields`, `en` | `es`; anything else is a 400). Overwrites it: the account menu's
+// pick always wins over the value filled from the request.
+export async function updateUserLocale(
+  request: ForwardedRequest,
+  locale: string,
+): Promise<unknown> {
+  return apiFetch<unknown>(getEnv().AUTH_SERVER_URL, "/api/auth/update-user", {
+    method: "POST",
+    headers: await forwardedHeaders(request),
+    body: { locale },
+    cache: "no-store",
+  });
 }

@@ -82,8 +82,8 @@ predates the branch naming rule). Each stage: `pnpm lint`, `pnpm exec tsc --noEm
 | 0. Handoff rewritten to the Nov 2026 design | ✅ | `76cb749` |
 | 1. Preferences and watch client; My profile switch and Watched groups; Watching on `/groups/[id]` | ✅ | `a4501c4` |
 | 2. Panel note: who gets an email | ✅ | `3a0bb3d` |
-| 3. Email links: sign-in return and the phone panel (`?person=`, `?guest=`, `?section=`) | ✅ | (this commit) |
-| 4. Language: save the pick on the user; `getSession()` forwards `accept-language` | ⬜ | |
+| 3. Email links: sign-in return and the phone panel (`?person=`, `?guest=`, `?section=`) | ✅ | `c924335` |
+| 4. Language: save the pick on the user; `getSession()` forwards `accept-language` | ✅ | (this commit) |
 
 ### Decisions and deviations
 
@@ -161,6 +161,22 @@ predates the branch naming rule). Each stage: `pnpm lint`, `pnpm exec tsc --noEm
   no cookie both land on `/sign-in?next=…` for `?guest=` and `?section=`, `/` on bare `/sign-in`;
   `next=/..//evil.com` ignored; Luis signed in on the guest link's sign-in page and landed on
   `/groups/reports/51?guest=8` with the panel open.
+- Stage 4: `setLocale` writes the cookie, then for a signed-in user calls `updateUserLocale()`
+  (`POST /api/auth/update-user { locale }` with the cookie, Origin and accept-language, the same
+  forwarded headers as the invite calls). The session lookup is inside the `try` too, so
+  auth-server being down still switches the language (logged). The invite actions' header builder
+  moved from `members/_actions/account-actions.ts` to `incomingForwardedRequest()` in
+  `api/auth-api/client.ts`, shared by both.
+- Stage 4: `getSession(cookie, incoming?)` forwards `accept-language` (the `ekk_locale` cookie
+  already rides in `cookie`); the proxy passes `{ forwardedFor, acceptLanguage }` from its request,
+  everyone else reads the incoming headers.
+- Stage 4 checks (admin): the menu pick saved `locale = es` on the user (read in the auth DB), and
+  back to English the same way (no console errors). Refresh fill: Luis deleted `ekk_locale`; the
+  user's `locale` was cleared and the sessions made due (`expires_at` moved inside `updateAge`);
+  one page load extended the session and filled `locale = en` 12 ms later, from `accept-language`.
+  The browser's own `/api/auth` calls would carry it as well, so the run can't tell which request
+  refreshed; the server render comes first. A curl test that signed a session cookie with
+  auth-server's secret was refused by the permission guard and not done.
 
 ## Stage 1: Preferences and watch client; My profile; group page
 
