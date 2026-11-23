@@ -43,8 +43,8 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 0. This handoff | ✅ | (the commit that adds this file) |
-| 1. API client, types, entry view model and messages | ⬜ | |
+| 0. This handoff | ✅ | `87401c1` |
+| 1. API client, types, entry view model and messages | ✅ | (next commit) |
 | 2. Bell, count, refresh and app badge | ⬜ | |
 | 3. The popover | ⬜ | |
 | 4. `/notifications` page and `/notifications/open/[id]` | ⬜ | |
@@ -52,7 +52,18 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
 
 ### Decisions and deviations
 
-- (filled in per stage)
+- **Stage 1:** no generator; the types are hand-written. Entry text is made on the server
+  (`lib/notifications/entry.ts`, `toNotificationViews`) because the church time zone is server-only;
+  the client gets `NotificationView`s (`lib/notifications/view-types.ts`). `{date}` uses
+  `formatCalendarRowDate` and `{weekStart}` `formatCalendarShortDate`, which is what the boards draw
+  ("Thu, Nov 19", "jue 19 nov", "Nov 15"), not the emails' long form. Times use `Intl` as the rest of
+  the app, so Spanish reads "18:00", where the board drew "9:41 a. m.". The `Notifications`
+  namespace is a client namespace (bell, popover and list are client components). New date helpers
+  in `lib/format-date.ts`: `formatCalendarDayHeading`, `formatCalendarShortWeekday`.
+- **Build on this machine:** `pnpm build` needs `SWC_NATIVE_BINDING_CACHE` pointing at a short path
+  that isn't under `AppData\Local` (SWC refuses a cache whose parent grants rights to an app
+  container SID, and the lock path overflows 260 characters under `node_modules`); used
+  `C:\Users\luisz\.sc`. Not a repo change.
 
 ## Token changes
 

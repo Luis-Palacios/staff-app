@@ -173,6 +173,23 @@ export function formatCalendarRowDate(iso: string, locale: Locale): string {
   return locale === "es" ? text.replace(",", "") : text;
 }
 
+// "Sat" ("sáb"): a day this week, on its own in a narrow column.
+export function formatCalendarShortWeekday(
+  iso: string,
+  locale: Locale,
+): string {
+  return formatCalendarWith(iso, locale, { weekday: "short" });
+}
+
+// "Saturday, November 21" ("sábado, 21 de noviembre"): a day's heading in a dated list.
+export function formatCalendarDayHeading(iso: string, locale: Locale): string {
+  return formatCalendarWith(iso, locale, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 /**
  * A date range: "Oct 20 – Oct 28, 2026" ("20 oct – 28 oct, 2026"), the year once when both ends
  * share it, on each end when they don't. Each end is formatted alone: `formatRange` spaces its

@@ -2,7 +2,11 @@ import type { ApiFetchOptions } from "@/api/api-client";
 import type {
   EmailKinds,
   GroupWatch,
+  NotificationOpened,
   NotificationPreferences,
+  NotificationsMarked,
+  NotificationsPage,
+  UnreadCount,
   WatchedGroups,
 } from "@/api/notifications-api/types";
 
@@ -64,4 +68,43 @@ export function setGroupWatching(
     `/small-groups/${encodeURIComponent(String(groupId))}/watch`,
     { method: "PUT", body: { watching } },
   );
+}
+
+/** Whether in-app notifications are on at the server, and how many entries the caller hasn't
+ *  opened. Never 404 (`enabled: false` instead), so it is the one call that is safe to make first.
+ *  Cached per render: the layout and a page both read it. */
+export const getUnreadCount = cache(
+  (): Promise<UnreadCount> =>
+    request<UnreadCount>("/me/notifications/unread-count"),
+);
+
+/** The caller's entries, newest first. `before` is the previous page's `nextBefore`. 404
+ *  `notifications_disabled` while in-app is off at the server. */
+export function listNotifications(
+  params: { limit?: number; before?: number } = {},
+): Promise<NotificationsPage> {
+  const query = new URLSearchParams();
+
+  if (params.limit !== undefined) query.set("limit", String(params.limit));
+  if (params.before !== undefined) query.set("before", String(params.before));
+
+  const suffix = query.size > 0 ? `?${query}` : "";
+
+  return request<NotificationsPage>(`/me/notifications${suffix}`);
+}
+
+/** Marks one entry read (idempotent) and says where it opens. 404 when it isn't the caller's or
+ *  is gone. Does not reset the conversation email throttle: opening the thread does. */
+export function markNotificationRead(id: number): Promise<NotificationOpened> {
+  return request<NotificationOpened>(
+    `/me/notifications/${encodeURIComponent(String(id))}/read`,
+    { method: "POST" },
+  );
+}
+
+/** Marks every unread entry read. */
+export function markAllNotificationsRead(): Promise<NotificationsMarked> {
+  return request<NotificationsMarked>("/me/notifications/read-all", {
+    method: "POST",
+  });
 }
