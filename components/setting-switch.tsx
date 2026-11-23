@@ -5,21 +5,27 @@ import type { ToggleResult } from "@/app/(app)/_actions/notification-actions";
 import type { ReactNode } from "react";
 
 import { Description, Label, Switch } from "@heroui/react";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 /**
  * A switch that saves on toggle: the new value shows at once, a failed save puts the old one back
  * with the error under the switch. A new `value` from the server (after a revalidate) wins. While a
  * save runs, further toggles wait for it, so two saves never race.
+ *
+ * `failedMessage` is for a call that never reached the action (offline, a 502, a stale action id
+ * after a deploy): the call rejects instead of returning `{ ok: false }`.
  */
 export function useSavedToggle(
   value: boolean,
   save: (next: boolean) => Promise<ToggleResult>,
+  failedMessage: string,
 ) {
   const [shown, setShown] = useState(value);
   const [synced, setSynced] = useState(value);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  // `pending` only changes on the next render, so two clicks in one tick would both pass it.
+  const saving = useRef(false);
 
   if (value !== synced) {
     setSynced(value);
@@ -27,20 +33,28 @@ export function useSavedToggle(
   }
 
   function toggle(next: boolean) {
-    if (pending) return;
+    if (saving.current) return;
 
     const previous = shown;
 
+    saving.current = true;
     setShown(next);
     setError(null);
     startTransition(async () => {
-      const result = await save(next);
+      try {
+        const result = await save(next);
 
-      if (result.ok) {
-        setShown(result.value);
-      } else {
+        if (result.ok) {
+          setShown(result.value);
+        } else {
+          setShown(previous);
+          setError(result.message);
+        }
+      } catch {
         setShown(previous);
-        setError(result.message);
+        setError(failedMessage);
+      } finally {
+        saving.current = false;
       }
     });
   }

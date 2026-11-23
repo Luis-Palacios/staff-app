@@ -21,8 +21,10 @@ function WatchedGroupRow({
   emailsOn: boolean;
 }) {
   const t = useTranslations("NotificationSettings");
-  const watch = useSavedToggle(group.watching, (next) =>
-    setWatching(group.smallGroupId, next),
+  const watch = useSavedToggle(
+    group.watching,
+    (next) => setWatching(group.smallGroupId, next),
+    t("saveFailed"),
   );
 
   return (
@@ -59,7 +61,11 @@ export function NotificationsCard({
   watchedGroups?: WatchedGroup[] | null;
 }) {
   const t = useTranslations("NotificationSettings");
-  const emails = useSavedToggle(conversationEmails, setConversationEmails);
+  const emails = useSavedToggle(
+    conversationEmails,
+    setConversationEmails,
+    t("saveFailed"),
+  );
 
   return (
     <section

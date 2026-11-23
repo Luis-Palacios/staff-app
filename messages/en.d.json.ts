@@ -1234,7 +1234,8 @@ declare const messages: {
     "closedGroup": "Closed",
     "watching": "Watching",
     "watchingHint": "Get an email when a leader comments in this group’s reports.",
-    "emailsOffGroupHint": "Conversation emails are off. Turn them on in <link>My profile</link> to watch groups."
+    "emailsOffGroupHint": "Conversation emails are off. Turn them on in <link>My profile</link> to watch groups.",
+    "saveFailed": "Couldn’t save. Try again."
   },
   "InviteStaffLink": {
     "label": "Invite staff"

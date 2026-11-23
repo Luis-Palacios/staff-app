@@ -1231,7 +1231,8 @@
     "closedGroup": "Cerrado",
     "watching": "Siguiendo",
     "watchingHint": "Recibe un correo cuando un líder comente en los reportes de este grupo.",
-    "emailsOffGroupHint": "Los correos de conversaciones están desactivados. Actívalos en <link>Mi perfil</link> para seguir grupos."
+    "emailsOffGroupHint": "Los correos de conversaciones están desactivados. Actívalos en <link>Mi perfil</link> para seguir grupos.",
+    "saveFailed": "No se pudo guardar. Inténtalo de nuevo."
   },
   "InviteStaffLink": {
     "label": "Invitar al personal"

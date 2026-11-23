@@ -141,14 +141,13 @@ export default async function ReportDetailPage({
   const sectionKey = target === null ? parseSectionParam(section) : null;
   const sectionItems = sectionKey ? reportSectionItems(report, sectionKey) : [];
   let panel: ReactNode = null;
-  // Only asked when a panel can open.
-  const emailsEnabled =
+  // Only asked when a panel can open; started now and awaited with the thread (never rejects).
+  const emailsEnabledPromise =
     conversations !== null && (target !== null || sectionKey !== null)
-      ? await getEmailsEnabled()
-      : false;
+      ? getEmailsEnabled()
+      : Promise.resolve(false);
   const panelProps = {
     closeHref: `/groups/reports/${report.id}`,
-    emailsEnabled,
     groupName: smallGroup.name,
     linked: me.member !== null,
     meetingDate: formatCalendarShortWeekdayDate(meetingDate, typedLocale),
@@ -163,9 +162,10 @@ export default async function ReportDetailPage({
   };
 
   if (conversations !== null && target !== null) {
-    const thread = await getConversation(report.id, target).catch(
-      () => undefined,
-    );
+    const [thread, emailsEnabled] = await Promise.all([
+      getConversation(report.id, target).catch(() => undefined),
+      emailsEnabledPromise,
+    ]);
 
     // No row and no thread: a stale link, so no panel.
     if (thread !== undefined && (personRow || thread)) {
@@ -190,6 +190,7 @@ export default async function ReportDetailPage({
                 }
               : null,
           }}
+          emailsEnabled={emailsEnabled}
           initialThread={thread}
           labels={{
             attended: t("attended"),
@@ -204,9 +205,10 @@ export default async function ReportDetailPage({
   }
 
   if (conversations !== null && sectionKey !== null) {
-    const thread = await getSectionConversation(report.id, sectionKey).catch(
-      () => undefined,
-    );
+    const [thread, emailsEnabled] = await Promise.all([
+      getSectionConversation(report.id, sectionKey).catch(() => undefined),
+      emailsEnabledPromise,
+    ]);
 
     // An empty section with no thread can't start one (rule 14): a stale link, so no panel.
     if (thread !== undefined && (sectionItems.length > 0 || thread)) {
@@ -222,6 +224,7 @@ export default async function ReportDetailPage({
               reportSectionItems(report, key),
             ),
           }}
+          emailsEnabled={emailsEnabled}
           initialThread={thread}
           returnFocusSelector={`[data-conversation-section="${sectionKey}"]`}
         />

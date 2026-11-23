@@ -177,6 +177,11 @@ predates the branch naming rule). Each stage: `pnpm lint`, `pnpm exec tsc --noEm
   The browser's own `/api/auth` calls would carry it as well, so the run can't tell which request
   refreshed; the server render comes first. A curl test that signed a session cookie with
   auth-server's secret was refused by the permission guard and not done.
+- PR #109 review fixes: `useSavedToggle` also reverts when the action call itself rejects
+  (offline, a 502, a stale action id after a deploy), showing `NotificationSettings.saveFailed`
+  ("Couldn't save. Try again."), passed in by the caller; a ref guards re-entry, since `pending`
+  only changes on the next render. Report detail starts `getEmailsEnabled()` early and awaits it
+  with the thread fetch, not before it.
 
 ## Stage 1: Preferences and watch client; My profile; group page
 

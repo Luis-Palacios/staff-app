@@ -23,7 +23,11 @@ export function GroupWatchCard({
   conversationEmails: boolean;
 }) {
   const t = useTranslations("NotificationSettings");
-  const watch = useSavedToggle(watching, (next) => setWatching(groupId, next));
+  const watch = useSavedToggle(
+    watching,
+    (next) => setWatching(groupId, next),
+    t("saveFailed"),
+  );
 
   return (
     <section
