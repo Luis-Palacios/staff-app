@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 import { getLocale } from "next-intl/server";
 
 import { getSectionConversation } from "@/api/conversations-api/client";
+import { getEmailsEnabled } from "@/api/notifications-api/client";
 import { getSmallGroupReport } from "@/api/small-groups-api/client";
 import { isSubmitted } from "@/api/small-groups-api/types";
 import { ConversationPanel } from "@/app/(app)/groups/reports/_components/conversation-panel";
@@ -31,11 +32,12 @@ export async function prayerPanel({
   linked: boolean;
   closeHref: string;
 }): Promise<ReactNode> {
-  const [thread, report, locale] = await Promise.all([
+  const [thread, report, locale, emailsEnabled] = await Promise.all([
     getSectionConversation(entry.reportId, section).catch(() => undefined),
     // For who submitted it and the leaders' roles, as Report detail words them.
     getSmallGroupReport(String(entry.reportId)).catch(() => undefined),
     getLocale(),
+    getEmailsEnabled(),
   ]);
   const items = entry.sections[section];
 
@@ -59,6 +61,7 @@ export async function prayerPanel({
         nameItems: Object.values(entry.sections).flat(),
       }}
       closeHref={closeHref}
+      emailsEnabled={emailsEnabled}
       groupName={entry.smallGroup.name}
       initialThread={thread}
       linked={linked}

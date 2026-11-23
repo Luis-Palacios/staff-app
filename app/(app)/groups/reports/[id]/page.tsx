@@ -29,6 +29,7 @@ import {
   listReportConversations,
 } from "@/api/conversations-api/client";
 import { getMe } from "@/api/members-api/client";
+import { getEmailsEnabled } from "@/api/notifications-api/client";
 import { getSmallGroup } from "@/api/small-groups-api/client";
 import { isSubmitted } from "@/api/small-groups-api/types";
 import { SavedToast } from "@/components/saved-toast";
@@ -140,8 +141,14 @@ export default async function ReportDetailPage({
   const sectionKey = target === null ? parseSectionParam(section) : null;
   const sectionItems = sectionKey ? reportSectionItems(report, sectionKey) : [];
   let panel: ReactNode = null;
+  // Only asked when a panel can open.
+  const emailsEnabled =
+    conversations !== null && (target !== null || sectionKey !== null)
+      ? await getEmailsEnabled()
+      : false;
   const panelProps = {
     closeHref: `/groups/reports/${report.id}`,
+    emailsEnabled,
     groupName: smallGroup.name,
     linked: me.member !== null,
     meetingDate: formatCalendarShortWeekdayDate(meetingDate, typedLocale),

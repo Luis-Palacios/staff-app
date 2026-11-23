@@ -28,6 +28,16 @@ export const getNotificationPreferences = cache(
     request<NotificationPreferences>("/me/notification-preferences"),
 );
 
+/** Whether emails are on at the server, for the panel's composer note. A failed call counts as off:
+ *  the note then says who sees the conversation, which is always true. */
+export const getEmailsEnabled = cache(
+  (): Promise<boolean> =>
+    getNotificationPreferences().then(
+      (preferences) => preferences.emailsEnabled,
+      () => false,
+    ),
+);
+
 export function updateNotificationPreferences(input: {
   conversationEmails: boolean;
 }): Promise<NotificationPreferences> {

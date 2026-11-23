@@ -45,6 +45,8 @@ import {
   resolveConversationAction,
 } from "@/app/(app)/groups/reports/_actions/conversation-actions";
 import { initialsOf } from "@/components/initials-avatar";
+import { can } from "@/lib/auth/permissions";
+import { usePermissions } from "@/lib/contexts/user-context";
 import { personAnchor } from "@/lib/conversation-format";
 import { textLink } from "@/components/primitives";
 import { ReportSectionTile } from "@/components/report-section-tile";
@@ -181,6 +183,7 @@ export function ConversationPanel({
   anchor,
   initialThread,
   linked,
+  emailsEnabled,
   roleByMember,
   closeHref,
   returnFocusSelector,
@@ -197,6 +200,8 @@ export function ConversationPanel({
   initialThread: ConversationThread | null;
   /** False for an admin or elder with no linked member: they can read, not write (rule 5). */
   linked: boolean;
+  /** Emails on at the server: the composer note says who gets one, instead of who sees it. */
+  emailsEnabled: boolean;
   /** Leader / co-leader of the group, by member id, to word the leaders' side. */
   roleByMember: Record<number, "leader" | "co_leader">;
   closeHref: string;
@@ -211,6 +216,8 @@ export function ConversationPanel({
   const locale = useLocale();
   const router = useRouter();
   const isDesktop = useIsDesktop();
+  // The viewer's side (rule 6): `smallGroups: all` writes on the elders' side.
+  const eldersSide = can(usePermissions(), { smallGroups: ["all"] });
   const [thread, setThread] = useState(initialThread);
   const [error, setError] = useState<{ kind: string; message: string } | null>(
     null,
@@ -654,11 +661,22 @@ export function ConversationPanel({
       {linked ? (
         <ConversationComposer
           isPending={isPending}
+          // With emails on, who gets one; names aren't listed, since throttling, opt-outs and
+          // unwatching decide the exact recipients (Part 2, Stage 2).
           note={
-            resolved
-              ? `${t("audienceNote")} ${t("reopenNote")}`
-              : t("audienceNote")
+            !emailsEnabled
+              ? resolved
+                ? `${t("audienceNote")} ${t("reopenNote")}`
+                : t("audienceNote")
+              : !thread
+                ? eldersSide
+                  ? t("emailNoteNew")
+                  : t("emailNoteLeaderNew")
+                : resolved
+                  ? t("emailNoteResolved")
+                  : t("emailNoteReply")
           }
+          noteIcon={emailsEnabled ? "mail" : "eye"}
           placeholder={
             resolved
               ? t("placeholderResolved")

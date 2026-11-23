@@ -80,8 +80,8 @@ predates the branch naming rule). Each stage: `pnpm lint`, `pnpm exec tsc --noEm
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 0. Handoff rewritten to the Nov 2026 design | ✅ | `76cb749` |
-| 1. Preferences and watch client; My profile switch and Watched groups; Watching on `/groups/[id]` | ✅ | (this commit) |
-| 2. Panel note: who gets an email | ⬜ | |
+| 1. Preferences and watch client; My profile switch and Watched groups; Watching on `/groups/[id]` | ✅ | `a4501c4` |
+| 2. Panel note: who gets an email | ✅ | (this commit) |
 | 3. Email links: sign-in return and the phone panel (`?person=`, `?guest=`, `?section=`) | ⬜ | |
 | 4. Language: save the pick on the user; `getSession()` forwards `accept-language` | ⬜ | |
 
@@ -124,6 +124,21 @@ predates the branch naming rule). Each stage: `pnpm lint`, `pnpm exec tsc --noEm
 - Stage 1 checks (browser-verifier; the window wouldn't resize, so 1024/390 ran in same-origin
   iframes): admin (all 7 groups, persistence, emails-off disabling, group page card and link, ES,
   dark), group 1's leader (only the global switch, no card on `/groups/1`, 390, dark). Console clean.
+- Stage 2: `emailsEnabled` reaches the panel as a prop from its two servers (Report detail, only when
+  a panel can open; the Prayer & follow-up panel), through `getEmailsEnabled()` (cached; a failed
+  call counts as off, so the note falls back to who sees it, always true). The viewer's side is
+  `smallGroups: all` (rule 6) from `usePermissions()`. All four email notes use the mail icon
+  (`EnvelopeIcon`; the composer's `noteIcon`), the leaders' one included now that watchers get an
+  email; with emails off the note and eye icon are unchanged. Names aren't listed: the staff app
+  can't know the recipients after throttling, opt-outs and unwatching, and a general sentence is
+  always true. The canvas's `ThreadPanel` still shows the old leaders' note ("No email is sent",
+  eye icon) and names in the other notes; its board needs the new wording.
+- Stage 2 checks (browser-verifier, read-only): admin on a new, an open, a resolved person thread
+  and a resolved prayer thread (texts, envelope icon, ES, 1629 / 1024 / 390 in iframes, dark);
+  group 1's leader on a new and an open thread (texts, icon, ES). Not checked live: the emails-off
+  fallback (needs the API restarted with the kill switch off). During the admin run the verifier
+  mis-clicked **Reopen** on thread 6 (report 4, member 46); no outbox event (reopen without a
+  comment sends nothing), the thread was left open (dev data).
 
 ## Stage 1: Preferences and watch client; My profile; group page
 
@@ -201,7 +216,7 @@ Stage 1 (as built): `NotificationSettings` (client namespace) holds `eyebrow` (E
 | --- | --- | --- |
 | `Conversations.emailNoteNew` / `emailNoteLeaderNew` / `emailNoteReply` / `emailNoteResolved` | (table in Stage 2) | (table in Stage 2) |
 
-Use the real namespace names where these guessed ones differ; note it.
+Stage 2 kept these four names (the `Conversations` namespace, already a client one).
 
 ## Not in this spec
 

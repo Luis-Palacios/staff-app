@@ -3,7 +3,7 @@
 import type { Ref } from "react";
 
 import { Button } from "@heroui/react";
-import { EyeIcon } from "@heroicons/react/24/outline";
+import { EnvelopeIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { useTranslations } from "next-intl";
 
 const MAX_LENGTH = 4000;
@@ -18,6 +18,7 @@ export function ConversationComposer({
   placeholder,
   submitLabel,
   note,
+  noteIcon = "eye",
   isPending,
   textareaRef,
 }: {
@@ -28,12 +29,15 @@ export function ConversationComposer({
   submitLabel: string;
   /** Who sees it (and "Replying reopens it."), already assembled. */
   note: string;
+  /** `eye`: who sees it; `mail`: who gets an email (emails on). */
+  noteIcon?: "eye" | "mail";
   isPending: boolean;
   textareaRef: Ref<HTMLTextAreaElement>;
 }) {
   const t = useTranslations("Conversations");
   const trimmed = value.trim().length;
   const canSend = trimmed > 0 && trimmed <= MAX_LENGTH && !isPending;
+  const NoteIcon = noteIcon === "mail" ? EnvelopeIcon : EyeIcon;
 
   return (
     <form
@@ -76,7 +80,7 @@ export function ConversationComposer({
       )}
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         <span className="flex min-w-[200px] flex-1 items-start gap-[7px] text-[12.5px] leading-snug text-muted">
-          <EyeIcon
+          <NoteIcon
             aria-hidden="true"
             className="mt-px size-[15px] shrink-0"
             strokeWidth={1.8}
