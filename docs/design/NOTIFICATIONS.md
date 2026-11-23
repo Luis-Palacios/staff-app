@@ -46,8 +46,8 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
 | 0. This handoff | ✅ | `87401c1` |
 | 1. API client, types, entry view model and messages | ✅ | `8daeb3b` |
 | 2. Bell, count, refresh and app badge | ✅ | `08867e9` |
-| 3. The popover | ✅ | (next commit) |
-| 4. `/notifications` page and `/notifications/open/[id]` | ⬜ | |
+| 3. The popover | ✅ | `46ef29b` |
+| 4. `/notifications` page and `/notifications/open/[id]` | ✅ | (next commit) |
 | 5. Watching switches (rule 7) and docs | ⬜ | |
 
 ### Decisions and deviations
@@ -77,6 +77,15 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
   stands in for the board's unread tint (see *Token changes*). **Not looked at in a browser** (no
   browser checks in this stage's brief): the popover's open/close, focus return and placement are for
   the browser check.
+- **Stage 4:** the open route is a `GET` (a link can't `POST`) that makes the `POST` to the API; a
+  GET that marks something read is accepted because it only touches the caller's own entry and is
+  idempotent, and links use `prefetch={false}` so nothing marks by being visible. The redirect is a
+  307 with a relative `Location`, so it doesn't depend on the host the server thinks it has. The
+  page needs no `loading.tsx` of its own (the shell's covers it) and no error state of its own (a
+  failed read goes to `app/(app)/error.tsx`); it is a 404 while in-app is off. *Show more* and
+  *Mark all read* are server actions; *Mark all read* also tells the bell (a window event) to read
+  the count again. The page's rows show the clock time; the board's Spanish "9:41 a. m." is
+  `Intl`'s "9:41" in 24 hours here.
 - **Build on this machine:** `pnpm build` needs `SWC_NATIVE_BINDING_CACHE` pointing at a short path
   that isn't under `AppData\Local` (SWC refuses a cache whose parent grants rights to an app
   container SID, and the lock path overflows 260 characters under `node_modules`); used
