@@ -37,7 +37,7 @@ export async function MyNotifications({
   if (!canSeeConversations && !canReceiveReminders) return null;
 
   const watcher = canSeeConversations && canWatchGroups(permissions);
-  // Both start at once; the list is only read when a kind of email is on.
+  // Both start at once; the list is only read when a watch-related kind of email is on.
   const watched = watcher ? settle(getWatchedGroups()) : null;
   const preferences = await settle(getNotificationPreferences());
 
@@ -50,7 +50,10 @@ export async function MyNotifications({
 
   if (!showConversations && !showSubmitted && !showReminders) return null;
 
-  const list = watched ? await watched : null;
+  // The Watched groups list belongs to conversations and submitted reports (rule 14): with neither
+  // switch shown, a card that holds only *Weekly report reminders* leaves it out.
+  const list =
+    watched && (showConversations || showSubmitted) ? await watched : null;
 
   return (
     <NotificationsCard

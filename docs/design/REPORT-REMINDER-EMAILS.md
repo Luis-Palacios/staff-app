@@ -34,7 +34,9 @@ Branch **`feature/report-reminder-emails`**. Each stage: `pnpm lint`, `pnpm exec
 | 0. Handoff (written by the workspace session; the subagent's write was refused) | ✅ | `6fb4743` |
 | 1. Types and server action | ✅ | `2fb74e8` |
 | 2. My profile switch and copy | ✅ | `78c83fb` |
-| Review fix: `leadsGroup` from open-group periods, not `leadIds` | ✅ | commit after `6fb4743` |
+| Review fix: `leadsGroup` from open-group periods, not `leadIds` | ✅ | `6cc65f4` |
+| Browser checks and build recorded | ✅ | `bc8db7e` |
+| PR #112 bot review: hide the Watched groups list when only reminders show; client doc comment | ✅ | commit after `bc8db7e` |
 
 ### Browser checks (Nov 23, 2026, local, `browser-verifier`)
 
@@ -69,7 +71,10 @@ process serving; a full restart of the API fixed it (environment, not code).
 - `MyNotifications` no longer returns early unless the caller sees conversations: it returns null
   only when the caller sees neither conversations nor reminders. `showConversations` and the
   watcher check carry `canSeeConversationsInbox` themselves, so the existing switches and the
-  Watching list behave as before. New required prop `leadsGroup`.
+  Watching list behave as before. New required prop `leadsGroup`. The Watched groups list is read
+  and shown only when *Conversations* or *Submitted reports* shows (PR #112 bot review): before,
+  the early return guaranteed it; now a card can hold only *Weekly report reminders*, and the list
+  would otherwise render disabled with no switch to turn it on.
 - `pnpm build` could not run in the implementing session (SWC native cache ACL error on the
   machine), so `messages/en.d.json.ts` was updated by hand with the two new keys; a normal build
   regenerates it identically. `pnpm build` was then run from the user's own terminal (the SWC

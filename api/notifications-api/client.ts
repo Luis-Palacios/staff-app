@@ -39,7 +39,7 @@ export const getConversationEmailsAvailable = cache(
     ),
 );
 
-/** Any subset of the two keys; the server answers 422 for anything else. */
+/** Any subset of the three keys; the server answers 422 for anything else. */
 export function updateNotificationPreferences(input: {
   email: Partial<EmailKinds>;
 }): Promise<NotificationPreferences> {
