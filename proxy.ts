@@ -5,6 +5,11 @@ import { getSessionCookie } from "better-auth/cookies";
 
 import { getSession } from "@/api/auth-api/client";
 import { getEnv } from "@/lib/env/server";
+import {
+  RETURN_PATH_HEADER,
+  safeReturnPath,
+  signInHref,
+} from "@/lib/return-path";
 
 // better-auth's endpoints, forwarded to auth-server. Done here rather than in next.config.mjs's
 // rewrites() because those are evaluated once at `next build` and frozen into
@@ -58,7 +63,11 @@ async function handleSessionCookieOnPublicPath(request: NextRequest) {
   }
 
   if (session) {
-    return NextResponse.redirect(new URL("/", request.url));
+    // Signed in after all: straight to where `?next=` was going (an email link), else the dashboard.
+    const next =
+      safeReturnPath(request.nextUrl.searchParams.get("next")) ?? "/";
+
+    return NextResponse.redirect(new URL(next, request.url));
   }
 
   const response = NextResponse.next();
@@ -96,15 +105,26 @@ export async function proxy(request: NextRequest) {
   const hasSessionCookie = Boolean(getSessionCookie(request));
   const isPublicPath = PUBLIC_PATHS.has(request.nextUrl.pathname);
 
+  const { pathname, search } = request.nextUrl;
+
   if (!hasSessionCookie && !isPublicPath) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+    // Keeps the page asked for (an email's `?person=`, `?guest=`, `?section=`) through sign-in.
+    return NextResponse.redirect(
+      new URL(signInHref(pathname + search), request.url),
+    );
   }
 
   if (hasSessionCookie && isPublicPath) {
     return handleSessionCookieOnPublicPath(request);
   }
 
-  return NextResponse.next();
+  // A cookie whose session turns out to be gone is sent to sign-in by requireStaffSession(), which
+  // can't see the URL: it reads it from here. Always overwritten, so a client can't supply it.
+  const headers = new Headers(request.headers);
+
+  headers.set(RETURN_PATH_HEADER, pathname + search);
+
+  return NextResponse.next({ request: { headers } });
 }
 
 export const config = {

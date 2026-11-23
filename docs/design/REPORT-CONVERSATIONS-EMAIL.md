@@ -81,8 +81,8 @@ predates the branch naming rule). Each stage: `pnpm lint`, `pnpm exec tsc --noEm
 | --- | --- | --- |
 | 0. Handoff rewritten to the Nov 2026 design | ✅ | `76cb749` |
 | 1. Preferences and watch client; My profile switch and Watched groups; Watching on `/groups/[id]` | ✅ | `a4501c4` |
-| 2. Panel note: who gets an email | ✅ | (this commit) |
-| 3. Email links: sign-in return and the phone panel (`?person=`, `?guest=`, `?section=`) | ⬜ | |
+| 2. Panel note: who gets an email | ✅ | `3a0bb3d` |
+| 3. Email links: sign-in return and the phone panel (`?person=`, `?guest=`, `?section=`) | ✅ | (this commit) |
 | 4. Language: save the pick on the user; `getSession()` forwards `accept-language` | ⬜ | |
 
 ### Decisions and deviations
@@ -139,6 +139,28 @@ predates the branch naming rule). Each stage: `pnpm lint`, `pnpm exec tsc --noEm
   fallback (needs the API restarted with the kill switch off). During the admin run the verifier
   mis-clicked **Reopen** on thread 6 (report 4, member 46); no outbox event (reopen without a
   comment sends nothing), the thread was left open (dev data).
+- Stage 3: there was **no** return target before: `proxy.ts` and `requireStaffSession()` sent a
+  signed-out visitor to a bare `/sign-in` and the form always went to `/`. Now both send
+  `/sign-in?next=<path+query>` (`signInHref()`, `lib/return-path.ts`); `/` gets no `next`. The
+  proxy covers "no cookie"; a cookie whose session is gone reaches `requireStaffSession()`, which
+  can't see the URL, so the proxy passes the path in the `x-ekk-return-path` request header
+  (always overwritten, so a client can't set it, and checked again on read). The sign-in page
+  checks `next` and the form returns there; a visitor already signed in who opens
+  `/sign-in?next=…` goes straight there (the proxy's public-page branch).
+- Stage 3: `safeReturnPath()` accepts only a same-origin relative path: no `//`, no backslash, no
+  control characters, no `/api/`, no auth page, and the **normalised** path is checked again
+  (`/..//evil.com` normalises to `//evil.com`, which the first draft let through). Cases in
+  `lib/return-path.test.ts` (`node --test`, like the other `lib/*.test.ts`).
+- Stage 3: `useIsDesktop()` returns `null` on the server and during hydration and the panel renders
+  nothing until it knows the width; the focus effect already re-ran on `isDesktop`, so focus lands
+  on the heading once the shell appears. Opening from a link marks the thread read (unchanged).
+- Stage 3 checks (browser-verifier, plus Luis signing in): no panel in the server HTML; desktop side
+  panel and phone sheet (390 iframe) for a person, a guest and a section link, the side panel
+  never rendered on the phone, focus on the heading; the read row written on open (leader, thread
+  9; admin, guest thread 11); a stale cookie (the leader's sessions deleted in the auth dev DB) and
+  no cookie both land on `/sign-in?next=…` for `?guest=` and `?section=`, `/` on bare `/sign-in`;
+  `next=/..//evil.com` ignored; Luis signed in on the guest link's sign-in page and landed on
+  `/groups/reports/51?guest=8` with the panel open.
 
 ## Stage 1: Preferences and watch client; My profile; group page
 

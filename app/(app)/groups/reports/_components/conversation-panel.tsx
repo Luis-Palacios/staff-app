@@ -92,11 +92,13 @@ function subscribe(callback: () => void) {
   return () => query.removeEventListener("change", callback);
 }
 
-function useIsDesktop() {
-  return useSyncExternalStore(
+// `null` on the server and during hydration: the width isn't known yet, so neither shell renders.
+// Guessing desktop made a phone opening an email link flash the side panel before the sheet.
+function useIsDesktop(): boolean | null {
+  return useSyncExternalStore<boolean | null>(
     subscribe,
     () => window.matchMedia(DESKTOP_QUERY).matches,
-    () => true,
+    () => null,
   );
 }
 
@@ -262,7 +264,8 @@ export function ConversationPanel({
     // Once per opened anchor.
   }, [id]);
 
-  // Focus: the heading when there's a thread to read, the composer when empty.
+  // Focus: the heading when there's a thread to read, the composer when empty. Runs again once the
+  // shell exists (`isDesktop` leaves `null`) and when it switches.
   useEffect(() => {
     const target = initialThread ? headingRef.current : composerRef.current;
 
@@ -702,6 +705,9 @@ export function ConversationPanel({
       )}
     </>
   );
+
+  // The page under the panel renders as usual; the panel waits for the width.
+  if (isDesktop === null) return null;
 
   if (isDesktop) {
     return (

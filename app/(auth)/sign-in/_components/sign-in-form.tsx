@@ -24,9 +24,12 @@ import { useAuthErrorMessage } from "@/lib/auth/use-auth-error-message";
 export function SignInForm({
   initialEmail,
   notice,
+  returnTo,
 }: {
   initialEmail: string | null;
   notice: string | null;
+  /** Where to go once signed in: `?next=` checked by `safeReturnPath()`, else `/`. */
+  returnTo: string;
 }) {
   const t = useTranslations("SignInForm");
   const authErrorMessage = useAuthErrorMessage();
@@ -57,7 +60,7 @@ export function SignInForm({
       return;
     }
 
-    router.push("/");
+    router.push(returnTo);
   }
 
   if (session.isPending || session.data) {
