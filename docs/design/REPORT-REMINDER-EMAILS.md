@@ -31,9 +31,10 @@ Branch **`feature/report-reminder-emails`**. Each stage: `pnpm lint`, `pnpm exec
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 0. Handoff (written by the workspace session; the subagent's write was refused) | ✅ | (this commit) |
+| 0. Handoff (written by the workspace session; the subagent's write was refused) | ✅ | `6fb4743` |
 | 1. Types and server action | ✅ | `2fb74e8` |
 | 2. My profile switch and copy | ✅ | `78c83fb` |
+| Review fix: `leadsGroup` from open-group periods, not `leadIds` | ✅ | commit after `6fb4743` |
 
 ### Decisions and deviations
 
@@ -66,7 +67,12 @@ Branch **`feature/report-reminder-emails`**. Each stage: `pnpm lint`, `pnpm exec
 `_components/notifications-card.tsx`, `messages/en.json`, `messages/es.json`,
 `messages/en.d.json.ts`.
 
-- `page.tsx` passes `leadsGroup={leadIds.size > 0}` to both `MyNotifications` calls.
+- `page.tsx` passes `leadsGroup`: `false` without a linked member, otherwise whether
+  `member.smallGroups` (current periods only) has a `leader` or `co_leader` row. **Deviation from
+  the spec's contract text** (`leadIds.size > 0`): `leadIds` comes from `GET /me` `leads`, which also
+  keeps groups the person led when they closed (the read scope), so a former leader would see a
+  switch the worker never honours (rule 5). Rule 13 ("actively leads or co-leads an open group")
+  wins; the spec line is corrected in the workspace.
 - `MyNotifications`: `canReceiveReminders = leadsGroup && can(permissions, REPORT_REMINDER_CHECK)`;
   `showReminders = canReceiveReminders && available.reportReminder`; the card renders when
   `showConversations || showSubmitted || showReminders`.

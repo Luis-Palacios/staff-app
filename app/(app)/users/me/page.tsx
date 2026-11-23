@@ -44,15 +44,19 @@ export default async function MyProfilePage({
               churchName={church.name}
               userId={user.id}
             />
-            <MyNotifications
-              leadsGroup={leadIds.size > 0}
-              permissions={permissions}
-            />
+            {/* No linked member, so no group to lead: the worker never reminds them. */}
+            <MyNotifications leadsGroup={false} permissions={permissions} />
           </div>
         </div>
       </>
     );
   }
+
+  // Rule 13: actively leads or co-leads an open group. `member.smallGroups` holds only current
+  // periods (closing a group ends them), unlike `leadIds`, which keeps groups led when they closed.
+  const leadsOpenGroup = member.smallGroups.some(
+    (group) => group.role === "leader" || group.role === "co_leader",
+  );
 
   return (
     <>
@@ -74,7 +78,7 @@ export default async function MyProfilePage({
           />
           <MyAccountCard user={user} />
           <MyNotifications
-            leadsGroup={leadIds.size > 0}
+            leadsGroup={leadsOpenGroup}
             permissions={permissions}
           />
         </div>
