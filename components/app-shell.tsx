@@ -1,5 +1,6 @@
 "use client";
 
+import type { UnreadCount } from "@/api/notifications-api/types";
 import type { ConversationsSignal } from "@/components/sidebar";
 import type { ChurchContext } from "@/config/site";
 import type { Locale } from "@/lib/locale-shared";
@@ -15,6 +16,8 @@ type AppShellProps = {
   locale: Locale;
   /** The sidebar's Conversations number and unread dot. */
   conversations: ConversationsSignal;
+  /** The top bar bell's starting count (and whether the bell shows at all). */
+  notifications: UnreadCount;
 };
 
 export const AppShell = ({
@@ -22,6 +25,7 @@ export const AppShell = ({
   context,
   locale,
   conversations,
+  notifications,
 }: AppShellProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -48,6 +52,7 @@ export const AppShell = ({
         <Topbar
           context={context}
           locale={locale}
+          notifications={notifications}
           onMenuClick={() => setIsSidebarOpen(true)}
         />
         <main className="mx-auto w-full flex-1 px-4 py-6 sm:px-6 lg:px-8">

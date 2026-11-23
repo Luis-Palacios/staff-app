@@ -44,8 +44,8 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
 | Stage | Status | Commit |
 | --- | --- | --- |
 | 0. This handoff | ✅ | `87401c1` |
-| 1. API client, types, entry view model and messages | ✅ | (next commit) |
-| 2. Bell, count, refresh and app badge | ⬜ | |
+| 1. API client, types, entry view model and messages | ✅ | `8daeb3b` |
+| 2. Bell, count, refresh and app badge | ✅ | (next commit) |
 | 3. The popover | ⬜ | |
 | 4. `/notifications` page and `/notifications/open/[id]` | ⬜ | |
 | 5. Watching switches (rule 7) and docs | ⬜ | |
@@ -60,6 +60,13 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
   the app, so Spanish reads "18:00", where the board drew "9:41 a. m.". The `Notifications`
   namespace is a client namespace (bell, popover and list are client components). New date helpers
   in `lib/format-date.ts`: `formatCalendarDayHeading`, `formatCalendarShortWeekday`.
+- **Stage 2:** the Conversations badge does not actually refresh on navigation or focus (the layout
+  isn't re-rendered by soft navigation; its number changes only when an action revalidates), so
+  there was nothing to copy: the bell's count is client state (`lib/notifications/use-unread-count.ts`)
+  that starts from the layout's read and is read again through a server action. Until Stage 3 the
+  bell is a link to `/notifications` at every width. The layout hides the bell when its read fails.
+  The gold count is raw brand `gold-500` / `navy-900` (as the sidebar's badge), its ring
+  `border-background`, turning `surface-secondary` on hover and while open.
 - **Build on this machine:** `pnpm build` needs `SWC_NATIVE_BINDING_CACHE` pointing at a short path
   that isn't under `AppData\Local` (SWC refuses a cache whose parent grants rights to an app
   container SID, and the lock path overflows 260 characters under `node_modules`); used

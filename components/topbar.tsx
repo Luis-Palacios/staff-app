@@ -1,5 +1,6 @@
 "use client";
 
+import type { UnreadCount } from "@/api/notifications-api/types";
 import type { ChurchContext } from "@/config/site";
 import type { Locale } from "@/lib/locale-shared";
 
@@ -30,6 +31,7 @@ import { EkklesiaioMark } from "@/components/brand/ekklesiaio-logo";
 import { MenuIcon } from "@/components/icons";
 import { InitialsAvatar, initialsOf } from "@/components/initials-avatar";
 import { MemberSearch } from "@/components/member-search";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { StatusBadge } from "@/components/status-badge";
 import { useCurrentUser, usePermissions } from "@/lib/contexts/user-context";
 import { authClient } from "@/lib/auth/auth-client";
@@ -41,6 +43,8 @@ interface TopbarProps {
   context: ChurchContext;
   /** Resolved on the server (lib/locale.ts); never read from the cookie here. */
   locale: Locale;
+  /** The bell's starting count; the bell is left out while in-app notifications are off. */
+  notifications: UnreadCount;
   onMenuClick: () => void;
 }
 
@@ -96,7 +100,12 @@ function useIsMac() {
   return isMac;
 }
 
-export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
+export const Topbar = ({
+  context,
+  locale,
+  notifications,
+  onMenuClick,
+}: TopbarProps) => {
   const { ministry, church } = context;
   const t = useTranslations("AccountMenu");
   const tTopbar = useTranslations("Topbar");
@@ -241,6 +250,7 @@ export const Topbar = ({ context, locale, onMenuClick }: TopbarProps) => {
         <div className="hidden sm:block">
           <ThemeSwitch />
         </div>
+        <NotificationBell initial={notifications} />
         <Dropdown.Root>
           <Dropdown.Trigger
             aria-label={t("trigger", { name: currentUser.name })}
