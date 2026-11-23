@@ -51,6 +51,7 @@ import { personAnchor } from "@/lib/conversation-format";
 import { textLink } from "@/components/primitives";
 import { ReportSectionTile } from "@/components/report-section-tile";
 import { StatusBadge } from "@/components/status-badge";
+import { notifyNotificationsChanged } from "@/lib/notifications/use-unread-count";
 
 export interface ConversationPanelPerson {
   /** A member or a guest; its name is the panel's heading. */
@@ -258,8 +259,11 @@ export function ConversationPanel({
   // divider keeps showing from the thread loaded here.
   useEffect(() => {
     if (initialThread) {
-      // The row's dot updates when the panel closes and the page renders again.
-      void markConversationReadAction(initialThread.id);
+      // The row's dot updates when the panel closes and the page renders again. The API also marks
+      // this thread's notification entries read (notifications rule 13), so the bell reads again.
+      void markConversationReadAction(initialThread.id).then((result) => {
+        if (result.ok) notifyNotificationsChanged();
+      });
     }
     // Once per opened anchor.
   }, [id]);

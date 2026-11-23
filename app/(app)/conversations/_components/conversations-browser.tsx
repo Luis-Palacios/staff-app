@@ -25,6 +25,7 @@ import { EmptyState } from "@/components/empty-state";
 import { DoubleCheckIcon } from "@/components/icons";
 import { StatusTabs } from "@/components/status-tabs";
 import { showToast } from "@/components/toast-host";
+import { notifyNotificationsChanged } from "@/lib/notifications/use-unread-count";
 import {
   DEFAULT_RESOLVED_PERIOD,
   RESOLVED_PERIODS,
@@ -242,6 +243,8 @@ export function ConversationsBrowser({
       const result = await markAllConversationsReadAction(groupId);
 
       if (result.ok) {
+        // The API also marked those threads' notification entries read (rule 13): the bell reads again.
+        notifyNotificationsChanged();
         showToast(t("markedToast", { count: result.marked }));
         listRef.current?.focus();
       } else {

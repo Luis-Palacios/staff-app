@@ -29,6 +29,7 @@ export function useUnreadCount(initial: UnreadCount): UnreadCount {
   const [synced, setSynced] = useState(initial);
   const pathname = usePathname();
   const lastRead = useRef(0);
+  const trailing = useRef<ReturnType<typeof setTimeout> | null>(null);
   const firstRun = useRef(true);
 
   if (initial !== synced) {
@@ -38,9 +39,23 @@ export function useUnreadCount(initial: UnreadCount): UnreadCount {
 
   const refresh = useCallback((force: boolean) => {
     const now = Date.now();
+    const wait = MIN_GAP_MS - (now - lastRead.current);
 
-    if (!force && now - lastRead.current < MIN_GAP_MS) return;
+    // Too soon after the last read: read once more when the gap ends, so an event inside the gap
+    // is never lost (one pending read at most).
+    if (!force && wait > 0) {
+      trailing.current ??= setTimeout(() => {
+        trailing.current = null;
+        refresh(true);
+      }, wait);
 
+      return;
+    }
+
+    if (trailing.current) {
+      clearTimeout(trailing.current);
+      trailing.current = null;
+    }
     lastRead.current = now;
     loadUnreadCount()
       .then((next) => {
@@ -75,6 +90,8 @@ export function useUnreadCount(initial: UnreadCount): UnreadCount {
       window.removeEventListener("focus", onFocus);
       window.removeEventListener(CHANGED, onChanged);
       document.removeEventListener("visibilitychange", onVisible);
+      if (trailing.current) clearTimeout(trailing.current);
+      trailing.current = null;
     };
   }, [refresh]);
 

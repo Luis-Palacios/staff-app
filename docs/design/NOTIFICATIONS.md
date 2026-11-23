@@ -54,6 +54,16 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
 `pnpm exec tsc --noEmit` and `pnpm build` pass. Review fixes: `7a0909d`; the bell label fix below
 is in the commit that adds this section.
 
+### PR #114 bot review (fixed)
+
+- **Throttled refresh lost events:** a navigation or focus within 2 s of the last read was dropped,
+  so the bell could stay stale. It now schedules one trailing read when the gap ends (cleared on
+  unmount).
+- **Opening a thread didn't refresh the bell:** rule 13 marks the thread's entries read in the API,
+  but the bell only re-read on navigation or focus. The conversation panel (after
+  `markConversationReadAction`) and the inbox's *Mark all read* now call
+  `notifyNotificationsChanged()`.
+
 ### Browser checks (Nov 23, 2026, local, `browser-verifier`)
 
 Signed in as an admin; membership-management with `IN_APP_NOTIFICATIONS_ENABLED`,
