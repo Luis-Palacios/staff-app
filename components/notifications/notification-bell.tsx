@@ -9,7 +9,6 @@ import { useTranslations } from "next-intl";
 import {
   bellButtonClass,
   BellFace,
-  formatBellCount,
 } from "@/components/notifications/bell-face";
 import { NotificationPopover } from "@/components/notifications/notification-popover";
 import { useUnreadCount } from "@/lib/notifications/use-unread-count";
@@ -26,11 +25,10 @@ export function NotificationBell({ initial }: { initial: UnreadCount }) {
 
   if (!enabled) return null;
 
-  // "Notifications, 3 unread", or "Notifications" at 0.
+  // "Notifications, 3 unread", or "Notifications" at 0. The label says the real number; only the
+  // badge, where space is short, caps at "99+".
   const label =
-    unread > 0
-      ? t("bellUnread", { count: formatBellCount(unread) })
-      : t("bell");
+    unread > 0 ? t("bellUnread", { count: String(unread) }) : t("bell");
 
   return (
     <>

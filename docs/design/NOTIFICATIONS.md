@@ -50,8 +50,37 @@ below. A stage's hash is filled in by the next stage's commit (a commit can't co
 | 4. `/notifications` page and `/notifications/open/[id]` | ✅ | `daeb250` |
 | 5. Watching switches (rule 7) and docs | ✅ | `c3e6361` |
 
-**Status: built, not yet checked in a browser or design-reviewed** (Nov 23, 2026). `pnpm lint`,
-`pnpm exec tsc --noEmit` and `pnpm build` pass. The design review checklist below is still open.
+**Status: built, reviewed and browser-checked** (Nov 23, 2026). `pnpm lint`,
+`pnpm exec tsc --noEmit` and `pnpm build` pass. Review fixes: `7a0909d`; the bell label fix below
+is in the commit that adds this section.
+
+### Browser checks (Nov 23, 2026, local, `browser-verifier`)
+
+Signed in as an admin; membership-management with `IN_APP_NOTIFICATIONS_ENABLED`,
+`CONVERSATION_EMAILS_ENABLED` and `REPORT_SUBMITTED_EMAILS_ENABLED` on. Test entries were inserted
+straight into `user_notifications` (one per copy variant, one unknown template, 100 older fillers,
+4 unread), then deleted. The Chrome window would not resize: "1440" ran at 1536, and 1024 / 390 ran
+in a same-origin iframe at those widths.
+
+| Check | Result |
+| --- | --- |
+| Bell: gold count, label "Notifications, 4 unread" / "Notificaciones, 4 sin leer", light and dark | PASS |
+| Bell at 100 unread: badge "99+" | PASS |
+| Bell label at 100 unread | FAIL → fixed: it said "99+ unread"; now the real count (not re-run in the browser) |
+| Popover (1536, 1036): newest first, unread dots, opening marks nothing, Esc / outside / second click close, Esc returns focus, es strings | PASS |
+| Narrow (386): bell links to `/notifications`, no popover, no horizontal scroll | PASS |
+| `/notifications`: title, subtitle, unread line, Today / Yesterday / dated groups, en and es, light and dark, unknown template skipped | PASS |
+| *Show more*: 109 rows, no duplicates, button disappears on the last page | PASS |
+| Open route by click: marks read, lands on the entry's path; bad ids → `/notifications`; no request on load or hover | PASS |
+| Open route loaded directly by the Chrome extension | Expected: it redirects to `/notifications` without marking (the cross-site guard; the logs show no API call). A typed or bookmarked URL sends `Sec-Fetch-Site: none` and passes |
+| Count refresh on window focus and navigation | PASS |
+| Rule 7: Watching switches stay enabled with every email switch off, new hints shown (en) | PASS |
+| *Mark all read*: line and button go, no dots, bell label "Notifications" | PASS |
+| Console errors | none. One react-aria warning: "A PressResponder was rendered without a pressable child" |
+
+Not checked: a real 1440/1024/390 window, Spanish in dark mode, the Spanish Watching hints, Spanish
+popover focus return. The first click on an entry took about 9 s in dev (the report page compiling)
+with no loading feedback.
 
 ### Decisions and deviations
 
