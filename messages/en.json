@@ -1226,6 +1226,8 @@
     "conversationEmailsHint": "Get an email when someone comments in a conversation you’re part of, or asks about someone in a group you lead.",
     "submittedEmails": "Submitted reports",
     "submittedEmailsHint": "Get an email when a report is submitted in a group you watch.",
+    "reminderEmails": "Weekly report reminders",
+    "reminderEmailsHint": "Get a weekly reminder to submit your small group’s report if it hasn’t been submitted yet.",
     "watchedGroupsTitle": "Watched groups",
     "watchedGroupsHint": "You get emails about leaders’ comments and submitted reports in the groups you watch. Unwatching doesn’t stop emails for conversations you’ve commented in.",
     "emailsOffHint": "Turn on conversation or report emails to choose groups.",

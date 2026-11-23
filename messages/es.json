@@ -1226,6 +1226,8 @@
     "conversationEmailsHint": "Recibe un correo cuando alguien comente en una conversación en la que participas, o pregunte por alguien de un grupo que lideras.",
     "submittedEmails": "Reportes enviados",
     "submittedEmailsHint": "Recibe un correo cuando se envíe un reporte en un grupo que sigues.",
+    "reminderEmails": "Recordatorios semanales de reportes",
+    "reminderEmailsHint": "Recibe un recordatorio semanal para enviar el reporte de tu grupo pequeño si aún no ha sido enviado.",
     "watchedGroupsTitle": "Grupos que sigues",
     "watchedGroupsHint": "Recibes correos sobre los comentarios de los líderes y los reportes enviados en los grupos que sigues. Dejar de seguir un grupo no detiene los correos de conversaciones en las que comentaste.",
     "emailsOffHint": "Activa los correos de conversaciones o de reportes para elegir grupos.",

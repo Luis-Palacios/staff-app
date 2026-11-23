@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import {
   setConversationEmails,
+  setReportReminderEmails,
   setSubmittedReportEmails,
   setWatching,
 } from "@/app/(app)/_actions/notification-actions";
@@ -49,19 +50,24 @@ function WatchedGroupRow({
 
 /**
  * My profile's email settings: a switch per kind of email, "Conversations" and (for the full-scope
- * audience) "Submitted reports", each `undefined` while the server has that kind off. For the
+ * audience) "Submitted reports" and (for group leaders) "Weekly report reminders", each `undefined`
+ * while hidden. The reminder switch doesn't affect the Watching list. For the
  * audience (`watchedGroups` not undefined) a Watching switch per group follows. The watch switches
  * are disabled, not hidden, while every shown email switch is off: the choice is kept for later.
  */
 export function NotificationsCard({
   conversationEmails,
   submittedEmails,
+  reminderEmails,
   watchedGroups,
 }: {
   /** `undefined`: the switch is hidden (kind off at the server). */
   conversationEmails?: boolean;
   /** `undefined`: hidden (not a watcher, or kind off at the server). */
   submittedEmails?: boolean;
+  /** `undefined`: hidden (doesn't lead a group, or kind off at the server). Independent of the
+   *  Watching list: it never counts toward `emailsOn`. */
+  reminderEmails?: boolean;
   /** `undefined`: not a watcher; `null`: the list failed to load. */
   watchedGroups?: WatchedGroup[] | null;
 }) {
@@ -74,6 +80,11 @@ export function NotificationsCard({
   const submitted = useSavedToggle(
     submittedEmails ?? false,
     setSubmittedReportEmails,
+    t("saveFailed"),
+  );
+  const reminders = useSavedToggle(
+    reminderEmails ?? false,
+    setReportReminderEmails,
     t("saveFailed"),
   );
   const emailsOn =
@@ -109,6 +120,16 @@ export function NotificationsCard({
             label={t("submittedEmails")}
             pending={submitted.pending}
             onChange={submitted.toggle}
+          />
+        )}
+        {reminderEmails !== undefined && (
+          <SettingSwitch
+            description={t("reminderEmailsHint")}
+            error={reminders.error}
+            isSelected={reminders.isSelected}
+            label={t("reminderEmails")}
+            pending={reminders.pending}
+            onChange={reminders.toggle}
           />
         )}
       </div>

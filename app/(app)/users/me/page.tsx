@@ -44,7 +44,10 @@ export default async function MyProfilePage({
               churchName={church.name}
               userId={user.id}
             />
-            <MyNotifications permissions={permissions} />
+            <MyNotifications
+              leadsGroup={leadIds.size > 0}
+              permissions={permissions}
+            />
           </div>
         </div>
       </>
@@ -70,7 +73,10 @@ export default async function MyProfilePage({
             variant="self"
           />
           <MyAccountCard user={user} />
-          <MyNotifications permissions={permissions} />
+          <MyNotifications
+            leadsGroup={leadIds.size > 0}
+            permissions={permissions}
+          />
         </div>
       </div>
       {saved === "updated" && <SavedToast message={tSaved("updated")} />}
