@@ -28,7 +28,8 @@ if (input.hook_event_name === 'PostToolUse') {
   const name = input.tool_input?.file_path || input.tool_input?.path;
   if (!name || !lintable(name)) process.exit(0);
   const file = path.resolve(root, name);
-  if (path.relative(root, file).startsWith('..')) process.exit(0);
+  const relative = path.relative(root, file);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) process.exit(0);
   const r = run('pnpm', ['exec', 'eslint', '--quiet', file]);
   if (r.status !== 0) fail(`ESLint failed for ${file}:\n${details(r)}`);
   process.exit(0);
