@@ -7,6 +7,7 @@ import type { Locale } from "@/lib/locale-shared";
 
 import { useEffect, useState } from "react";
 
+import { RegisterServiceWorker } from "@/components/push/register-service-worker";
 import { Sidebar } from "@/components/sidebar";
 import { Topbar } from "@/components/topbar";
 
@@ -42,6 +43,7 @@ export const AppShell = ({
     // `--topbar-height` is the sticky top bar's height. Anything else that sticks while the page
     // scrolls (the report list's headers) docks below it with `top-(--topbar-height)`.
     <div className="flex min-h-screen [--topbar-height:4rem] lg:[--topbar-height:72px]">
+      <RegisterServiceWorker />
       <Sidebar
         context={context}
         conversations={conversations}

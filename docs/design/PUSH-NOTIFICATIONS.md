@@ -48,9 +48,9 @@ contain its own hash).
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| 0. This handoff | ✅ | (this commit) |
-| 1. API clients, types, server actions | ⬜ | |
-| 2. Service worker, registration, headers | ⬜ | |
+| 0. This handoff | ✅ | `75a93fe` |
+| 1. API clients, types, server actions | ✅ | `bd0ca3f` |
+| 2. Service worker, registration, headers | ✅ | |
 | 3. The *This device* row | ⬜ | |
 | 4. The email/push grid and rule 7 | ⬜ | |
 | 5. Sign-out cleanup and docs | ⬜ | |

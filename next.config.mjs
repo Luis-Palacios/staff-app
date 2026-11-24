@@ -28,6 +28,21 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version ?? "",
   },
+  async headers() {
+    return [
+      {
+        // The service worker must never come from the HTTP cache, or a fix to it could take a day
+        // to reach a browser (notifications rule 21). Registered with updateViaCache: "none" too.
+        source: "/sw.js",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);
