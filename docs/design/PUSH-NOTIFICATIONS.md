@@ -75,6 +75,7 @@ The window didn't resize: 390 was checked in a same-origin iframe.
 | *Submitted reports, Push* saves off and back on across reloads | PASS |
 | **Real push**: `POST /internal/notifications` (channel push) → auth-server → FCM → this Chrome: `200 {"sent":1}` in 868 ms; the service worker showed "SGLA Beta submitted its report" / "Wed, Oct 14 · 9 of 12 attended · by Ana Díaz", tag `real-push-1`, data `{ path, notificationId: null }`. The same key again: `200 {"sent":1}` in 80 ms with no second push (`push_sends`) | PASS |
 | Badging API present (`navigator.setAppBadge`) | PASS |
+| PR #115 bot fix: after a reload the device row re-registers and `push_subscriptions.user_agent` holds Chrome's (`Mozilla/5.0 (Windows NT 10.0; …`), not `node` | PASS |
 | Console errors | none (after restarting a membership-management dev server that was serving old code) |
 
 Not checked: *Turn off* (the device started off and was left on), clicking the OS notification (the
@@ -138,6 +139,15 @@ coming from a real membership-management event rather than a direct call to auth
    block it; this is defence in depth.
 5. **Errors under a grid row:** shown once when email and push fail with the same text (they
    duplicated a React key).
+
+### PR #115 bot review (`e172a82`)
+
+- **Blocking, fixed:** the subscription `PUT` is a server-to-server call, so auth-server stored Node's
+  own user agent (`node`) for every device. `incomingForwardedRequest()` now carries the browser's
+  `user-agent`, and only the push `PUT` forwards it. Checked: the row now holds Chrome's.
+- Nits, fixed: `registration?.pushManager?.getSubscription()` on sign-out (iOS Safari outside an
+  installed app has no `pushManager`); the cleanup promise is caught so a failure after the 4 s
+  timeout isn't an unhandled rejection.
 - Accepted: the all-off hints still name emails only (a design call, on both My profile and the
   group page); the sign-out buttons show no pending state during the at most 4 s cleanup; with
   membership-management's push flag off but auth-server's on, a device that is on can't be turned
