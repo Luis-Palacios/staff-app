@@ -41,9 +41,12 @@ export function LogCareDialog({
   today,
   people,
   source,
+  onSaved,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Called after a save went through (the form is closed and the page is refreshing). */
+  onSaved?: () => void;
   target?: LogCareTarget;
   /** The church's today, "YYYY-MM-DD". */
   today: string;
@@ -67,6 +70,7 @@ export function LogCareDialog({
     onOpenChange(false);
     showToast(message);
     router.refresh();
+    onSaved?.();
   }
 
   return (
@@ -123,11 +127,15 @@ export function LogCareButton({
 
     // The dialog restores focus itself; this covers a trigger that re-rendered under it.
     window.requestAnimationFrame(() => trigger.current?.focus());
+  }
 
-    // *Record how it went* makes its own button disappear once the page refreshes. When that
-    // leaves the focus nowhere, it goes to the heading of the block the button was in.
+  // *Record how it went* makes its own button disappear once the page refreshes. After a save,
+  // when that leaves the focus nowhere, it goes to the heading of the block the button was in.
+  function afterSave() {
     window.setTimeout(() => {
-      if (trigger.current?.isConnected) return;
+      const active = document.activeElement;
+
+      if (active && active !== document.body) return;
 
       const heading = document.getElementById(returnFocusId);
 
@@ -181,6 +189,7 @@ export function LogCareButton({
         target={target}
         today={today}
         onOpenChange={changeOpen}
+        onSaved={afterSave}
       />
     </>
   );

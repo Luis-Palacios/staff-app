@@ -22,7 +22,10 @@ export function isPlannableKind(
   return kind === "call" || kind === "meeting" || kind === "visit";
 }
 
-/** A plan whose date is still ahead (the timeline's *Coming up*), or past due until recorded. */
+/**
+ * A plan dated after today: the timeline's *Coming up* block. Past-due plans and today's stay in
+ * their month, where the API lists them.
+ */
 export function isComingUp(entry: CareLogEntry, today: string): boolean {
   return entry.status === "planned" && entry.occurredOn > today;
 }

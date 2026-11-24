@@ -79,6 +79,7 @@ progress log below.
 | 5. *Coming up* on the dashboards | ✅ | `112044f` |
 | 6. Design review fixes (Part 1) | ✅ (browser pass: see *Browser checks (Part 1)*) | `44498c4` |
 | Review fixes (Part 1) | ✅ | `5960faf` |
+| PR review fixes (#117) | ✅ | (this commit) |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -197,6 +198,22 @@ once under low memory ("Jest worker encountered 2 child process exceptions"); a 
   - Left as is: "A report note you don't have access to" (rule 36); conversation sources link to
     the report, not the thread, because the API's source has no thread anchor. A possible
     follow-up if the API adds one.
+- **PR review fixes (#117):**
+  1. With the *Care* chip selected, the summary and the phone sheet's button count care entries
+     ("2 care entries · range", "Show 2 care entries"; `summaryCare`, `showCare`); the other chips
+     keep the report wording.
+  2. The audience check isn't called while *About* is empty (it answers 422); the warnings clear.
+  3. Editing sends only the fields that changed (`changedFields`): people and participants as sets,
+     the time compared as "HH:MM", a kind change sends meeting mode and who-told-us with it. An
+     edit with no changes closes without a request, so editing the text of an entry about someone
+     who has since become inactive no longer sends that person.
+  4. *Record how it went*'s "Seen by …" line has a plural variant (`seenByLeadersMany`) for entries
+     with other than one person.
+  5. The focus fallback runs only after a save (`LogCareDialog` `onSaved`), and only if focus is on
+     nothing or on `body`.
+  6. `isComingUp`'s comment now says what the code does (plans dated after today).
+  - Build note: `.next/dev/types/routes.d.ts` and `validator.ts` were truncated by a concurrent
+    write (ignored files); deleting them let `tsc` and `build` regenerate them.
 - **Type check workaround:** `getTranslations("CareLog.errors")` makes `tsc` report "union type too
   complex" with this many keys; the action uses `getTranslations("CareLog")` and `errors.${code}`.
 

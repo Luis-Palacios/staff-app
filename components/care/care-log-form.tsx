@@ -8,6 +8,7 @@ import type {
   CareLogMeetingMode,
   CareLogPersonInput,
   CareLogSourceInput,
+  CareLogUpdateInput,
   CareLogVisibility,
 } from "@/api/care-log-api/types";
 import type { Locale } from "@/lib/locale-shared";
@@ -134,6 +135,71 @@ function toPersonInput(person: CareLogPerson): CareLogPersonInput {
   return person.type === "guest"
     ? { guestId: person.id }
     : { memberId: person.id };
+}
+
+const sameSet = (a: readonly string[], b: readonly string[]) =>
+  a.length === b.length && a.every((value) => b.includes(value));
+
+/**
+ * What differs between the entry and the form's values, for a PATCH. A kind change sends the kind's
+ * own fields together (meeting mode, who told us), since the API validates them as a set.
+ */
+function changedFields(
+  entry: CareLogEntry,
+  body: Omit<CareLogCreateInput, "status" | "source">,
+): CareLogUpdateInput {
+  const changes: CareLogUpdateInput = {};
+  const kindChanged = body.kind !== entry.kind;
+
+  if (kindChanged) changes.kind = body.kind;
+
+  if (kindChanged || body.meetingMode !== entry.meetingMode) {
+    changes.meetingMode = body.meetingMode;
+  }
+
+  if (kindChanged || body.heardFrom !== entry.heardFrom) {
+    changes.heardFrom = body.heardFrom;
+  }
+
+  if (body.occurredOn !== entry.occurredOn)
+    changes.occurredOn = body.occurredOn;
+
+  // The API sends "HH:MM:SS"; the form's time is "HH:MM".
+  if (
+    (body.occurredAtTime ?? "").slice(0, 5) !==
+    (entry.occurredAtTime ?? "").slice(0, 5)
+  ) {
+    changes.occurredAtTime = body.occurredAtTime;
+  }
+
+  if ((body.others ?? null) !== (entry.others ?? null)) {
+    changes.others = body.others;
+  }
+
+  if ((body.text ?? null) !== (entry.text ?? null)) changes.text = body.text;
+
+  if (body.visibility !== entry.visibility)
+    changes.visibility = body.visibility;
+
+  const peopleKeys = (body.people ?? []).map((p) =>
+    "guestId" in p ? `guest:${p.guestId}` : `member:${p.memberId}`,
+  );
+  const entryPeople = entry.people.map((p) =>
+    p.guestId !== null ? `guest:${p.guestId}` : `member:${p.memberId}`,
+  );
+
+  if (!sameSet(peopleKeys, entryPeople)) changes.people = body.people;
+
+  if (
+    !sameSet(
+      (body.participants ?? []).map(String),
+      entry.participants.map((p) => String(p.memberId)),
+    )
+  ) {
+    changes.participants = body.participants;
+  }
+
+  return changes;
 }
 
 function FieldError({ id, message }: { id: string; message?: string }) {
@@ -431,7 +497,8 @@ function FormBody({
     // Any change drops the old answer at once; the new check fills it in again.
     setAudience(null);
 
-    if (complete || participants.length === 0) return;
+    // Without people the API answers 422; there is nothing to warn about yet.
+    if (complete || participants.length === 0 || people.length === 0) return;
 
     let cancelled = false;
     const timer = window.setTimeout(async () => {
@@ -537,17 +604,33 @@ function FormBody({
         text: text.trim() || null,
         visibility,
       };
-      const result =
-        editing && entry
-          ? await updateCareLogAction(entry.id, body)
-          : await createCareLogAction({
-              ...body,
-              status: planned ? "planned" : "done",
-              source: source?.input ?? null,
-            });
 
-      if (result.ok)
-        onSaved(editing ? "updated" : planned ? "planned" : "logged");
+      if (editing && entry) {
+        // Only what changed, so editing the text of an entry about someone who has since become
+        // inactive doesn't send them again (the API would answer 422 `people`).
+        const changes = changedFields(entry, body);
+
+        if (Object.keys(changes).length === 0) {
+          onClose();
+
+          return;
+        }
+
+        const patched = await updateCareLogAction(entry.id, changes);
+
+        if (patched.ok) onSaved("updated");
+        else handleFailure(patched.code, patched.message);
+
+        return;
+      }
+
+      const result = await createCareLogAction({
+        ...body,
+        status: planned ? "planned" : "done",
+        source: source?.input ?? null,
+      });
+
+      if (result.ok) onSaved(planned ? "planned" : "logged");
       else handleFailure(result.code, result.message);
     });
   }
@@ -1201,9 +1284,11 @@ function FormBody({
             />
             {entry.visibility === "private"
               ? t("seenByPrivate")
-              : t("seenByLeaders", {
-                  name: firstNameOf(entry.people[0]?.name ?? ""),
-                })}
+              : entry.people.length === 1
+                ? t("seenByLeaders", {
+                    name: firstNameOf(entry.people[0].name),
+                  })
+                : t("seenByLeadersMany")}
           </p>
         )}
       </div>

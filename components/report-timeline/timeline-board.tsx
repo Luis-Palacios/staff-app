@@ -176,10 +176,16 @@ export function TimelineBoard({
     care: t("typeCare"),
   };
   const rangeText = formatCalendarSpan(range.from, range.to, locale);
-  const summary = t("summary", {
-    count: reportCount,
+  // The Care chip lists care log entries, so it counts those; the others count reports.
+  const careView = type === "care";
+  const shownCount = careView ? entries.length : reportCount;
+  const summaryValues = {
+    count: shownCount,
     range: group ? `${rangeText} · ${group.name}` : rangeText,
-  });
+  };
+  const summary = careView
+    ? t("summaryCare", summaryValues)
+    : t("summary", summaryValues);
   const canShowMore =
     timeline.earliestDate !== null &&
     timeline.earliestDate < range.from &&
@@ -481,7 +487,9 @@ export function TimelineBoard({
                 className="h-11 min-h-11 w-full font-semibold"
                 onPress={() => setSheetOpen(false)}
               >
-                {t("showReports", { count: reportCount })}
+                {careView
+                  ? t("showCare", { count: shownCount })
+                  : t("showReports", { count: shownCount })}
               </Button>
             </Modal.Footer>
           </Modal.Dialog>
