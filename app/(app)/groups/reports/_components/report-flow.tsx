@@ -866,29 +866,6 @@ export function ReportFlow({
     isMarked(draft.answers[personKey(person.person)]),
   ).length;
   const remaining = people.length - markedCount;
-
-  /**
-   * The editor's own exits (Close, the breadcrumbs, Cancel). A draft that could be submitted
-   * right now (everyone marked) asks *Submit before you go?* first; anything else just leaves.
-   */
-  function requestLeave(href: string) {
-    const canSubmit =
-      !submitted &&
-      draft.met &&
-      savedIdRef.current !== null &&
-      !noPeople &&
-      remaining === 0 &&
-      save.status !== "conflict";
-
-    if (canSubmit) {
-      setLeaveHref(href);
-      setDialog("leave");
-
-      return;
-    }
-
-    leave(href);
-  }
   const firstOpen = firstOpenIndex(people, draft.answers);
   const cameCount = people.filter(
     (row) => draft.answers[personKey(row.person)]?.attendedGroup === true,
@@ -947,6 +924,34 @@ export function ReportFlow({
   const blocking =
     failure !== null && !DATE_FAILURES.includes(failure.kind) ? failure : null;
   const save = autosave.state;
+
+  /**
+   * The editor's own exits (Close, the breadcrumbs, Cancel). A draft that could be submitted
+   * right now (its roster loaded, everyone marked) asks *Submit before you go?* first; anything
+   * else just leaves. A second click while leaving does nothing.
+   */
+  function requestLeave(href: string) {
+    if (isLeaving) return;
+
+    const canSubmit =
+      !submitted &&
+      draft.met &&
+      savedIdRef.current !== null &&
+      ready !== null &&
+      !noPeople &&
+      remaining === 0 &&
+      save.status !== "conflict";
+
+    if (canSubmit) {
+      setLeaveHref(href);
+      setDialog("leave");
+
+      return;
+    }
+
+    leave(href);
+  }
+
   // The save status shows once the report exists (or its first save is on its way).
   const showSave =
     savedId !== null || save.status !== "saved" || save.savedAt !== null;
