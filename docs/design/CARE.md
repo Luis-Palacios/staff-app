@@ -77,8 +77,8 @@ progress log below.
 | 3. Care log entries on the timeline | ✅ | `fe4c711` |
 | 4. *Log care* from reports, the conversation panel and Prayer & follow-up | ✅ | `4c11708` |
 | 5. *Coming up* on the dashboards | ✅ | `112044f` |
-| 6. Design review fixes (Part 1) | ✅ code side; browser pass pending | `44498c4` |
-| Review fixes (Part 1) | ✅ | (this commit) |
+| 6. Design review fixes (Part 1) | ✅ (browser pass: see *Browser checks (Part 1)*) | `44498c4` |
+| Review fixes (Part 1) | ✅ | `5960faf` |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -86,6 +86,37 @@ progress log below.
 | 10. *Start care*, *Edit care*, *Add to care* and the care menu | ⬜ | |
 | 11. *Care needing attention*, *Care started*, "In care", linked-care chips | ⬜ | |
 | 12. Design review fixes (Part 2) | ⬜ | |
+
+### Browser checks (Part 1)
+
+Run on 2026-11-24 against the local stack (`main` API, this branch, the reseeded test DB) by the
+`browser-verifier` agent, signed in as each account in turn. Care data: five seeded entries about
+Óscar Altamirano Espinoza (GP - #4) and a visit to the guest Tatiana Ruiz Gaitán. No console errors
+or failed requests in any run.
+
+| Account | Check | Result |
+| --- | --- | --- |
+| admin (Ricardo) | Óscar's Timeline: *Care* chip, *Coming up · 1 planned*, past-due badge without a button (not his), *Elders only* lock line, month counts; Care chip hides reports, other chips and a picked group hide care rows; Recent activity | PASS |
+| admin | Log care form: six kinds, planned/done fields, Where, Who told us, date limits, people search (2 letters), Others, visibility cards, "won't see this entry" warnings, empty-text error, Escape in a picker vs the form, focus return | PASS |
+| admin | Plan a call (Nov 26), edit it; log a done visit (Nov 23), edit it with its date shown valid; toasts | PASS |
+| admin | *Coming up* on the Report status page, under *Waiting for your reply* | PASS |
+| admin | ⋯ *Log care* on attendance rows, prayer and praise sections, the conversation panel and Prayer & follow-up; From cards; focus back to ⋯ | PASS |
+| admin | Spanish + dark at 390 (iframe) and 1020: labels, bottom sheet with 2 kind columns, dialog with 3, no sideways scroll | PASS |
+| leader (Josué, GP - #4) | Óscar's Timeline: Care 6, no *Elders only* entry, leader footer; *Record how it went* on the Nov 21 plan he is *with* (rule 11) | PASS |
+| leader (Josué) | His own Timeline: no care entries about himself (Care 0) | PASS |
+| leader (Josué) | Plan with Freddy as participant: "Freddy Sequeira Reyes won't see this entry.", saved, *Edit* prefilled; dashboard *Coming up* lists his 3 plans | PASS |
+| leader (Josué) | Spanish + dark at 390: "Registrar cuidado", "3 programadas", "Ves los registros de cuidado compartidos con los líderes de Óscar." | PASS |
+| leader (Josué) | Tatiana's guest page (he leads no guest group): "Page not found" | PASS |
+| other leader (Freddy, GP - #5) | Óscar's member page and Timeline: "Page not found"; no *Coming up* card although he is *with* Josué's plan (no access from being a participant) | PASS |
+| other leader (Freddy) | A GP - #5 member's Timeline: *Log care* opens with them in About | PASS |
+
+**Not checked in the browser:** the guest Timeline's care row as admin or elder (guest pages were off
+until `GUEST_GROUPS_ENABLED` was set, then only a leader without guest groups was tried); English at
+390 and 1024 (the window can't be resized; Spanish was checked in an iframe); the Follow-up section ⋯
+(no report had follow-up items); a planned entry's Time field; the light theme; saving an *Elders
+only* entry; the deacon's 409 `link` banner. A typed past date in a plan isn't flagged in the form
+(the calendar disables it and the API answers 422 `date`). The dev server's Next.js workers crashed
+once under low memory ("Jest worker encountered 2 child process exceptions"); a restart fixed it.
 
 ### Decisions and deviations
 
