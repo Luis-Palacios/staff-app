@@ -29,7 +29,7 @@ import {
 import { firstNameOf } from "@/lib/report-items";
 import { extendRange, isValidRange } from "@/lib/timeline-range";
 
-type TypeFilter = "all" | "notes" | "prayer" | "praise" | "followUp";
+type TypeFilter = "all" | "notes" | "prayer" | "praise" | "followUp" | "care";
 
 const TYPES: TypeFilter[] = ["all", "notes", "prayer", "praise", "followUp"];
 const ALL_GROUPS = "all";
@@ -59,8 +59,11 @@ export function TimelineBoard({
   kind,
   firstVisitDate,
   openGroups,
+  care,
 }: {
   timeline: PersonTimeline;
+  /** The viewer can read the care log (`careLog: view`): the *Care* chip and its footer line. */
+  care: boolean;
   range: TimelineRange;
   groupId: number | null;
   /** The church's today, the latest date a range can end on. */
@@ -148,24 +151,29 @@ export function TimelineBoard({
   }
 
   // Status entries show under All only: they have no chip of their own yet (inactive guests, rule 14).
+  // Care log entries show under All and under Care; the other chips are about reports.
   const entries = timeline.entries.filter((entry) => {
     if (type === "all") return true;
+    if (type === "care") return entry.kind === "careLog";
     if (entry.kind !== "report") return false;
     if (type === "notes") return entry.report.observation !== null;
 
     return entry.report.items.some((item) => item.section === type);
   });
   const reportCount = entries.filter(({ kind: k }) => k === "report").length;
-  const typeCounts: Record<
-    Exclude<TypeFilter, "all">,
-    number
-  > = timeline.counts;
+  const { careLog, ...reportCounts } = timeline.counts;
+  const typeCounts: Record<Exclude<TypeFilter, "all">, number> = {
+    ...reportCounts,
+    care: careLog,
+  };
+  const types = care ? [...TYPES, "care" as const] : TYPES;
   const typeLabel: Record<TypeFilter, string> = {
     all: t("typeAll"),
     notes: t("typeNotes"),
     prayer: t("typePrayer"),
     praise: t("typePraise"),
     followUp: t("typeFollowUp"),
+    care: t("typeCare"),
   };
   const rangeText = formatCalendarSpan(range.from, range.to, locale);
   const summary = t("summary", {
@@ -314,7 +322,7 @@ export function TimelineBoard({
           className="-mx-6 flex gap-2 overflow-x-auto px-6 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
           role="group"
         >
-          {TYPES.map((key) => {
+          {types.map((key) => {
             const pressed = type === key;
 
             return (
@@ -368,6 +376,7 @@ export function TimelineBoard({
             <ReportTimeline
               openGroups={openGroups}
               timeline={{ person: timeline.person, entries }}
+              today={today}
             />
           </div>
         )}
@@ -397,6 +406,8 @@ export function TimelineBoard({
               : t("footLeader", { name })}
             {timeline.entries.some((entry) => entry.kind === "status") &&
               ` ${t("footStatus")}`}
+            {care &&
+              ` ${viewer === "elder" ? t("footCareElder", { name }) : t("footCareLeader", { name })}`}
           </p>
         </div>
       </div>

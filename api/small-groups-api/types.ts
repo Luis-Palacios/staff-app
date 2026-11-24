@@ -1,3 +1,4 @@
+import type { CareLogEntry } from "@/api/care-log-api/types";
 import type { ConversationStatus } from "@/api/conversations-api/types";
 import type { GuestInactiveReason } from "@/api/guests-api/types";
 import type {
@@ -403,7 +404,17 @@ export interface TimelineStatusEntry {
   changedBy: { memberId: number; name: string } | null;
 }
 
-export type TimelineEntry = TimelineReportEntry | TimelineStatusEntry;
+/** A care log entry about the person (care spec rule 13); `date` is its `occurredOn`. */
+export interface TimelineCareLogEntry {
+  kind: "careLog";
+  date: string;
+  entry: CareLogEntry;
+}
+
+export type TimelineEntry =
+  | TimelineReportEntry
+  | TimelineStatusEntry
+  | TimelineCareLogEntry;
 
 export interface PersonTimeline {
   person: Person;
@@ -415,7 +426,14 @@ export interface PersonTimeline {
   /** Groups with a visible report at any date, for the group filter. */
   groups: TimelineGroup[];
   /** Reports only, in the range and group, after rule 23. */
-  counts: { notes: number; prayer: number; praise: number; followUp: number };
+  counts: {
+    notes: number;
+    prayer: number;
+    praise: number;
+    followUp: number;
+    /** Care log entries the viewer can see; plans after today always count. */
+    careLog: number;
+  };
   /** Newest first, every kind this app knows; `readTimeline` drops the rest. */
   entries: TimelineEntry[];
 }

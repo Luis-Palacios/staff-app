@@ -73,8 +73,8 @@ progress log below.
 | --- | --- | --- |
 | **Part 1, branch `feature/care-log`** | | |
 | 1. Permissions, `CareIcon`, API types, client and server actions (care log) | ✅ | `3cb35f8` |
-| 2. The care log form | ✅ | (hash in stage 3's commit) |
-| 3. Care log entries on the timeline | ⬜ | |
+| 2. The care log form | ✅ | `131476a` |
+| 3. Care log entries on the timeline | ✅ | (hash in stage 4's commit) |
 | 4. *Log care* from reports, the conversation panel and Prayer & follow-up | ⬜ | |
 | 5. *Coming up* on the dashboards | ⬜ | |
 | 6. Design review fixes (Part 1) | ⬜ | |
@@ -118,6 +118,13 @@ progress log below.
     (`deleteCareLogAction`); add the control once the design says where.
   - The people picker is inline under the chips (not a popover), so it works the same in the sheet.
   - Pending/stale handling: a `409 not_planned` shows as a banner ("Refresh the page").
+- **Stage 3, the timeline:** `timeline-care-row.tsx` is the `careLog` row. The *Care* chip and the
+  footer line show with `careLog: view`; *Log care* with `careLog: create`. *Coming up* is built
+  from plans after today in the entries the board already has (soonest first); the API sends them
+  whatever the range. Month headings count reports and care entries ("2 reports · 1 care entry").
+  Rows also list the entry's other people ("Also about …", linked when `viewable`), which the board
+  doesn't draw. *Record how it went* needs `pastDue && canComplete`, *Edit* needs `canEdit`; the
+  Recent activity preview has neither button. The Care chip shows the API's `counts.careLog`.
 - **Type check workaround:** `getTranslations("CareLog.errors")` makes `tsc` report "union type too
   complex" with this many keys; the action uses `getTranslations("CareLog")` and `errors.${code}`.
 

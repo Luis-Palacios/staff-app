@@ -64,6 +64,8 @@ export default async function GuestTimelinePage({
         name={guest.name}
       />
       <TimelineCard
+        canLogCare={can(permissions, { careLog: ["create"] })}
+        care={can(permissions, { careLog: ["view"] })}
         firstVisitDate={guest.firstVisitDate}
         kind="guest"
         openGroups={openGroupsOf(permissions, me.leads)}

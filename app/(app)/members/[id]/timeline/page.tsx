@@ -56,6 +56,8 @@ export default async function MemberTimelinePage({
         name={member.name}
       />
       <TimelineCard
+        canLogCare={can(permissions, { careLog: ["create"] })}
+        care={can(permissions, { careLog: ["view"] })}
         kind="member"
         openGroups={openGroupsOf(permissions, me.leads)}
         query={query}

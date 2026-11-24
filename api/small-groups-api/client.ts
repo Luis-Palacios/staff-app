@@ -370,6 +370,7 @@ export function deleteNoMeetingWeek(id: number): Promise<void> {
 const TIMELINE_KINDS: ReadonlySet<string> = new Set<TimelineEntry["kind"]>([
   "report",
   "status",
+  "careLog",
 ]);
 
 /**
@@ -386,7 +387,8 @@ export function readTimeline(timeline: PersonTimeline): PersonTimeline {
     to,
     earliestDate,
     groups,
-    counts,
+    // `careLog` is 0 from an API that predates it.
+    counts: { ...counts, careLog: counts.careLog ?? 0 },
     entries: entries.filter((entry) => TIMELINE_KINDS.has(entry.kind)),
   };
 }
