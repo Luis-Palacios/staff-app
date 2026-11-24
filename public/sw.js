@@ -64,30 +64,32 @@ self.addEventListener("push", (event) => {
 // Where a click goes: the in-app entry's opening route (it marks the entry read, rule 15), or the
 // message's own path when there is no entry. Only a same-origin relative path is followed.
 function targetUrl(data) {
+  const home = new URL("/", self.location.origin);
   const id = data && data.notificationId;
 
   if (typeof id === "number" && Number.isInteger(id) && id > 0) {
-    return "/notifications/open/" + id;
+    return new URL("/notifications/open/" + id, self.location.origin);
   }
 
   const path = data && data.path;
 
-  if (
-    typeof path === "string" &&
-    path.startsWith("/") &&
-    !path.startsWith("//") &&
-    !path.startsWith("/\\")
-  ) {
-    return path;
-  }
+  if (typeof path !== "string" || !path.startsWith("/")) return home;
 
-  return "/";
+  // Parse, then check where it really points: URL parsing drops tabs and newlines and reads "\" as
+  // "/", so a prefix check alone can be fooled ("/\t/evil.example" becomes https://evil.example/).
+  try {
+    const url = new URL(path, self.location.origin);
+
+    return url.origin === self.location.origin ? url : home;
+  } catch {
+    return home;
+  }
 }
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const url = new URL(targetUrl(event.notification.data), self.location.origin);
+  const url = targetUrl(event.notification.data);
 
   event.waitUntil(
     (async () => {
@@ -95,25 +97,37 @@ self.addEventListener("notificationclick", (event) => {
         type: "window",
         includeUncontrolled: true,
       });
-      const open = windows.find(
+      const ours = windows.filter(
         (client) => new URL(client.url).origin === self.location.origin,
       );
+      // The tab the person last looked at, if any is focused or visible; else the first one.
+      const open =
+        ours.find((client) => client.focused) ||
+        ours.find((client) => client.visibilityState === "visible") ||
+        ours[0];
 
-      if (open) {
-        try {
-          // Navigate first: focus() alone leaves the person on whatever page was open. A client
-          // `navigate()` can fail (a page not controlled by this worker), so fall back to opening.
-          const navigated = await open.navigate(url.href);
+      if (!open) {
+        await self.clients.openWindow(url.href);
 
-          await (navigated || open).focus();
-
-          return;
-        } catch {
-          // Fall through to a new window.
-        }
+        return;
       }
 
-      await self.clients.openWindow(url.href);
+      // Focus first, while the click still allows it: browsers only let a worker focus or open a
+      // window for a moment after the click (Firefox about 1 s), and navigate() waits for the page.
+      let focused = open;
+
+      try {
+        focused = await open.focus();
+      } catch {
+        // Not allowed or the tab went away: navigating below still brings the page.
+      }
+
+      try {
+        // navigate() only works on a page this worker controls; an uncontrolled one throws.
+        await (focused || open).navigate(url.href);
+      } catch {
+        await self.clients.openWindow(url.href);
+      }
     })(),
   );
 });

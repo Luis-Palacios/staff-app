@@ -96,6 +96,29 @@ Not looked at in a browser** (no browser checks in this brief).
 - No new tokens: the band is `bg-surface-secondary` (board `#F7F8FA`), status colours are
   `success-soft-foreground` / `warning-soft-foreground` / `muted`.
 
+### Review (spec-reviewer, Opus): no blockers. Fixed on the branch
+
+1. **Notification click:** `sw.js` now focuses the tab first, then navigates it. Browsers allow a
+   worker to focus or open a window only briefly after the click (Firefox about 1 s), and
+   `navigate()` waits for the page, so focusing after it could fail and open a second window. It
+   picks the focused or visible tab, and opens a window only when there is none or `navigate()`
+   throws (an uncontrolled page).
+2. **Sign-out:** `unsubscribe()` now always runs (`finally`), even when the server call throws. A
+   stale server row then gets 410 from the push service and auth-server deletes it, so the device
+   never shows the old account's pushes. The timeout timer is cleared.
+3. ***This device* row:** a focus refresh is ignored while *Turn on* / *Turn off* runs (the
+   permission prompt closing gives the window focus), so it can't show *On* for a subscription the
+   tap then undoes.
+4. **Click target:** the path is parsed and must keep the app's origin (a prefix check alone lets
+   `"/\t/evil.example"` through, since URL parsing drops the tab). auth-server's path patterns already
+   block it; this is defence in depth.
+5. **Errors under a grid row:** shown once when email and push fail with the same text (they
+   duplicated a React key).
+- Accepted: the all-off hints still name emails only (a design call, on both My profile and the
+  group page); the sign-out buttons show no pending state during the at most 4 s cleanup; with
+  membership-management's push flag off but auth-server's on, a device that is on can't be turned
+  off from the profile (sign-out still removes it).
+
 ## Token changes
 
 None expected: the boards use existing tokens. The *This device* band is `surface-secondary`; the

@@ -105,10 +105,15 @@ function GridRow({
   columns: string;
 }) {
   const t = useTranslations("NotificationSettings");
+  // Both cells fail with the same text, so show it once (and keep the keys unique).
   const errors = [
-    choice.email !== undefined ? email.error : null,
-    choice.push !== undefined ? push.error : null,
-  ].filter((message): message is string => message !== null);
+    ...new Set(
+      [
+        choice.email !== undefined ? email.error : null,
+        choice.push !== undefined ? push.error : null,
+      ].filter((message): message is string => message !== null),
+    ),
+  ];
 
   return (
     <div className="flex flex-col gap-1 border-t border-separator px-6 py-2">

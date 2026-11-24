@@ -13,10 +13,15 @@ async function removeCurrentSubscription(): Promise<void> {
 
   if (!subscription) return;
 
-  // Server first, so a failure to reach it still leaves the browser's own subscription to retry
-  // from; then the browser's, which stops the push service accepting pushes for it.
-  await removePushSubscription(subscription.endpoint);
-  await subscription.unsubscribe();
+  // Server first (it needs the session, which is about to end), then the browser's own, which makes
+  // the push service refuse further pushes for it. The browser's always runs, even when the server
+  // call fails or throws: a stale server row then gets 410 from the push service on its next push
+  // and auth-server deletes it, so the device never shows the old account's pushes (rule 9).
+  try {
+    await removePushSubscription(subscription.endpoint);
+  } finally {
+    await subscription.unsubscribe();
+  }
 }
 
 /**
@@ -27,12 +32,18 @@ async function removeCurrentSubscription(): Promise<void> {
  * service answers 404 or 410, and moves it to the next user who registers it (rule 9).
  */
 export async function removePushSubscriptionBeforeSignOut(): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
   try {
     await Promise.race([
       removeCurrentSubscription(),
-      new Promise<void>((resolve) => setTimeout(resolve, CLEANUP_TIMEOUT_MS)),
+      new Promise<void>((resolve) => {
+        timer = setTimeout(resolve, CLEANUP_TIMEOUT_MS);
+      }),
     ]);
   } catch {
     // Swallowed on purpose.
+  } finally {
+    clearTimeout(timer);
   }
 }

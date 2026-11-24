@@ -68,6 +68,9 @@ export function PushDeviceRow({ publicKey }: { publicKey: string }) {
   const [error, setError] = useState<string | null>(null);
   // Only the first look registers again; later looks (window focus) just read the state.
   const synced = useRef(false);
+  // While *Turn on* or *Turn off* runs, it owns the state: a focus refresh then (the permission
+  // prompt closing gives the window focus) would read a half-done subscription.
+  const working = useRef(false);
 
   const look = useCallback(async (): Promise<DeviceState> => {
     if (isIosNotInstalled()) return "ios";
@@ -105,9 +108,11 @@ export function PushDeviceRow({ publicKey }: { publicKey: string }) {
     let cancelled = false;
 
     async function refresh() {
+      if (working.current) return;
+
       const next = await look();
 
-      if (!cancelled) setState(next);
+      if (!cancelled && !working.current) setState(next);
     }
 
     void refresh();
@@ -121,6 +126,7 @@ export function PushDeviceRow({ publicKey }: { publicKey: string }) {
   }, [look]);
 
   async function turnOn() {
+    working.current = true;
     setBusy(true);
     setError(null);
 
@@ -174,11 +180,13 @@ export function PushDeviceRow({ publicKey }: { publicKey: string }) {
       await created?.unsubscribe().catch(() => {});
       setError(t("deviceTurnOnFailed"));
     } finally {
+      working.current = false;
       setBusy(false);
     }
   }
 
   async function turnOff() {
+    working.current = true;
     setBusy(true);
     setError(null);
 
@@ -204,6 +212,7 @@ export function PushDeviceRow({ publicKey }: { publicKey: string }) {
     } catch {
       setError(t("deviceTurnOffFailed"));
     } finally {
+      working.current = false;
       setBusy(false);
     }
   }
