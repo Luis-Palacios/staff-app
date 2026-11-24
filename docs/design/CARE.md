@@ -76,8 +76,8 @@ progress log below.
 | 2. The care log form | ✅ | `131476a` |
 | 3. Care log entries on the timeline | ✅ | `fe4c711` |
 | 4. *Log care* from reports, the conversation panel and Prayer & follow-up | ✅ | `4c11708` |
-| 5. *Coming up* on the dashboards | ✅ | (hash in stage 6's commit) |
-| 6. Design review fixes (Part 1) | ⬜ | |
+| 5. *Coming up* on the dashboards | ✅ | `112044f` |
+| 6. Design review fixes (Part 1) | ✅ code side; browser pass pending | (this commit) |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -269,6 +269,29 @@ Boards: `LeaderDashboard-Care`, `LeaderDashboard-Elder-Care`, `LeaderDashboard-C
 ## Stage 6: design review fixes (Part 1)
 
 Run the checklist below against the Part 1 boards; record findings here.
+
+**Code-side review (done, stage 6).** The browser part (light/dark, 1440 / 1024 / 390, es, focus
+with a keyboard) is still to do against the boards.
+
+- No literals: `git diff main` has no `#hex`, `rgb(` or `dark:` in the changed files except the
+  `CareIcon` path; colors are the existing tokens (`warning-soft`, `accent-soft`, `danger-soft`,
+  `default`, `surface-secondary`, `border`, `field-border`, `text-eyebrow`, `text-subtle`). Gold is
+  only the underline of *Edit* / the others link (`decoration-gold-500`), never text.
+  No new tokens, no new Tailwind utilities.
+- `react/jsx-no-literals` is clean; `pnpm lint` has no errors (the one warning in `member-form.tsx`
+  is older than this branch). `en.json` and `es.json` have the same keys (`messages/parity.ts`
+  passes through `tsc`); `CareLog` is in `CLIENT_NAMESPACES`.
+- Status is a dot and a word (`StatusBadge`) for *Planned* and *Record how it went*.
+- Focus: `LogCareButton` and `CareMenu` refocus their trigger when the form closes; the picker
+  inside the form returns focus to its *Add* button; Escape in a picker closes the picker only.
+- `CareIcon` is added and used nowhere yet: Part 1 only draws the kind glyphs (phone, bubbles,
+  people, home, speech, pencil). It appears with the Care item, *Start care* and the linked-care
+  chips in Part 2. The prayer heart is untouched.
+- Nothing about a care you can't open: no care routes are used in Part 1.
+- Known gaps for the browser pass or a follow-up: no *Delete entry* control (not drawn); the report
+  *item*-level menu is per section (see stage 4); *It didn't happen* has no confirm; the seeded
+  entries are by made-up users, so *Edit* and *Record how it went* only show on entries you create
+  (and *Record how it went* only for plans you author or take part in).
 
 ---
 
