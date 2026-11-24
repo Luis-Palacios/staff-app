@@ -35,6 +35,7 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 import { StatusBadge } from "@/components/status-badge";
 import { useCurrentUser, usePermissions } from "@/lib/contexts/user-context";
 import { authClient } from "@/lib/auth/auth-client";
+import { removePushSubscriptionBeforeSignOut } from "@/lib/push/sign-out-cleanup";
 import { can } from "@/lib/auth/permissions";
 import { isLocale, LOCALE_LABELS, LOCALES } from "@/lib/locale-shared";
 import { setLocale } from "@/app/(app)/_actions/set-locale";
@@ -168,6 +169,8 @@ export const Topbar = ({
   }
 
   async function handleSignOut() {
+    // Rule 23: this browser stops getting this account's pushes first; a failure doesn't stop it.
+    await removePushSubscriptionBeforeSignOut();
     await authClient.signOut();
     router.push("/sign-in");
   }

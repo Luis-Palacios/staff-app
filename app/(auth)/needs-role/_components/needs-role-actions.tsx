@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { authButton, authStack } from "../../_components/auth-styles";
 
 import { authClient } from "@/lib/auth/auth-client";
+import { removePushSubscriptionBeforeSignOut } from "@/lib/push/sign-out-cleanup";
 
 export function NeedsRoleActions() {
   const t = useTranslations("NeedsRolePage");
@@ -40,6 +41,8 @@ export function NeedsRoleActions() {
   }
 
   async function handleSignOut() {
+    // Rule 23: this browser stops getting this account's pushes first; a failure doesn't stop it.
+    await removePushSubscriptionBeforeSignOut();
     await authClient.signOut();
     router.push("/sign-in");
   }

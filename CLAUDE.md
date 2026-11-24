@@ -29,7 +29,15 @@ link below), the `/notifications` page, and `/notifications/open/[id]`, the only
 is made on the server from the API's `template` + `data` (`lib/notifications/entry.ts`, the
 `Notifications` namespace); the bell's count is client state read again on navigation and focus.
 Everything is hidden while `GET /me/notifications/unread-count` says `enabled: false`. See
-`docs/design/NOTIFICATIONS.md` (Part 1; Web Push is Part 2, not built).
+`docs/design/NOTIFICATIONS.md` (Part 1).
+
+Web Push (Part 2, `docs/design/PUSH-NOTIFICATIONS.md`): `public/sw.js` handles `push` and
+`notificationclick` only, with no cache and no `fetch` handler (signed-in data must never be cached);
+it is served `no-cache` and registered once from the app shell (`components/push/`). My profile's
+Notifications card is an email/push grid with a *This device* row (`users/me/_components/`);
+the VAPID key comes from `GET /api/push/config` at runtime. Every sign-out first deletes this
+browser's subscription (`lib/push/sign-out-cleanup.ts`, never blocks the sign-out). Nothing asks
+for permission except the *Turn on* tap.
 
 See `docs/infrastructure/AUTH-INTEGRATION-ROADMAP.md` for the in-progress, phased plan wiring this app together
 with the sibling `auth-server` (better-auth) and `membership-management` (FastAPI) repos —

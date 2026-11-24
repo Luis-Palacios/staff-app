@@ -52,12 +52,49 @@ contain its own hash).
 | 1. API clients, types, server actions | ✅ | `bd0ca3f` |
 | 2. Service worker, registration, headers | ✅ | `78c6428` |
 | 3. The *This device* row | ✅ | `d60fe30` |
-| 4. The email/push grid and rule 7 | ✅ | |
-| 5. Sign-out cleanup and docs | ⬜ | |
+| 4. The email/push grid and rule 7 | ✅ | `9061de8` |
+| 5. Sign-out cleanup and docs | ✅ | the last commit on the branch (a commit can't hold its own hash) |
+
+**Status: built; `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm build` run at the end of stage 5.
+Not looked at in a browser** (no browser checks in this brief).
 
 ### Decisions and deviations
 
-(Filled in as the stages land.)
+- **Service worker:** `badge` is `/icons/icon-monochrome-512.png` (the existing monochrome icon);
+  `icon` is `icon-192.png`. It calls `skipWaiting()` and `clients.claim()` so a fixed worker takes
+  over at once (nothing is cached, so nothing to migrate). A push without a title still shows one
+  (the app name), because browsers require every push to show something. `/sw.js` gets
+  `Cache-Control: no-cache, no-store, must-revalidate` from `next.config.mjs` `headers()`.
+  `proxy.ts` is unchanged: its matcher already skips `/sw.js` (a path with a dot).
+- **Click:** an open same-origin window is `navigate()`d then focused; if that throws, a new window
+  opens. A non-integer `notificationId` falls back to `path`, and a `path` that isn't a single-slash
+  relative path to `/`.
+- **Granted but not subscribed** (after *Turn off*, or the browser dropped it, or a different key):
+  the row shows *Turn on* rather than silently subscribing, since a silent resubscribe on load would
+  undo *Turn off*. It needs no prompt (already granted), only the tap.
+- **Re-registering on load:** the first look at a device that is on PUTs its subscription again. A
+  failure there is ignored: the row stays *On*. The row also re-reads its state when the window gets
+  focus (someone who unblocked the site in browser settings "comes back").
+- **Turn off:** auth-server first, then `unsubscribe()`. If the DELETE fails the row stays *On* with
+  an error, so a server row that keeps sending here never outlives the local state.
+- **Register on `getPushRegistration()`:** the row calls `register()` again (idempotent) before
+  `ready`, so it never waits on a worker whose shell registration failed.
+- **Grid:** the Email column goes when it's off for every kind shown, the Push column likewise; with
+  no Push column the card is today's email-only card, unchanged (including its hints and the
+  "Email" eyebrow). *This device* shows only when auth-server says push is on **and** a Push column
+  shows (otherwise there would be nothing for the device to receive). Row labels reuse
+  `conversationEmails`, `submittedEmails`, `reminderEmails` (their text is the kind name).
+- **Rule 7 on the group page:** `GroupWatchCard` takes `channelsOn` (an email or push switch for
+  conversations or submitted reports is on and available) in place of `emailsOn`, and the card
+  shows while any of the four is available. Its hint when everything is off still says "Turn on
+  conversation or report emails in My profile" (the boards say Watched groups is unchanged; a
+  channel-neutral wording is a design call).
+- **New copy not on the boards:** `deviceTurnOnFailed` and `deviceTurnOffFailed` (errors under the
+  row). Everything else is the boards' text.
+- **iOS hint:** one ICU message with `<b>` and an empty `<share></share>` tag that renders the
+  Share glyph, so the sentence stays whole for translators.
+- No new tokens: the band is `bg-surface-secondary` (board `#F7F8FA`), status colours are
+  `success-soft-foreground` / `warning-soft-foreground` / `muted`.
 
 ## Token changes
 
