@@ -1,4 +1,9 @@
+import type {
+  EmailKinds,
+  NotificationPreferences,
+} from "@/api/notifications-api/types";
 import type { Permissions } from "@/lib/auth/permissions";
+import type { KindChoice } from "./notifications-card";
 
 import { NotificationsCard } from "./notifications-card";
 
@@ -16,15 +21,37 @@ import {
 } from "@/lib/auth/permissions";
 import { settle } from "@/lib/settle";
 
+/** One kind's switches for the card: `undefined` when the person doesn't see the kind or both
+ *  channels are off at the server for it; otherwise each channel's value, or `undefined` for a
+ *  channel that is off (`available` for email, `availablePush` for push). */
+function cells(
+  visible: boolean,
+  preferences: NotificationPreferences,
+  kind: keyof EmailKinds,
+): KindChoice | undefined {
+  if (!visible) return undefined;
+
+  const choice: KindChoice = {
+    email: preferences.available[kind] ? preferences.email[kind] : undefined,
+    push: preferences.availablePush[kind] ? preferences.push[kind] : undefined,
+  };
+
+  return choice.email === undefined && choice.push === undefined
+    ? undefined
+    : choice;
+}
+
 /**
- * The Notifications card, or nothing. Each switch shows while its kind of email is on at the
- * server (`available`): *Conversations* for people who see conversations; *Submitted reports* and
- * the Watched groups list for the watch audience among them; *Weekly report reminders* for
- * someone who leads an open group (`leadsGroup`) and can submit reports. With no switch to show
- * the card is left out. A failed preferences call hides the card (the kill switches are unknown);
- * a failed watched-groups call keeps it, with an error in place of the list. While in-app
- * notifications are on (the bell's `unread-count`, since the preferences have no flag for it) the
- * Watching switches are never disabled (notifications rule 7).
+ * The Notifications card, or nothing. Each kind is a row of an Email and a Push switch, a cell
+ * shown while that channel is on at the server for that kind (`available`, `availablePush`):
+ * *Conversations* for people who see conversations; *Submitted reports* and the Watched groups list
+ * for the watch audience among them; *Weekly report reminders* for someone who leads an open group
+ * (`leadsGroup`) and can submit reports. With no switch to show the card is left out. A failed
+ * preferences call hides the card (the kill switches are unknown); a failed watched-groups call
+ * keeps it, with an error in place of the list. *This device* shows while auth-server says push is
+ * on (`GET /api/push/config`). While in-app notifications are on (the bell's `unread-count`, since
+ * the preferences have no flag for it) the Watching switches are never disabled (notifications
+ * rule 7).
  */
 export async function MyNotifications({
   permissions,
@@ -52,30 +79,35 @@ export async function MyNotifications({
 
   if (!preferences.ok) return null;
 
-  const { email, available } = preferences.value;
-  const showConversations = canSeeConversations && available.reportConversation;
-  const showSubmitted = watcher && available.reportSubmitted;
-  const showReminders = canReceiveReminders && available.reportReminder;
+  // A kind's row shows for who may see it; each cell while that channel is on at the server for it.
+  const conversations = cells(
+    canSeeConversations,
+    preferences.value,
+    "reportConversation",
+  );
+  const submitted = cells(watcher, preferences.value, "reportSubmitted");
+  const reminders = cells(
+    canReceiveReminders,
+    preferences.value,
+    "reportReminder",
+  );
 
-  if (!showConversations && !showSubmitted && !showReminders) return null;
+  if (!conversations && !submitted && !reminders) return null;
 
   // The Watched groups list belongs to conversations and submitted reports (rule 14): with neither
   // switch shown, a card that holds only *Weekly report reminders* leaves it out.
-  const list =
-    watched && (showConversations || showSubmitted) ? await watched : null;
+  const list = watched && (conversations || submitted) ? await watched : null;
   const inApp = await unread.then((count) => count.ok && count.value.enabled);
   const config = await pushConfig;
   const pushPublicKey = config?.enabled ? config.publicKey : null;
 
   return (
     <NotificationsCard
-      conversationEmails={
-        showConversations ? email.reportConversation : undefined
-      }
+      conversations={conversations}
       inApp={inApp}
       pushPublicKey={pushPublicKey}
-      reminderEmails={showReminders ? email.reportReminder : undefined}
-      submittedEmails={showSubmitted ? email.reportSubmitted : undefined}
+      reminders={reminders}
+      submitted={submitted}
       watchedGroups={
         list === null ? undefined : list.ok ? list.value.items : null
       }

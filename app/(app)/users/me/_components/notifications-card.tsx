@@ -2,14 +2,18 @@
 
 import type { WatchedGroup } from "@/api/notifications-api/types";
 
+import { Switch } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
 import { PushDeviceRow } from "./push-device-row";
 
 import {
   setConversationEmails,
+  setConversationPush,
   setReportReminderEmails,
+  setReportReminderPush,
   setSubmittedReportEmails,
+  setSubmittedReportPush,
   setWatching,
 } from "@/app/(app)/_actions/notification-actions";
 import { DetailCardHeading } from "@/app/(app)/applications/[id]/_components/detail-card-heading";
@@ -17,12 +21,22 @@ import { card } from "@/components/primitives";
 import { SettingSwitch, useSavedToggle } from "@/components/setting-switch";
 import { StatusBadge } from "@/components/status-badge";
 
+/** One kind's switches. A channel that is `undefined` has no cell: it is off at the server for
+ *  this kind (`available` / `availablePush`). */
+export interface KindChoice {
+  email?: boolean;
+  push?: boolean;
+}
+
+type SavedToggle = ReturnType<typeof useSavedToggle>;
+
 function WatchedGroupRow({
   group,
   enabled,
 }: {
   group: WatchedGroup;
-  /** In-app notifications are on, or an email switch is: Watching has something to control. */
+  /** In-app notifications are on, or an email or push switch is: Watching has something to
+   *  control. */
   enabled: boolean;
 }) {
   const t = useTranslations("NotificationSettings");
@@ -51,30 +65,118 @@ function WatchedGroupRow({
   );
 }
 
+/** A grid cell: a switch with no visible label (the row and the column say what it is), in a
+ *  56 × 44 target. */
+function CellSwitch({ label, toggle }: { label: string; toggle: SavedToggle }) {
+  return (
+    <Switch
+      aria-busy={toggle.pending || undefined}
+      aria-label={label}
+      className="flex h-11 w-14 items-center justify-center"
+      isSelected={toggle.isSelected}
+      onChange={toggle.toggle}
+    >
+      <Switch.Content>
+        <Switch.Control>
+          <Switch.Thumb />
+        </Switch.Control>
+      </Switch.Content>
+    </Switch>
+  );
+}
+
+function GridRow({
+  label,
+  hint,
+  choice,
+  email,
+  push,
+  showEmail,
+  showPush,
+  columns,
+}: {
+  label: string;
+  hint: string;
+  choice: KindChoice;
+  email: SavedToggle;
+  push: SavedToggle;
+  showEmail: boolean;
+  showPush: boolean;
+  columns: string;
+}) {
+  const t = useTranslations("NotificationSettings");
+  const errors = [
+    choice.email !== undefined ? email.error : null,
+    choice.push !== undefined ? push.error : null,
+  ].filter((message): message is string => message !== null);
+
+  return (
+    <div className="flex flex-col gap-1 border-t border-separator px-6 py-2">
+      <div className={`grid items-center gap-x-2 ${columns}`}>
+        <div className="flex min-w-0 flex-col gap-0.5 py-1">
+          <span className="text-[15px] font-medium text-heading">{label}</span>
+          <span className="text-[13.5px] leading-normal text-muted">
+            {hint}
+          </span>
+        </div>
+        {showEmail && (
+          <div className="flex justify-center">
+            {choice.email !== undefined && (
+              <CellSwitch
+                label={t("switchEmail", { kind: label })}
+                toggle={email}
+              />
+            )}
+          </div>
+        )}
+        {showPush && (
+          <div className="flex justify-center">
+            {choice.push !== undefined && (
+              <CellSwitch
+                label={t("switchPush", { kind: label })}
+                toggle={push}
+              />
+            )}
+          </div>
+        )}
+      </div>
+      {errors.map((message) => (
+        <p key={message} className="text-[13px] text-danger" role="alert">
+          {message}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 /**
- * My profile's email settings: a switch per kind of email, "Conversations" and (for the full-scope
- * audience) "Submitted reports" and (for group leaders) "Weekly report reminders", each `undefined`
- * while hidden. The reminder switch doesn't affect the Watching list. For the
- * audience (`watchedGroups` not undefined) a Watching switch per group follows. The watch switches
- * are disabled, not hidden, while every shown email switch is off: the choice is kept for later.
- * Not while in-app notifications are on (`inApp`, notifications rule 7): Watching then covers the
- * in-app list too, so it is never disabled.
+ * My profile's notification settings: one row per kind (*Conversations*, and for the full-scope
+ * audience *Submitted reports*, and for group leaders *Weekly report reminders*), each `undefined`
+ * while hidden, with an Email and a Push switch (rule 24). A channel's column goes when it is off
+ * at the server for every kind shown; with no Push column the card is the email-only card as before
+ * (switches with their own hints, no *This device* row). Push switches cover all the user's
+ * devices, so they work whether or not this one is on (`pushPublicKey` only decides whether the
+ * *This device* row shows). For the audience (`watchedGroups` not undefined) a Watching switch per
+ * group follows. The watch switches are disabled, not hidden, while every shown email and push
+ * switch is off: the choice is kept for later. Not while in-app notifications are on (`inApp`,
+ * notifications rule 7): Watching then covers the in-app list too, so it is never disabled. The
+ * reminder switches don't count toward that: Watching doesn't cover them.
  */
 export function NotificationsCard({
-  conversationEmails,
-  submittedEmails,
-  reminderEmails,
+  conversations,
+  submitted,
+  reminders,
   watchedGroups,
   inApp,
   pushPublicKey,
 }: {
-  /** `undefined`: the switch is hidden (kind off at the server). */
-  conversationEmails?: boolean;
-  /** `undefined`: hidden (not a watcher, or kind off at the server). */
-  submittedEmails?: boolean;
-  /** `undefined`: hidden (doesn't lead a group, or kind off at the server). Independent of the
-   *  Watching list: it never counts toward `emailsOn`. */
-  reminderEmails?: boolean;
+  /** `undefined`: the row is hidden (the person doesn't see conversations, or both channels are
+   *  off at the server). */
+  conversations?: KindChoice;
+  /** `undefined`: hidden (not a watcher, or the kind is off at the server). */
+  submitted?: KindChoice;
+  /** `undefined`: hidden (doesn't lead a group, or the kind is off at the server). */
+  reminders?: KindChoice;
   /** `undefined`: not a watcher; `null`: the list failed to load. */
   watchedGroups?: WatchedGroup[] | null;
   /** In-app notifications are on at the server (the bell's `unread-count.enabled`). */
@@ -83,25 +185,52 @@ export function NotificationsCard({
   pushPublicKey?: string | null;
 }) {
   const t = useTranslations("NotificationSettings");
-  const conversations = useSavedToggle(
-    conversationEmails ?? false,
+  const failed = t("saveFailed");
+  // Hooks can't be conditional, so every switch has one; a hidden cell just never shows it.
+  const conversationEmail = useSavedToggle(
+    conversations?.email ?? false,
     setConversationEmails,
-    t("saveFailed"),
+    failed,
   );
-  const submitted = useSavedToggle(
-    submittedEmails ?? false,
+  const conversationPush = useSavedToggle(
+    conversations?.push ?? false,
+    setConversationPush,
+    failed,
+  );
+  const submittedEmail = useSavedToggle(
+    submitted?.email ?? false,
     setSubmittedReportEmails,
-    t("saveFailed"),
+    failed,
   );
-  const reminders = useSavedToggle(
-    reminderEmails ?? false,
+  const submittedPush = useSavedToggle(
+    submitted?.push ?? false,
+    setSubmittedReportPush,
+    failed,
+  );
+  const reminderEmail = useSavedToggle(
+    reminders?.email ?? false,
     setReportReminderEmails,
-    t("saveFailed"),
+    failed,
   );
-  const emailsOn =
-    (conversationEmails !== undefined && conversations.isSelected) ||
-    (submittedEmails !== undefined && submitted.isSelected);
-  const watchEnabled = inApp || emailsOn;
+  const reminderPush = useSavedToggle(
+    reminders?.push ?? false,
+    setReportReminderPush,
+    failed,
+  );
+
+  const kinds = [conversations, submitted, reminders];
+  const showPush = kinds.some((kind) => kind?.push !== undefined);
+  const showEmail = kinds.some((kind) => kind?.email !== undefined);
+  const channelsOn =
+    (conversations?.email !== undefined && conversationEmail.isSelected) ||
+    (conversations?.push !== undefined && conversationPush.isSelected) ||
+    (submitted?.email !== undefined && submittedEmail.isSelected) ||
+    (submitted?.push !== undefined && submittedPush.isSelected);
+  const watchEnabled = inApp || channelsOn;
+  const columns =
+    showEmail && showPush
+      ? "grid-cols-[minmax(0,1fr)_3.5rem_3.5rem]"
+      : "grid-cols-[minmax(0,1fr)_3.5rem]";
 
   return (
     <section
@@ -111,41 +240,101 @@ export function NotificationsCard({
       })}
     >
       <div className="flex flex-col gap-4 px-6 pb-5">
-        <DetailCardHeading eyebrow={t("eyebrow")} id="my-notifications-title">
+        <DetailCardHeading
+          eyebrow={showPush ? t("eyebrowPush") : t("eyebrow")}
+          id="my-notifications-title"
+        >
           {t("title")}
         </DetailCardHeading>
-        {conversationEmails !== undefined && (
+        {!showPush && conversations?.email !== undefined && (
           <SettingSwitch
             description={t("conversationEmailsHint")}
-            error={conversations.error}
-            isSelected={conversations.isSelected}
+            error={conversationEmail.error}
+            isSelected={conversationEmail.isSelected}
             label={t("conversationEmails")}
-            pending={conversations.pending}
-            onChange={conversations.toggle}
+            pending={conversationEmail.pending}
+            onChange={conversationEmail.toggle}
           />
         )}
-        {submittedEmails !== undefined && (
+        {!showPush && submitted?.email !== undefined && (
           <SettingSwitch
             description={t("submittedEmailsHint")}
-            error={submitted.error}
-            isSelected={submitted.isSelected}
+            error={submittedEmail.error}
+            isSelected={submittedEmail.isSelected}
             label={t("submittedEmails")}
-            pending={submitted.pending}
-            onChange={submitted.toggle}
+            pending={submittedEmail.pending}
+            onChange={submittedEmail.toggle}
           />
         )}
-        {reminderEmails !== undefined && (
+        {!showPush && reminders?.email !== undefined && (
           <SettingSwitch
             description={t("reminderEmailsHint")}
-            error={reminders.error}
-            isSelected={reminders.isSelected}
+            error={reminderEmail.error}
+            isSelected={reminderEmail.isSelected}
             label={t("reminderEmails")}
-            pending={reminders.pending}
-            onChange={reminders.toggle}
+            pending={reminderEmail.pending}
+            onChange={reminderEmail.toggle}
           />
         )}
       </div>
-      {pushPublicKey && <PushDeviceRow publicKey={pushPublicKey} />}
+      {showPush && pushPublicKey && <PushDeviceRow publicKey={pushPublicKey} />}
+      {showPush && (
+        <div className="flex flex-col border-t border-separator">
+          <div
+            aria-hidden="true"
+            className={`grid items-end gap-x-2 px-6 pt-3 pb-1.5 ${columns}`}
+          >
+            <span />
+            {showEmail && (
+              <span className="text-center text-[12px] font-semibold tracking-[0.08em] text-muted uppercase">
+                {t("colEmail")}
+              </span>
+            )}
+            <span className="text-center text-[12px] font-semibold tracking-[0.08em] text-muted uppercase">
+              {t("colPush")}
+            </span>
+          </div>
+          {conversations && (
+            <GridRow
+              choice={conversations}
+              columns={columns}
+              email={conversationEmail}
+              hint={t("conversationsHint")}
+              label={t("conversationEmails")}
+              push={conversationPush}
+              showEmail={showEmail}
+              showPush={showPush}
+            />
+          )}
+          {submitted && (
+            <GridRow
+              choice={submitted}
+              columns={columns}
+              email={submittedEmail}
+              hint={t("submittedHint")}
+              label={t("submittedEmails")}
+              push={submittedPush}
+              showEmail={showEmail}
+              showPush={showPush}
+            />
+          )}
+          {reminders && (
+            <GridRow
+              choice={reminders}
+              columns={columns}
+              email={reminderEmail}
+              hint={t("reminderHint")}
+              label={t("reminderEmails")}
+              push={reminderPush}
+              showEmail={showEmail}
+              showPush={showPush}
+            />
+          )}
+          <p className="px-6 pt-1 pb-5 text-[13.5px] leading-normal text-muted">
+            {t("pushHelp")}
+          </p>
+        </div>
+      )}
       {watchedGroups !== undefined && (
         <div className="flex flex-col border-t border-separator">
           <div className="flex flex-col gap-1 px-6 pb-3 pt-4">
@@ -155,7 +344,7 @@ export function NotificationsCard({
             <p className="text-[13.5px] text-muted">
               {inApp
                 ? t("watchedGroupsHintInApp")
-                : emailsOn
+                : channelsOn
                   ? t("watchedGroupsHint")
                   : t("emailsOffHint")}
             </p>

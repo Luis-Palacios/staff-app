@@ -17,17 +17,18 @@ import { SettingSwitch, useSavedToggle } from "@/components/setting-switch";
 export function GroupWatchCard({
   groupId,
   watching,
-  emailsOn,
+  channelsOn,
   inApp,
 }: {
   groupId: number;
   watching: boolean;
-  /** At least one kind of email is on (available at the server and chosen by the caller). */
-  emailsOn: boolean;
+  /** At least one email or push switch Watching covers is on (available at the server and chosen
+   *  by the caller). */
+  channelsOn: boolean;
   /** In-app notifications are on at the server: Watching covers them too. */
   inApp: boolean;
 }) {
-  const enabled = inApp || emailsOn;
+  const enabled = inApp || channelsOn;
   const t = useTranslations("NotificationSettings");
   const watch = useSavedToggle(
     watching,
@@ -49,7 +50,7 @@ export function GroupWatchCard({
         description={
           inApp
             ? t("watchingHintInApp")
-            : emailsOn
+            : channelsOn
               ? t("watchingHint")
               : undefined
         }

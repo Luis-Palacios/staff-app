@@ -35,7 +35,7 @@ import { settle } from "@/lib/settle";
 async function loadWatch(
   permissions: Permissions,
   groupId: number,
-): Promise<{ watching: boolean; emailsOn: boolean; inApp: boolean } | null> {
+): Promise<{ watching: boolean; channelsOn: boolean; inApp: boolean } | null> {
   if (!canWatchGroups(permissions)) return null;
 
   const [preferences, watched, unread] = await Promise.all([
@@ -46,19 +46,29 @@ async function loadWatch(
 
   if (!preferences.ok || !watched.ok) return null;
 
-  const { email, available } = preferences.value;
+  const { email, available, push, availablePush } = preferences.value;
 
-  // A kind that is off at the server can't send, whatever the caller chose.
-  if (!available.reportConversation && !available.reportSubmitted) return null;
+  // A kind that is off at the server on every channel can't send, whatever the caller chose.
+  if (
+    !available.reportConversation &&
+    !available.reportSubmitted &&
+    !availablePush.reportConversation &&
+    !availablePush.reportSubmitted
+  ) {
+    return null;
+  }
 
   const row = watched.value.items.find((item) => item.smallGroupId === groupId);
 
   return row
     ? {
         watching: row.watching,
-        emailsOn:
+        // Rule 7: any email or push switch Watching covers is on.
+        channelsOn:
           (available.reportConversation && email.reportConversation) ||
-          (available.reportSubmitted && email.reportSubmitted),
+          (available.reportSubmitted && email.reportSubmitted) ||
+          (availablePush.reportConversation && push.reportConversation) ||
+          (availablePush.reportSubmitted && push.reportSubmitted),
         inApp: unread.ok && unread.value.enabled,
       }
     : null;
@@ -115,7 +125,7 @@ export default async function GroupDetailPage({
           <GroupDetailsCard group={group} />
           {watch && (
             <GroupWatchCard
-              emailsOn={watch.emailsOn}
+              channelsOn={watch.channelsOn}
               groupId={group.id}
               inApp={watch.inApp}
               watching={watch.watching}
