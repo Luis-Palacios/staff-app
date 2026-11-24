@@ -43,9 +43,11 @@ export const getConversationEmailsAvailable = cache(
     ),
 );
 
-/** Any subset of the three keys; the server answers 422 for anything else. */
+/** Any subset of the three keys under `email` and/or `push`; the server answers 422 for anything
+ *  else. */
 export function updateNotificationPreferences(input: {
-  email: Partial<EmailKinds>;
+  email?: Partial<EmailKinds>;
+  push?: Partial<EmailKinds>;
 }): Promise<NotificationPreferences> {
   return request<NotificationPreferences>("/me/notification-preferences", {
     method: "PUT",

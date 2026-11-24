@@ -9,11 +9,14 @@ export interface EmailKinds {
   reportReminder: boolean;
 }
 
-/** `GET`/`PUT /me/notification-preferences`. `email` is the caller's choice per kind; `available`
- *  is each kind's server kill switch: while false, that kind's switch is hidden. */
+/** `GET`/`PUT /me/notification-preferences`. `email` and `push` are the caller's choice per kind;
+ *  `available` (email) and `availablePush` (kind flag AND the push flag) are each kind's server
+ *  kill switch per channel: while false, that cell is hidden. Same keys for both channels. */
 export interface NotificationPreferences {
   email: EmailKinds;
   available: EmailKinds;
+  push: EmailKinds;
+  availablePush: EmailKinds;
 }
 
 /** One row of `GET /me/watched-groups` (every group, open first, then by name). */

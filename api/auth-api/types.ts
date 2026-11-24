@@ -29,6 +29,19 @@ export interface AuthToken {
   token: string;
 }
 
+/** `GET /api/push/config`. `publicKey` is the VAPID public key (base64url, uncompressed P-256),
+ *  `null` while push is off at the server. */
+export interface PushConfig {
+  enabled: boolean;
+  publicKey: string | null;
+}
+
+/** A browser's push subscription as `PushSubscription.toJSON()` gives it. */
+export interface PushSubscriptionInput {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+}
+
 export interface AdminUserListItem {
   id: string;
   name: string;

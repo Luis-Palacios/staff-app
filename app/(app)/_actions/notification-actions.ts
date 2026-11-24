@@ -102,6 +102,70 @@ export async function setReportReminderEmails(
   }
 }
 
+// The Push column (rule 24): same audiences as the Email column, saved under `push`. They cover
+// every device the user turned on, so they work whether or not this one is on.
+
+/** My profile's "Conversations" push switch. */
+export async function setConversationPush(
+  enabled: boolean,
+): Promise<ToggleResult> {
+  if (!canSeeConversationsInbox(await getPermissions())) return forbidden();
+
+  try {
+    const preferences = await updateNotificationPreferences({
+      push: { reportConversation: enabled },
+    });
+
+    revalidatePath("/users/me");
+    revalidatePath("/groups/[id]", "page");
+
+    return { ok: true, value: preferences.push.reportConversation };
+  } catch (error) {
+    return toFailure(error);
+  }
+}
+
+/** My profile's "Submitted reports" push switch, for the watch audience only. */
+export async function setSubmittedReportPush(
+  enabled: boolean,
+): Promise<ToggleResult> {
+  if (!canWatchGroups(await getPermissions())) return forbidden();
+
+  try {
+    const preferences = await updateNotificationPreferences({
+      push: { reportSubmitted: enabled },
+    });
+
+    revalidatePath("/users/me");
+    revalidatePath("/groups/[id]", "page");
+
+    return { ok: true, value: preferences.push.reportSubmitted };
+  } catch (error) {
+    return toFailure(error);
+  }
+}
+
+/** My profile's "Weekly report reminders" push switch. */
+export async function setReportReminderPush(
+  enabled: boolean,
+): Promise<ToggleResult> {
+  const denied = await forbiddenUnless(REPORT_REMINDER_CHECK);
+
+  if (denied) return toFailure(denied);
+
+  try {
+    const preferences = await updateNotificationPreferences({
+      push: { reportReminder: enabled },
+    });
+
+    revalidatePath("/users/me");
+
+    return { ok: true, value: preferences.push.reportReminder };
+  } catch (error) {
+    return toFailure(error);
+  }
+}
+
 /** One group's Watching switch, from My profile or the group's page. */
 export async function setWatching(
   groupId: number,

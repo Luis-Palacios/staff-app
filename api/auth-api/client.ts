@@ -5,6 +5,8 @@ import type {
   AuthRole,
   AuthSession,
   AuthToken,
+  PushConfig,
+  PushSubscriptionInput,
 } from "@/api/auth-api/types";
 
 import { headers } from "next/headers";
@@ -192,6 +194,47 @@ export async function cancelInvite(
       cache: "no-store",
     },
   );
+}
+
+// Web Push (notifications Part 2). Session-cookie-gated like the invite calls, called from server
+// actions, so the incoming cookie and Origin are forwarded.
+
+/** Whether push is on at the server and the VAPID public key to subscribe with. 401 without a
+ *  session. */
+export async function getPushConfig(
+  request: ForwardedRequest,
+): Promise<PushConfig> {
+  return apiFetch<PushConfig>(getEnv().AUTH_SERVER_URL, "/api/push/config", {
+    headers: await forwardedHeaders(request),
+    cache: "no-store",
+  });
+}
+
+/** Registers this browser's subscription for the caller (moves it when another user had it).
+ *  404 `push_disabled`, 422 `invalid_request` / `invalid_endpoint`. */
+export async function putPushSubscription(
+  request: ForwardedRequest,
+  subscription: PushSubscriptionInput,
+): Promise<void> {
+  await apiFetch<void>(getEnv().AUTH_SERVER_URL, "/api/push/subscriptions", {
+    method: "PUT",
+    headers: await forwardedHeaders(request),
+    body: subscription,
+    cache: "no-store",
+  });
+}
+
+/** Deletes the caller's subscription for `endpoint`. Idempotent, works with push off. */
+export async function deletePushSubscription(
+  request: ForwardedRequest,
+  endpoint: string,
+): Promise<void> {
+  await apiFetch<void>(getEnv().AUTH_SERVER_URL, "/api/push/subscriptions", {
+    method: "DELETE",
+    headers: await forwardedHeaders(request),
+    body: { endpoint },
+    cache: "no-store",
+  });
 }
 
 // better-auth's POST /update-user for the signed-in user's own `locale` (auth-server's
