@@ -542,10 +542,12 @@ export function ReportListStep({
         />
       </section>
 
+      {/* Sticks to the bottom of the screen so Submit is always in view: floating above the
+          edge from md, a full-width bottom bar (bleeding into the page padding) below it. */}
       <div
         className={card({
           className:
-            "flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-5",
+            "sticky bottom-0 z-30 -mx-4 -mb-6 flex flex-wrap items-center justify-between gap-3 rounded-none border-x-0 border-b-0 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-float sm:-mx-6 sm:px-6 md:bottom-4 md:mx-0 md:mb-0 md:rounded-card md:border-x md:border-b md:px-5 md:py-4",
         })}
       >
         {footer}

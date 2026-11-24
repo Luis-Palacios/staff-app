@@ -12,6 +12,7 @@ import {
 // status); `titleAside` next to the title (a status pill).
 export function StaffAppPageHeader({
   breadcrumbs,
+  onBreadcrumbNavigate,
   breadcrumbAside,
   eyebrow,
   title: heading,
@@ -20,6 +21,8 @@ export function StaffAppPageHeader({
   actions,
 }: {
   breadcrumbs?: StaffAppBreadcrumbItem[];
+  /** Client pages only: see `StaffAppBreadcrumbs`' `onNavigate`. */
+  onBreadcrumbNavigate?: (href: string) => void;
   breadcrumbAside?: ReactNode;
   eyebrow?: ReactNode;
   title: ReactNode;
@@ -27,15 +30,22 @@ export function StaffAppPageHeader({
   description?: ReactNode;
   actions?: ReactNode;
 }) {
+  const crumbs = breadcrumbs && (
+    <StaffAppBreadcrumbs
+      items={breadcrumbs}
+      onNavigate={onBreadcrumbNavigate}
+    />
+  );
+
   return (
     <header className="mb-6 flex flex-col gap-6">
       {breadcrumbAside ? (
         <div className="flex min-h-8 flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          {breadcrumbs && <StaffAppBreadcrumbs items={breadcrumbs} />}
+          {crumbs}
           {breadcrumbAside}
         </div>
       ) : (
-        breadcrumbs && <StaffAppBreadcrumbs items={breadcrumbs} />
+        crumbs
       )}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-[640px] flex-col gap-1.5">

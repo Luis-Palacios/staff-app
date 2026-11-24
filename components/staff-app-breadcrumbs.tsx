@@ -24,12 +24,15 @@ const crumbClasses = [
 
 export function StaffAppBreadcrumbs({
   items,
+  onNavigate,
 }: {
   items: StaffAppBreadcrumbItem[];
+  /** Takes over a plain click on a crumb (an editor that saves or asks before leaving). Clicks
+   *  with a modifier key still open the link as usual. */
+  onNavigate?: (href: string) => void;
 }) {
   const t = useTranslations("Nav");
-
-  return (
+  const crumbs = (
     <Breadcrumbs
       className={crumbClasses}
       separator={<ChevronRightIcon strokeWidth={2} />}
@@ -47,5 +50,36 @@ export function StaffAppBreadcrumbs({
         </Breadcrumbs.Item>
       ))}
     </Breadcrumbs>
+  );
+
+  if (!onNavigate) return crumbs;
+
+  return (
+    // Capture runs before the link's own handler, so the click never navigates by itself.
+    <div
+      className="contents"
+      onClickCapture={(event) => {
+        if (
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        ) {
+          return;
+        }
+
+        const link = (event.target as Element).closest("a[href]");
+        const href = link?.getAttribute("href");
+
+        if (!href) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        onNavigate(href);
+      }}
+    >
+      {crumbs}
+    </div>
   );
 }

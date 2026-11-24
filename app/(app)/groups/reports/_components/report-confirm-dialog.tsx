@@ -24,6 +24,7 @@ export function ReportConfirmDialog({
   cancelLabel,
   confirmLabel,
   isPending = false,
+  onCancel,
   onConfirm,
 }: {
   isOpen: boolean;
@@ -37,6 +38,9 @@ export function ReportConfirmDialog({
   cancelLabel: string;
   confirmLabel: string;
   isPending?: boolean;
+  /** The safe button closes the dialog; this runs as well (*Leave as draft* goes on to leave).
+   *  Escape and the backdrop only close. */
+  onCancel?: () => void;
   onConfirm: () => void;
 }) {
   return (
@@ -99,6 +103,7 @@ export function ReportConfirmDialog({
               isDisabled={isPending}
               slot="close"
               variant="outline"
+              onPress={onCancel}
             >
               {cancelLabel}
             </Button>

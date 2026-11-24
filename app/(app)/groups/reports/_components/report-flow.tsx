@@ -255,8 +255,10 @@ export function ReportFlow({
   // Names added by a roster reload (rule 11), for the notice; null when it didn't change.
   const [rosterChange, setRosterChange] = useState<string[] | null>(null);
   const [dialog, setDialog] = useState<
-    "submit" | "discard" | "noMeeting" | null
+    "submit" | "discard" | "noMeeting" | "leave" | null
   >(null);
+  // Where *Leave as draft* goes from the leave prompt.
+  const [leaveHref, setLeaveHref] = useState<string | null>(null);
   // *Continue one at a time* started here: the "Picking up where you left off" banner.
   const [resumedAt, setResumedAt] = useState<number | null>(null);
   // The group and date the roster below belongs to, so the first render doesn't ask again.
@@ -864,6 +866,29 @@ export function ReportFlow({
     isMarked(draft.answers[personKey(person.person)]),
   ).length;
   const remaining = people.length - markedCount;
+
+  /**
+   * The editor's own exits (Close, the breadcrumbs, Cancel). A draft that could be submitted
+   * right now (everyone marked) asks *Submit before you go?* first; anything else just leaves.
+   */
+  function requestLeave(href: string) {
+    const canSubmit =
+      !submitted &&
+      draft.met &&
+      savedIdRef.current !== null &&
+      !noPeople &&
+      remaining === 0 &&
+      save.status !== "conflict";
+
+    if (canSubmit) {
+      setLeaveHref(href);
+      setDialog("leave");
+
+      return;
+    }
+
+    leave(href);
+  }
   const firstOpen = firstOpenIndex(people, draft.answers);
   const cameCount = people.filter(
     (row) => draft.answers[personKey(row.person)]?.attendedGroup === true,
@@ -871,6 +896,12 @@ export function ReportFlow({
   const noteCount = people.filter((row) =>
     draft.answers[personKey(row.person)]?.observation.trim(),
   ).length;
+  // The submit confirm's tiles, shown again by the leave prompt.
+  const submitSummary = [
+    { value: `${markedCount} / ${people.length}`, label: t("sumAnswered") },
+    { value: String(cameCount), label: t("sumCame") },
+    { value: String(noteCount), label: t("sumNotes") },
+  ];
   // Who else sees the draft and loses it with a discard: the group's leaders and co-leaders on
   // the list, and whoever started it (rule 14), but not the viewer.
   const draftViewers = new Map<number, string>();
@@ -1058,7 +1089,7 @@ export function ReportFlow({
         remaining={remaining}
         onReload={reloadPeople}
       />
-      <div className="flex w-full flex-wrap gap-3 sm:w-auto">
+      <div className="flex flex-1 flex-wrap justify-end gap-3 sm:flex-none">
         {backButton}
         {submitted ? (
           <Button
@@ -1111,7 +1142,7 @@ export function ReportFlow({
           aria-label={t("close")}
           className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-muted outline-none hover:bg-surface-secondary focus-visible:shadow-[var(--shadow-focus)]"
           type="button"
-          onClick={() => leave(closeHref)}
+          onClick={() => requestLeave(closeHref)}
         >
           <XMarkIcon aria-hidden="true" className="size-6" strokeWidth={1.8} />
         </button>
@@ -1170,6 +1201,7 @@ export function ReportFlow({
           titleAside={
             showPill ? <ReportStatusPill submitted={submitted} /> : undefined
           }
+          onBreadcrumbNavigate={requestLeave}
         />
       </div>
 
@@ -1221,7 +1253,7 @@ export function ReportFlow({
           today={today}
           onAddressChange={(address) => edit({ address }, "text")}
           onBackToList={resumedDraft ? () => setStep("list") : undefined}
-          onCancel={() => leave(toList)}
+          onCancel={() => requestLeave(toList)}
           onChooseMode={chooseMode}
           onDateChange={changeDate}
           onGroupChange={changeGroup}
@@ -1401,18 +1433,28 @@ export function ReportFlow({
         icon={PaperAirplaneIcon}
         isOpen={dialog === "submit"}
         isPending={isSubmitting}
-        summary={[
-          {
-            value: `${markedCount} / ${people.length}`,
-            label: t("sumAnswered"),
-          },
-          { value: String(cameCount), label: t("sumCame") },
-          { value: String(noteCount), label: t("sumNotes") },
-        ]}
+        summary={submitSummary}
         title={t("submitTitle")}
         tone="accent"
         onConfirm={submitDraft}
         onOpenChange={(open) => setDialog(open ? "submit" : null)}
+      />
+      {/* Leaving a draft that could be submitted: Escape or the backdrop keeps editing. */}
+      <ReportConfirmDialog
+        body={t("leaveBody")}
+        cancelLabel={t("leaveLater")}
+        confirmLabel={t("submit")}
+        icon={PaperAirplaneIcon}
+        isOpen={dialog === "leave"}
+        isPending={isSubmitting}
+        summary={submitSummary}
+        title={t("leaveTitle")}
+        tone="accent"
+        onCancel={() => {
+          if (leaveHref) leave(leaveHref);
+        }}
+        onConfirm={submitDraft}
+        onOpenChange={(open) => setDialog(open ? "leave" : null)}
       />
       <ReportConfirmDialog
         body={

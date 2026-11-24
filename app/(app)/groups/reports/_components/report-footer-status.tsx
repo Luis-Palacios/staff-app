@@ -25,7 +25,8 @@ export function ReportFooterStatus({
   const t = useTranslations("ReportForm");
 
   return (
-    <div className="flex min-w-0 flex-1 basis-[240px] flex-col gap-2">
+    // In the phone bottom bar the count goes on top, above Discard and Submit.
+    <div className="flex min-w-0 flex-1 basis-[240px] flex-col gap-2 max-md:order-first max-md:basis-full">
       {failure && (
         <div
           className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-danger-soft px-3 py-2 text-sm text-danger-soft-foreground"

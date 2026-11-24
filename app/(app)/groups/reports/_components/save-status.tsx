@@ -24,6 +24,9 @@ const TONE = {
   conflict: "bg-danger-soft text-danger-soft-foreground",
 } as const;
 
+/** Green means submitted: a draft's save is neutral, so "Draft saved" never reads as done. */
+const DRAFT_SAVED_TONE = "bg-surface-secondary text-foreground";
+
 const ICON = {
   saved: CheckCircleIcon,
   saving: ArrowPathIcon,
@@ -95,6 +98,10 @@ export function SaveStatus({
   const t = useTranslations("ReportForm");
   const words = useSaveWords(state, submitted);
   const Icon = ICON[state.status];
+  const tone =
+    state.status === "saved" && !submitted
+      ? DRAFT_SAVED_TONE
+      : TONE[state.status];
   const icon = (
     <Icon
       aria-hidden="true"
@@ -113,7 +120,7 @@ export function SaveStatus({
         aria-live="polite"
         className={clsx(
           "inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-[12.5px] font-semibold",
-          TONE[state.status],
+          tone,
           className,
         )}
         role="status"
@@ -130,7 +137,7 @@ export function SaveStatus({
         aria-live="polite"
         className={clsx(
           "inline-flex h-8 items-center gap-2 whitespace-nowrap rounded-full pl-2.5 pr-3 text-[13.5px] font-semibold",
-          TONE[state.status],
+          tone,
         )}
         role="status"
       >
