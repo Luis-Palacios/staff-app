@@ -2,6 +2,7 @@ import type { Permissions } from "@/lib/auth/permissions";
 
 import { NotificationsCard } from "./notifications-card";
 
+import { getPushConfig, incomingForwardedRequest } from "@/api/auth-api/client";
 import {
   getNotificationPreferences,
   getUnreadCount,
@@ -43,6 +44,10 @@ export async function MyNotifications({
   // Both start at once; the list is only read when a watch-related kind of email is on.
   const watched = watcher ? settle(getWatchedGroups()) : null;
   const unread = settle(getUnreadCount());
+  // The VAPID key for *This device*. A failed read, or push off, leaves the row out.
+  const pushConfig = incomingForwardedRequest()
+    .then(getPushConfig)
+    .catch(() => null);
   const preferences = await settle(getNotificationPreferences());
 
   if (!preferences.ok) return null;
@@ -59,6 +64,8 @@ export async function MyNotifications({
   const list =
     watched && (showConversations || showSubmitted) ? await watched : null;
   const inApp = await unread.then((count) => count.ok && count.value.enabled);
+  const config = await pushConfig;
+  const pushPublicKey = config?.enabled ? config.publicKey : null;
 
   return (
     <NotificationsCard
@@ -66,6 +73,7 @@ export async function MyNotifications({
         showConversations ? email.reportConversation : undefined
       }
       inApp={inApp}
+      pushPublicKey={pushPublicKey}
       reminderEmails={showReminders ? email.reportReminder : undefined}
       submittedEmails={showSubmitted ? email.reportSubmitted : undefined}
       watchedGroups={

@@ -50,8 +50,8 @@ contain its own hash).
 | --- | --- | --- |
 | 0. This handoff | ✅ | `75a93fe` |
 | 1. API clients, types, server actions | ✅ | `bd0ca3f` |
-| 2. Service worker, registration, headers | ✅ | |
-| 3. The *This device* row | ⬜ | |
+| 2. Service worker, registration, headers | ✅ | `78c6428` |
+| 3. The *This device* row | ✅ | |
 | 4. The email/push grid and rule 7 | ⬜ | |
 | 5. Sign-out cleanup and docs | ⬜ | |
 

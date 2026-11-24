@@ -4,6 +4,8 @@ import type { WatchedGroup } from "@/api/notifications-api/types";
 
 import { useTranslations } from "next-intl";
 
+import { PushDeviceRow } from "./push-device-row";
+
 import {
   setConversationEmails,
   setReportReminderEmails,
@@ -64,6 +66,7 @@ export function NotificationsCard({
   reminderEmails,
   watchedGroups,
   inApp,
+  pushPublicKey,
 }: {
   /** `undefined`: the switch is hidden (kind off at the server). */
   conversationEmails?: boolean;
@@ -76,6 +79,8 @@ export function NotificationsCard({
   watchedGroups?: WatchedGroup[] | null;
   /** In-app notifications are on at the server (the bell's `unread-count.enabled`). */
   inApp: boolean;
+  /** The VAPID public key while push is on at the server; `null`/`undefined` hides *This device*. */
+  pushPublicKey?: string | null;
 }) {
   const t = useTranslations("NotificationSettings");
   const conversations = useSavedToggle(
@@ -140,6 +145,7 @@ export function NotificationsCard({
           />
         )}
       </div>
+      {pushPublicKey && <PushDeviceRow publicKey={pushPublicKey} />}
       {watchedGroups !== undefined && (
         <div className="flex flex-col border-t border-separator">
           <div className="flex flex-col gap-1 px-6 pb-3 pt-4">
