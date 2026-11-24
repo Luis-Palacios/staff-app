@@ -9,7 +9,8 @@ async function removeCurrentSubscription(): Promise<void> {
   // getRegistration, not ready: it answers "none" at once instead of waiting for a worker that
   // was never registered.
   const registration = await navigator.serviceWorker.getRegistration("/");
-  const subscription = await registration?.pushManager.getSubscription();
+  // iOS Safari outside an installed app has service workers but no pushManager.
+  const subscription = await registration?.pushManager?.getSubscription();
 
   if (!subscription) return;
 
@@ -36,7 +37,8 @@ export async function removePushSubscriptionBeforeSignOut(): Promise<void> {
 
   try {
     await Promise.race([
-      removeCurrentSubscription(),
+      // Caught here too: if the timeout wins, a later failure would otherwise be an unhandled rejection.
+      removeCurrentSubscription().catch(() => {}),
       new Promise<void>((resolve) => {
         timer = setTimeout(resolve, CLEANUP_TIMEOUT_MS);
       }),

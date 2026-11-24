@@ -133,6 +133,8 @@ export interface ForwardedRequest {
   cookie: string;
   origin: string;
   acceptLanguage: string | null;
+  /** The browser's User-Agent; auth-server stores it with a push subscription (for a device list). */
+  userAgent?: string | null;
 }
 
 /** The incoming request's cookie, Origin and accept-language, for a server action's POST. */
@@ -145,6 +147,7 @@ export async function incomingForwardedRequest(): Promise<ForwardedRequest> {
     cookie: incoming.get("cookie") ?? "",
     origin: incoming.get("origin") ?? `${protocol}://${host}`,
     acceptLanguage: incoming.get("accept-language"),
+    userAgent: incoming.get("user-agent"),
   };
 }
 
@@ -218,7 +221,11 @@ export async function putPushSubscription(
 ): Promise<void> {
   await apiFetch<void>(getEnv().AUTH_SERVER_URL, "/api/push/subscriptions", {
     method: "PUT",
-    headers: await forwardedHeaders(request),
+    // The browser's User-Agent, not this server's ("node"): auth-server keeps it per device.
+    headers: {
+      ...(await forwardedHeaders(request)),
+      ...(request.userAgent && { "user-agent": request.userAgent }),
+    },
     body: subscription,
     cache: "no-store",
   });
