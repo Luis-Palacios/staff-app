@@ -53,10 +53,34 @@ contain its own hash).
 | 2. Service worker, registration, headers | ✅ | `78c6428` |
 | 3. The *This device* row | ✅ | `d60fe30` |
 | 4. The email/push grid and rule 7 | ✅ | `9061de8` |
-| 5. Sign-out cleanup and docs | ✅ | the last commit on the branch (a commit can't hold its own hash) |
+| 5. Sign-out cleanup and docs | ✅ | `c210943` |
+| Review fixes | ✅ | `c452e2e` |
 
-**Status: built; `pnpm lint`, `pnpm exec tsc --noEmit` and `pnpm build` run at the end of stage 5.
-Not looked at in a browser** (no browser checks in this brief).
+**Status: built, reviewed and browser-checked, with a real push received** (Nov 23, 2026). `pnpm lint`,
+`pnpm exec tsc --noEmit` and `pnpm build` pass.
+
+### Browser checks (Nov 23, 2026, local, `browser-verifier`, Chrome)
+
+Signed in as an admin; auth-server with push on and a dev VAPID pair; membership-management with
+`PUSH_NOTIFICATIONS_ENABLED`, in-app and two kind flags on. Notifications were allowed for
+`localhost:3001` in Chrome's settings beforehand (the verifier can't click the permission prompt).
+The window didn't resize: 390 was checked in a same-origin iframe.
+
+| Check | Result |
+| --- | --- |
+| `/sw.js` registered and active, scope `/`, no caches, served `no-cache, no-store, must-revalidate`, JavaScript (no sign-in redirect) | PASS |
+| Card, 1536 light en: "Email & push", *This device* band above the Email · Push grid, helper, channel-neutral row hints, switch names "Conversations, Email" … | PASS |
+| *Turn on* (permission already granted): no prompt, "On for this device" + "Turn off", stays On after reload, endpoint on `fcm.googleapis.com` | PASS |
+| Spanish, dark, 390: "Correo y push", "Este dispositivo", "Activadas en este dispositivo", "Desactivar", columns, helper; no horizontal scroll | PASS |
+| *Submitted reports, Push* saves off and back on across reloads | PASS |
+| **Real push**: `POST /internal/notifications` (channel push) → auth-server → FCM → this Chrome: `200 {"sent":1}` in 868 ms; the service worker showed "SGLA Beta submitted its report" / "Wed, Oct 14 · 9 of 12 attended · by Ana Díaz", tag `real-push-1`, data `{ path, notificationId: null }`. The same key again: `200 {"sent":1}` in 80 ms with no second push (`push_sends`) | PASS |
+| Badging API present (`navigator.setAppBadge`) | PASS |
+| Console errors | none (after restarting a membership-management dev server that was serving old code) |
+
+Not checked: *Turn off* (the device started off and was left on), clicking the OS notification (the
+verifier can't reach OS UI), the iOS hint and an installed iOS/iPadOS app (needs a real device over
+HTTPS), Firefox's click behaviour, sign-out cleanup (the verifier never signs out), and the push
+coming from a real membership-management event rather than a direct call to auth-server.
 
 ### Decisions and deviations
 
