@@ -19,6 +19,7 @@ export const CLIENT_NAMESPACES = [
   "AssignPendingRole",
   "AuthErrors",
   "CancelInviteButton",
+  "CareLog",
   "ChurchContext",
   "ConfirmDialog",
   "Conversations",

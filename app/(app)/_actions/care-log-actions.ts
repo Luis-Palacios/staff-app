@@ -10,10 +10,12 @@ import type {
   CareLogPersonOption,
   CareLogUpdateInput,
 } from "@/api/care-log-api/types";
+import type { MemberOption } from "@/api/members-api/types";
 
 import { getTranslations } from "next-intl/server";
 
 import { ApiError } from "@/api/api-client";
+import { listMemberOptions } from "@/api/members-api/client";
 import {
   cancelCareLogEntry,
   checkCareLogAudience,
@@ -101,6 +103,20 @@ export async function searchCareLogPeopleAction(
   if (text.length < 2) return { ok: true, value: [] };
 
   return run(() => searchCareLogPeople(text.slice(0, 100)));
+}
+
+/**
+ * Members to pick under *Who else took part* (names only, `members: search`). Loaded once when
+ * the picker opens and filtered in the browser.
+ */
+export async function listCareLogParticipantOptionsAction(): Promise<
+  CareLogResult<MemberOption[]>
+> {
+  if (await forbiddenUnless({ members: ["search"] })) {
+    return failure("forbidden");
+  }
+
+  return run(() => listMemberOptions());
 }
 
 export async function createCareLogAction(

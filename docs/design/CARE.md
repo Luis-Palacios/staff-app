@@ -72,8 +72,8 @@ progress log below.
 | Stage | Status | Commit |
 | --- | --- | --- |
 | **Part 1, branch `feature/care-log`** | | |
-| 1. Permissions, `CareIcon`, API types, client and server actions (care log) | ✅ | (this commit's hash is in stage 2's) |
-| 2. The care log form | ⬜ | |
+| 1. Permissions, `CareIcon`, API types, client and server actions (care log) | ✅ | `3cb35f8` |
+| 2. The care log form | ✅ | (hash in stage 3's commit) |
 | 3. Care log entries on the timeline | ⬜ | |
 | 4. *Log care* from reports, the conversation panel and Prayer & follow-up | ⬜ | |
 | 5. *Coming up* on the dashboards | ⬜ | |
@@ -107,6 +107,17 @@ progress log below.
     they wrote them (the API does that).
 - **Files:** the care log's types and client are `api/care-log-api/` (like `conversations-api/`), not
   `members-api/`; its server actions are `app/(app)/_actions/care-log-actions.ts`.
+- **Stage 2, the form** (`components/care/care-log-form.tsx`, opened through `LogCareButton`, which
+  also does the toast, `router.refresh()` and the focus return):
+  - One component, three modes: `new`, `edit` (your own entry, `PATCH`; kind limited to call /
+    meeting / visit on a plan, no done/planned switch) and `complete`.
+  - *Who else took part* lists church members from `GET /members/options` (names only, needs
+    `members: search`, which leaders have), filtered in the browser; *About* uses `people-search`.
+  - *It didn't happen* cancels at once, as drawn, with no confirm dialog (the toast says it).
+  - No *Delete entry* control yet: the boards don't draw one. The action and client function exist
+    (`deleteCareLogAction`); add the control once the design says where.
+  - The people picker is inline under the chips (not a popover), so it works the same in the sheet.
+  - Pending/stale handling: a `409 not_planned` shows as a banner ("Refresh the page").
 - **Type check workaround:** `getTranslations("CareLog.errors")` makes `tsc` report "union type too
   complex" with this many keys; the action uses `getTranslations("CareLog")` and `errors.${code}`.
 
