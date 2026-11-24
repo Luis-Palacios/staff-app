@@ -34,6 +34,10 @@ export interface PermissionStatements {
     | "update"
     | "delete"
     | "viewObservations";
+  /** The care log (care spec rule 40): `all` sees every entry, `view` and `create` are the leaders'. */
+  careLog: "all" | "view" | "create";
+  /** Care (Part 2); the unions are here so stage 7 only adds the screens. */
+  care: "all" | "view" | "create" | "update";
   invites: "create" | "cancel";
   ownProfile: "update";
   user: "create" | "list" | "get" | "ban" | "set-role";

@@ -34,8 +34,8 @@ stages 1–5 here; Part 2 stages 6–11 for stages 7–12 here) and `auth-server
 (the `careLog` and `care` permissions). If a stage starts before its endpoints are on `main`, say so
 and stop; stub nothing in committed code.
 
-Work through it **stage by stage**, one reviewable commit per stage: Part 1 on the **`care-log`**
-branch (stages 1–6), Part 2 on the **`care`** branch (stages 7–13), started from `main` after Part 1
+Work through it **stage by stage**, one reviewable commit per stage: Part 1 on the **`feature/care-log`**
+branch (stages 1–6), Part 2 on the **`feature/care`** branch (stages 7–12), started from `main` after Part 1
 merges. Each stage must lint (`pnpm lint`), type-check (`pnpm exec tsc --noEmit`) and work in light
 and dark, at 1440 / 1024 / 390, in English and Spanish, before the next one starts. After each
 stage, write a short summary of what changed and anything that differs from the canvas in the
@@ -71,14 +71,14 @@ progress log below.
 
 | Stage | Status | Commit |
 | --- | --- | --- |
-| **Part 1, branch `care-log`** | | |
-| 1. Permissions, `CareIcon`, API types, client and server actions (care log) | ⬜ | |
+| **Part 1, branch `feature/care-log`** | | |
+| 1. Permissions, `CareIcon`, API types, client and server actions (care log) | ✅ | (this commit's hash is in stage 2's) |
 | 2. The care log form | ⬜ | |
 | 3. Care log entries on the timeline | ⬜ | |
 | 4. *Log care* from reports, the conversation panel and Prayer & follow-up | ⬜ | |
 | 5. *Coming up* on the dashboards | ⬜ | |
 | 6. Design review fixes (Part 1) | ⬜ | |
-| **Part 2, branch `care`** | | |
+| **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
 | 9. A care's page | ⬜ | |
@@ -88,7 +88,27 @@ progress log below.
 
 ### Decisions and deviations
 
-- (none yet)
+- **Branch names:** `feature/care-log` (Part 1) and `feature/care` (Part 2). A hook blocks bare
+  `care-log` / `care`; the headings below keep the short names.
+- **The API on `main` wins over *The API* below** where they differ (exact shapes are in
+  `membership-management`'s `CareLogEntrySchema`):
+  - There is **no `item` source.** A report item or a Prayer & follow-up entry links as its report's
+    `section` (`{kind: "section", reportId, section}`); an attendance row as `{kind: "attendance",
+    reportId, memberId|guestId}`; a thread as `{kind: "conversation", conversationId}`.
+  - Errors are `{detail, code}`: the staff app maps `code` (`kind_status`, `date`, `text`, `others`,
+    `heard_from`, `meeting_mode`, `people`, `participants`, `reason`, `status`, `source`, `kind`,
+    `visibility`, 409 `link` and `not_planned`, 403 `author`), never `detail`.
+  - **`POST /care-log/audience`** (`{people, visibility, participants}` → `{participants: [{memberId,
+    sees}]}`) is new: under *Who else took part* the form warns "{name} won't see this entry." for
+    each participant with `sees: false` (decision: being "with" someone grants no access, rule 3).
+    `null` shows nothing.
+  - Timeline: plans after today are always listed whatever the range; a group filter returns no care
+    log entries; a viewer without `careLog: all` never sees entries about their own member unless
+    they wrote them (the API does that).
+- **Files:** the care log's types and client are `api/care-log-api/` (like `conversations-api/`), not
+  `members-api/`; its server actions are `app/(app)/_actions/care-log-actions.ts`.
+- **Type check workaround:** `getTranslations("CareLog.errors")` makes `tsc` report "union type too
+  complex" with this many keys; the action uses `getTranslations("CareLog")` and `errors.${code}`.
 
 ## Token changes
 
