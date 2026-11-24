@@ -75,8 +75,8 @@ progress log below.
 | 1. Permissions, `CareIcon`, API types, client and server actions (care log) | ✅ | `3cb35f8` |
 | 2. The care log form | ✅ | `131476a` |
 | 3. Care log entries on the timeline | ✅ | `fe4c711` |
-| 4. *Log care* from reports, the conversation panel and Prayer & follow-up | ✅ | (hash in stage 5's commit) |
-| 5. *Coming up* on the dashboards | ⬜ | |
+| 4. *Log care* from reports, the conversation panel and Prayer & follow-up | ✅ | `4c11708` |
+| 5. *Coming up* on the dashboards | ✅ | (hash in stage 6's commit) |
 | 6. Design review fixes (Part 1) | ⬜ | |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
@@ -137,6 +137,13 @@ progress log below.
     member the API answers 409 `link` and the form shows its banner.
   - The ⋯ trigger gets the focus back after the form closes; the form is `LogCareDialog`, shared
     with `LogCareButton`.
+- **Stage 5, Coming up** (`app/(app)/_components/coming-up-card.tsx`, a server component after
+  *Waiting for your reply* on the leader dashboard and the elder Report status page): it reads
+  `GET /care-log/coming-up` (only the caller's own plans) and renders nothing when `careLog: view`
+  is missing, the read fails or both lists are empty. Past-due rows carry the amber tile, the
+  *How did it go?* badge and *Record how it went* (when `canComplete`); upcoming rows show the
+  person, the kind (a meeting says in person or online), date, time, who is with them and the
+  purpose. Rows with several people list them all, linked when `viewable`.
 - **Type check workaround:** `getTranslations("CareLog.errors")` makes `tsc` report "union type too
   complex" with this many keys; the action uses `getTranslations("CareLog")` and `errors.${code}`.
 

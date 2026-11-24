@@ -15,6 +15,7 @@ import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Greeting, TodayDate } from "./dashboard-greeting";
+import { ComingUpCard } from "./coming-up-card";
 import { WaitingForReplyCard } from "./waiting-for-reply-card";
 
 import { getMe } from "@/api/members-api/client";
@@ -344,6 +345,9 @@ export async function LeaderDashboard({ firstName }: { firstName: string }) {
       />
       <Suspense fallback={null}>
         <WaitingForReplyCard />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ComingUpCard />
       </Suspense>
       <MyGroupsSection />
     </>
