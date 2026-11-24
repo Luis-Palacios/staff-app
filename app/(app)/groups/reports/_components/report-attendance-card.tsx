@@ -16,11 +16,15 @@ import { ReportAttendanceTable } from "./report-attendance-table";
 
 import { formatChurchSunday } from "@/app/(app)/groups/reports/_lib/format-church-sunday";
 import { personKey } from "@/app/(app)/groups/reports/_lib/person";
+import { CareMenu } from "@/components/care/care-menu";
 import { InitialsAvatar } from "@/components/initials-avatar";
 import { card, title } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
 import { personAnchor } from "@/lib/conversation-format";
-import { formatCalendarDate } from "@/lib/format-date";
+import {
+  formatCalendarDate,
+  formatCalendarShortWeekdayDate,
+} from "@/lib/format-date";
 
 // A streak shows from 2 up (rule 11); a recent joiner gets "In the group since" instead.
 const MIN_STREAK = 2;
@@ -67,6 +71,7 @@ export async function ReportAttendanceCard({
   linkGuests,
   conversations,
   activePersonKey,
+  careToday,
 }: {
   report: SubmittedReportDetail;
   /** Active membership start dates by `personKey`, to say "In the group since" for new people. */
@@ -79,11 +84,17 @@ export async function ReportAttendanceCard({
   conversations: ReportConversations | null;
   /** `?person=` / `?guest=`: the `personKey` of the row whose panel is open. */
   activePersonKey?: string;
+  /**
+   * The church's today, set when the viewer can log care (`careLog: create`) and sees
+   * observations: each row then gets the ⋯ care menu next to its conversation control.
+   */
+  careToday?: string;
 }) {
-  const [t, tRole, tConv, locale] = await Promise.all([
+  const [t, tRole, tConv, tCare, locale] = await Promise.all([
     getTranslations("ReportDetail"),
     getTranslations("SmallGroupRole"),
     getTranslations("Conversations"),
+    getTranslations("CareLog"),
     getLocale(),
   ]);
   const { attendances, totals, observationsVisible, meetingDate } = report;
@@ -145,7 +156,7 @@ export async function ReportAttendanceCard({
           : tConv("statusOpen")
       : "";
 
-    return (
+    const indicator = (
       <ConversationIndicator
         anchor={personAnchor(person.person)}
         labels={{
@@ -157,6 +168,53 @@ export async function ReportAttendanceCard({
         size={size}
         summary={summary}
       />
+    );
+
+    if (careToday === undefined) return indicator;
+
+    // The conversation about this person when there is one, else their attendance row.
+    const where = {
+      group: report.smallGroup.name,
+      date: formatCalendarShortWeekdayDate(meetingDate, typedLocale),
+    };
+
+    return (
+      <span className="inline-flex items-center justify-end gap-1.5">
+        {indicator}
+        <CareMenu
+          ariaLabel={tCare("menuLabel", { name: first })}
+          description={tCare("menuLogDesc", { name: first })}
+          people={[
+            {
+              type: person.person.type,
+              id: person.person.id,
+              name: person.person.name,
+            },
+          ]}
+          size={size}
+          source={{
+            icon: summary ? "conversation" : "report",
+            input: summary
+              ? { kind: "conversation", conversationId: summary.id }
+              : person.person.type === "guest"
+                ? {
+                    kind: "attendance",
+                    reportId: report.id,
+                    guestId: person.person.id,
+                  }
+                : {
+                    kind: "attendance",
+                    reportId: report.id,
+                    memberId: person.person.id,
+                  },
+            label: summary
+              ? tCare("sourceThreadPerson", { name: first, ...where })
+              : tCare("sourceAttendance", where),
+            href: `/groups/reports/${report.id}`,
+          }}
+          today={careToday}
+        />
+      </span>
     );
   };
 

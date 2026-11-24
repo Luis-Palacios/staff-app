@@ -44,7 +44,9 @@ import {
   reopenConversationAction,
   resolveConversationAction,
 } from "@/app/(app)/groups/reports/_actions/conversation-actions";
+import { CareMenu } from "@/components/care/care-menu";
 import { initialsOf } from "@/components/initials-avatar";
+import { taggedPeople } from "@/lib/care-log-source";
 import { can } from "@/lib/auth/permissions";
 import { usePermissions } from "@/lib/contexts/user-context";
 import { personAnchor } from "@/lib/conversation-format";
@@ -192,7 +194,13 @@ export function ConversationPanel({
   returnFocusSelector,
   viewFullReportHref,
   labels,
+  careToday,
 }: {
+  /**
+   * The church's today, set when the viewer may log care: the header gets the ⋯ care menu, with
+   * this thread (or attendance row, or section) as its source.
+   */
+  careToday?: string;
   reportId: number;
   groupName: string;
   /** Already formatted: "Thu, Oct 8". */
@@ -216,6 +224,8 @@ export function ConversationPanel({
   labels?: ConversationPanelLabels;
 }) {
   const t = useTranslations("Conversations");
+  const tCare = useTranslations("CareLog");
+  const tTimeline = useTranslations("ReportTimeline");
   const locale = useLocale();
   const router = useRouter();
   const isDesktop = useIsDesktop();
@@ -380,6 +390,63 @@ export function ConversationPanel({
       : t("roleLeader");
   }
 
+  // *Log care* from here: the thread when there is one, else the row or section it would be about.
+  const where = { group: groupName, date: meetingDate };
+  const sectionName = anchor.type === "section" ? tTimeline(anchor.key) : "";
+  const careMenu =
+    careToday !== undefined ? (
+      <CareMenu
+        ariaLabel={tCare("menuLabel", { name: heading })}
+        description={
+          anchor.type === "attendance"
+            ? tCare("menuLogDesc", { name: about })
+            : tCare("menuLogDescSection")
+        }
+        people={
+          anchor.type === "attendance"
+            ? [
+                {
+                  type: anchor.person.type,
+                  id: anchor.person.id,
+                  name: anchor.person.name,
+                },
+              ]
+            : taggedPeople(anchor.items)
+        }
+        size="inline"
+        source={{
+          icon: thread ? "conversation" : "report",
+          input: thread
+            ? { kind: "conversation", conversationId: thread.id }
+            : anchor.type === "section"
+              ? { kind: "section", reportId, section: anchor.key }
+              : anchor.person.type === "guest"
+                ? {
+                    kind: "attendance",
+                    reportId,
+                    guestId: anchor.person.id,
+                  }
+                : {
+                    kind: "attendance",
+                    reportId,
+                    memberId: anchor.person.id,
+                  },
+          label: thread
+            ? anchor.type === "attendance"
+              ? tCare("sourceThreadPerson", { name: about, ...where })
+              : tCare("sourceThreadSection", {
+                  section: sectionName,
+                  ...where,
+                })
+            : anchor.type === "attendance"
+              ? tCare("sourceAttendance", where)
+              : tCare("sourceSection", { section: sectionName, ...where }),
+          href: `/groups/reports/${reportId}`,
+        }}
+        today={careToday}
+      />
+    ) : null;
+
   const status = resolved
     ? { tone: "success" as const, label: t("statusResolved"), ring: false }
     : thread
@@ -446,6 +513,7 @@ export function ConversationPanel({
                 {t("reopen")}
               </Button>
             )}
+            {careMenu}
             <button
               aria-label={t("close")}
               className="flex size-11 items-center justify-center rounded-[10px] text-muted hover:bg-surface-secondary hover:text-heading"

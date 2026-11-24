@@ -25,7 +25,10 @@ export async function prayerPanel({
   section,
   linked,
   closeHref,
+  careToday,
 }: {
+  /** The church's today when the viewer may log care: the panel header gets the ⋯ care menu. */
+  careToday?: string;
   /** The week's entry for `?report=`. */
   entry: ReportSharedEntry;
   section: ReportSectionKey;
@@ -60,6 +63,7 @@ export async function prayerPanel({
         items,
         nameItems: Object.values(entry.sections).flat(),
       }}
+      careToday={careToday}
       closeHref={closeHref}
       emailsEnabled={emailsEnabled}
       groupName={entry.smallGroup.name}

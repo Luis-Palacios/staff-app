@@ -74,8 +74,8 @@ progress log below.
 | **Part 1, branch `feature/care-log`** | | |
 | 1. Permissions, `CareIcon`, API types, client and server actions (care log) | ✅ | `3cb35f8` |
 | 2. The care log form | ✅ | `131476a` |
-| 3. Care log entries on the timeline | ✅ | (hash in stage 4's commit) |
-| 4. *Log care* from reports, the conversation panel and Prayer & follow-up | ⬜ | |
+| 3. Care log entries on the timeline | ✅ | `fe4c711` |
+| 4. *Log care* from reports, the conversation panel and Prayer & follow-up | ✅ | (hash in stage 5's commit) |
 | 5. *Coming up* on the dashboards | ⬜ | |
 | 6. Design review fixes (Part 1) | ⬜ | |
 | **Part 2, branch `feature/care`** | | |
@@ -125,6 +125,18 @@ progress log below.
   Rows also list the entry's other people ("Also about …", linked when `viewable`), which the board
   doesn't draw. *Record how it went* needs `pastDue && canComplete`, *Edit* needs `canEdit`; the
   Recent activity preview has neither button. The Care chip shows the API's `counts.careLog`.
+- **Stage 4, the ⋯ care menu** (`components/care/care-menu.tsx`, one item, *Log care*):
+  - **Per section, not per item.** The API has no item source, so a report item links as its
+    report's `section`; the menu sits on each section of Report detail's shared card and on each
+    Prayer & follow-up entry (one per group and section), prefilled with the people tagged in that
+    section's items (up to 10), instead of on every single item.
+  - Attendance rows and the conversation panel's header use the thread (`conversation` source) when
+    one exists, else the attendance row (`attendance`) or the section (`section`).
+  - Shown when the viewer is in the conversations' audience (Report detail: `canSeeConversations`;
+    Prayer & follow-up: the entry has a thread link) and has `careLog: create`. Without a linked
+    member the API answers 409 `link` and the form shows its banner.
+  - The ⋯ trigger gets the focus back after the form closes; the form is `LogCareDialog`, shared
+    with `LogCareButton`.
 - **Type check workaround:** `getTranslations("CareLog.errors")` makes `tsc` report "union type too
   complex" with this many keys; the action uses `getTranslations("CareLog")` and `errors.${code}`.
 

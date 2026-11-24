@@ -19,19 +19,72 @@ import { CareLogForm } from "./care-log-form";
 
 import { showToast } from "@/components/toast-host";
 
-/** What the button opens: a new entry, or one of the caller's own entries. */
+/** What the form opens on: a new entry, or one of the caller's own entries. */
 export type LogCareTarget =
   | { type: "new" }
   | { type: "edit"; entry: CareLogEntry }
   | { type: "complete"; entry: CareLogEntry };
 
+/**
+ * The care log form with what follows a save: the toast and a refresh of the page's data. The
+ * opener (a button, a menu item) owns `open` and gives its own control the focus back when
+ * `onOpenChange(false)` says the form is gone. It mounts only while open, so every opening starts
+ * from a clean form.
+ */
+export function LogCareDialog({
+  open,
+  onOpenChange,
+  target = { type: "new" },
+  today,
+  people,
+  source,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  target?: LogCareTarget;
+  /** The church's today, "YYYY-MM-DD". */
+  today: string;
+  people?: CareLogPerson[];
+  source?: CareLogSourceInfo;
+}) {
+  const t = useTranslations("CareLog");
+  const router = useRouter();
+
+  if (!open) return null;
+
+  function saved(what: CareLogSaved) {
+    const message = {
+      logged: t("toastLogged"),
+      planned: t("toastPlanned"),
+      updated: t("toastUpdated"),
+      completed: t("toastCompleted"),
+      cancelled: t("toastCancelled"),
+    }[what];
+
+    onOpenChange(false);
+    showToast(message);
+    router.refresh();
+  }
+
+  return (
+    <CareLogForm
+      isOpen
+      initialPeople={people}
+      mode={target}
+      source={source}
+      today={today}
+      onOpenChange={onOpenChange}
+      onSaved={saved}
+    />
+  );
+}
+
 type Variant = "primary" | "outline" | "link" | "record";
 
 /**
- * A trigger for the care log form with the toast, the page refresh and the focus return that
- * follow a save. It lives in server-rendered pages (dashboards, report detail) and client rows
- * (the timeline), so it takes plain props. `variant`: `primary` is the timeline header's button,
- * `record` the amber-row *Record how it went* button, `link` the underlined *Edit*.
+ * A trigger for the care log form. It lives in server-rendered pages (dashboards, report detail)
+ * and client rows (the timeline), so it takes plain props. `variant`: `primary` is the timeline
+ * header's button, `record` the *Record how it went* button of a plan, `link` the underlined *Edit*.
  */
 export function LogCareButton({
   target = { type: "new" },
@@ -48,15 +101,12 @@ export function LogCareButton({
   variant?: Variant;
   label: string;
   ariaLabel?: string;
-  /** The church's today, "YYYY-MM-DD". */
   today: string;
   people?: CareLogPerson[];
   source?: CareLogSourceInfo;
   className?: string;
   withIcon?: boolean;
 }) {
-  const t = useTranslations("CareLog");
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
 
@@ -65,20 +115,6 @@ export function LogCareButton({
 
     // The dialog restores focus itself; this covers a trigger that re-rendered under it.
     if (!next) window.requestAnimationFrame(() => trigger.current?.focus());
-  }
-
-  function saved(what: CareLogSaved) {
-    const message = {
-      logged: t("toastLogged"),
-      planned: t("toastPlanned"),
-      updated: t("toastUpdated"),
-      completed: t("toastCompleted"),
-      cancelled: t("toastCancelled"),
-    }[what];
-
-    changeOpen(false);
-    showToast(message);
-    router.refresh();
   }
 
   const icon: ReactNode = withIcon && (
@@ -117,17 +153,14 @@ export function LogCareButton({
           {label}
         </Button>
       )}
-      {open && (
-        <CareLogForm
-          initialPeople={people}
-          isOpen={open}
-          mode={target}
-          source={source}
-          today={today}
-          onOpenChange={changeOpen}
-          onSaved={saved}
-        />
-      )}
+      <LogCareDialog
+        open={open}
+        people={people}
+        source={source}
+        target={target}
+        today={today}
+        onOpenChange={changeOpen}
+      />
     </>
   );
 }

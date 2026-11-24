@@ -30,7 +30,7 @@ import { EmptyState } from "@/components/empty-state";
 import { textLink, title } from "@/components/primitives";
 import { StaffAppPageHeader } from "@/components/staff-app-page-header";
 import { getPermissions } from "@/lib/auth/get-permissions";
-import { canSeeConversations } from "@/lib/auth/permissions";
+import { can, canSeeConversations } from "@/lib/auth/permissions";
 import { weekAround } from "@/lib/calendar-week";
 import { getChurchToday } from "@/lib/church-time";
 import { parseSectionParam } from "@/lib/report-sections";
@@ -113,9 +113,14 @@ async function PrayerWeek({
         (entry) => entry.reportId === open.reportId && canConverse(entry),
       )
     : undefined;
+  // *Log care* on each entry and in the panel, for whoever may create care log entries.
+  const careToday = can(permissions, { careLog: ["create"] })
+    ? shared.today
+    : undefined;
   const panel =
     open && openEntry
       ? await prayerPanel({
+          careToday,
           entry: openEntry,
           section: open.section,
           linked: me.member !== null,
@@ -128,6 +133,7 @@ async function PrayerWeek({
       buildPrayerSection({
         activeReportId:
           panel && open?.section === key ? open.reportId : undefined,
+        careToday,
         conversationHref: conversationHref(key),
         entries: bySection[key],
         isCurrentWeek,

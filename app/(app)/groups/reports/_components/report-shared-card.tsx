@@ -1,4 +1,5 @@
 import type { ReportConversations } from "@/api/conversations-api/types";
+import type { Locale } from "@/lib/locale-shared";
 import type {
   ReportDetail,
   ReportSectionKey,
@@ -10,12 +11,15 @@ import {
   SparklesIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { ConversationIndicator } from "./conversation-indicator";
 import { ReportItemList } from "./report-item-list";
 
+import { CareMenu } from "@/components/care/care-menu";
 import { card, title } from "@/components/primitives";
+import { taggedPeople } from "@/lib/care-log-source";
+import { formatCalendarShortWeekdayDate } from "@/lib/format-date";
 import { REPORT_SECTION_KEYS, reportSectionItems } from "@/lib/report-sections";
 
 const SECTIONS = [
@@ -38,15 +42,24 @@ export async function ReportSharedCard({
   report,
   conversations,
   activeSection,
+  careToday,
 }: {
   report: ReportDetail;
   conversations: ReportConversations | null;
   /** The section whose panel is open: the gold edge. */
   activeSection?: ReportSectionKey;
+  /**
+   * The church's today, set when the viewer can log care and sees the conversations' audience:
+   * each section with items gets the ⋯ care menu (the people tagged in it come with it).
+   */
+  careToday?: string;
 }) {
-  const [t, tConv] = await Promise.all([
+  const [t, tConv, tCare, tTimeline, locale] = await Promise.all([
     getTranslations("ReportDetail"),
     getTranslations("Conversations"),
+    getTranslations("CareLog"),
+    getTranslations("ReportTimeline"),
+    getLocale(),
   ]);
   const summaryBySection = new Map(
     (conversations?.conversations ?? []).flatMap((summary) =>
@@ -59,6 +72,10 @@ export async function ReportSharedCard({
   const allItems = REPORT_SECTION_KEYS.flatMap((key) =>
     reportSectionItems(report, key),
   );
+  const where = {
+    group: report.smallGroup.name,
+    date: formatCalendarShortWeekdayDate(report.meetingDate, locale as Locale),
+  };
 
   return (
     <section className={card({ className: "mb-5 flex flex-col" })}>
@@ -101,6 +118,36 @@ export async function ReportSharedCard({
                 <h3 className="min-w-0 flex-1 text-[15px] font-semibold text-heading">
                   {t(label)}
                 </h3>
+                {careToday !== undefined && items.length > 0 && (
+                  <CareMenu
+                    ariaLabel={tCare("menuLabelSection", {
+                      section: tTimeline(key),
+                    })}
+                    description={tCare("menuLogDescSection")}
+                    people={taggedPeople(items)}
+                    source={{
+                      icon: summary ? "conversation" : "report",
+                      input: summary
+                        ? { kind: "conversation", conversationId: summary.id }
+                        : {
+                            kind: "section",
+                            reportId: report.id,
+                            section: key,
+                          },
+                      label: summary
+                        ? tCare("sourceThreadSection", {
+                            section: tTimeline(key),
+                            ...where,
+                          })
+                        : tCare("sourceSection", {
+                            section: tTimeline(key),
+                            ...where,
+                          }),
+                      href: `/groups/reports/${report.id}?section=${key}`,
+                    }}
+                    today={careToday}
+                  />
+                )}
                 {conversations !== null && (items.length > 0 || summary) && (
                   <span className="-mr-2 shrink-0">
                     <ConversationIndicator

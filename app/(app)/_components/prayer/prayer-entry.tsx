@@ -16,6 +16,8 @@ import { SectionConversationLink } from "./section-conversation-link";
 import { whatsappEntryText } from "./whatsapp-text";
 
 import { ReportItemList } from "@/app/(app)/groups/reports/_components/report-item-list";
+import { CareMenu } from "@/components/care/care-menu";
+import { taggedPeople } from "@/lib/care-log-source";
 import { GuestsBadge } from "@/components/guests-badge";
 import { textLink } from "@/components/primitives";
 import {
@@ -80,7 +82,10 @@ export async function buildPrayerSection({
   scoped,
   conversationHref,
   activeReportId,
+  careToday,
 }: {
+  /** The church's today when the viewer can log care (`careLog: create`); the audience is the thread's. */
+  careToday?: string;
   section: ReportSectionKey;
   entries: { entry: ReportSharedEntry; items: ReportItem[] }[];
   /** The week, for *Copy all*'s title. */
@@ -149,6 +154,7 @@ export async function buildPrayerSection({
       },
       node: (
         <PrayerEntry
+          careToday={conversationHref(entry) ? careToday : undefined}
           conversationHref={conversationHref(entry)}
           copyTitle={copyTitle}
           entry={entry}
@@ -175,7 +181,10 @@ export function PrayerEntry({
   copyTitle,
   conversationHref,
   focused,
+  careToday,
 }: {
+  /** The church's today, set when the viewer may log care here: the entry gets the ⋯ care menu. */
+  careToday?: string;
   entry: ReportSharedEntry;
   section: ReportSectionKey;
   sectionTitle: string;
@@ -190,6 +199,8 @@ export function PrayerEntry({
 }) {
   const t = useTranslations("PrayerDashboard");
   const tConv = useTranslations("Conversations");
+  const tCare = useTranslations("CareLog");
+  const tTimeline = useTranslations("ReportTimeline");
   const conversation = entry.conversations[section];
   const group = entry.smallGroup.name;
   const locale = useLocale() as Locale;
@@ -284,6 +295,39 @@ export function PrayerEntry({
           >
             {t("viewReport")}
           </NextLink>
+          {careToday !== undefined && (
+            <CareMenu
+              ariaLabel={tCare("menuLabelSection", {
+                section: tTimeline(section),
+              })}
+              className="ml-auto"
+              description={tCare("menuLogDescSection")}
+              people={taggedPeople(items)}
+              source={{
+                icon: conversation ? "conversation" : "report",
+                input: conversation
+                  ? { kind: "conversation", conversationId: conversation.id }
+                  : {
+                      kind: "section",
+                      reportId: entry.reportId,
+                      section,
+                    },
+                label: conversation
+                  ? tCare("sourceThreadSection", {
+                      section: tTimeline(section),
+                      group,
+                      date,
+                    })
+                  : tCare("sourceSection", {
+                      section: tTimeline(section),
+                      group,
+                      date,
+                    }),
+                href: `/groups/reports/${entry.reportId}?section=${section}`,
+              }}
+              today={careToday}
+            />
+          )}
         </div>
       </div>
     </li>

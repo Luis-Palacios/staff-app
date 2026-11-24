@@ -42,7 +42,7 @@ import {
 import { getPermissions } from "@/lib/auth/get-permissions";
 import { can, canSeeConversations } from "@/lib/auth/permissions";
 import { getCurrentSmallGroupAccess } from "@/lib/auth/small-group-access";
-import { formatChurchDateTime } from "@/lib/church-time";
+import { formatChurchDateTime, getChurchToday } from "@/lib/church-time";
 import {
   formatCalendarDate,
   formatCalendarFullDate,
@@ -118,6 +118,12 @@ export default async function ReportDetailPage({
     ({ smallGroupId }) => smallGroupId === smallGroup.id,
   );
   const canConverse = canSeeConversations(userPermissions, leadsGroup);
+  // *Log care* from this report's rows, sections and conversations: whoever can see them and may
+  // create care log entries (care spec rule 12).
+  const careToday =
+    canConverse && can(userPermissions, { careLog: ["create"] })
+      ? getChurchToday()
+      : undefined;
 
   if (canConverse) {
     try {
@@ -147,6 +153,7 @@ export default async function ReportDetailPage({
       ? getConversationEmailsAvailable()
       : Promise.resolve(false);
   const panelProps = {
+    careToday,
     closeHref: `/groups/reports/${report.id}`,
     groupName: smallGroup.name,
     linked: me.member !== null,
@@ -360,11 +367,13 @@ export default async function ReportDetailPage({
       <ReportSummaryTiles report={report} />
       <ReportSharedCard
         activeSection={panel ? (sectionKey ?? undefined) : undefined}
+        careToday={careToday}
         conversations={conversations}
         report={report}
       />
       <ReportAttendanceCard
         activePersonKey={panel && target ? personFocusKey(target) : undefined}
+        careToday={careToday}
         conversations={conversations}
         joinedByPerson={joinedByPerson}
         linkGuests={can(userPermissions, { guests: ["view"] })}
