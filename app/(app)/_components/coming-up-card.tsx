@@ -12,7 +12,11 @@ import { card, title } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
 import { can } from "@/lib/auth/permissions";
 import { getPermissions } from "@/lib/auth/get-permissions";
-import { formatCareTime, isPlannableKind } from "@/lib/care-log-format";
+import {
+  canRecordNow,
+  formatCareTime,
+  isPlannableKind,
+} from "@/lib/care-log-format";
 import { getChurchToday } from "@/lib/church-time";
 import { formatCalendarRowDate } from "@/lib/format-date";
 import { formatList, formatListParts } from "@/lib/format-list";
@@ -136,7 +140,7 @@ export async function ComingUpCard() {
           </span>
           <span className="line-clamp-2 text-[13.5px] text-muted">{meta}</span>
         </span>
-        {overdue && entry.canComplete && canCreate && (
+        {canRecordNow(entry, today) && canCreate && (
           <LogCareButton
             ariaLabel={t("recordAria", {
               title: what,

@@ -79,7 +79,8 @@ progress log below.
 | 5. *Coming up* on the dashboards | ✅ | `112044f` |
 | 6. Design review fixes (Part 1) | ✅ (browser pass: see *Browser checks (Part 1)*) | `44498c4` |
 | Review fixes (Part 1) | ✅ | `5960faf` |
-| PR review fixes (#117) | ✅ | (this commit) |
+| PR review fixes (#117) | ✅ | `6e0afcf` |
+| Fix: *Record how it went* on the plan's day (`fix/care-log-record-today`) | ✅ | the commit "fix(care-log): record a plan on its own day" |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -214,6 +215,11 @@ once under low memory ("Jest worker encountered 2 child process exceptions"); a 
   6. `isComingUp`'s comment now says what the code does (plans dated after today).
   - Build note: `.next/dev/types/routes.d.ts` and `validator.ts` were truncated by a concurrent
     write (ignored files); deleting them let `tsc` and `build` regenerate them.
+- **Fix after merge: recording a plan on its own day** (user's decision, Nov 24 2026; spec rule 6).
+  The API now marks a plan past due once its time passes in church time (the day after its date when
+  it has none). *Record how it went* shows on the timeline row and in *Coming up* when
+  `canRecordNow` (`lib/care-log-format.ts`): a plan the caller may complete that is past due **or**
+  dated today, so a 3 PM call can be recorded right after it. The amber badge still follows `pastDue`.
 - **Type check workaround:** `getTranslations("CareLog.errors")` makes `tsc` report "union type too
   complex" with this many keys; the action uses `getTranslations("CareLog")` and `errors.${code}`.
 

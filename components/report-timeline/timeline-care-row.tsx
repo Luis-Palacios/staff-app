@@ -11,7 +11,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { CareKindIcon } from "@/components/care/care-kind-icon";
 import { LogCareButton } from "@/components/care/log-care-button";
 import { StatusBadge } from "@/components/status-badge";
-import { formatCareTime, isPlannableKind } from "@/lib/care-log-format";
+import {
+  canRecordNow,
+  formatCareTime,
+  isPlannableKind,
+} from "@/lib/care-log-format";
 import {
   formatCalendarRowDate,
   formatCalendarShortWeekdayDate,
@@ -226,29 +230,28 @@ export function TimelineCareRow({
             </span>
             {entry.source && <SourceLine source={entry.source} />}
           </span>
-          {showActions &&
-            ((entry.pastDue && entry.canComplete) || entry.canEdit) && (
-              <span className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
-                {entry.pastDue && entry.canComplete && (
-                  <LogCareButton
-                    ariaLabel={t("recordAria", { title, date })}
-                    label={t("record")}
-                    target={{ type: "complete", entry }}
-                    today={today}
-                    variant="record"
-                  />
-                )}
-                {entry.canEdit && (
-                  <LogCareButton
-                    ariaLabel={t("editAria", { title, date })}
-                    label={t("edit")}
-                    target={{ type: "edit", entry }}
-                    today={today}
-                    variant="link"
-                  />
-                )}
-              </span>
-            )}
+          {showActions && (canRecordNow(entry, today) || entry.canEdit) && (
+            <span className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
+              {canRecordNow(entry, today) && (
+                <LogCareButton
+                  ariaLabel={t("recordAria", { title, date })}
+                  label={t("record")}
+                  target={{ type: "complete", entry }}
+                  today={today}
+                  variant="record"
+                />
+              )}
+              {entry.canEdit && (
+                <LogCareButton
+                  ariaLabel={t("editAria", { title, date })}
+                  label={t("edit")}
+                  target={{ type: "edit", entry }}
+                  today={today}
+                  variant="link"
+                />
+              )}
+            </span>
+          )}
         </div>
       </div>
     </li>

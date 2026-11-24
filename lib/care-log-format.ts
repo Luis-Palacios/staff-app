@@ -30,6 +30,19 @@ export function isComingUp(entry: CareLogEntry, today: string): boolean {
   return entry.status === "planned" && entry.occurredOn > today;
 }
 
+/**
+ * Whether *Record how it went* is offered (rule 6): on a plan the caller may complete once it is past
+ * due (the API's `pastDue`: its time passed, or its day is over) and, earlier, on the plan's own day,
+ * so a 3 PM call can be recorded right after it. The amber badge still follows `pastDue` alone.
+ */
+export function canRecordNow(entry: CareLogEntry, today: string): boolean {
+  return (
+    entry.status === "planned" &&
+    entry.canComplete &&
+    (entry.pastDue || entry.occurredOn === today)
+  );
+}
+
 /** Soonest first, for *Coming up*: by date, then by time (no time sorts first). */
 export function compareComingUp(a: CareLogEntry, b: CareLogEntry): number {
   return (
