@@ -15,6 +15,7 @@ import { getPermissions } from "@/lib/auth/get-permissions";
 import { formatCareTime, isPlannableKind } from "@/lib/care-log-format";
 import { getChurchToday } from "@/lib/church-time";
 import { formatCalendarRowDate } from "@/lib/format-date";
+import { formatList, formatListParts } from "@/lib/format-list";
 import { personHref } from "@/lib/person-href";
 import { settle } from "@/lib/settle";
 
@@ -46,6 +47,8 @@ export async function ComingUpCard() {
 
   const today = getChurchToday();
   const typedLocale = locale as Locale;
+  // *Record how it went* writes, so it needs `careLog: create` on top of `canComplete`.
+  const canCreate = can(permissions, { careLog: ["create"] });
 
   function row(entry: CareLogEntry, overdue: boolean) {
     const what = overdue
@@ -67,7 +70,10 @@ export async function ComingUpCard() {
         : null,
       entry.participants.length > 0
         ? t("metaWith", {
-            names: entry.participants.map((p) => p.name).join(", "),
+            names: formatList(
+              entry.participants.map((p) => p.name),
+              typedLocale,
+            ),
           })
         : null,
       entry.text,
@@ -103,21 +109,25 @@ export async function ComingUpCard() {
         <span className="flex min-w-[min(260px,100%)] flex-1 flex-col gap-[3px]">
           <span className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
             <span className="text-[15px] font-semibold text-heading">
-              {names.map((person, index) => (
-                <Fragment key={`${person.name}-${index}`}>
-                  {index > 0 && ", "}
-                  {person.href ? (
-                    <NextLink
-                      className="underline decoration-border underline-offset-[3px] hover:decoration-current"
-                      href={person.href}
-                    >
-                      {person.name}
-                    </NextLink>
-                  ) : (
-                    person.name
-                  )}
-                </Fragment>
-              ))}
+              {formatListParts(
+                names.map((person) => person.name),
+                typedLocale,
+              ).map((part, position) => {
+                const href =
+                  part.type === "element" ? names[part.index].href : null;
+
+                return href ? (
+                  <NextLink
+                    key={position}
+                    className="underline decoration-border underline-offset-[3px] hover:decoration-current"
+                    href={href}
+                  >
+                    {part.value}
+                  </NextLink>
+                ) : (
+                  <Fragment key={position}>{part.value}</Fragment>
+                );
+              })}
             </span>
             <span className="text-[13.5px] text-foreground">{what}</span>
             {overdue && (
@@ -126,14 +136,18 @@ export async function ComingUpCard() {
           </span>
           <span className="line-clamp-2 text-[13.5px] text-muted">{meta}</span>
         </span>
-        {overdue && entry.canComplete && (
+        {overdue && entry.canComplete && canCreate && (
           <LogCareButton
             ariaLabel={t("recordAria", {
               title: what,
-              date: `${names.map((n) => n.name).join(", ")}, ${date}`,
+              date: `${formatList(
+                names.map((n) => n.name),
+                typedLocale,
+              )}, ${date}`,
             })}
             className="h-10 px-3.5 text-sm"
             label={t("record")}
+            returnFocusId="coming-up"
             target={{ type: "complete", entry }}
             today={today}
             variant="record"

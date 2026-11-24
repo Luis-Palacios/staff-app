@@ -77,7 +77,8 @@ progress log below.
 | 3. Care log entries on the timeline | ✅ | `fe4c711` |
 | 4. *Log care* from reports, the conversation panel and Prayer & follow-up | ✅ | `4c11708` |
 | 5. *Coming up* on the dashboards | ✅ | `112044f` |
-| 6. Design review fixes (Part 1) | ✅ code side; browser pass pending | (this commit) |
+| 6. Design review fixes (Part 1) | ✅ code side; browser pass pending | `44498c4` |
+| Review fixes (Part 1) | ✅ | (this commit) |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -144,6 +145,27 @@ progress log below.
   *How did it go?* badge and *Record how it went* (when `canComplete`); upcoming rows show the
   person, the kind (a meeting says in person or online), date, time, who is with them and the
   purpose. Rows with several people list them all, linked when `viewable`.
+- **Review fixes (commit after `44498c4`):**
+  1. Editing a past-due plan: the date picker's minimum is the plan's own date (else today), so an
+     unchanged past date isn't shown as invalid.
+  2. Editing a done entry sends its existing `occurredAtTime` instead of `null`, so a completed
+     plan keeps its time.
+  3. *Log care* is hidden on an inactive member's or guest's timeline. `taggedPeople` prefills only
+     `viewable` people (a tag doesn't say whether someone is still active, so the API's 422 `people`
+     remains the backstop). `errors.people` and `errors.notFound` now tell the user to remove
+     someone in *About* / refresh and try again (en and es).
+  4. `errors.date` covers both cases (done in the future, plan in the past).
+  5. Nits: the people-search sequence is bumped when the query drops below 2 characters; a failed
+     participant-list load isn't cached (reopening asks again); the "won't see" warnings clear
+     as soon as people, visibility or participants change; if *Record how it went* makes its button
+     disappear after the refresh, focus goes to the card heading (`returnFocusId`, `#timeline-title`
+     or `#coming-up`); `CareLog.stale` and `CareLog.dashLoadFailed` are removed; lists use
+     `Intl.ListFormat` (`lib/format-list.ts`, links kept per name) instead of `", "`, and
+     `metaByWith` / `metaPlannedByWith` replace the glued "by X" + "with Y" strings; the dashboard's
+     *Record how it went* also needs `careLog: create`.
+  - Left as is: "A report note you don't have access to" (rule 36); conversation sources link to
+    the report, not the thread, because the API's source has no thread anchor. A possible
+    follow-up if the API adds one.
 - **Type check workaround:** `getTranslations("CareLog.errors")` makes `tsc` report "union type too
   complex" with this many keys; the action uses `getTranslations("CareLog")` and `errors.${code}`.
 

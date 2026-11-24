@@ -19,6 +19,9 @@ import { CareLogForm } from "./care-log-form";
 
 import { showToast } from "@/components/toast-host";
 
+/** Long enough for `router.refresh()` to land and replace the rows. */
+const FOCUS_FALLBACK_MS = 900;
+
 /** What the form opens on: a new entry, or one of the caller's own entries. */
 export type LogCareTarget =
   | { type: "new" }
@@ -96,7 +99,10 @@ export function LogCareButton({
   source,
   className,
   withIcon = false,
+  returnFocusId = "timeline-title",
 }: {
+  /** The heading that gets the focus if this button is gone after the save. */
+  returnFocusId?: string;
   target?: LogCareTarget;
   variant?: Variant;
   label: string;
@@ -113,8 +119,23 @@ export function LogCareButton({
   function changeOpen(next: boolean) {
     setOpen(next);
 
+    if (next) return;
+
     // The dialog restores focus itself; this covers a trigger that re-rendered under it.
-    if (!next) window.requestAnimationFrame(() => trigger.current?.focus());
+    window.requestAnimationFrame(() => trigger.current?.focus());
+
+    // *Record how it went* makes its own button disappear once the page refreshes. When that
+    // leaves the focus nowhere, it goes to the heading of the block the button was in.
+    window.setTimeout(() => {
+      if (trigger.current?.isConnected) return;
+
+      const heading = document.getElementById(returnFocusId);
+
+      if (!heading) return;
+
+      heading.setAttribute("tabindex", "-1");
+      heading.focus({ preventScroll: true });
+    }, FOCUS_FALLBACK_MS);
   }
 
   const icon: ReactNode = withIcon && (

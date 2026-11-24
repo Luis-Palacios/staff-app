@@ -16,6 +16,7 @@ import {
   formatCalendarRowDate,
   formatCalendarShortWeekdayDate,
 } from "@/lib/format-date";
+import { formatList, formatListParts } from "@/lib/format-list";
 import { personHref } from "@/lib/person-href";
 import { firstNameOf } from "@/lib/report-items";
 
@@ -91,12 +92,22 @@ export function TimelineCareRow({
 
     bits.push(t("metaLoggedBy", { name: entry.author.name }));
   } else {
-    const by = planned
-      ? t("metaPlannedBy", { name: entry.author.name })
-      : t("metaBy", { name: entry.author.name });
-    const withNames = entry.participants.map((p) => p.name).join(", ");
+    const name = entry.author.name;
 
-    bits.push(withNames ? `${by} ${t("metaWith", { names: withNames })}` : by);
+    if (entry.participants.length > 0) {
+      const names = formatList(
+        entry.participants.map((p) => p.name),
+        locale,
+      );
+
+      bits.push(
+        planned
+          ? t("metaPlannedByWith", { name, names })
+          : t("metaByWith", { name, names }),
+      );
+    } else {
+      bits.push(planned ? t("metaPlannedBy", { name }) : t("metaBy", { name }));
+    }
   }
 
   if (entry.meetingMode) {
@@ -165,7 +176,15 @@ export function TimelineCareRow({
           {others.length > 0 && (
             <span className="text-[13px] text-muted">
               {t("alsoAbout")}{" "}
-              {others.map((other, index) => {
+              {formatListParts(
+                others.map((other) => other.name),
+                locale,
+              ).map((part, position) => {
+                if (part.type === "literal") {
+                  return <Fragment key={position}>{part.value}</Fragment>;
+                }
+
+                const other = others[part.index];
                 const id = other.memberId ?? other.guestId;
                 const link =
                   other.viewable && id !== null
@@ -175,20 +194,16 @@ export function TimelineCareRow({
                       })
                     : null;
 
-                return (
-                  <Fragment key={`${other.memberId}-${other.guestId}`}>
-                    {index > 0 && ", "}
-                    {link ? (
-                      <NextLink
-                        className="text-foreground underline decoration-border underline-offset-[3px]"
-                        href={link}
-                      >
-                        {other.name}
-                      </NextLink>
-                    ) : (
-                      other.name
-                    )}
-                  </Fragment>
+                return link ? (
+                  <NextLink
+                    key={position}
+                    className="text-foreground underline decoration-border underline-offset-[3px]"
+                    href={link}
+                  >
+                    {part.value}
+                  </NextLink>
+                ) : (
+                  <Fragment key={position}>{part.value}</Fragment>
                 );
               })}
             </span>

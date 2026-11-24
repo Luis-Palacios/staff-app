@@ -334,6 +334,12 @@ function FormBody({
       ? PLANNABLE.includes(kind)
       : !complete && entry?.status === "planned";
   const planned = canPlan && when === "planned";
+  // A plan keeps the date it has even after it has passed (the API lets an existing plan stay in
+  // the past); only a new date has to be today or later.
+  const minPlanDate =
+    editing && entry?.status === "planned" && entry.occurredOn < today
+      ? entry.occurredOn
+      : today;
   const first = people[0] ? firstNameOf(people[0].name) : "";
   const nameForText = people.length === 1 ? first : "";
 
@@ -349,6 +355,8 @@ function FormBody({
     const text = query.trim();
 
     if (text.length < 2) {
+      // An answer still on its way for an earlier, longer query must not land now.
+      searchSeq.current += 1;
       setFound([]);
       setSearching(false);
       setSearchFailed(false);
@@ -409,7 +417,8 @@ function FormBody({
 
       setSearching(false);
       setSearchFailed(!result.ok);
-      setMemberOptions(result.ok ? result.value : []);
+      // A failure isn't cached: closing and reopening the picker asks again.
+      if (result.ok) setMemberOptions(result.value);
     });
 
     return () => {
@@ -419,11 +428,10 @@ function FormBody({
 
   // Who among the participants wouldn't see the entry (rule 3: being "with" grants no access).
   useEffect(() => {
-    if (complete || participants.length === 0) {
-      setAudience(null);
+    // Any change drops the old answer at once; the new check fills it in again.
+    setAudience(null);
 
-      return;
-    }
+    if (complete || participants.length === 0) return;
 
     let cancelled = false;
     const timer = window.setTimeout(async () => {
@@ -516,7 +524,12 @@ function FormBody({
         kind,
         meetingMode: kind === "meeting" ? meeting : null,
         occurredOn: date,
-        occurredAtTime: planned && time ? time : null,
+        // A done entry has no time field: editing one keeps the time a completed plan had.
+        occurredAtTime: planned
+          ? time || null
+          : editing
+            ? (entry?.occurredAtTime ?? null)
+            : null,
         people: people.map(toPersonInput),
         others: others.trim() || null,
         participants: participants.map((p) => p.memberId),
@@ -844,7 +857,7 @@ function FormBody({
               isInvalid={Boolean(errors.date)}
               label={dateLabel}
               max={planned ? undefined : today}
-              min={planned ? today : undefined}
+              min={planned ? minPlanDate : undefined}
               value={date}
               onChange={(value) => {
                 setDate(value);

@@ -64,7 +64,10 @@ export default async function GuestTimelinePage({
         name={guest.name}
       />
       <TimelineCard
-        canLogCare={can(permissions, { careLog: ["create"] })}
+        // An inactive guest can't be chosen in the form (the API answers 422 `people`).
+        canLogCare={
+          guest.status === "active" && can(permissions, { careLog: ["create"] })
+        }
         care={can(permissions, { careLog: ["view"] })}
         firstVisitDate={guest.firstVisitDate}
         kind="guest"

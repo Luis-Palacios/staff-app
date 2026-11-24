@@ -2214,18 +2214,17 @@
     "searchFailed": "No se pudo buscar. Inténtalo de nuevo.",
     "guestWord": "invitado",
     "phoneEnds": "teléfono termina en {last4}",
-    "stale": "Este registro cambió. Ciérralo y ábrelo de nuevo.",
     "errors": {
       "link": "Vincula tu cuenta a un miembro para registrar cuidado.",
       "kind_status": "Ese tipo de cuidado no se puede programar.",
       "kind": "Elige qué fue.",
       "status": "Elige si ya pasó o está programada.",
-      "date": "Revisa la fecha. Lo que ya pasó no puede estar en el futuro.",
+      "date": "Revisa la fecha: lo que ya pasó no puede estar en el futuro y un plan no puede estar en el pasado.",
       "text": "Escribe qué pasó, hasta 4000 caracteres.",
       "others": "Las otras personas pueden tener hasta 200 caracteres.",
       "heard_from": "Di quién nos contó, hasta 200 caracteres.",
       "meeting_mode": "Elige dónde fue la reunión.",
-      "people": "Elige de 1 a 10 personas.",
+      "people": "Elige de 1 a 10 personas. Si alguien en Sobre ya no se puede elegir, quítalo e inténtalo de nuevo.",
       "participants": "Puedes agregar hasta 10 personas que participaron.",
       "reason": "El motivo puede tener hasta 500 caracteres.",
       "source": "Ese reporte o esa conversación ya no está disponible.",
@@ -2233,7 +2232,7 @@
       "not_planned": "Este registro ya no está programado. Actualiza la página.",
       "author": "Solo quien escribió este registro puede cambiarlo.",
       "forbidden": "No tienes permiso para hacer esto.",
-      "notFound": "No encontramos a esa persona o ese registro.",
+      "notFound": "Alguien en Sobre, o este registro, ya no está disponible. Quítalo o actualiza la página e inténtalo de nuevo.",
       "generic": "Algo salió mal. Inténtalo de nuevo."
     },
     "titles": {
@@ -2260,7 +2259,9 @@
     "badgePlanned": "Programada",
     "badgePastDue": "Falta registrar cómo fue",
     "metaBy": "por {name}",
+    "metaByWith": "por {name} con {names}",
     "metaPlannedBy": "programada por {name}",
+    "metaPlannedByWith": "programada por {name} con {names}",
     "metaLoggedBy": "registrado por {name}",
     "metaWith": "con {names}",
     "metaAlso": "también {names}",
@@ -2282,8 +2283,7 @@
     "dashSub": "El cuidado que programaste para los próximos 7 días y el que aún espera que registres cómo fue.",
     "dashPastDue": "¿Cómo fue?",
     "dashMeetingInPerson": "Reunión en persona",
-    "dashMeetingOnline": "Reunión en línea",
-    "dashLoadFailed": "No se pudo cargar tu cuidado programado."
+    "dashMeetingOnline": "Reunión en línea"
   },
   "PersonTabs": {
     "profile": "Perfil",

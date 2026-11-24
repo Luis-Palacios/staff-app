@@ -56,7 +56,11 @@ export default async function MemberTimelinePage({
         name={member.name}
       />
       <TimelineCard
-        canLogCare={can(permissions, { careLog: ["create"] })}
+        // An inactive member can't be chosen in the form (the API answers 422 `people`).
+        canLogCare={
+          member.status === "active" &&
+          can(permissions, { careLog: ["create"] })
+        }
         care={can(permissions, { careLog: ["view"] })}
         kind="member"
         openGroups={openGroupsOf(permissions, me.leads)}

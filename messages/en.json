@@ -2214,18 +2214,17 @@
     "searchFailed": "Couldn’t search. Try again.",
     "guestWord": "guest",
     "phoneEnds": "phone ends in {last4}",
-    "stale": "This entry changed. Close this and open it again.",
     "errors": {
       "link": "Link your account to a member to log care.",
       "kind_status": "That kind of care can’t be planned.",
       "kind": "Choose what it was.",
       "status": "Choose whether it happened or is planned.",
-      "date": "Check the date. Something that already happened can’t be in the future.",
+      "date": "Check the date: what happened can’t be in the future, and a plan can’t be in the past.",
       "text": "Write what happened, up to 4,000 characters.",
       "others": "Others involved can be up to 200 characters.",
       "heard_from": "Say who told us, up to 200 characters.",
       "meeting_mode": "Choose where the meeting was.",
-      "people": "Choose from 1 to 10 people.",
+      "people": "Choose from 1 to 10 people. If someone in About can’t be chosen any more, remove them and try again.",
       "participants": "You can add up to 10 people who took part.",
       "reason": "The reason can be up to 500 characters.",
       "source": "That report or conversation isn’t available any more.",
@@ -2233,7 +2232,7 @@
       "not_planned": "This entry isn’t planned any more. Refresh the page.",
       "author": "Only whoever wrote this entry can change it.",
       "forbidden": "You don’t have permission to do this.",
-      "notFound": "We couldn’t find that person or entry.",
+      "notFound": "Someone in About, or this entry, isn’t available any more. Remove them or refresh the page, then try again.",
       "generic": "Something went wrong. Try again."
     },
     "titles": {
@@ -2260,7 +2259,9 @@
     "badgePlanned": "Planned",
     "badgePastDue": "Record how it went",
     "metaBy": "by {name}",
+    "metaByWith": "by {name} with {names}",
     "metaPlannedBy": "planned by {name}",
+    "metaPlannedByWith": "planned by {name} with {names}",
     "metaLoggedBy": "logged by {name}",
     "metaWith": "with {names}",
     "metaAlso": "also {names}",
@@ -2282,8 +2283,7 @@
     "dashSub": "Care you planned for the next 7 days, and planned care still waiting for how it went.",
     "dashPastDue": "How did it go?",
     "dashMeetingInPerson": "Meeting, in person",
-    "dashMeetingOnline": "Meeting, online",
-    "dashLoadFailed": "Couldn’t load your planned care."
+    "dashMeetingOnline": "Meeting, online"
   },
   "PersonTabs": {
     "profile": "Profile",
