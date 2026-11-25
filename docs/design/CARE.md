@@ -96,6 +96,7 @@ progress log below.
 | 1c.2 Notes on the entry page (add, edit, delete) | ✅ | `678771f` |
 | 1c.3 Notes on the timeline row and the calendar panel (clamp, *Show more*) | ✅ | `d3e411e` |
 | 1c.4 Design review fixes (Part 1c) | ✅ (code side; browser pass not run yet) | `5a878af` |
+| Review fixes (Part 1c): focus after add/delete, field descriptions, `?note=add` dropped on open, copy | ✅ | the commit "fix(care-log): Part 1c review notes" |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -601,7 +602,7 @@ block, the rest is written in this handoff's style):
 | `notes.toggle` | {count, plural, one {# note from those who took part} other {# notes from those who took part}} | {count, plural, one {# nota de quienes participaron} other {# notas de quienes participaron}} |
 | `notes.add` | Add your note | Agregar tu nota |
 | `notes.yourNote` | Your note | Tu nota |
-| `notes.addHint` | What you saw or heard, in your own words. How it went, above, stays the summary. | Lo que viste o escuchaste, con tus palabras. Cómo fue, arriba, sigue siendo el resumen. |
+| `notes.addHint` | What you saw or heard, in your own words. How it went above stays the summary. | Lo que viste o escuchaste, con tus palabras. Cómo fue, arriba, sigue siendo el resumen. |
 | `notes.placeholder` | Add what you’d like the others to know | Agrega lo que quieres que los demás sepan |
 | `notes.whoSees` | Everyone who can see this entry sees your note. | Todos los que pueden ver este registro ven tu nota. |
 | `notes.counter` | {count} / 4000 | {count} / 4000 |
@@ -614,7 +615,7 @@ block, the rest is written in this handoff's style):
 | `notes.edited` | {date} · edited | {date} · editada |
 | `notes.showMore` | Show more | Mostrar más |
 | `notes.showLess` | Show less | Mostrar menos |
-| `notes.textError` | Write your note, up to 4,000 characters. | Escribe tu nota, hasta 4,000 caracteres. |
+| `notes.textError` | Write your note, up to 4,000 characters. | Escribe tu nota, hasta 4000 caracteres. |
 | `notes.saved` | Note saved | Nota guardada |
 | `notes.deleted` | Note deleted | Nota eliminada |
 | `errors.not_participant` | Only the author and the people who took part can add a note. | Solo quien escribió el registro y quienes participaron pueden agregar una nota. |
@@ -639,8 +640,8 @@ The writer reads "{name} (you)" / "{name} (tú)" with the existing `CareLog.entr
   form's "Someone in About…" (the actions' `runNote`).
 - *(Part 1c)* **Opening the entry page with the form open:** `/care-log/{id}?note=add`. The page reads
   it (`searchParams`) and `EntryNotes` starts with the add form open when `canAddNote` is true;
-  otherwise it is ignored. After a save the page replaces the URL without the param, so a refresh
-  doesn't reopen it.
+  otherwise it is ignored. *(Review)* The param is dropped from the URL as soon as the page opens
+  (`history.replaceState`), so neither a reload nor a refresh after saving or cancelling reopens it.
 - *(Part 1c)* **The section shows when there are notes or `canAddNote`.** The boards only draw it with
   notes; with none yet and `canAddNote`, it shows the heading and *Add your note* (the first note).
   Under the summary, after the *How it went* block, as the boards draw it.
@@ -652,8 +653,11 @@ The writer reads "{name} (you)" / "{name} (tú)" with the existing `CareLog.entr
 - *(Part 1c)* **Forms:** one form open at a time on the page. Saving needs text after trimming (else
   `notes.textError`, also for the API's 422 `text`); the hint "Everyone who can see this entry sees
   your note." and the counter sit under the field; *Add your note* also shows the board's one-line
-  *What you saw or heard…* above it. After a save, delete or cancel focus returns to the button that
-  opened the form (when it is still there). *Delete* confirms inline, focus on *Keep it*.
+  *What you saw or heard…* above it. *(Review)* The hint above the field is linked with
+  `aria-describedby` and "Everyone who can see this entry…" is the field's `Description`, so a screen
+  reader hears both. After an edit or a cancel focus returns to the button that opened the form; after
+  adding or deleting a note (whose button the refresh takes away) it goes to the section heading
+  (`tabIndex={-1}`). *Delete* confirms inline, focus on *Keep it*.
 - *(Part 1c)* **Typing quirk:** `failure()` in the actions picks the message with two smaller key
   unions (`isNoteCode`); one template key over all failure codes made tsc ask for ICU arguments no
   message has. `messages/en.d.json.ts` was regenerated with next-intl's own generator
@@ -667,7 +671,10 @@ The writer reads "{name} (you)" / "{name} (tú)" with the existing `CareLog.entr
   Month cells, *Coming up* and the dashboards show no notes and no badge (rule 63).
 - *(Part 1c)* **`pnpm build` did not run in the agent's sandbox** (SWC native binding: "DACL grants
   replacement rights", `ERR_SWC_NATIVE_CACHE`), so the production build is not verified and
-  `en.d.json.ts` came from next-intl's generator. Run `pnpm build` once locally before the PR.
+  `en.d.json.ts` came from next-intl's generator. *(Review)* `pnpm build` then ran in the user's own
+  terminal and passed; the sandbox is what blocks SWC, not the code.
+- *(Part 1c, review)* Copy matched to the board: "How it went above stays the summary." (no commas);
+  Spanish "hasta 4000 caracteres", as `CareLog.errors.text` writes it.
 - *(Part 1c)* **The timeline toggle** is a button with `aria-expanded`/`aria-controls`; its state is
   plain client state, so a reload folds it again. Recent activity (`compact`) never shows it.
 

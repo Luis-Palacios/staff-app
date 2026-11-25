@@ -104,11 +104,14 @@ function isNoteCode(code: CareLogFailureCode): code is NoteFailureCode {
 async function failure<T>(code: CareLogFailureCode): Promise<CareLogResult<T>> {
   const t = await getTranslations("CareLog");
 
-  // Two smaller unions: one template key over every code is too big for next-intl's key types
-  // (tsc then asks for ICU arguments no message has).
-  const message = isNoteCode(code) ? t(`errors.${code}`) : t(`errors.${code}`);
+  // The same call twice on purpose: `isNoteCode` narrows `code` to one of two smaller unions. A single
+  // template key over every code is too big for next-intl's key types (tsc then asks for ICU arguments
+  // no message has).
+  if (isNoteCode(code)) {
+    return { ok: false, code, message: t(`errors.${code}`) };
+  }
 
-  return { ok: false, code, message };
+  return { ok: false, code, message: t(`errors.${code}`) };
 }
 
 /** A server action is a public endpoint: the permission is checked here, then again by the API. */

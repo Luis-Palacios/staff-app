@@ -3,7 +3,7 @@
 import type { CareLogNote } from "@/api/care-log-api/types";
 
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { Button, Label, TextArea, TextField } from "@heroui/react";
+import { Button, Description, Label, TextArea, TextField } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
@@ -27,6 +27,7 @@ type Mode =
   | { kind: "delete"; noteId: number };
 
 const ADD_ID = "care-note-add";
+const HEADING_ID = "care-notes-title";
 const editId = (noteId: number) => `care-note-edit-${noteId}`;
 
 /**
@@ -78,6 +79,13 @@ export function EntryNotes({
     if (mode.kind === "idle") returnFocus.current = null;
   }, [mode]);
 
+  useEffect(() => {
+    // `?note=add` (the calendar panel's link) opens the form once: drop it from the URL right away, so
+    // neither a reload nor a refresh after saving or cancelling opens the form again.
+    if (startAdding)
+      window.history.replaceState(null, "", `/care-log/${entryId}`);
+  }, [startAdding, entryId]);
+
   if (notes.length === 0 && !canAddNote) return null;
 
   function open(next: Mode, from: string | null, text = "") {
@@ -92,10 +100,8 @@ export function EntryNotes({
     setError(null);
   }
 
-  // The `?note=add` that opened the page must not open the form again on a refresh.
   function refresh() {
-    if (startAdding) router.replace(`/care-log/${entryId}`, { scroll: false });
-    else router.refresh();
+    router.refresh();
   }
 
   function save() {
@@ -115,6 +121,8 @@ export function EntryNotes({
 
       if (result.ok) {
         showToast(t("saved"));
+        // A new note takes away *Add your note* once the page refreshes: focus the heading instead.
+        if (current.kind === "add") returnFocus.current = HEADING_ID;
         close();
         refresh();
       } else {
@@ -129,6 +137,8 @@ export function EntryNotes({
 
       if (result.ok) {
         showToast(t("deleted"));
+        // The note and its *Delete* button go away with the refresh.
+        returnFocus.current = HEADING_ID;
         close();
         refresh();
       } else {
@@ -141,6 +151,7 @@ export function EntryNotes({
     return (
       <div className="mt-1 flex flex-col gap-2" id={id}>
         <TextField
+          aria-describedby={editing ? undefined : `${id}-hint`}
           className="gap-1.5"
           isInvalid={error !== null}
           maxLength={MAX_TEXT}
@@ -154,22 +165,25 @@ export function EntryNotes({
             {t("yourNote")}
           </Label>
           {!editing && (
-            <span className="text-[13.5px] text-muted">{t("addHint")}</span>
+            <span className="text-[13.5px] text-muted" id={`${id}-hint`}>
+              {t("addHint")}
+            </span>
           )}
           <TextArea
             className="text-[15px] leading-[1.55]"
             placeholder={editing ? undefined : t("placeholder")}
             rows={4}
           />
+          {/* Who sees the note is the field's description, read with it. */}
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Description className="min-w-[200px] flex-1 text-[13px] text-muted">
+              {t("whoSees")}
+            </Description>
+            <span className="text-[12.5px] tabular-nums text-subtle">
+              {t("counter", { count: String(draft.length) })}
+            </span>
+          </span>
         </TextField>
-        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="min-w-[200px] flex-1 text-[13px] text-muted">
-            {t("whoSees")}
-          </span>
-          <span className="text-[12.5px] tabular-nums text-subtle">
-            {t("counter", { count: String(draft.length) })}
-          </span>
-        </span>
         {error && (
           <p className="text-[13px] text-danger" role="alert">
             {error}
@@ -199,12 +213,13 @@ export function EntryNotes({
 
   return (
     <section
-      aria-labelledby="care-notes-title"
+      aria-labelledby={HEADING_ID}
       className="flex flex-col gap-3 border-t border-separator pt-3.5"
     >
       <h2
-        className="text-[12.5px] font-semibold uppercase tracking-[0.06em] text-muted"
-        id="care-notes-title"
+        className="text-[12.5px] font-semibold uppercase tracking-[0.06em] text-muted outline-none"
+        id={HEADING_ID}
+        tabIndex={-1}
       >
         {t("head")}
       </h2>

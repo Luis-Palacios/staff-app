@@ -2359,7 +2359,7 @@ declare const messages: {
       "toggle": "{count, plural, one {# note from those who took part} other {# notes from those who took part}}",
       "add": "Add your note",
       "yourNote": "Your note",
-      "addHint": "What you saw or heard, in your own words. How it went, above, stays the summary.",
+      "addHint": "What you saw or heard, in your own words. How it went above stays the summary.",
       "placeholder": "Add what you’d like the others to know",
       "whoSees": "Everyone who can see this entry sees your note.",
       "counter": "{count} / 4000",
