@@ -2179,7 +2179,7 @@
     "othersToggle": "+ Alguien que no está en el sistema",
     "with": "Quién más participó",
     "addWith": "Agregar",
-    "wontSee": "{name} no verá este registro.",
+    "gainsSee": "{name} verá este registro, incluido lo que escribas.",
     "textHappened": "¿Qué pasó?",
     "textPurpose": "¿Para qué es?",
     "textHeard": "¿Qué nos contaron?",

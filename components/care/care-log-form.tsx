@@ -492,7 +492,7 @@ function FormBody({
     };
   }, [picker, memberOptions]);
 
-  // Who among the participants wouldn't see the entry (rule 3: being "with" grants no access).
+  // Who among the participants gains the entry by being named (rule 3).
   useEffect(() => {
     // Any change drops the old answer at once; the new check fills it in again.
     setAudience(null);
@@ -677,10 +677,17 @@ function FormBody({
     : planned
       ? t("datePlanned")
       : t("dateDone");
-  const wontSee = new Set(
-    (audience?.participants ?? [])
-      .filter((participant) => participant.sees === false)
-      .map((participant) => participant.memberId),
+  // Rule 3: naming someone gives them the entry. The warning is for who gains it, so someone
+  // already on the entry being edited isn't warned again.
+  const gains = new Set(
+    (audience?.gains ?? [])
+      .filter(
+        (gain) =>
+          !entry?.participants.some(
+            (existing) => existing.memberId === gain.memberId,
+          ),
+      )
+      .map((gain) => gain.memberId),
   );
   const optionList: PickerOption[] =
     picker === "with"
@@ -1110,7 +1117,7 @@ function FormBody({
                 />
               )}
               {participants
-                .filter((member) => wontSee.has(member.memberId))
+                .filter((member) => gains.has(member.memberId))
                 .map((member) => (
                   <p
                     key={member.memberId}
@@ -1122,7 +1129,7 @@ function FormBody({
                       className="mt-px size-4 shrink-0"
                       strokeWidth={1.8}
                     />
-                    {t("wontSee", { name: member.name })}
+                    {t("gainsSee", { name: member.name })}
                   </p>
                 ))}
               <FieldError

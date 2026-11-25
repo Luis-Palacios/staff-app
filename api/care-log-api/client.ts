@@ -6,6 +6,7 @@ import type {
   CareLogCompleteInput,
   CareLogCreateInput,
   CareLogEntry,
+  CareLogListParams,
   CareLogPersonOption,
   CareLogUpdateInput,
 } from "@/api/care-log-api/types";
@@ -82,7 +83,26 @@ export function cancelCareLogEntry(
   });
 }
 
-/** Who among `participants` would see this entry (`careLog: create`); nothing is saved. */
+/**
+ * Entries in a date range, ordered by date, time (all-day first) and id (`careLog: view`). 422
+ * `range` past 62 days; 404 for a group the caller can't reach. Cancelled entries are never sent.
+ */
+export function listCareLogEntries(
+  params: CareLogListParams,
+): Promise<CareLogEntry[]> {
+  const query = new URLSearchParams({ from: params.from, to: params.to });
+
+  if (params.mine) query.set("mine", "true");
+  if (params.groupId !== undefined) {
+    query.set("groupId", String(params.groupId));
+  }
+
+  for (const kind of params.kind ?? []) query.append("kind", kind);
+
+  return request<CareLogEntry[]>(`/care-log?${query.toString()}`);
+}
+
+/** Who gains the entry by being named among `participants` (`careLog: create`); nothing is saved. */
 export function checkCareLogAudience(
   input: CareLogAudienceInput,
 ): Promise<CareLogAudience> {

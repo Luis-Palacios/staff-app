@@ -2182,7 +2182,7 @@ declare const messages: {
     "othersToggle": "+ Someone who isn’t in the system",
     "with": "Who else took part",
     "addWith": "Add",
-    "wontSee": "{name} won’t see this entry.",
+    "gainsSee": "{name} will see this entry, including what you write.",
     "textHappened": "What happened?",
     "textPurpose": "What is it for?",
     "textHeard": "What did they tell us?",

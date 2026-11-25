@@ -156,7 +156,7 @@ export async function cancelCareLogAction(
   return run(() => cancelCareLogEntry(id, reason));
 }
 
-/** Who among the participants would not see the entry (the "won't see this" warning). */
+/** Who among the participants gains the entry by being named (rule 3's warning). */
 export async function checkCareLogAudienceAction(
   input: CareLogAudienceInput,
 ): Promise<CareLogResult<CareLogAudience>> {

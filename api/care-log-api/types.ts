@@ -124,9 +124,23 @@ export interface CareLogAudienceInput {
   participants: number[];
 }
 
-/** `sees` is null when the API can't say; no warning then. */
+/**
+ * Who gains the entry by being named (rule 3). `null`: the API couldn't ask, so no warning; `[]`:
+ * nobody gains.
+ */
 export interface CareLogAudience {
-  participants: { memberId: number; sees: boolean | null }[];
+  gains: { memberId: number; name: string }[] | null;
+}
+
+/** `GET /care-log`: both ends are church dates, inclusive, at most 62 days apart. */
+export interface CareLogListParams {
+  from: string;
+  to: string;
+  /** Entries the caller wrote or took part in. */
+  mine?: boolean;
+  /** Entries about people currently in this group. */
+  groupId?: number;
+  kind?: readonly CareLogKind[];
 }
 
 export interface CareLogCompleteInput {
