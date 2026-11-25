@@ -89,7 +89,8 @@ progress log below.
 | 1b.5 Design review fixes (Part 1b) | ✅ (browser pass: see *Browser checks (Part 1b)*) | `faa1f0a` |
 | Review fixes (Part 1b) | ✅ | `8d0bda0` |
 | Browser check fixes (Part 1b): entry page crash, 12-hour Spanish times | ✅ | `ea1fdc2` |
-| PR review fixes (#119): group hint for leaders, name-list commas, toast chevron, delete pending, unused locale, empty group picker | ✅ | the commit "fix(care-log): address the #119 review" |
+| PR review fixes (#119): group hint for leaders, name-list commas, toast chevron, delete pending, unused locale, empty group picker | ✅ (browser re-check below) | `71ba0b1` |
+| Fix: no double period after "p. m." in the plan toast | ✅ | the commit "fix(care-log): one period after p. m. in the plan toast" |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -168,6 +169,15 @@ entries 1–9 were created through the UI and deleted at the end.
   as the entry page, which showed "4:00 p. m."); the leader roles (named on an *Elders only* entry,
   not named, no `careLog: view`) and the leader's *All* hint, since there is no way to act as another
   user; *Record how it went* in the calendar panel.
+- **Re-check after the #119 review (`71ba0b1`), PASS** but for one line: three-person name lists read
+  "Lesbia Cruz Hernández, Moisés Lanzas Membreño y Ruth Morales Sequeira" (en: "…, and …") on the entry
+  page, the calendar panel and the agenda, with no gap before commas; the toast's chevron is white at
+  75% on navy and its close button 44 × 44; times read "4:00 p. m." / "4:00 PM"; a picked group shows
+  "Cuidado sobre personas que hoy están en GP - #2."; `?filter=all&group=999999` renders the plain
+  hint and "Todos los grupos", no error; deleting lands on `/care/calendar` within ~150 ms and the
+  entry then answers not-found; no console errors. **FAIL:** the toast read "…a las 4:00 p. m.." (the
+  time's own period plus the sentence's); fixed by collapsing the doubled period, not re-checked in the
+  browser. Not checked: the "deleted" toast's text (not caught), the leader's hint.
 
 ### Decisions and deviations
 

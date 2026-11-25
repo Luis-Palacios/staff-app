@@ -54,7 +54,11 @@ export function PlanSavedToast() {
       role="status"
     >
       <span className="min-w-[min(200px,100%)] flex-1">
-        {t("calendar.planSaved", { kind: entry.kind, when })}
+        {/* "a las 4:00 p. m." already ends in a period: don't add the sentence's own. */}
+        {t("calendar.planSaved", { kind: entry.kind, when }).replace(
+          /\.\.$/,
+          ".",
+        )}
       </span>
       <AddToCalendar entry={entry} placement="top end" tone="onDark" />
       <button
