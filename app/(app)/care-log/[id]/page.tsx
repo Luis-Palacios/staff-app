@@ -297,7 +297,8 @@ export default async function CareLogEntryPage({
         <div className="flex flex-col gap-4 px-4 py-[18px] md:px-6 md:py-[22px]">
           <dl className="grid grid-cols-1 gap-x-5 gap-y-3 text-[15px] md:grid-cols-[140px_1fr]">
             <dt className={labelClass}>{t("about")}</dt>
-            <dd className="flex flex-wrap gap-x-3 gap-y-1">
+            {/* Inline, not flex: a gap would sit before every comma of the list. */}
+            <dd>
               {formatListParts(
                 names.map((person) => person.name),
                 typedLocale,

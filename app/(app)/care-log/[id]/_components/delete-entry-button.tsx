@@ -23,7 +23,8 @@ export function DeleteEntryButton({
   const t = useTranslations("CareLog.entry");
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [, startTransition] = useTransition();
+  // The dialog closes on confirm while the delete is still in flight: keep the button off till then.
+  const [pending, startTransition] = useTransition();
 
   function remove() {
     startTransition(async () => {
@@ -42,7 +43,8 @@ export function DeleteEntryButton({
     <>
       <button
         aria-label={ariaLabel}
-        className="min-h-11 text-[14.5px] font-semibold text-danger"
+        className="min-h-11 text-[14.5px] font-semibold text-danger disabled:opacity-50"
+        disabled={pending}
         type="button"
         onClick={() => setOpen(true)}
       >

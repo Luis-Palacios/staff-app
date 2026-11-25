@@ -214,34 +214,37 @@ function PanelBody({
           <span className="text-[12.5px] font-semibold uppercase tracking-[0.06em] text-muted">
             {t("about")}
           </span>
-          {formatListParts(
-            names.map((person) => person.name),
-            locale,
-          ).map((part, position) => {
-            if (part.type === "literal") {
-              return (
-                <Fragment key={position}>
-                  {part.value.trim() ? part.value : null}
-                </Fragment>
+          {/* One inline span: the flex gap only separates the label from the list, never commas. */}
+          <span>
+            {formatListParts(
+              names.map((person) => person.name),
+              locale,
+            ).map((part, position) => {
+              if (part.type === "literal") {
+                return (
+                  <Fragment key={position}>
+                    {part.value.trim() ? part.value : null}
+                  </Fragment>
+                );
+              }
+
+              const href = names[part.index].href;
+
+              return href ? (
+                <NextLink
+                  key={position}
+                  className="font-semibold text-link underline decoration-gold-500 underline-offset-[3px]"
+                  href={href}
+                >
+                  {part.value}
+                </NextLink>
+              ) : (
+                <span key={position} className="font-semibold text-heading">
+                  {part.value}
+                </span>
               );
-            }
-
-            const href = names[part.index].href;
-
-            return href ? (
-              <NextLink
-                key={position}
-                className="font-semibold text-link underline decoration-gold-500 underline-offset-[3px]"
-                href={href}
-              >
-                {part.value}
-              </NextLink>
-            ) : (
-              <span key={position} className="font-semibold text-heading">
-                {part.value}
-              </span>
-            );
-          })}
+            })}
+          </span>
         </p>
         <p className="text-[13.5px] text-muted">{meta}</p>
         {entry.text && (

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 import { ApiError } from "@/api/api-client";
 import { listCareLogEntries } from "@/api/care-log-api/client";
@@ -40,7 +40,6 @@ export default async function CareCalendarPage({
     getMe(),
     getTranslations("CareCalendar"),
     getTranslations("CareLog"),
-    getLocale(),
   ]);
   const today = getChurchToday();
   const query = parseCalendarQuery(search, today);

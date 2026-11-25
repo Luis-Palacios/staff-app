@@ -89,6 +89,7 @@ progress log below.
 | 1b.5 Design review fixes (Part 1b) | ✅ (browser pass: see *Browser checks (Part 1b)*) | `faa1f0a` |
 | Review fixes (Part 1b) | ✅ | `8d0bda0` |
 | Browser check fixes (Part 1b): entry page crash, 12-hour Spanish times | ✅ | `ea1fdc2` |
+| PR review fixes (#119): group hint for leaders, name-list commas, toast chevron, delete pending, unused locale, empty group picker | ✅ | the commit "fix(care-log): address the #119 review" |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |

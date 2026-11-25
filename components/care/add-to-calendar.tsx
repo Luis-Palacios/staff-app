@@ -132,7 +132,10 @@ export function AddToCalendar({
             {t("calendar.add")}
             <ChevronDownIcon
               aria-hidden="true"
-              className="size-3.5 text-muted"
+              className={clsx(
+                "size-3.5",
+                tone === "onDark" ? "text-white/75" : "text-muted",
+              )}
               strokeWidth={2}
             />
           </>

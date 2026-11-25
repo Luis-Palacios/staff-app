@@ -154,16 +154,20 @@ export function CareCalendar({
     );
   }
 
+  // A picked group wins for everyone (a leader narrowing to one of theirs included); a group the
+  // list doesn't know (groups unavailable) falls back to the plain hint, never "… in ."
+  const selectedGroup =
+    query.groupId !== null
+      ? groups?.find((g) => g.id === query.groupId)
+      : undefined;
   const hint =
     query.filter === "mine"
       ? t("hintMine")
-      : !isElder
-        ? t("hintAllLeader")
-        : query.groupId !== null
-          ? t("hintAllGroup", {
-              group: groups?.find((g) => g.id === query.groupId)?.name ?? "",
-            })
-          : t("hintAllElder");
+      : selectedGroup
+        ? t("hintAllGroup", { group: selectedGroup.name })
+        : isElder
+          ? t("hintAllElder")
+          : t("hintAllLeader");
   const segment = (on: boolean) =>
     clsx(
       "inline-flex h-9 flex-1 items-center justify-center gap-[7px] rounded-lg px-3.5 text-sm font-semibold",
@@ -290,7 +294,7 @@ export function CareCalendar({
             </button>
           ))}
         </div>
-        {query.filter === "all" && groups && (
+        {query.filter === "all" && groups && groups.length > 0 && (
           <label className="inline-flex items-center gap-2.5 text-[13.5px] font-semibold text-muted max-md:w-full">
             <span>{t("group")}</span>
             <span className="relative inline-flex flex-1">
@@ -675,7 +679,8 @@ export function CareCalendar({
                               </span>
                             )}
                           </span>
-                          <span className="flex flex-wrap gap-x-2.5 gap-y-0.5 text-[14.5px]">
+                          {/* Inline, not flex: a gap would sit before every comma of the list. */}
+                          <span className="text-[14.5px]">
                             {formatListParts(
                               people.map((p) => p.name),
                               locale,
