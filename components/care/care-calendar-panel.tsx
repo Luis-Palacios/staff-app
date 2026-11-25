@@ -259,7 +259,7 @@ function PanelBody({
           </span>
           {entry.source && <SourceLine source={entry.source} />}
           <NextLink
-            className="inline-flex min-h-8 items-center gap-[5px] text-[13.5px] font-semibold text-link underline decoration-gold-500 underline-offset-[3px]"
+            className="inline-flex min-h-11 items-center gap-[5px] text-[13.5px] font-semibold text-link underline decoration-gold-500 underline-offset-[3px]"
             href={`/care-log/${entry.id}`}
             prefetch={false}
           >

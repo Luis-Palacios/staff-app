@@ -86,7 +86,8 @@ progress log below.
 | 1b.2 The entry page `/care-log/{id}` and the links into it | ✅ | `9a7dd62` |
 | 1b.3 Add to calendar (Google, Outlook, `.ics`) | ✅ | `b6b2368` |
 | 1b.4 The Care calendar page and its sidebar item | ✅ | `183570d` |
-| 1b.5 Design review fixes (Part 1b) | ✅ code side; browser pass still to do (`/browser-check`) | the commit "docs(care): Part 1b design review" |
+| 1b.5 Design review fixes (Part 1b) | ✅ code side; browser pass still to do (`/browser-check`) | `faa1f0a` |
+| Review fixes (Part 1b) | ✅ | the commit "fix(care-log): Part 1b review fixes" |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -377,7 +378,7 @@ with a keyboard) is still to do against the boards.
 
 ---
 
-# Part 1b (branch `care-calendar`)
+# Part 1b (branch `feature/care-calendar`)
 
 Spec: `../docs/specs/care.md` rules 3, 8, 11, 13 and 47–58 (Part 1b). API:
 `membership-management/docs/CARE-API-HANDOFF.md` "Part 1b" (PR #82, `feature/care-calendar`; the
@@ -485,9 +486,18 @@ contract is fixed). auth-server has nothing to do. Boards (page **Care**, two ro
   - Sidebar: *Care calendar* sits after *Conversations*, uses Heroicons' outline `CalendarDaysIcon`
     (the board's path), no badge. Part 2 replaces it with *Care* (rule 55).
   - Not done: "Care: {title}" (Part 2) and notes (Part 1c).
-- *(Part 1b)* **Needs the API (PR #82) on `main`** for `gains`, `GET /care-log` and a participant's
-  access; until then the warning shows nothing (`gains` is `undefined`, no warning) and the calendar
-  page errors on the list call.
+- *(Part 1b)* **The API is on `main`** (membership-management #82, `def949d`): `gains`, `GET /care-log`
+  and a participant's access. Deploy staff-app's Part 1b with it or right after: the old app reads
+  `audience.participants`, so its warning stays hidden until this ships.
+- *(Part 1b)* **Review fixes** (spec reviewer): a cancelled plan's text is labelled *Purpose*, not *How
+  it went*; the leader's *All* hint no longer says *Elders only* entries are hidden (since rules 3 and 8
+  changed, a leader sees the ones they wrote or are named on; the board's line is out of date too); the
+  not-found page's crumbs no longer share a key; a `?month=` before 1900 falls back to this month; the
+  month grid has `role="grid"`; the plan toast's close and the panel's *Open page* are 44 px; the group
+  picker shows no group when the API refused it. Accepted as they are: "Elders only · and {every
+  participant}" (the API doesn't say who is an elder; a flag on participants would let it list only
+  the others, a possible API follow-up) and *Edit* hidden on cancelled entries (as on the timeline,
+  though the board draws it there).
 
 ---
 

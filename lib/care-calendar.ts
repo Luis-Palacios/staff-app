@@ -56,7 +56,11 @@ export function parseCalendarQuery(
   return {
     view: view === "month" || view === "agenda" ? view : null,
     month:
-      month && /^\d{4}-\d{2}$/.test(month) && isCalendarDate(`${month}-01`)
+      // Years before 1900 are refused: Date.UTC reads 0–99 as 1900–1999, which would break the range.
+      month &&
+      /^\d{4}-\d{2}$/.test(month) &&
+      Number(month.slice(0, 4)) >= 1900 &&
+      isCalendarDate(`${month}-01`)
         ? month
         : monthOf(today),
     filter: mine ? "mine" : "all",

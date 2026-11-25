@@ -18,7 +18,8 @@ export default async function CareLogEntryNotFound() {
       <StaffAppBreadcrumbs
         items={[
           { labelKey: "careCalendar", href: "/care/calendar" },
-          { label: t("notFoundCrumb"), href: "/care/calendar" },
+          // Its own href: the breadcrumbs key items by href, so two equal ones collide.
+          { label: t("notFoundCrumb"), href: "/care-log" },
         ]}
       />
       <section

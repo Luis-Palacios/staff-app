@@ -133,15 +133,17 @@ export default async function CareLogEntryPage({
     facts.push({ key: "also", label: t("entry.also"), value: entry.others });
   }
 
-  const textLabel = planned
-    ? t("entry.purpose")
-    : entry.kind === "heard"
-      ? t("entry.whatTheyTold")
-      : entry.kind === "note"
-        ? t("entry.note")
-        : entry.kind === "message"
-          ? t("entry.whatHappened")
-          : t("entry.howItWent");
+  // A cancelled plan's text is still its purpose (the board: "Purpose" for anything not done).
+  const textLabel =
+    entry.status !== "done"
+      ? t("entry.purpose")
+      : entry.kind === "heard"
+        ? t("entry.whatTheyTold")
+        : entry.kind === "note"
+          ? t("entry.note")
+          : entry.kind === "message"
+            ? t("entry.whatHappened")
+            : t("entry.howItWent");
   const visibility = visibilityText(entry);
   const loggedDate = formatCalendarShortDate(
     churchDateOf(entry.createdAt),

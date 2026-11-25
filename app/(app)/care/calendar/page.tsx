@@ -70,6 +70,8 @@ export default async function CareCalendarPage({
     (groups?.some((g) => g.id === query.groupId) ?? true)
       ? query.groupId
       : null;
+  // The group the list is really filtered by: null again when the API refused it.
+  let shownGroup = knownGroup;
   const entries = await listCareLogEntries({
     ...params,
     groupId: knownGroup ?? undefined,
@@ -79,6 +81,8 @@ export default async function CareCalendarPage({
       error instanceof ApiError &&
       error.status === 404
     ) {
+      shownGroup = null;
+
       return listCareLogEntries(params);
     }
 
@@ -107,7 +111,7 @@ export default async function CareCalendarPage({
         entries={entries}
         groups={groups}
         isElder={isElder}
-        query={{ ...query, groupId: knownGroup }}
+        query={{ ...query, groupId: shownGroup }}
         today={today}
         viewerMemberId={me.member?.id ?? null}
       />

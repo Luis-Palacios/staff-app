@@ -2366,7 +2366,7 @@
     "hintMine": "El cuidado que registraste o programaste, o en el que participaste.",
     "hintAllElder": "Todos los registros de cuidado de la iglesia.",
     "hintAllGroup": "Cuidado sobre personas que hoy están en {group}.",
-    "hintAllLeader": "Cuidado sobre personas de tus grupos, y el tuyo. Los registros solo para ancianos no aparecen aquí.",
+    "hintAllLeader": "Cuidado sobre personas de tus grupos, y los registros que escribiste o en los que participaste.",
     "emptyTitle": "Nada en {month}",
     "emptyMine": "Aquí aparece el cuidado que registras o programas este mes, y los planes en los que participas.",
     "emptyAll": "No hay registros de cuidado que puedas ver este mes.",

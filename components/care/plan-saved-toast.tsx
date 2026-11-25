@@ -59,7 +59,7 @@ export function PlanSavedToast() {
       <AddToCalendar entry={entry} placement="top end" tone="onDark" />
       <button
         aria-label={t("calendar.dismiss")}
-        className="flex size-9 items-center justify-center rounded-[9px] text-white hover:bg-white/10"
+        className="flex size-11 items-center justify-center rounded-[9px] text-white hover:bg-white/10"
         type="button"
         onClick={() => setEntry(null)}
       >

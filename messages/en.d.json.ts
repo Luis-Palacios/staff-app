@@ -2369,7 +2369,7 @@ declare const messages: {
     "hintMine": "Care you logged or planned, or took part in.",
     "hintAllElder": "All care log entries in the church.",
     "hintAllGroup": "Care about people now in {group}.",
-    "hintAllLeader": "Care about people in your groups, and yours. Entries for elders only don’t show here.",
+    "hintAllLeader": "Care about people in your groups, and entries you wrote or took part in.",
     "emptyTitle": "Nothing in {month}",
     "emptyMine": "Care you log or plan this month shows here, with the plans you take part in.",
     "emptyAll": "No care log entries you can see this month.",

@@ -412,136 +412,147 @@ export function CareCalendar({
             aria-label={formatCalendarMonth(monthStart, locale)}
             className={card({ className: clsx("overflow-hidden", monthClass) })}
           >
+            {/* The rows need a grid parent (aria-required-parent); the legend stays outside it. */}
             <div
-              className="grid grid-cols-7 border-b border-border bg-surface-secondary"
-              role="row"
+              aria-label={formatCalendarMonth(monthStart, locale)}
+              role="grid"
             >
-              {weeks[0].map((day) => (
-                <span
-                  key={day.date}
-                  className="px-1.5 py-2.5 text-[11.5px] font-semibold uppercase tracking-[0.04em] text-muted md:px-3 md:text-[12.5px]"
-                  role="columnheader"
-                >
-                  {formatCalendarShortWeekday(day.date, locale)}
-                </span>
-              ))}
-            </div>
-            {weeks.map((week) => (
               <div
-                key={week[0].date}
-                className="grid grid-cols-7 border-b border-separator"
+                className="grid grid-cols-7 border-b border-border bg-surface-secondary"
                 role="row"
               >
-                {week.map((day, column) => {
-                  const list = day.inMonth ? (byDay.get(day.date) ?? []) : [];
-                  const isToday = day.date === today;
-                  const number = Number(day.date.slice(8));
+                {weeks[0].map((day) => (
+                  <span
+                    key={day.date}
+                    className="px-1.5 py-2.5 text-[11.5px] font-semibold uppercase tracking-[0.04em] text-muted md:px-3 md:text-[12.5px]"
+                    role="columnheader"
+                  >
+                    {formatCalendarShortWeekday(day.date, locale)}
+                  </span>
+                ))}
+              </div>
+              {weeks.map((week) => (
+                <div
+                  key={week[0].date}
+                  className="grid grid-cols-7 border-b border-separator"
+                  role="row"
+                >
+                  {week.map((day, column) => {
+                    const list = day.inMonth ? (byDay.get(day.date) ?? []) : [];
+                    const isToday = day.date === today;
+                    const number = Number(day.date.slice(8));
 
-                  return (
-                    <div
-                      key={day.date}
-                      aria-label={
-                        day.inMonth
-                          ? `${formatCalendarWeekdayDate(day.date, locale)}${
-                              list.length
-                                ? `, ${t("dayEntries", { count: list.length })}`
-                                : ""
-                            }`
-                          : undefined
-                      }
-                      className={clsx(
-                        "group flex min-h-[88px] min-w-0 flex-col gap-1 p-1 pb-2 md:min-h-32 md:gap-[5px] md:p-2",
-                        column > 0 && "border-l border-separator",
-                        !day.inMonth
-                          ? "bg-surface-secondary"
-                          : isToday
-                            ? "bg-gold-500/5"
-                            : "bg-surface",
-                      )}
-                      role="gridcell"
-                    >
-                      <span className="flex items-center justify-between">
-                        <span
-                          className={clsx(
-                            "inline-flex size-7 items-center justify-center rounded-full text-[13.5px] tabular-nums",
-                            isToday
-                              ? "bg-gold-500 font-bold text-navy-900"
-                              : day.inMonth
-                                ? "font-semibold text-heading"
-                                : "font-semibold text-subtle",
-                          )}
-                        >
-                          {number}
-                        </span>
-                        {day.inMonth && canWrite && (
-                          <button
-                            aria-label={t("logOn", {
-                              date: formatCalendarWeekdayDate(day.date, locale),
-                            })}
+                    return (
+                      <div
+                        key={day.date}
+                        aria-label={
+                          day.inMonth
+                            ? `${formatCalendarWeekdayDate(day.date, locale)}${
+                                list.length
+                                  ? `, ${t("dayEntries", { count: list.length })}`
+                                  : ""
+                              }`
+                            : undefined
+                        }
+                        className={clsx(
+                          "group flex min-h-[88px] min-w-0 flex-col gap-1 p-1 pb-2 md:min-h-32 md:gap-[5px] md:p-2",
+                          column > 0 && "border-l border-separator",
+                          !day.inMonth
+                            ? "bg-surface-secondary"
+                            : isToday
+                              ? "bg-gold-500/5"
+                              : "bg-surface",
+                        )}
+                        role="gridcell"
+                      >
+                        <span className="flex items-center justify-between">
+                          <span
                             className={clsx(
-                              "flex size-7 items-center justify-center rounded-lg border border-border text-muted hover:bg-surface-secondary focus-visible:opacity-100 max-md:hidden",
-                              !isToday &&
-                                "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
+                              "inline-flex size-7 items-center justify-center rounded-full text-[13.5px] tabular-nums",
+                              isToday
+                                ? "bg-gold-500 font-bold text-navy-900"
+                                : day.inMonth
+                                  ? "font-semibold text-heading"
+                                  : "font-semibold text-subtle",
+                            )}
+                          >
+                            {number}
+                          </span>
+                          {day.inMonth && canWrite && (
+                            <button
+                              aria-label={t("logOn", {
+                                date: formatCalendarWeekdayDate(
+                                  day.date,
+                                  locale,
+                                ),
+                              })}
+                              className={clsx(
+                                "flex size-7 items-center justify-center rounded-lg border border-border text-muted hover:bg-surface-secondary focus-visible:opacity-100 max-md:hidden",
+                                !isToday &&
+                                  "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
+                              )}
+                              type="button"
+                              onClick={() =>
+                                setForm({
+                                  target: { type: "new" },
+                                  date: day.date,
+                                })
+                              }
+                            >
+                              <PlusIcon
+                                aria-hidden="true"
+                                className="size-3.5"
+                                strokeWidth={2}
+                              />
+                            </button>
+                          )}
+                        </span>
+                        {list.slice(0, CELL_MAX).map((entry) => (
+                          <button
+                            key={entry.id}
+                            aria-label={chipAria(entry)}
+                            className={clsx(
+                              "flex min-h-[26px] w-full items-center gap-[5px] overflow-hidden rounded-[7px] border px-1 py-[3px] text-left text-[11.5px] font-semibold md:px-[7px] md:text-[12.5px]",
+                              CHIP_LOOK[lookOf(entry)],
                             )}
                             type="button"
-                            onClick={() =>
-                              setForm({
-                                target: { type: "new" },
-                                date: day.date,
-                              })
-                            }
+                            onClick={() => setPanelId(entry.id)}
                           >
-                            <PlusIcon
-                              aria-hidden="true"
-                              className="size-3.5"
-                              strokeWidth={2}
+                            <CareKindIcon
+                              className="size-3 shrink-0"
+                              kind={entry.kind}
+                              strokeWidth={1.9}
                             />
+                            {entry.occurredAtTime && (
+                              <span className="shrink-0 font-medium tabular-nums opacity-85 max-md:hidden">
+                                {formatShortCareTime(
+                                  entry.occurredAtTime,
+                                  locale,
+                                )}
+                              </span>
+                            )}
+                            <span className="min-w-0 flex-1 truncate">
+                              {names(entry)}
+                            </span>
+                          </button>
+                        ))}
+                        {list.length > CELL_MAX && (
+                          <button
+                            className="self-start px-1 py-0.5 text-[12.5px] font-semibold text-link underline decoration-gold-500 underline-offset-[3px]"
+                            type="button"
+                            onClick={() => go({ view: "agenda" })}
+                          >
+                            {t("more", {
+                              count: String(list.length - CELL_MAX),
+                            })}
                           </button>
                         )}
-                      </span>
-                      {list.slice(0, CELL_MAX).map((entry) => (
-                        <button
-                          key={entry.id}
-                          aria-label={chipAria(entry)}
-                          className={clsx(
-                            "flex min-h-[26px] w-full items-center gap-[5px] overflow-hidden rounded-[7px] border px-1 py-[3px] text-left text-[11.5px] font-semibold md:px-[7px] md:text-[12.5px]",
-                            CHIP_LOOK[lookOf(entry)],
-                          )}
-                          type="button"
-                          onClick={() => setPanelId(entry.id)}
-                        >
-                          <CareKindIcon
-                            className="size-3 shrink-0"
-                            kind={entry.kind}
-                            strokeWidth={1.9}
-                          />
-                          {entry.occurredAtTime && (
-                            <span className="shrink-0 font-medium tabular-nums opacity-85 max-md:hidden">
-                              {formatShortCareTime(
-                                entry.occurredAtTime,
-                                locale,
-                              )}
-                            </span>
-                          )}
-                          <span className="min-w-0 flex-1 truncate">
-                            {names(entry)}
-                          </span>
-                        </button>
-                      ))}
-                      {list.length > CELL_MAX && (
-                        <button
-                          className="self-start px-1 py-0.5 text-[12.5px] font-semibold text-link underline decoration-gold-500 underline-offset-[3px]"
-                          type="button"
-                          onClick={() => go({ view: "agenda" })}
-                        >
-                          {t("more", { count: String(list.length - CELL_MAX) })}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
             <ul className="flex flex-wrap items-center gap-x-[18px] gap-y-2 px-4 py-3 text-[12.5px] text-muted">
               {(
                 [
