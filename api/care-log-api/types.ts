@@ -81,6 +81,18 @@ export interface CareLogSourceRef {
   gone: boolean;
 }
 
+/** A note from someone who took part (Part 1c, rule 59): one per person, oldest first on the entry. */
+export interface CareLogNote {
+  id: number;
+  author: { memberId: number; name: string };
+  text: string;
+  createdAt: string;
+  /** Non-null: shown as "edited". */
+  editedAt: string | null;
+  /** True for the writer only. */
+  canEdit: boolean;
+}
+
 export interface CareLogEntry {
   id: number;
   kind: CareLogKind;
@@ -103,6 +115,10 @@ export interface CareLogEntry {
   canComplete: boolean;
   editedAt: string | null;
   createdAt: string;
+  /** Oldest first; `[]` when there are none or the entry isn't done. */
+  notes: CareLogNote[];
+  /** Show *Add your note* only when true. */
+  canAddNote: boolean;
 }
 
 /** One row of `GET /care-log/people-search`: who to log care about. */
@@ -173,4 +189,9 @@ export type CareLogErrorCode =
   | "visibility"
   | "link"
   | "not_planned"
-  | "author";
+  | "author"
+  | "not_participant"
+  | "not_note_writer"
+  | "note_exists"
+  | "not_done"
+  | "no_participants";

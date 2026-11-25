@@ -116,3 +116,33 @@ export function checkCareLogAudience(
 export function getCareLogComingUp(): Promise<CareLogComingUp> {
   return request<CareLogComingUp>("/care-log/coming-up");
 }
+
+/** *Add your note* (`careLog: create`): 201 with the whole entry. 409 `note_exists`, 403 `not_participant`. */
+export function createCareLogNote(
+  id: number,
+  text: string,
+): Promise<CareLogEntry> {
+  return request<CareLogEntry>(`/care-log/${id}/notes`, {
+    method: "POST",
+    body: { text },
+  });
+}
+
+/** The writer only (403 `not_note_writer`): 200 with the whole entry. */
+export function updateCareLogNote(
+  id: number,
+  noteId: number,
+  text: string,
+): Promise<CareLogEntry> {
+  return request<CareLogEntry>(`/care-log/${id}/notes/${noteId}`, {
+    method: "PATCH",
+    body: { text },
+  });
+}
+
+/** 204; the writer only. */
+export function deleteCareLogNote(id: number, noteId: number): Promise<void> {
+  return request<void>(`/care-log/${id}/notes/${noteId}`, {
+    method: "DELETE",
+  });
+}

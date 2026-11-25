@@ -91,6 +91,11 @@ progress log below.
 | Browser check fixes (Part 1b): entry page crash, 12-hour Spanish times | ✅ | `ea1fdc2` |
 | PR review fixes (#119): group hint for leaders, name-list commas, toast chevron, delete pending, unused locale, empty group picker | ✅ (browser re-check below) | `71ba0b1` |
 | Fix: no double period after "p. m." in the plan toast | ✅ | the commit "fix(care-log): one period after p. m. in the plan toast" |
+| **Part 1c, branch `feature/care-log-notes`** (notes from those who took part; spec rules 3, 8, 56, 59–63) | | |
+| 1c.1 Types, client and server actions (notes) | ⬜ | |
+| 1c.2 Notes on the entry page (add, edit, delete) | ⬜ | |
+| 1c.3 Notes on the timeline row and the calendar panel (clamp, *Show more*) | ⬜ | |
+| 1c.4 Design review fixes (Part 1c) | ⬜ | |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -550,6 +555,107 @@ contract is fixed). auth-server has nothing to do. Boards (page **Care**, two ro
   participant}" (the API doesn't say who is an elder; a flag on participants would let it list only
   the others, a possible API follow-up) and *Edit* hidden on cancelled entries (as on the timeline,
   though the board draws it there).
+
+---
+
+# Part 1c (branch `feature/care-log-notes`)
+
+Spec: `../docs/specs/care.md` rules 3, 8, 56 and 59–63 (Part 1c). API: membership-management #83
+(on `main`; the contract is fixed). auth-server has nothing to do. Boards (page **Care**, row
+*Part 1c · Notes from those who took part*): `PersonTimeline-CareNotes`, `-Open-Leader`,
+`-Expanded`, `-Phone-Dark-ES`; `CareLogEntry-Notes`, `-Note-Add`, `-Note-Edit-Leader`,
+`-Note-Delete-Leader`, `-Notes-Phone-Dark-ES`; `CareCalendar-Entry-Notes`, `-Notes-Expanded`.
+
+**The API** (hand-written, `api/care-log-api/`):
+
+- `CareLogEntry` (everywhere an entry comes: `GET /care-log/{id}`, `GET /care-log`,
+  `GET /care-log/coming-up`, the timeline's `careLog` item) gains `notes` (oldest first; `[]` when none
+  or not done) and `canAddNote`. A note is `{ id, author: { memberId, name }, text, createdAt,
+  editedAt, canEdit }`; `editedAt` non-null reads "edited", `canEdit` is true only for the writer.
+- `POST /care-log/{id}/notes` `{ text }` (201, the whole entry), `PATCH …/notes/{noteId}` `{ text }`
+  (200, the whole entry), `DELETE …/notes/{noteId}` (204). All need `careLog: create`; text is
+  trimmed, 1–4000.
+- Errors: 403 `not_participant` / `not_note_writer`, 409 `note_exists` / `link`, 422 `not_done` /
+  `no_participants` / `text`, plain 404 (entry not visible or deleted, note missing).
+
+**Stages** (one commit each, on `feature/care-log-notes`):
+
+- **1c.1** Types (`CareLogNote`, `notes`, `canAddNote`, the new error codes), client functions and
+  server actions (add, update, delete), and the `CareLog.errors.*` messages for the new codes.
+- **1c.2** The entry page: *Notes from those who took part* under the summary (each note: initials,
+  writer with "(you)", date, "edited", full text); *Add your note* (form with the "Everyone who can
+  see this entry sees your note." hint and a 0 / 4000 counter); *Edit* and *Delete* on your own, the
+  delete confirmed inline. `?note=add` opens the page with the add form open (for the calendar panel).
+- **1c.3** The timeline row ("N notes from those who took part", collapsed, opens in place; not in
+  *Recent activity*) and the calendar panel (open, *Add your note* linking to `?note=add`); both
+  clamp a note to 4 lines with *Show more* / *Show less*. Month cells show nothing. Nothing in
+  *Coming up*, no badge (rule 63).
+- **1c.4** Design review against the boards (code side), fixes, this log.
+
+**Copy** (`CareLog.notes.*`, except where marked; the boards hold the English and Spanish of the first
+block, the rest is written in this handoff's style):
+
+| Key | English | Español |
+| --- | --- | --- |
+| `notes.head` | Notes from those who took part | Notas de quienes participaron |
+| `notes.toggle` | {count, plural, one {# note from those who took part} other {# notes from those who took part}} | {count, plural, one {# nota de quienes participaron} other {# notas de quienes participaron}} |
+| `notes.add` | Add your note | Agregar tu nota |
+| `notes.yourNote` | Your note | Tu nota |
+| `notes.addHint` | What you saw or heard, in your own words. How it went, above, stays the summary. | Lo que viste o escuchaste, con tus palabras. Cómo fue, arriba, sigue siendo el resumen. |
+| `notes.placeholder` | Add what you’d like the others to know | Agrega lo que quieres que los demás sepan |
+| `notes.whoSees` | Everyone who can see this entry sees your note. | Todos los que pueden ver este registro ven tu nota. |
+| `notes.counter` | {count} / 4000 | {count} / 4000 |
+| `notes.save` | Save note | Guardar nota |
+| `notes.editAria` | Edit your note | Editar tu nota |
+| `notes.deleteAria` | Delete your note | Eliminar tu nota |
+| `notes.deleteAsk` | Delete your note? It can’t be brought back. | ¿Eliminar tu nota? No se puede recuperar. |
+| `notes.deleteConfirm` | Delete note | Eliminar nota |
+| `notes.keep` | Keep it | Conservarla |
+| `notes.edited` | {date} · edited | {date} · editada |
+| `notes.showMore` | Show more | Mostrar más |
+| `notes.showLess` | Show less | Mostrar menos |
+| `notes.textError` | Write your note, up to 4,000 characters. | Escribe tu nota, hasta 4,000 caracteres. |
+| `notes.saved` | Note saved | Nota guardada |
+| `notes.deleted` | Note deleted | Nota eliminada |
+| `errors.not_participant` | Only the author and the people who took part can add a note. | Solo quien escribió el registro y quienes participaron pueden agregar una nota. |
+| `errors.not_note_writer` | Only whoever wrote this note can change it. | Solo quien escribió esta nota puede cambiarla. |
+| `errors.note_exists` | You already have a note on this entry. Refresh the page. | Ya tienes una nota en este registro. Actualiza la página. |
+| `errors.not_done` | Notes can only be added once the entry is done. | Las notas se pueden agregar cuando el registro ya se realizó. |
+| `errors.no_participants` | Notes are for entries that other people took part in. | Las notas son para registros en los que participaron otras personas. |
+| `errors.noteGone` | This note or entry isn’t available any more. Refresh the page. | Esta nota o este registro ya no está disponible. Actualiza la página. |
+
+The writer reads "{name} (you)" / "{name} (tú)" with the existing `CareLog.entry.you`.
+
+## Decisions and deviations (Part 1c)
+
+- *(Part 1c)* **Files:** `components/care/care-notes.tsx` (the shared pieces: `useNoteLabels`,
+  `ClampedNoteText`, `TimelineNotes`, `PanelNotes`), `components/care/entry-notes.tsx` (the entry
+  page's section with the add / edit / delete forms), `churchDateIn` in `lib/care-log-format.ts`
+  (`lib/church-time.ts` is server-only). `viewerMemberId` is passed down from the member and guest
+  Timeline pages (`getMe()`) through `TimelineCard` → `TimelineBoard` → `ReportTimeline` →
+  `TimelineCareRow`, and from the calendar page to the panel (already there).
+- *(Part 1c)* **All the copy went in with 1c.1** (`CareLog.notes.*` and the new `CareLog.errors.*`)
+  so later stages only use it. A plain 404 on a note call reads `errors.noteGone`, not the entry
+  form's "Someone in About…" (the actions' `runNote`).
+- *(Part 1c)* **Opening the entry page with the form open:** `/care-log/{id}?note=add`. The page reads
+  it (`searchParams`) and `EntryNotes` starts with the add form open when `canAddNote` is true;
+  otherwise it is ignored. After a save the page replaces the URL without the param, so a refresh
+  doesn't reopen it.
+- *(Part 1c)* **The section shows when there are notes or `canAddNote`.** The boards only draw it with
+  notes; with none yet and `canAddNote`, it shows the heading and *Add your note* (the first note).
+  Under the summary, after the *How it went* block, as the boards draw it.
+- *(Part 1c)* **The clamp is measured, not guessed.** The boards fold a note longer than 280
+  characters; here the text gets `line-clamp-4` and *Show more* appears only when the text is really
+  cut off (a `ResizeObserver` measures while it is folded). The entry page never clamps.
+- *(Part 1c)* **Dates:** a note's date is the church date of `createdAt` ("Oct 12", "12 oct"),
+  followed by " · edited" / " · editada" when `editedAt` is set (the board's wording).
+- *(Part 1c)* **Forms:** one form open at a time on the page. Saving needs text after trimming (else
+  `notes.textError`, also for the API's 422 `text`); the hint "Everyone who can see this entry sees
+  your note." and the counter sit under the field; *Add your note* also shows the board's one-line
+  *What you saw or heard…* above it. After a save, delete or cancel focus returns to the button that
+  opened the form (when it is still there). *Delete* confirms inline, focus on *Keep it*.
+- *(Part 1c)* **The timeline toggle** is a button with `aria-expanded`/`aria-controls`; its state is
+  plain client state, so a reload folds it again. Recent activity (`compact`) never shows it.
 
 ---
 

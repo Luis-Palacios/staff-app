@@ -21,7 +21,10 @@ import {
   checkCareLogAudience,
   completeCareLogEntry,
   createCareLogEntry,
+  createCareLogNote,
   deleteCareLogEntry,
+  deleteCareLogNote,
+  updateCareLogNote,
   searchCareLogPeople,
   updateCareLogEntry,
 } from "@/api/care-log-api/client";
@@ -32,6 +35,7 @@ export type CareLogFailureCode =
   | CareLogErrorCode
   | "forbidden"
   | "notFound"
+  | "noteGone"
   | "generic";
 
 export type CareLogResult<T> =
@@ -55,6 +59,11 @@ const API_CODES: ReadonlySet<string> = new Set<CareLogErrorCode>([
   "link",
   "not_planned",
   "author",
+  "not_participant",
+  "not_note_writer",
+  "note_exists",
+  "not_done",
+  "no_participants",
 ]);
 
 /** The API's `code` (never its English `detail`), else the status. */
@@ -73,10 +82,33 @@ function failureCode(error: unknown): CareLogFailureCode {
   return "generic";
 }
 
+type NoteFailureCode =
+  | "not_participant"
+  | "not_note_writer"
+  | "note_exists"
+  | "not_done"
+  | "no_participants"
+  | "noteGone";
+
+function isNoteCode(code: CareLogFailureCode): code is NoteFailureCode {
+  return (
+    code === "not_participant" ||
+    code === "not_note_writer" ||
+    code === "note_exists" ||
+    code === "not_done" ||
+    code === "no_participants" ||
+    code === "noteGone"
+  );
+}
+
 async function failure<T>(code: CareLogFailureCode): Promise<CareLogResult<T>> {
   const t = await getTranslations("CareLog");
 
-  return { ok: false, code, message: t(`errors.${code}`) };
+  // Two smaller unions: one template key over every code is too big for next-intl's key types
+  // (tsc then asks for ICU arguments no message has).
+  const message = isNoteCode(code) ? t(`errors.${code}`) : t(`errors.${code}`);
+
+  return { ok: false, code, message };
 }
 
 /** A server action is a public endpoint: the permission is checked here, then again by the API. */
@@ -92,6 +124,18 @@ async function run<T>(call: () => Promise<T>): Promise<CareLogResult<T>> {
   } catch (error) {
     return failure(failureCode(error));
   }
+}
+
+/**
+ * A note's call: the same as `run`, but a plain 404 means the note or the entry is gone, not
+ * "someone in About" (the entry form's wording).
+ */
+async function runNote<T>(call: () => Promise<T>): Promise<CareLogResult<T>> {
+  const result = await run(call);
+
+  return !result.ok && result.code === "notFound"
+    ? failure("noteGone")
+    : result;
 }
 
 /** The people picker: up to 10 people in the caller's scope; 2 or more characters. */
@@ -154,6 +198,33 @@ export async function cancelCareLogAction(
   reason?: string,
 ): Promise<CareLogResult<CareLogEntry>> {
   return run(() => cancelCareLogEntry(id, reason));
+}
+
+/** *Add your note* (Part 1c): one per person on a done entry with participants. */
+export async function addCareLogNoteAction(
+  id: number,
+  text: string,
+): Promise<CareLogResult<CareLogEntry>> {
+  return runNote(() => createCareLogNote(id, text.trim()));
+}
+
+export async function updateCareLogNoteAction(
+  id: number,
+  noteId: number,
+  text: string,
+): Promise<CareLogResult<CareLogEntry>> {
+  return runNote(() => updateCareLogNote(id, noteId, text.trim()));
+}
+
+export async function deleteCareLogNoteAction(
+  id: number,
+  noteId: number,
+): Promise<CareLogResult<null>> {
+  return runNote(async () => {
+    await deleteCareLogNote(id, noteId);
+
+    return null;
+  });
 }
 
 /** Who among the participants gains the entry by being named (rule 3's warning). */
