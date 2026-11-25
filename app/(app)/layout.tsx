@@ -6,9 +6,11 @@ import { getConversationCounts } from "@/api/conversations-api/client";
 import { getUnreadCount } from "@/api/notifications-api/client";
 import { requireStaffSession } from "@/api/auth-api/helpers/require-staff-session";
 import { AppShell } from "@/components/app-shell";
+import { PlanSavedToast } from "@/components/care/plan-saved-toast";
 import { ToastHost } from "@/components/toast-host";
 import { canSeeConversationsInbox } from "@/lib/auth/permissions";
 import { UserProvider } from "@/lib/contexts/user-context";
+import { getEnv } from "@/lib/env/server";
 import { getLocale } from "@/lib/locale";
 import { getChurchContext } from "@/lib/workspace";
 
@@ -46,6 +48,7 @@ export default async function AppLayout({
 
   return (
     <UserProvider
+      churchTimeZone={getEnv().CHURCH_TIMEZONE}
       features={features}
       permissions={session.permissions}
       user={session.user}
@@ -59,6 +62,7 @@ export default async function AppLayout({
         {children}
       </AppShell>
       <ToastHost />
+      <PlanSavedToast />
     </UserProvider>
   );
 }

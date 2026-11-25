@@ -10,6 +10,8 @@ interface CurrentUser {
   user: AuthSessionUser;
   permissions: Permissions;
   features: MeFeatures;
+  /** The church's IANA time zone (`CHURCH_TIMEZONE`), for what has to leave the app as an instant. */
+  churchTimeZone: string;
 }
 
 const UserContext = createContext<CurrentUser | null>(null);
@@ -18,12 +20,15 @@ export function UserProvider({
   user,
   permissions,
   features,
+  churchTimeZone,
   children,
 }: CurrentUser & {
   children: React.ReactNode;
 }) {
   return (
-    <UserContext.Provider value={{ user, permissions, features }}>
+    <UserContext.Provider
+      value={{ user, permissions, features, churchTimeZone }}
+    >
       {children}
     </UserContext.Provider>
   );
@@ -51,4 +56,9 @@ export function usePermissions(): Permissions {
 /** The church's settings (`/me` features), to hide controls for a feature that is off. */
 export function useFeatures(): MeFeatures {
   return useUserContext().features;
+}
+
+/** The church's time zone: the one a plan's date and time are read in. */
+export function useChurchTimeZone(): string {
+  return useUserContext().churchTimeZone;
 }

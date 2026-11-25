@@ -2288,6 +2288,28 @@
     "dashPastDue": "¿Cómo fue?",
     "dashMeetingInPerson": "Reunión en persona",
     "dashMeetingOnline": "Reunión en línea",
+    "calendar": {
+      "add": "Agregar al calendario",
+      "addAria": "Agregar al calendario: {title}, {names}",
+      "google": "Google Calendar",
+      "outlook": "Outlook",
+      "outlookSub": "Outlook en la web",
+      "ics": "Descargar (.ics)",
+      "icsSub": "Apple Calendar, Outlook de escritorio y otros",
+      "newTab": "(se abre en otra pestaña)",
+      "copyNote": "Esto agrega una copia. Si el plan cambia, actualiza también tu calendario.",
+      "shows": "Tu calendario muestra “{title}” y un enlace de vuelta aquí. Sin notas.",
+      "showsPrivate": "Tu calendario muestra “{title}”, sin nombres, y un enlace de vuelta aquí.",
+      "description": "Registro de cuidado en ekklesiaio",
+      "privateTitles": {
+        "call": "Llamada de cuidado",
+        "meeting": "Reunión de cuidado",
+        "visit": "Visita de cuidado"
+      },
+      "planSaved": "{kind, select, call {Llamada} meeting {Reunión} other {Visita}} programada para el {when}.",
+      "whenAt": "{date} a las {time}",
+      "dismiss": "Cerrar"
+    },
     "entry": {
       "plannedBy": "Programada por",
       "by": "Por",

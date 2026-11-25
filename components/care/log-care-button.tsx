@@ -16,6 +16,7 @@ import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { CareLogForm } from "./care-log-form";
+import { showPlanSavedToast } from "./plan-saved-toast";
 
 import { showToast } from "@/components/toast-host";
 
@@ -58,7 +59,7 @@ export function LogCareDialog({
 
   if (!open) return null;
 
-  function saved(what: CareLogSaved) {
+  function saved(what: CareLogSaved, entry?: CareLogEntry) {
     const message = {
       logged: t("toastLogged"),
       planned: t("toastPlanned"),
@@ -68,7 +69,11 @@ export function LogCareDialog({
     }[what];
 
     onOpenChange(false);
-    showToast(message);
+
+    // A new plan offers *Add to calendar* in its toast (rule 47); every other save just says so.
+    if (what === "planned" && entry) showPlanSavedToast(entry);
+    else showToast(message);
+
     router.refresh();
     onSaved?.();
   }

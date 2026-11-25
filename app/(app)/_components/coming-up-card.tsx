@@ -6,6 +6,7 @@ import { Fragment } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { getCareLogComingUp } from "@/api/care-log-api/client";
+import { AddToCalendar } from "@/components/care/add-to-calendar";
 import { CareKindIcon } from "@/components/care/care-kind-icon";
 import { LogCareButton } from "@/components/care/log-care-button";
 import { card, title } from "@/components/primitives";
@@ -165,6 +166,19 @@ export async function ComingUpCard() {
             variant="record"
           />
         )}
+        {/* Rule 47: a 44 px icon button on a *Coming up* row. */}
+        <AddToCalendar
+          ariaLabel={t("calendar.addAria", {
+            title: what,
+            names: formatList(
+              names.map((n) => n.name),
+              typedLocale,
+            ),
+          })}
+          entry={entry}
+          placement="bottom end"
+          variant="icon"
+        />
       </li>
     );
   }

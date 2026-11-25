@@ -275,7 +275,8 @@ export function CareLogForm({
   initialPeople?: CareLogPerson[];
   source?: CareLogSourceInfo;
   onOpenChange: (isOpen: boolean) => void;
-  onSaved: (what: CareLogSaved) => void;
+  /** `entry` is what the API saved, for a new entry or plan. */
+  onSaved: (what: CareLogSaved, entry?: CareLogEntry) => void;
 }) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -324,7 +325,7 @@ function FormBody({
   source?: CareLogSourceInfo;
   isDesktop: boolean;
   onClose: () => void;
-  onSaved: (what: CareLogSaved) => void;
+  onSaved: (what: CareLogSaved, entry?: CareLogEntry) => void;
 }) {
   const t = useTranslations("CareLog");
   const locale = useLocale() as Locale;
@@ -630,7 +631,7 @@ function FormBody({
         source: source?.input ?? null,
       });
 
-      if (result.ok) onSaved(planned ? "planned" : "logged");
+      if (result.ok) onSaved(planned ? "planned" : "logged", result.value);
       else handleFailure(result.code, result.message);
     });
   }

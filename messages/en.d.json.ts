@@ -2291,6 +2291,28 @@ declare const messages: {
     "dashPastDue": "How did it go?",
     "dashMeetingInPerson": "Meeting, in person",
     "dashMeetingOnline": "Meeting, online",
+    "calendar": {
+      "add": "Add to calendar",
+      "addAria": "Add to calendar: {title}, {names}",
+      "google": "Google Calendar",
+      "outlook": "Outlook",
+      "outlookSub": "Outlook on the web",
+      "ics": "Download (.ics)",
+      "icsSub": "Apple Calendar, Outlook desktop and others",
+      "newTab": "(opens in a new tab)",
+      "copyNote": "This adds a copy. If the plan changes, update your calendar too.",
+      "shows": "Your calendar shows “{title}” and a link back here. No notes.",
+      "showsPrivate": "Your calendar shows “{title}”, with no names, and a link back here.",
+      "description": "Care log entry in ekklesiaio",
+      "privateTitles": {
+        "call": "Care call",
+        "meeting": "Care meeting",
+        "visit": "Care visit"
+      },
+      "planSaved": "{kind, select, call {Call} meeting {Meeting} other {Visit}} planned for {when}.",
+      "whenAt": "{date} at {time}",
+      "dismiss": "Close"
+    },
     "entry": {
       "plannedBy": "Planned by",
       "by": "By",

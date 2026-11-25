@@ -19,6 +19,10 @@ import { DeleteEntryButton } from "./_components/delete-entry-button";
 import { ApiError } from "@/api/api-client";
 import { getCareLogEntry } from "@/api/care-log-api/client";
 import { getMe } from "@/api/members-api/client";
+import {
+  AddToCalendar,
+  canAddToCalendar,
+} from "@/components/care/add-to-calendar";
 import { CareKindIcon } from "@/components/care/care-kind-icon";
 import { LogCareButton } from "@/components/care/log-care-button";
 import { card, title as titleStyles } from "@/components/primitives";
@@ -243,6 +247,13 @@ export default async function CareLogEntryPage({
         </div>
         <div className="flex w-full flex-wrap gap-2.5 md:w-auto">
           <CopyLinkButton className="max-md:flex-1" entryId={entry.id} />
+          {canAddToCalendar(entry) && (
+            <AddToCalendar
+              className="h-11! max-md:flex-1"
+              entry={entry}
+              placement="bottom end"
+            />
+          )}
           {recordHere && !pastDueBanner && (
             <LogCareButton
               ariaLabel={t("recordAria", { title, date: dateOnly })}
