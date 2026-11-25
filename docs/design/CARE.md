@@ -94,8 +94,8 @@ progress log below.
 | **Part 1c, branch `feature/care-log-notes`** (notes from those who took part; spec rules 3, 8, 56, 59–63) | | |
 | 1c.1 Types, client and server actions (notes) | ✅ | `b9e428e` |
 | 1c.2 Notes on the entry page (add, edit, delete) | ✅ | `678771f` |
-| 1c.3 Notes on the timeline row and the calendar panel (clamp, *Show more*) | ✅ | the commit "feat(care-log): notes on the timeline and the calendar panel" |
-| 1c.4 Design review fixes (Part 1c) | ⬜ | |
+| 1c.3 Notes on the timeline row and the calendar panel (clamp, *Show more*) | ✅ | `d3e411e` |
+| 1c.4 Design review fixes (Part 1c) | ✅ (code side; browser pass not run yet) | the commit "fix(care-log): design review of the notes (Part 1c)" |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -659,6 +659,15 @@ The writer reads "{name} (you)" / "{name} (tú)" with the existing `CareLog.entr
   message has. `messages/en.d.json.ts` was regenerated with next-intl's own generator
   (`createMessagesDeclaration`), since `pnpm build` could not run in the agent's sandbox (see the
   build note below).
+- *(Part 1c)* **Design review (1c.4), code side:** compared with the boards: rail and 4-line clamp on
+  the timeline and the panel (name 13.5 px semibold, date 12.5 px subtle, text 14.5 px); cards with
+  an initials circle on the page (32 px, 15.5 px text, secondary surface); inline delete question on
+  the danger-soft surface; 44 px buttons; the toggle pill at 36 px. One fix: a form's `id` sits on its
+  wrapper and focus goes to the textarea inside it (HeroUI's `TextArea` may replace its own `id`).
+  Month cells, *Coming up* and the dashboards show no notes and no badge (rule 63).
+- *(Part 1c)* **`pnpm build` did not run in the agent's sandbox** (SWC native binding: "DACL grants
+  replacement rights", `ERR_SWC_NATIVE_CACHE`), so the production build is not verified and
+  `en.d.json.ts` came from next-intl's generator. Run `pnpm build` once locally before the PR.
 - *(Part 1c)* **The timeline toggle** is a button with `aria-expanded`/`aria-controls`; its state is
   plain client state, so a reload folds it again. Recent activity (`compact`) never shows it.
 

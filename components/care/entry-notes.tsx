@@ -71,7 +71,10 @@ export function EntryNotes({
             ? `care-note-keep-${mode.noteId}`
             : returnFocus.current;
 
-    if (target) document.getElementById(target)?.focus();
+    // A form's id is on its wrapper: the field inside takes the focus.
+    const element = target ? document.getElementById(target) : null;
+
+    (element?.querySelector("textarea") ?? element)?.focus();
     if (mode.kind === "idle") returnFocus.current = null;
   }, [mode]);
 
@@ -136,7 +139,7 @@ export function EntryNotes({
 
   function form(editing: boolean, id: string) {
     return (
-      <div className="mt-1 flex flex-col gap-2">
+      <div className="mt-1 flex flex-col gap-2" id={id}>
         <TextField
           className="gap-1.5"
           isInvalid={error !== null}
@@ -155,7 +158,6 @@ export function EntryNotes({
           )}
           <TextArea
             className="text-[15px] leading-[1.55]"
-            id={id}
             placeholder={editing ? undefined : t("placeholder")}
             rows={4}
           />
