@@ -93,7 +93,6 @@ export default async function CareCalendarPage({
             <LogCareButton
               withIcon
               label={log("log")}
-              returnFocusId="care-calendar-title"
               today={today}
               variant="primary"
             />

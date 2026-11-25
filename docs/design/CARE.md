@@ -82,11 +82,11 @@ progress log below.
 | PR review fixes (#117) | ✅ | `6e0afcf` |
 | Fix: *Record how it went* on the plan's day (`fix/care-log-record-today`) | ✅ | the commit "fix(care-log): record a plan on its own day" |
 | **Part 1b, branch `feature/care-calendar`** (the care calendar; spec rules 3, 8, 11, 13, 47–58) | | |
-| 1b.1 Audience change (`gains`), `GET /care-log` client, the participant warning | ⬜ | |
-| 1b.2 The entry page `/care-log/{id}` and the links into it | ⬜ | |
-| 1b.3 Add to calendar (Google, Outlook, `.ics`) | ⬜ | |
-| 1b.4 The Care calendar page and its sidebar item | ⬜ | |
-| 1b.5 Design review fixes (Part 1b) | ⬜ | |
+| 1b.1 Audience change (`gains`), `GET /care-log` client, the participant warning | ✅ | `bd70e32` |
+| 1b.2 The entry page `/care-log/{id}` and the links into it | ✅ | `9a7dd62` |
+| 1b.3 Add to calendar (Google, Outlook, `.ics`) | ✅ | `b6b2368` |
+| 1b.4 The Care calendar page and its sidebar item | ✅ | `183570d` |
+| 1b.5 Design review fixes (Part 1b) | ✅ code side; browser pass still to do (`/browser-check`) | the commit "docs(care): Part 1b design review" |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -436,7 +436,58 @@ contract is fixed). auth-server has nothing to do. Boards (page **Care**, two ro
 
 ## Decisions and deviations (Part 1b)
 
-(Filled in as the stages land; each marked *(Part 1b)*.)
+- *(Part 1b)* **Files:** `lib/care-calendar-event.ts` (the pure event builders), `lib/care-calendar.ts`
+  (URL state and the month grid, pure), `components/care/add-to-calendar.tsx`,
+  `plan-saved-toast.tsx`, `care-calendar.tsx`, `care-calendar-panel.tsx`, `use-entry-meta.ts`;
+  pages `app/(app)/care-log/[id]/` (with its own `not-found.tsx`) and `app/(app)/care/calendar/`.
+  The church time zone reaches client code through `UserProvider` (`useChurchTimeZone`).
+  No test runner exists, so the builders are pure functions of their arguments (checked by hand
+  with `node --experimental-strip-types`).
+- *(Part 1b)* **The warning (1b.1)** reads `gains`. On an existing entry it skips participants who
+  are already on it, so only someone newly named is warned.
+- *(Part 1b)* **The entry page (1b.2):**
+  - *Who can see it* for an *Elders only* entry lists **every** participant ("Elders only · and
+    {names}"). The API doesn't say which participants are elders, so the rule 8 wording "names that
+    aren't elders" can't be applied; an elder named in *With* shows too.
+  - A leaders entry reads "Elders and {first name}'s leaders" for one person (the timeline's wording,
+    not the board's pronoun) and "Elders and their leaders" for several.
+  - The log line is "Logged {date}" for every status (the API has no cancelled or completed date), plus
+    "Edited {date}" when edited. *Edit* is hidden on a cancelled entry, as on the timeline.
+  - *Record how it went* is a banner when past due (as drawn) and a header button on the plan's own day
+    (`canRecordNow`, rule 6); both need `careLog: create`.
+  - No `careLog: view`, a non-numeric id and every 404 render the same segment `not-found.tsx` (rule
+    57). *Delete* asks for a confirmation (not drawn) and returns to the care calendar.
+  - Breadcrumb: Dashboard › Care calendar › {title} (the shell's breadcrumb always starts at the
+    dashboard; the board starts at Care calendar).
+- *(Part 1b)* **Add to calendar (1b.3):**
+  - Times are UTC instants (`…Z`) of the plan's wall clock in `CHURCH_TIMEZONE`, so the `.ics` needs no
+    `VTIMEZONE` and the links carry no zone; calendars show the same moment in the viewer's zone.
+  - "First name plus initial": the first word and the initial of the word after it ("Óscar Altamirano
+    Espinoza" → "Óscar A."). A private entry gets "Care call", "Care meeting" or "Care visit".
+  - The menu is a HeroUI `Dropdown` with the two notes under the items; the links open with
+    `window.open(…, "_blank", "noopener,noreferrer")`. The toast after saving a **new** plan is
+    `PlanSavedToast` (its own event, mounted in the `(app)` layout), navy, stays until closed; editing
+    a plan or recording an entry shows the usual toast.
+  - Offered on every planned entry the viewer can see, on the timeline row (full timeline, not Recent
+    activity), *Coming up* rows (past due too), the entry page and the calendar panel.
+- *(Part 1b)* **The calendar (1b.4):**
+  - The page reads the month with one `GET /care-log` (first to last day of the month, at most 31 days),
+    so the days around the month show empty, as drawn. Kind chips are in the URL too
+    (`?kind=call&kind=visit`).
+  - The group picker lists the open groups from `GET /small-groups` for `careLog: all` and the viewer's
+    `leads` otherwise; a `group` in the URL that isn't in that list is ignored (and a 404 from the API
+    falls back to no group), so a stale link never errors.
+  - Month is the default from `md` (`hidden md:block` / `md:hidden` pick the view before the width is
+    known, so there is no flash) and agenda below it, unless `?view=` says otherwise.
+  - The **+** on a day shows on hover and keyboard focus (always on today) and not below `md`, where
+    the agenda is the default; *Log care* in the header has no date. A day after today starts the form
+    as a plan (`initialDate`).
+  - Sidebar: *Care calendar* sits after *Conversations*, uses Heroicons' outline `CalendarDaysIcon`
+    (the board's path), no badge. Part 2 replaces it with *Care* (rule 55).
+  - Not done: "Care: {title}" (Part 2) and notes (Part 1c).
+- *(Part 1b)* **Needs the API (PR #82) on `main`** for `gains`, `GET /care-log` and a participant's
+  access; until then the warning shows nothing (`gains` is `undefined`, no warning) and the calendar
+  page errors on the list call.
 
 ---
 

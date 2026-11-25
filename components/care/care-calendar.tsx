@@ -27,6 +27,7 @@ import { LogCareDialog } from "./log-care-button";
 import { useEntryMeta } from "./use-entry-meta";
 
 import { CareIcon } from "@/components/icons";
+import { card } from "@/components/primitives";
 import { StatusBadge } from "@/components/status-badge";
 import { shortPersonName } from "@/lib/care-calendar-event";
 import {
@@ -369,7 +370,12 @@ export function CareCalendar({
       </p>
 
       {inMonth === 0 ? (
-        <section className="flex flex-col items-center gap-3 rounded-card border border-border bg-surface px-6 py-12 text-center shadow-[0_1px_2px_rgb(11_35_65/0.05)] dark:shadow-none">
+        <section
+          className={card({
+            className:
+              "flex flex-col items-center gap-3 px-6 py-12 text-center",
+          })}
+        >
           <span className="flex size-[52px] items-center justify-center rounded-full bg-accent-soft text-accent-soft-foreground">
             <CareIcon className="size-[26px]" />
           </span>
@@ -404,10 +410,7 @@ export function CareCalendar({
         <>
           <section
             aria-label={formatCalendarMonth(monthStart, locale)}
-            className={clsx(
-              "overflow-hidden rounded-card border border-border bg-surface shadow-[0_1px_2px_rgb(11_35_65/0.05)] dark:shadow-none",
-              monthClass,
-            )}
+            className={card({ className: clsx("overflow-hidden", monthClass) })}
           >
             <div
               className="grid grid-cols-7 border-b border-border bg-surface-secondary"
@@ -563,10 +566,9 @@ export function CareCalendar({
 
           <section
             aria-label={formatCalendarMonth(monthStart, locale)}
-            className={clsx(
-              "overflow-hidden rounded-card border border-border bg-surface shadow-[0_1px_2px_rgb(11_35_65/0.05)] dark:shadow-none",
-              agendaClass,
-            )}
+            className={card({
+              className: clsx("overflow-hidden", agendaClass),
+            })}
           >
             {[...byDay.keys()].sort().map((date, index) => (
               <div
