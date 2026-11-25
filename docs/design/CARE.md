@@ -86,8 +86,9 @@ progress log below.
 | 1b.2 The entry page `/care-log/{id}` and the links into it | ✅ | `9a7dd62` |
 | 1b.3 Add to calendar (Google, Outlook, `.ics`) | ✅ | `b6b2368` |
 | 1b.4 The Care calendar page and its sidebar item | ✅ | `183570d` |
-| 1b.5 Design review fixes (Part 1b) | ✅ code side; browser pass still to do (`/browser-check`) | `faa1f0a` |
-| Review fixes (Part 1b) | ✅ | the commit "fix(care-log): Part 1b review fixes" |
+| 1b.5 Design review fixes (Part 1b) | ✅ (browser pass: see *Browser checks (Part 1b)*) | `faa1f0a` |
+| Review fixes (Part 1b) | ✅ | `8d0bda0` |
+| Browser check fixes (Part 1b): entry page crash, 12-hour Spanish times | ✅ | `ea1fdc2` |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -126,6 +127,46 @@ until `GUEST_GROUPS_ENABLED` was set, then only a leader without guest groups wa
 only* entry; the deacon's 409 `link` banner. A typed past date in a plan isn't flagged in the form
 (the calendar disables it and the API answers 422 `date`). The dev server's Next.js workers crashed
 once under low memory ("Jest worker encountered 2 child process exceptions"); a restart fixed it.
+
+### Browser checks (Part 1b)
+
+November 24, 2026, `browser-verifier`, local stack (API on `main` `def949d`), signed in as an admin
+with a linked member; es and en, light and dark. Chrome wouldn't resize, so 1024 and ~454 px were
+loaded in same-origin iframes of those widths (layout and the panel; not a real narrow window). Test
+entries 1–9 were created through the UI and deleted at the end.
+
+- **First run: FAIL.** `/care-log/{id}` crashed: the entry page (a server component) called
+  `canAddToCalendar()` from a `"use client"` file. Moved to `lib/care-calendar-event.ts` (`ea1fdc2`).
+  Spanish times also read "16:00" in the plan toast while month cells said "4 p. m.";
+  `formatCareTime` now uses a 12-hour clock ("4:00 p. m.", the Part 1 timeline too).
+- **Second run, PASS:** the participant warning ("Ruth Morales Sequeira verá este registro, incluido lo
+  que escribas."; none for a member without an account; shown when newly added on edit); the plan toast
+  (navy, *Agregar al calendario*, menu opens upward; the date-only form "Llamada programada para el jue
+  26 nov."); the entry page in es and en (kind, badge, date and time, *About*, *Planned by* "(you)",
+  *With*, *Where* "En línea", *Purpose*, "Elders and Lesbia’s leaders", "Logged Nov 24", *Edit* /
+  *Delete* for the author, Copy link toast "Enlace copiado. Solo quienes pueden ver este registro
+  pueden abrirlo.", breadcrumb to `/care/calendar`; cancelled: only *Copy link* and *Delete*); *Elders
+  only* reads "Solo ancianos · y Ruth Morales Sequeira"; not found identical for `/care-log/abc`,
+  `/999999` and a deleted id; *Add to calendar* on planned timeline rows, the entry page, the panel and
+  as 44 × 44 icon buttons on *Próximamente*, absent on done and cancelled; the menu copy and preview
+  lines (A: "Visita · Lesbia C."; *Elders only*: "Visita de cuidado", sin nombres); the Outlook and
+  Google links (Outlook A 22:00Z–23:00Z = 4 PM Managua, 1 h; B 01:00Z–02:00Z next day with "En línea";
+  all-day C and D date-only, end the next day, `allday=true`; details "Registro de cuidado en
+  ekklesiaio" + `http://localhost:3001/care-log/{id}`; no purpose, participants or visibility in any
+  URL); the calendar (month at 1440 and 1024, agenda at ~454; weeks start Monday in es, Sunday in en;
+  Today / next and `?month=` survive a reload; *Todos* + group picker narrows and changes the hint;
+  kind chips toggle and go in the URL; "+1 más" switches to the agenda; the day's **+** prefills the
+  date with nobody in *About*; far empty month "Nada en diciembre"; legend; panel a dialog at 1024 and
+  a bottom sheet at ~454; *Abrir página* 44 px; no sideways scroll at 1433, 1022 or 452); dark mode on
+  the calendar and the entry page; no console errors.
+- **Not checked:** the past-due banner and amber chip (the form can't make a past plan; seed one to
+  check); *Why it was cancelled* and *Purpose* on a cancelled plan (the plan cancelled had no purpose
+  and *No se hizo* asks no reason); Google's `dates` for timed plans (the tab list redacts it; Outlook's
+  times for the same entries are right, and the builder is shared); a 30-minute call; the `.ics`
+  download; the English plan toast and not-found text; the toast after the 12-hour fix (same formatter
+  as the entry page, which showed "4:00 p. m."); the leader roles (named on an *Elders only* entry,
+  not named, no `careLog: view`) and the leader's *All* hint, since there is no way to act as another
+  user; *Record how it went* in the calendar panel.
 
 ### Decisions and deviations
 
