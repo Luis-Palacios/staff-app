@@ -19,10 +19,7 @@ import { DeleteEntryButton } from "./_components/delete-entry-button";
 import { ApiError } from "@/api/api-client";
 import { getCareLogEntry } from "@/api/care-log-api/client";
 import { getMe } from "@/api/members-api/client";
-import {
-  AddToCalendar,
-  canAddToCalendar,
-} from "@/components/care/add-to-calendar";
+import { AddToCalendar } from "@/components/care/add-to-calendar";
 import { CareKindIcon } from "@/components/care/care-kind-icon";
 import { LogCareButton } from "@/components/care/log-care-button";
 import { card, title as titleStyles } from "@/components/primitives";
@@ -31,6 +28,7 @@ import { StaffAppBreadcrumbs } from "@/components/staff-app-breadcrumbs";
 import { StatusBadge } from "@/components/status-badge";
 import { getPermissions } from "@/lib/auth/get-permissions";
 import { can } from "@/lib/auth/permissions";
+import { canAddToCalendar } from "@/lib/care-calendar-event";
 import {
   canRecordNow,
   careTitleKey,

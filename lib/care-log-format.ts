@@ -12,6 +12,8 @@ export function formatCareTime(time: string, locale: Locale): string {
   return new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "2-digit",
+    // Spanish defaults to 24 h; the church reads "4:00 p. m.", as the boards and month cells do.
+    hourCycle: "h12",
     // Any fixed zone: the value is a wall-clock time, not an instant.
     timeZone: "UTC",
   }).format(new Date(Date.UTC(2000, 0, 1, hours, minutes)));

@@ -8,10 +8,7 @@ import NextLink from "next/link";
 import { Fragment } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import {
-  AddToCalendar,
-  canAddToCalendar,
-} from "@/components/care/add-to-calendar";
+import { AddToCalendar } from "@/components/care/add-to-calendar";
 import { CareKindIcon } from "@/components/care/care-kind-icon";
 import { LogCareButton } from "@/components/care/log-care-button";
 import { StatusBadge } from "@/components/status-badge";
@@ -25,6 +22,7 @@ import {
   formatCalendarShortWeekdayDate,
 } from "@/lib/format-date";
 import { formatList, formatListParts } from "@/lib/format-list";
+import { canAddToCalendar } from "@/lib/care-calendar-event";
 import { personHref } from "@/lib/person-href";
 import { firstNameOf } from "@/lib/report-items";
 

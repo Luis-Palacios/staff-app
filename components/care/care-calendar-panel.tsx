@@ -15,7 +15,7 @@ import NextLink from "next/link";
 import { Fragment } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { AddToCalendar, canAddToCalendar } from "./add-to-calendar";
+import { AddToCalendar } from "./add-to-calendar";
 import { CareKindIcon } from "./care-kind-icon";
 import { useEntryMeta } from "./use-entry-meta";
 
@@ -27,6 +27,7 @@ import {
   formatCareWhen,
 } from "@/lib/care-log-format";
 import { formatList, formatListParts } from "@/lib/format-list";
+import { canAddToCalendar } from "@/lib/care-calendar-event";
 import { personHref } from "@/lib/person-href";
 import { firstNameOf } from "@/lib/report-items";
 import { useMediaQuery } from "@/lib/use-media-query";

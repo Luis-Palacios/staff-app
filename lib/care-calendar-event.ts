@@ -50,6 +50,14 @@ export interface CalendarEvent {
   url: string;
 }
 
+/**
+ * A calendar can only be offered for a plan (rule 47). Here, not next to the menu: that file is
+ * `"use client"`, and server components (the entry page) call this too.
+ */
+export function canAddToCalendar(entry: Pick<CareLogEntry, "status">): boolean {
+  return entry.status === "planned";
+}
+
 /** Call 30 minutes, meeting and visit one hour (a plan has no length of its own). */
 function durationMinutes(kind: CalendarEntry["kind"]): number {
   return kind === "call" ? 30 : 60;

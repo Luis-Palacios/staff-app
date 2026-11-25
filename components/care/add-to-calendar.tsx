@@ -44,11 +44,6 @@ export function useCalendarText(
   };
 }
 
-/** A calendar can only be offered for a plan (rule 47). */
-export function canAddToCalendar(entry: Pick<CareLogEntry, "status">): boolean {
-  return entry.status === "planned";
-}
-
 /**
  * *Add to calendar* (care spec rules 47–49): a menu with Google Calendar, Outlook and a `.ics`
  * download, built here from the entry the page already has: nothing is stored and no server is
