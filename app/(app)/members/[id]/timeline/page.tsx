@@ -68,6 +68,7 @@ export default async function MemberTimelinePage({
         timeline={timeline}
         today={today}
         viewer={timelineViewer(permissions)}
+        viewerMemberId={me.member?.id ?? null}
       />
     </>
   );

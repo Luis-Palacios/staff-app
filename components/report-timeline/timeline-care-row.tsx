@@ -9,6 +9,7 @@ import { Fragment } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { AddToCalendar } from "@/components/care/add-to-calendar";
+import { TimelineNotes } from "@/components/care/care-notes";
 import { CareKindIcon } from "@/components/care/care-kind-icon";
 import { LogCareButton } from "@/components/care/log-care-button";
 import { StatusBadge } from "@/components/status-badge";
@@ -75,8 +76,11 @@ export function TimelineCareRow({
   person,
   compact = false,
   today,
+  viewerMemberId = null,
 }: {
   entry: CareLogEntry;
+  /** The viewer's linked member, to mark their own note "(you)". */
+  viewerMemberId?: number | null;
   /** Whose timeline this is: left out of "also about", and the *Elders and … leaders* name. */
   person: PersonTimeline["person"];
   compact?: boolean;
@@ -224,6 +228,13 @@ export function TimelineCareRow({
             <p className="mt-0.5 whitespace-pre-line text-pretty break-words text-[15px] leading-[1.55] text-foreground">
               {entry.text}
             </p>
+          )}
+          {/* Rule 62: never in Recent activity (`compact`); folded again on every load. */}
+          {!compact && (
+            <TimelineNotes
+              notes={entry.notes}
+              viewerMemberId={viewerMemberId}
+            />
           )}
           <span className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-subtle">
             <span className="inline-flex items-center gap-1 font-medium">

@@ -76,6 +76,7 @@ export default async function GuestTimelinePage({
         timeline={timeline}
         today={today}
         viewer={timelineViewer(permissions)}
+        viewerMemberId={me.member?.id ?? null}
       />
     </>
   );

@@ -93,8 +93,8 @@ progress log below.
 | Fix: no double period after "p. m." in the plan toast | ✅ | the commit "fix(care-log): one period after p. m. in the plan toast" |
 | **Part 1c, branch `feature/care-log-notes`** (notes from those who took part; spec rules 3, 8, 56, 59–63) | | |
 | 1c.1 Types, client and server actions (notes) | ✅ | `b9e428e` |
-| 1c.2 Notes on the entry page (add, edit, delete) | ✅ | the commit "feat(care-log): notes on the entry page" |
-| 1c.3 Notes on the timeline row and the calendar panel (clamp, *Show more*) | ⬜ | |
+| 1c.2 Notes on the entry page (add, edit, delete) | ✅ | `678771f` |
+| 1c.3 Notes on the timeline row and the calendar panel (clamp, *Show more*) | ✅ | the commit "feat(care-log): notes on the timeline and the calendar panel" |
 | 1c.4 Design review fixes (Part 1c) | ⬜ | |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
