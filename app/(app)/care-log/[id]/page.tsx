@@ -21,6 +21,7 @@ import { getCareLogEntry } from "@/api/care-log-api/client";
 import { getMe } from "@/api/members-api/client";
 import { AddToCalendar } from "@/components/care/add-to-calendar";
 import { CareKindIcon } from "@/components/care/care-kind-icon";
+import { EntryNotes } from "@/components/care/entry-notes";
 import { LogCareButton } from "@/components/care/log-care-button";
 import { card, title as titleStyles } from "@/components/primitives";
 import { SourceLine } from "@/components/report-timeline/timeline-care-row";
@@ -60,10 +61,12 @@ const TITLE_ID = "care-entry-title";
  */
 export default async function CareLogEntryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { id: rawId } = await params;
+  const [{ id: rawId }, search] = await Promise.all([params, searchParams]);
   const permissions = await getPermissions();
 
   if (!/^\d+$/.test(rawId) || !can(permissions, { careLog: ["view"] })) {
@@ -345,6 +348,13 @@ export default async function CareLogEntryPage({
               </p>
             </div>
           )}
+          <EntryNotes
+            canAddNote={entry.canAddNote}
+            entryId={entry.id}
+            notes={entry.notes}
+            startAdding={search.note === "add"}
+            viewerMemberId={myMemberId}
+          />
           {cancelled && entry.cancelReason && (
             <div className="flex flex-col gap-1.5 border-t border-separator pt-3.5">
               <h2 className="text-[12.5px] font-semibold uppercase tracking-[0.06em] text-muted">

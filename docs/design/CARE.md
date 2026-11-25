@@ -92,8 +92,8 @@ progress log below.
 | PR review fixes (#119): group hint for leaders, name-list commas, toast chevron, delete pending, unused locale, empty group picker | ✅ (browser re-check below) | `71ba0b1` |
 | Fix: no double period after "p. m." in the plan toast | ✅ | the commit "fix(care-log): one period after p. m. in the plan toast" |
 | **Part 1c, branch `feature/care-log-notes`** (notes from those who took part; spec rules 3, 8, 56, 59–63) | | |
-| 1c.1 Types, client and server actions (notes) | ⬜ | |
-| 1c.2 Notes on the entry page (add, edit, delete) | ⬜ | |
+| 1c.1 Types, client and server actions (notes) | ✅ | `b9e428e` |
+| 1c.2 Notes on the entry page (add, edit, delete) | ✅ | the commit "feat(care-log): notes on the entry page" |
 | 1c.3 Notes on the timeline row and the calendar panel (clamp, *Show more*) | ⬜ | |
 | 1c.4 Design review fixes (Part 1c) | ⬜ | |
 | **Part 2, branch `feature/care`** | | |
@@ -654,6 +654,11 @@ The writer reads "{name} (you)" / "{name} (tú)" with the existing `CareLog.entr
   your note." and the counter sit under the field; *Add your note* also shows the board's one-line
   *What you saw or heard…* above it. After a save, delete or cancel focus returns to the button that
   opened the form (when it is still there). *Delete* confirms inline, focus on *Keep it*.
+- *(Part 1c)* **Typing quirk:** `failure()` in the actions picks the message with two smaller key
+  unions (`isNoteCode`); one template key over all failure codes made tsc ask for ICU arguments no
+  message has. `messages/en.d.json.ts` was regenerated with next-intl's own generator
+  (`createMessagesDeclaration`), since `pnpm build` could not run in the agent's sandbox (see the
+  build note below).
 - *(Part 1c)* **The timeline toggle** is a button with `aria-expanded`/`aria-controls`; its state is
   plain client state, so a reload folds it again. Recent activity (`compact`) never shows it.
 
