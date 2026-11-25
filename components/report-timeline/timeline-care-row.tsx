@@ -25,7 +25,7 @@ import { personHref } from "@/lib/person-href";
 import { firstNameOf } from "@/lib/report-items";
 
 /** Where the entry came from, as a link only when the viewer can open it (rule 12). */
-function SourceLine({ source }: { source: CareLogSourceRef }) {
+export function SourceLine({ source }: { source: CareLogSourceRef }) {
   const t = useTranslations("CareLog");
   const locale = useLocale() as Locale;
 
@@ -164,9 +164,15 @@ export function TimelineCareRow({
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
           <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-            <span className="text-[15px] font-semibold text-heading">
+            {/* Rule 13: the title opens the entry's own page (rule 56). */}
+            <NextLink
+              aria-label={t("entry.openAria", { title, date })}
+              className="text-[15px] font-semibold text-heading underline decoration-border underline-offset-4 hover:decoration-current"
+              href={`/care-log/${entry.id}`}
+              prefetch={false}
+            >
               {title}
-            </span>
+            </NextLink>
             {planned && (
               <StatusBadge
                 tone={entry.pastDue ? "warning" : "neutral"}

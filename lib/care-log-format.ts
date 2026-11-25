@@ -1,6 +1,8 @@
 import type { CareLogEntry, CareLogKind } from "@/api/care-log-api/types";
 import type { Locale } from "@/lib/locale-shared";
 
+import { formatCalendarRowDate } from "@/lib/format-date";
+
 /** "12:30" or "12:30:00" as the church reads it: "12:30 PM" in English, "12:30 p. m." in Spanish. */
 export function formatCareTime(time: string, locale: Locale): string {
   const [hours, minutes] = time.split(":").map(Number);
@@ -13,6 +15,28 @@ export function formatCareTime(time: string, locale: Locale): string {
     // Any fixed zone: the value is a wall-clock time, not an instant.
     timeZone: "UTC",
   }).format(new Date(Date.UTC(2000, 0, 1, hours, minutes)));
+}
+
+/**
+ * The `CareLog` message key of an entry's title: "Planned call" for a plan (cancelled ones keep
+ * the planned wording), "Phone call" once it is done; kinds that can't be planned have one title.
+ */
+export function careTitleKey(entry: Pick<CareLogEntry, "kind" | "status">) {
+  return entry.status !== "done" && isPlannableKind(entry.kind)
+    ? (`titlesPlanned.${entry.kind}` as const)
+    : (`titles.${entry.kind}` as const);
+}
+
+/** "Sat, Oct 17 · 4:00 PM", or the date alone when the entry has no time. */
+export function formatCareWhen(
+  entry: Pick<CareLogEntry, "occurredOn" | "occurredAtTime">,
+  locale: Locale,
+): string {
+  const date = formatCalendarRowDate(entry.occurredOn, locale);
+
+  return entry.occurredAtTime
+    ? `${date} · ${formatCareTime(entry.occurredAtTime, locale)}`
+    : date;
 }
 
 /** Only call, meeting and visit have a "planned" wording (rule 6). */

@@ -17,7 +17,8 @@
     "users": "Users",
     "invites": "Invites",
     "conversations": "Conversations",
-    "guests": "Guests"
+    "guests": "Guests",
+    "careCalendar": "Care calendar"
   },
   "Sidebar": {
     "home": "ekklesiaio home",
@@ -2286,7 +2287,42 @@
     "dashSub": "Care you planned for the next 7 days, and planned care still waiting for how it went.",
     "dashPastDue": "How did it go?",
     "dashMeetingInPerson": "Meeting, in person",
-    "dashMeetingOnline": "Meeting, online"
+    "dashMeetingOnline": "Meeting, online",
+    "entry": {
+      "plannedBy": "Planned by",
+      "by": "By",
+      "with": "With",
+      "where": "Where",
+      "heardFrom": "Who told us",
+      "also": "Also",
+      "purpose": "Purpose",
+      "howItWent": "How it went",
+      "whatHappened": "What happened",
+      "whatTheyTold": "What they told us",
+      "note": "Note",
+      "reason": "Why it was cancelled",
+      "badgeCancelled": "Cancelled",
+      "pastDue": "This was planned for {date}. How did it go?",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied. Only people who can see this entry can open it.",
+      "copyFailed": "Couldn’t copy the link.",
+      "delete": "Delete",
+      "deleteAria": "Delete: {title}, {date}",
+      "deleteTitle": "Delete this entry?",
+      "deleteBody": "It disappears from timelines and the calendar. This can’t be undone.",
+      "deleteConfirm": "Delete entry",
+      "deleted": "Entry deleted",
+      "you": "{name} (you)",
+      "visibleWith": "Elders only · and {names}",
+      "visibleLeadersMany": "Elders and their leaders",
+      "logged": "Logged {date}",
+      "edited": "Edited {date}",
+      "notFoundCrumb": "Not found",
+      "notFoundTitle": "We couldn’t find this entry",
+      "notFoundBody": "It may have been deleted, or it isn’t shared with you.",
+      "toCalendar": "Go to the care calendar",
+      "openAria": "Open the page of {title}, {date}"
+    }
   },
   "PersonTabs": {
     "profile": "Profile",

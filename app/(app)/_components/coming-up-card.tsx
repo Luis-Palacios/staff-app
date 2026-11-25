@@ -133,7 +133,15 @@ export async function ComingUpCard() {
                 );
               })}
             </span>
-            <span className="text-[13.5px] text-foreground">{what}</span>
+            {/* Rule 58: the kind opens the entry's own page. */}
+            <NextLink
+              aria-label={t("entry.openAria", { title: what, date })}
+              className="text-[13.5px] text-foreground underline decoration-border underline-offset-[3px] hover:decoration-current"
+              href={`/care-log/${entry.id}`}
+              prefetch={false}
+            >
+              {what}
+            </NextLink>
             {overdue && (
               <StatusBadge tone="warning">{t("dashPastDue")}</StatusBadge>
             )}

@@ -17,7 +17,8 @@
     "users": "Usuarios",
     "invites": "Invitaciones",
     "conversations": "Conversaciones",
-    "guests": "Invitados"
+    "guests": "Invitados",
+    "careCalendar": "Calendario de cuidado"
   },
   "Sidebar": {
     "home": "Inicio de ekklesiaio",
@@ -2286,7 +2287,42 @@
     "dashSub": "El cuidado que programaste para los próximos 7 días y el que aún espera que registres cómo fue.",
     "dashPastDue": "¿Cómo fue?",
     "dashMeetingInPerson": "Reunión en persona",
-    "dashMeetingOnline": "Reunión en línea"
+    "dashMeetingOnline": "Reunión en línea",
+    "entry": {
+      "plannedBy": "Programada por",
+      "by": "Por",
+      "with": "Con",
+      "where": "Dónde",
+      "heardFrom": "Quién nos contó",
+      "also": "También",
+      "purpose": "Propósito",
+      "howItWent": "Cómo fue",
+      "whatHappened": "Qué pasó",
+      "whatTheyTold": "Lo que nos contaron",
+      "note": "Nota",
+      "reason": "Por qué se canceló",
+      "badgeCancelled": "Cancelada",
+      "pastDue": "Esto estaba programado para el {date}. ¿Cómo fue?",
+      "copyLink": "Copiar enlace",
+      "linkCopied": "Enlace copiado. Solo quienes pueden ver este registro pueden abrirlo.",
+      "copyFailed": "No se pudo copiar el enlace.",
+      "delete": "Eliminar",
+      "deleteAria": "Eliminar: {title}, {date}",
+      "deleteTitle": "¿Eliminar este registro?",
+      "deleteBody": "Desaparece de las líneas de tiempo y del calendario. No se puede deshacer.",
+      "deleteConfirm": "Eliminar registro",
+      "deleted": "Registro eliminado",
+      "you": "{name} (tú)",
+      "visibleWith": "Solo ancianos · y {names}",
+      "visibleLeadersMany": "Ancianos y sus líderes",
+      "logged": "Registrada el {date}",
+      "edited": "Editada el {date}",
+      "notFoundCrumb": "No encontrado",
+      "notFoundTitle": "No encontramos este registro",
+      "notFoundBody": "Puede que lo hayan eliminado o que no esté compartido contigo.",
+      "toCalendar": "Ir al calendario de cuidado",
+      "openAria": "Abrir la página de {title}, {date}"
+    }
   },
   "PersonTabs": {
     "profile": "Perfil",
