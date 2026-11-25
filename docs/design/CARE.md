@@ -81,6 +81,12 @@ progress log below.
 | Review fixes (Part 1) | ✅ | `5960faf` |
 | PR review fixes (#117) | ✅ | `6e0afcf` |
 | Fix: *Record how it went* on the plan's day (`fix/care-log-record-today`) | ✅ | the commit "fix(care-log): record a plan on its own day" |
+| **Part 1b, branch `feature/care-calendar`** (the care calendar; spec rules 3, 8, 11, 13, 47–58) | | |
+| 1b.1 Audience change (`gains`), `GET /care-log` client, the participant warning | ⬜ | |
+| 1b.2 The entry page `/care-log/{id}` and the links into it | ⬜ | |
+| 1b.3 Add to calendar (Google, Outlook, `.ics`) | ⬜ | |
+| 1b.4 The Care calendar page and its sidebar item | ⬜ | |
+| 1b.5 Design review fixes (Part 1b) | ⬜ | |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -368,6 +374,69 @@ with a keyboard) is still to do against the boards.
   *item*-level menu is per section (see stage 4); *It didn't happen* has no confirm; the seeded
   entries are by made-up users, so *Edit* and *Record how it went* only show on entries you create
   (and *Record how it went* only for plans you author or take part in).
+
+---
+
+# Part 1b (branch `care-calendar`)
+
+Spec: `../docs/specs/care.md` rules 3, 8, 11, 13 and 47–58 (Part 1b). API:
+`membership-management/docs/CARE-API-HANDOFF.md` "Part 1b" (PR #82, `feature/care-calendar`; the
+contract is fixed). auth-server has nothing to do. Boards (page **Care**, two rows at the bottom):
+`CareCalendar` + `CareCalendar-Month`, `-Agenda-Leader`, `-All-Group`, `-Empty`, `-Entry`,
+`-Phone-Dark-ES`, `-Phone-Entry-Dark-ES`; `CareCalendarEntry` (the panel); `AddToCalendarMenu`;
+`AddToCalendar`; `Sidebar-CareCalendar`; `CareLogEntry` + `-Planned`, `-Leader-With`, `-PastDue`,
+`-Cancelled`, `-NotFound`, `-Phone-Dark-ES`.
+
+**The API** (hand-written, `api/care-log-api/`):
+
+- `POST /care-log/audience` now answers `{ gains: [{ memberId, name }] | null }`; the old
+  `participants: [{ memberId, sees }]` is gone. `null` = it couldn't ask: no warning. `[]` = nobody
+  gains.
+- `GET /care-log?from=&to=&mine=&groupId=&kind=` (`careLog: view`): a bare `CareLogEntry[]` ordered by
+  date, time (all-day first), id. `from`/`to` inclusive church dates, at most 62 days apart (else 422
+  `range`); an unknown or out-of-reach `groupId` is 404; cancelled and deleted entries are never
+  returned. `kind` repeats.
+- `CareLogEntry` is unchanged. Participants now receive the entries they are named on (private ones
+  too) and `canComplete` is true for them on plans; `canEdit` stays author-only. `GET /care-log/{id}`
+  is 404 for missing, deleted and hidden alike, 403 without `careLog: view`.
+
+**Stages** (one commit each, on `feature/care-calendar`):
+
+- **1b.1** Types and client for the audience change and `GET /care-log`; the warning "{name} will see
+  this entry, including what you write." (rule 3), also when adding someone to an existing entry.
+- **1b.2** `/care-log/{id}` (rules 56–58): kind tile, title, badge, date and time; *About*, *Planned
+  by* / *By*, *With*, *Where*, *Purpose* / *How it went*, *Why it was cancelled*, who can see it, the
+  source link, when it was logged; *Copy link* (and its toast), *Add to calendar* (1b.3), *Record how
+  it went* (also as a banner when past due), *Edit* and *Delete* for the author; breadcrumb to the
+  care calendar; the not-found page for every 404; signed-out goes to sign-in and back (the shell's
+  existing `?next=`). Linked from the timeline row's title and *Coming up* rows.
+- **1b.3** *Add to calendar* (rules 47–49): pure builders in `lib/care-calendar-event.ts` (Google and
+  Outlook links, the `.ics` text), a menu (`components/care/add-to-calendar.tsx`) on the timeline row
+  (button next to *Edit*), the *Coming up* row (44 px icon button), the entry page, the calendar panel
+  and the toast after saving a plan.
+- **1b.4** `/care/calendar` and the sidebar item *Care calendar* (rules 50–55): month (default from
+  `md`) and agenda (default on phones), *Today* / previous / next, `?view=&month=&filter=&group=&kind=`,
+  *Mine* / *All*, group picker, kind chips, "+N more" after 2, week starts Sunday (en) / Monday (es),
+  the entry panel, *Log care* with the picked day and nobody in *About*, the **+** on a day, the empty
+  state.
+- **1b.5** Design review against the boards (code side), fixes, this log.
+
+**Copy** (`CareLog` namespace unless noted; the boards hold the rest):
+
+| Key | English | Español |
+| --- | --- | --- |
+| `gainsSee` | {name} will see this entry, including what you write. | {name} verá este registro, incluido lo que escribas. |
+| `entry.copyLink` | Copy link | Copiar enlace |
+| `entry.linkCopied` | Link copied. Only people who can see this entry can open it. | Enlace copiado. Solo quienes pueden ver este registro pueden abrirlo. |
+| `entry.notFoundTitle` | We couldn’t find this entry | No encontramos este registro |
+| `entry.notFoundBody` | It may have been deleted, or it isn’t shared with you. | Puede que lo hayan eliminado o que no esté compartido contigo. |
+| `calendar.add` | Add to calendar | Agregar al calendario |
+| `calendar.copyNote` | This adds a copy. If the plan changes, update your calendar too. | Esto agrega una copia. Si el plan cambia, actualiza también tu calendario. |
+| `Nav.careCalendar` | Care calendar | Calendario de cuidado |
+
+## Decisions and deviations (Part 1b)
+
+(Filled in as the stages land; each marked *(Part 1b)*.)
 
 ---
 
