@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
 import {
+  CalendarDaysIcon,
   ChatBubbleLeftRightIcon,
   DocumentTextIcon,
   HandRaisedIcon,
@@ -37,6 +38,7 @@ const iconRegistry: Record<NavIconName, HeroIcon> = {
   groups: UserGroupIcon,
   applications: DocumentTextIcon,
   conversations: ChatBubbleLeftRightIcon,
+  careCalendar: CalendarDaysIcon,
   access: ShieldCheckIcon,
 };
 

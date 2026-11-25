@@ -17,6 +17,19 @@ export function formatCareTime(time: string, locale: Locale): string {
   }).format(new Date(Date.UTC(2000, 0, 1, hours, minutes)));
 }
 
+/** "4p", "7:30p" ("4 p. m.") for a month cell, where there is no room for "4:00 PM". */
+export function formatShortCareTime(time: string, locale: Locale): string {
+  const [hours, minutes] = time.split(":").map(Number);
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return time;
+
+  const clock = `${((hours + 11) % 12) + 1}${minutes ? `:${String(minutes).padStart(2, "0")}` : ""}`;
+
+  if (locale === "es") return `${clock} ${hours < 12 ? "a. m." : "p. m."}`;
+
+  return `${clock}${hours < 12 ? "a" : "p"}`;
+}
+
 /**
  * The `CareLog` message key of an entry's title: "Planned call" for a plan (cancelled ones keep
  * the planned wording), "Phone call" once it is done; kinds that can't be planned have one title.

@@ -166,6 +166,11 @@ export function formatCalendarMonth(iso: string, locale: Locale): string {
   return locale === "es" ? parts.replace(/ de (\d{4})$/, " $1") : parts;
 }
 
+// "October" ("octubre"): a month on its own, inside a sentence.
+export function formatCalendarMonthName(iso: string, locale: Locale): string {
+  return formatCalendarWith(iso, locale, { month: "long" });
+}
+
 // "Tue, Oct 27", and "mar 27 oct" in Spanish (no comma): a row date on the person timeline.
 export function formatCalendarRowDate(iso: string, locale: Locale): string {
   const text = formatCalendarShortWeekdayDate(iso, locale);

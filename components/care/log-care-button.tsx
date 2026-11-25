@@ -40,6 +40,7 @@ export function LogCareDialog({
   onOpenChange,
   target = { type: "new" },
   today,
+  date,
   people,
   source,
   onSaved,
@@ -51,6 +52,8 @@ export function LogCareDialog({
   target?: LogCareTarget;
   /** The church's today, "YYYY-MM-DD". */
   today: string;
+  /** A new entry's date when it isn't today: the day picked on the care calendar. */
+  date?: string;
   people?: CareLogPerson[];
   source?: CareLogSourceInfo;
 }) {
@@ -81,6 +84,7 @@ export function LogCareDialog({
   return (
     <CareLogForm
       isOpen
+      initialDate={date}
       initialPeople={people}
       mode={target}
       source={source}

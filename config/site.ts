@@ -18,6 +18,7 @@ export type NavIconName =
   | "groups"
   | "applications"
   | "conversations"
+  | "careCalendar"
   | "access";
 
 /** A key of the `Nav` namespace (messages/en.json). The sidebar and the
@@ -141,6 +142,14 @@ export const siteConfig = {
       icon: "conversations",
       href: "/conversations",
       conversations: true,
+    },
+    // Care spec rule 50: no badge, an outline calendar icon (the open hands stay Care's). Part 2's
+    // Care item takes its place, with the calendar as a tab at the same route (rule 55).
+    {
+      labelKey: "careCalendar",
+      icon: "careCalendar",
+      href: "/care/calendar",
+      requires: { careLog: ["view"] },
     },
     {
       labelKey: "members",

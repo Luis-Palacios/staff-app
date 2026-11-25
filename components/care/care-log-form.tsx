@@ -263,6 +263,7 @@ export function CareLogForm({
   mode,
   today,
   initialPeople = [],
+  initialDate,
   source,
   onOpenChange,
   onSaved,
@@ -271,6 +272,8 @@ export function CareLogForm({
   mode: CareLogFormMode;
   /** The church's today ("YYYY-MM-DD"), the latest a done entry can be and the earliest a plan. */
   today: string;
+  /** A new entry's date when it isn't today (a day picked on the care calendar). After today it starts as a plan. */
+  initialDate?: string;
   /** The people to start with (a person's timeline, an attendance row, tagged people). */
   initialPeople?: CareLogPerson[];
   source?: CareLogSourceInfo;
@@ -296,6 +299,7 @@ export function CareLogForm({
           )}
         >
           <FormBody
+            initialDate={initialDate}
             initialPeople={initialPeople}
             isDesktop={isDesktop}
             mode={mode}
@@ -313,6 +317,7 @@ export function CareLogForm({
 function FormBody({
   mode,
   today,
+  initialDate,
   initialPeople,
   source,
   isDesktop,
@@ -321,6 +326,7 @@ function FormBody({
 }: {
   mode: CareLogFormMode;
   today: string;
+  initialDate?: string;
   initialPeople: CareLogPerson[];
   source?: CareLogSourceInfo;
   isDesktop: boolean;
@@ -333,15 +339,22 @@ function FormBody({
   const editing = mode.type === "edit";
   const entry = mode.type === "new" ? null : mode.entry;
   const [kind, setKind] = useState<CareLogKind>(entry?.kind ?? "call");
+  const startDate = entry ? null : (initialDate ?? null);
   const [when, setWhen] = useState<"done" | "planned">(
-    entry?.status === "planned" && !complete ? "planned" : "done",
+    entry?.status === "planned" && !complete
+      ? "planned"
+      : startDate && startDate > today
+        ? "planned"
+        : "done",
   );
   const [meeting, setMeeting] = useState<CareLogMeetingMode>(
     entry?.meetingMode ?? "inPerson",
   );
   const [heardFrom, setHeardFrom] = useState(entry?.heardFrom ?? "");
   const [date, setDate] = useState(
-    complete && entry ? entry.occurredOn : (entry?.occurredOn ?? today),
+    complete && entry
+      ? entry.occurredOn
+      : (entry?.occurredOn ?? startDate ?? today),
   );
   const [time, setTime] = useState(entry?.occurredAtTime ?? "");
   const [people, setPeople] = useState<CareLogPerson[]>(() =>
