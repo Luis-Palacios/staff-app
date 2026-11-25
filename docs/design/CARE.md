@@ -95,7 +95,7 @@ progress log below.
 | 1c.1 Types, client and server actions (notes) | ✅ | `b9e428e` |
 | 1c.2 Notes on the entry page (add, edit, delete) | ✅ | `678771f` |
 | 1c.3 Notes on the timeline row and the calendar panel (clamp, *Show more*) | ✅ | `d3e411e` |
-| 1c.4 Design review fixes (Part 1c) | ✅ (code side; browser pass not run yet) | the commit "fix(care-log): design review of the notes (Part 1c)" |
+| 1c.4 Design review fixes (Part 1c) | ✅ (code side; browser pass not run yet) | `5a878af` |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
