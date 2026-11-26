@@ -2237,6 +2237,12 @@
       "author": "Solo quien escribió este registro puede cambiarlo.",
       "forbidden": "No tienes permiso para hacer esto.",
       "notFound": "Alguien en Sobre, o este registro, ya no está disponible. Quítalo o actualiza la página e inténtalo de nuevo.",
+      "noteGone": "Esta nota o este registro ya no está disponible. Actualiza la página.",
+      "not_participant": "Solo quien escribió el registro y quienes participaron pueden agregar una nota.",
+      "not_note_writer": "Solo quien escribió esta nota puede cambiarla.",
+      "note_exists": "Ya tienes una nota en este registro. Actualiza la página.",
+      "not_done": "Las notas se pueden agregar cuando el registro ya se realizó.",
+      "no_participants": "Las notas son para registros en los que participaron otras personas.",
       "generic": "Algo salió mal. Inténtalo de nuevo."
     },
     "titles": {
@@ -2344,6 +2350,28 @@
       "notFoundBody": "Puede que lo hayan eliminado o que no esté compartido contigo.",
       "toCalendar": "Ir al calendario de cuidado",
       "openAria": "Abrir la página de {title}, {date}"
+    },
+    "notes": {
+      "head": "Notas de quienes participaron",
+      "toggle": "{count, plural, one {# nota de quienes participaron} other {# notas de quienes participaron}}",
+      "add": "Agregar tu nota",
+      "yourNote": "Tu nota",
+      "addHint": "Lo que viste o escuchaste, con tus palabras. Cómo fue, arriba, sigue siendo el resumen.",
+      "placeholder": "Agrega lo que quieres que los demás sepan",
+      "whoSees": "Todos los que pueden ver este registro ven tu nota.",
+      "counter": "{count} / 4000",
+      "save": "Guardar nota",
+      "editAria": "Editar tu nota",
+      "deleteAria": "Eliminar tu nota",
+      "deleteAsk": "¿Eliminar tu nota? No se puede recuperar.",
+      "deleteConfirm": "Eliminar nota",
+      "keep": "Conservarla",
+      "edited": "{date} · editada",
+      "showMore": "Mostrar más",
+      "showLess": "Mostrar menos",
+      "textError": "Escribe tu nota, hasta 4000 caracteres.",
+      "saved": "Nota guardada",
+      "deleted": "Nota eliminada"
     }
   },
   "CareCalendar": {

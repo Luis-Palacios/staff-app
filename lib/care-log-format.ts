@@ -19,6 +19,15 @@ export function formatCareTime(time: string, locale: Locale): string {
   }).format(new Date(Date.UTC(2000, 0, 1, hours, minutes)));
 }
 
+/**
+ * The church's calendar date ("YYYY-MM-DD") of a timestamp, for client code (`lib/church-time.ts` is
+ * server-only): `timeZone` comes from `useChurchTimeZone()`.
+ */
+export function churchDateIn(iso: string, timeZone: string): string {
+  // The en-CA locale formats a date as YYYY-MM-DD.
+  return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date(iso));
+}
+
 /** "4p", "7:30p" ("4 p. m.") for a month cell, where there is no room for "4:00 PM". */
 export function formatShortCareTime(time: string, locale: Locale): string {
   const [hours, minutes] = time.split(":").map(Number);

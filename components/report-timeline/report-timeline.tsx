@@ -19,12 +19,14 @@ function Entry({
   openGroups,
   compact,
   today,
+  viewerMemberId,
 }: {
   entry: TimelineEntry;
   person: PersonTimeline["person"];
   openGroups: OpenGroups;
   compact?: boolean;
   today?: string;
+  viewerMemberId?: number | null;
 }) {
   switch (entry.kind) {
     case "report":
@@ -47,6 +49,7 @@ function Entry({
           entry={entry.entry}
           person={person}
           today={today}
+          viewerMemberId={viewerMemberId}
         />
       );
   }
@@ -82,11 +85,14 @@ export function ReportTimeline({
   openGroups,
   variant = "full",
   today,
+  viewerMemberId,
 }: {
   timeline: Pick<PersonTimeline, "person" | "entries">;
   openGroups: OpenGroups;
   variant?: "full" | "preview";
   today?: string;
+  /** The viewer's linked member: their own note reads "(you)". */
+  viewerMemberId?: number | null;
 }) {
   const { person, entries } = timeline;
 
@@ -140,6 +146,7 @@ export function ReportTimeline({
               openGroups={openGroups}
               person={person}
               today={today}
+              viewerMemberId={viewerMemberId}
             />
           ))}
         </TimelineMonth>
@@ -157,6 +164,7 @@ export function ReportTimeline({
               openGroups={openGroups}
               person={person}
               today={today}
+              viewerMemberId={viewerMemberId}
             />
           ))}
         </TimelineMonth>

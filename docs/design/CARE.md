@@ -91,6 +91,12 @@ progress log below.
 | Browser check fixes (Part 1b): entry page crash, 12-hour Spanish times | ✅ | `ea1fdc2` |
 | PR review fixes (#119): group hint for leaders, name-list commas, toast chevron, delete pending, unused locale, empty group picker | ✅ (browser re-check below) | `71ba0b1` |
 | Fix: no double period after "p. m." in the plan toast | ✅ | the commit "fix(care-log): one period after p. m. in the plan toast" |
+| **Part 1c, branch `feature/care-log-notes`** (notes from those who took part; spec rules 3, 8, 56, 59–63) | | |
+| 1c.1 Types, client and server actions (notes) | ✅ | `b9e428e` |
+| 1c.2 Notes on the entry page (add, edit, delete) | ✅ | `678771f` |
+| 1c.3 Notes on the timeline row and the calendar panel (clamp, *Show more*) | ✅ | `d3e411e` |
+| 1c.4 Design review fixes (Part 1c) | ✅ (browser pass: see *Browser checks (Part 1c)*) | `5a878af` |
+| Review fixes (Part 1c): focus after add/delete, field descriptions, `?note=add` dropped on open, copy | ✅ | the commit "fix(care-log): Part 1c review notes" |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
 | 8. The Care page and the sidebar item | ⬜ | |
@@ -178,6 +184,42 @@ entries 1–9 were created through the UI and deleted at the end.
   entry then answers not-found; no console errors. **FAIL:** the toast read "…a las 4:00 p. m.." (the
   time's own period plus the sentence's); fixed by collapsing the doubled period, not re-checked in the
   browser. Not checked: the "deleted" toast's text (not caught), the leader's hint.
+
+### Browser checks (Part 1c)
+
+November 25, 2026, `browser-verifier` in the user's Chrome, local stack on `feature/care-log-notes`
+(after the review fixes, `8f9131b`), signed in as the admin linked to Ricardo Zeledón Pérez. Test
+data: entry 12 in the dev DB, a done in-person meeting on Nov 20 about Óscar Altamirano Espinoza by
+Ricardo, with Josué Cerda Guevara in *With* and a three-paragraph edited note by Josué (written
+directly to the dev DB). **All PASS:**
+
+1. Entry page: notes after *How it went*; Josué's note in full (no clamp), "JG", "Nov 20 · edited",
+   no *Edit*/*Delete* on it; *Add your note* shown to the author.
+2. Add form: textarea focused; hint, placeholder, who-sees line, "0 / 4000" counting; spaces only →
+   "Write your note, up to 4,000 characters." with no request; *Cancel* returns focus to *Add your note*.
+3. Add: "Note saved", note after Josué's as "Ricardo Zeledón Pérez (you)", *Add your note* gone,
+   focus on the section heading.
+4. Edit: "· edited", focus back on *Edit your note*.
+5. Timeline (`/members/47/timeline`): "2 notes from those who took part", `aria-expanded="false"`,
+   both notes, Josué's clamped with *Show more* / *Show less*, the short note without; folded again on
+   reload. The profile's *Recent activity* shows no notes.
+6. Calendar: the Nov 20 cell shows no notes; the panel shows both open, Josué's clamped; no *Add your
+   note* once the viewer has one.
+7. Delete: inline question, focus on *Keep it*; *Keep it* returns to *Delete*; *Delete note* → "Note
+   deleted", *Add your note* back, focus on the heading.
+8. Panel link `/care-log/12?note=add` opens the page with the form open and focused; the URL drops the
+   param at once; cancel and reload don't reopen it.
+9. Spanish, dark, 390 and 1024 (in same-origin iframes: the window wouldn't resize below its own
+   width): every Spanish string seen matched ("Notas de quienes participaron", "Agregar tu nota",
+   "Escribe tu nota, hasta 4000 caracteres.", "20 nov · editada", "1 nota de quienes participaron",
+   "Mostrar más" / "Mostrar menos", …); entry page buttons 44 px, the timeline toggle 36 px (as drawn);
+   no sideways scroll; *Show more* readable in dark.
+10. No console errors (one extension warning), no failed requests.
+
+Not checked: other roles (a participant leader, a leader who only sees the entry, a user without
+`careLog: create`: no way to act as them without signing out); in Spanish, the delete question, the
+toasts, "(tú)" and the plural toggle; real 390 / 1024 windows (iframes stood in); *Recent activity*
+with this entry in it (the card didn't list the Nov 20 meeting, so "no toggle there" held trivially).
 
 ### Decisions and deviations
 
@@ -550,6 +592,127 @@ contract is fixed). auth-server has nothing to do. Boards (page **Care**, two ro
   participant}" (the API doesn't say who is an elder; a flag on participants would let it list only
   the others, a possible API follow-up) and *Edit* hidden on cancelled entries (as on the timeline,
   though the board draws it there).
+
+---
+
+# Part 1c (branch `feature/care-log-notes`)
+
+Spec: `../docs/specs/care.md` rules 3, 8, 56 and 59–63 (Part 1c). API: membership-management #83
+(on `main`; the contract is fixed). auth-server has nothing to do. Boards (page **Care**, row
+*Part 1c · Notes from those who took part*): `PersonTimeline-CareNotes`, `-Open-Leader`,
+`-Expanded`, `-Phone-Dark-ES`; `CareLogEntry-Notes`, `-Note-Add`, `-Note-Edit-Leader`,
+`-Note-Delete-Leader`, `-Notes-Phone-Dark-ES`; `CareCalendar-Entry-Notes`, `-Notes-Expanded`.
+
+**The API** (hand-written, `api/care-log-api/`):
+
+- `CareLogEntry` (everywhere an entry comes: `GET /care-log/{id}`, `GET /care-log`,
+  `GET /care-log/coming-up`, the timeline's `careLog` item) gains `notes` (oldest first; `[]` when none
+  or not done) and `canAddNote`. A note is `{ id, author: { memberId, name }, text, createdAt,
+  editedAt, canEdit }`; `editedAt` non-null reads "edited", `canEdit` is true only for the writer.
+- `POST /care-log/{id}/notes` `{ text }` (201, the whole entry), `PATCH …/notes/{noteId}` `{ text }`
+  (200, the whole entry), `DELETE …/notes/{noteId}` (204). All need `careLog: create`; text is
+  trimmed, 1–4000.
+- Errors: 403 `not_participant` / `not_note_writer`, 409 `note_exists` / `link`, 422 `not_done` /
+  `no_participants` / `text`, plain 404 (entry not visible or deleted, note missing).
+
+**Stages** (one commit each, on `feature/care-log-notes`):
+
+- **1c.1** Types (`CareLogNote`, `notes`, `canAddNote`, the new error codes), client functions and
+  server actions (add, update, delete), and the `CareLog.errors.*` messages for the new codes.
+- **1c.2** The entry page: *Notes from those who took part* under the summary (each note: initials,
+  writer with "(you)", date, "edited", full text); *Add your note* (form with the "Everyone who can
+  see this entry sees your note." hint and a 0 / 4000 counter); *Edit* and *Delete* on your own, the
+  delete confirmed inline. `?note=add` opens the page with the add form open (for the calendar panel).
+- **1c.3** The timeline row ("N notes from those who took part", collapsed, opens in place; not in
+  *Recent activity*) and the calendar panel (open, *Add your note* linking to `?note=add`); both
+  clamp a note to 4 lines with *Show more* / *Show less*. Month cells show nothing. Nothing in
+  *Coming up*, no badge (rule 63).
+- **1c.4** Design review against the boards (code side), fixes, this log.
+
+**Copy** (`CareLog.notes.*`, except where marked; the boards hold the English and Spanish of the first
+block, the rest is written in this handoff's style):
+
+| Key | English | Español |
+| --- | --- | --- |
+| `notes.head` | Notes from those who took part | Notas de quienes participaron |
+| `notes.toggle` | {count, plural, one {# note from those who took part} other {# notes from those who took part}} | {count, plural, one {# nota de quienes participaron} other {# notas de quienes participaron}} |
+| `notes.add` | Add your note | Agregar tu nota |
+| `notes.yourNote` | Your note | Tu nota |
+| `notes.addHint` | What you saw or heard, in your own words. How it went above stays the summary. | Lo que viste o escuchaste, con tus palabras. Cómo fue, arriba, sigue siendo el resumen. |
+| `notes.placeholder` | Add what you’d like the others to know | Agrega lo que quieres que los demás sepan |
+| `notes.whoSees` | Everyone who can see this entry sees your note. | Todos los que pueden ver este registro ven tu nota. |
+| `notes.counter` | {count} / 4000 | {count} / 4000 |
+| `notes.save` | Save note | Guardar nota |
+| `notes.editAria` | Edit your note | Editar tu nota |
+| `notes.deleteAria` | Delete your note | Eliminar tu nota |
+| `notes.deleteAsk` | Delete your note? It can’t be brought back. | ¿Eliminar tu nota? No se puede recuperar. |
+| `notes.deleteConfirm` | Delete note | Eliminar nota |
+| `notes.keep` | Keep it | Conservarla |
+| `notes.edited` | {date} · edited | {date} · editada |
+| `notes.showMore` | Show more | Mostrar más |
+| `notes.showLess` | Show less | Mostrar menos |
+| `notes.textError` | Write your note, up to 4,000 characters. | Escribe tu nota, hasta 4000 caracteres. |
+| `notes.saved` | Note saved | Nota guardada |
+| `notes.deleted` | Note deleted | Nota eliminada |
+| `errors.not_participant` | Only the author and the people who took part can add a note. | Solo quien escribió el registro y quienes participaron pueden agregar una nota. |
+| `errors.not_note_writer` | Only whoever wrote this note can change it. | Solo quien escribió esta nota puede cambiarla. |
+| `errors.note_exists` | You already have a note on this entry. Refresh the page. | Ya tienes una nota en este registro. Actualiza la página. |
+| `errors.not_done` | Notes can only be added once the entry is done. | Las notas se pueden agregar cuando el registro ya se realizó. |
+| `errors.no_participants` | Notes are for entries that other people took part in. | Las notas son para registros en los que participaron otras personas. |
+| `errors.noteGone` | This note or entry isn’t available any more. Refresh the page. | Esta nota o este registro ya no está disponible. Actualiza la página. |
+
+The writer reads "{name} (you)" / "{name} (tú)" with the existing `CareLog.entry.you`.
+
+## Decisions and deviations (Part 1c)
+
+- *(Part 1c)* **Files:** `components/care/care-notes.tsx` (the shared pieces: `useNoteLabels`,
+  `ClampedNoteText`, `TimelineNotes`, `PanelNotes`), `components/care/entry-notes.tsx` (the entry
+  page's section with the add / edit / delete forms), `churchDateIn` in `lib/care-log-format.ts`
+  (`lib/church-time.ts` is server-only). `viewerMemberId` is passed down from the member and guest
+  Timeline pages (`getMe()`) through `TimelineCard` → `TimelineBoard` → `ReportTimeline` →
+  `TimelineCareRow`, and from the calendar page to the panel (already there).
+- *(Part 1c)* **All the copy went in with 1c.1** (`CareLog.notes.*` and the new `CareLog.errors.*`)
+  so later stages only use it. A plain 404 on a note call reads `errors.noteGone`, not the entry
+  form's "Someone in About…" (the actions' `runNote`).
+- *(Part 1c)* **Opening the entry page with the form open:** `/care-log/{id}?note=add`. The page reads
+  it (`searchParams`) and `EntryNotes` starts with the add form open when `canAddNote` is true;
+  otherwise it is ignored. *(Review)* The param is dropped from the URL as soon as the page opens
+  (`history.replaceState`), so neither a reload nor a refresh after saving or cancelling reopens it.
+- *(Part 1c)* **The section shows when there are notes or `canAddNote`.** The boards only draw it with
+  notes; with none yet and `canAddNote`, it shows the heading and *Add your note* (the first note).
+  Under the summary, after the *How it went* block, as the boards draw it.
+- *(Part 1c)* **The clamp is measured, not guessed.** The boards fold a note longer than 280
+  characters; here the text gets `line-clamp-4` and *Show more* appears only when the text is really
+  cut off (a `ResizeObserver` measures while it is folded). The entry page never clamps.
+- *(Part 1c)* **Dates:** a note's date is the church date of `createdAt` ("Oct 12", "12 oct"),
+  followed by " · edited" / " · editada" when `editedAt` is set (the board's wording).
+- *(Part 1c)* **Forms:** one form open at a time on the page. Saving needs text after trimming (else
+  `notes.textError`, also for the API's 422 `text`); the hint "Everyone who can see this entry sees
+  your note." and the counter sit under the field; *Add your note* also shows the board's one-line
+  *What you saw or heard…* above it. *(Review)* The hint above the field is linked with
+  `aria-describedby` and "Everyone who can see this entry…" is the field's `Description`, so a screen
+  reader hears both. After an edit or a cancel focus returns to the button that opened the form; after
+  adding or deleting a note (whose button the refresh takes away) it goes to the section heading
+  (`tabIndex={-1}`). *Delete* confirms inline, focus on *Keep it*.
+- *(Part 1c)* **Typing quirk:** `failure()` in the actions picks the message with two smaller key
+  unions (`isNoteCode`); one template key over all failure codes made tsc ask for ICU arguments no
+  message has. `messages/en.d.json.ts` was regenerated with next-intl's own generator
+  (`createMessagesDeclaration`), since `pnpm build` could not run in the agent's sandbox (see the
+  build note below).
+- *(Part 1c)* **Design review (1c.4), code side:** compared with the boards: rail and 4-line clamp on
+  the timeline and the panel (name 13.5 px semibold, date 12.5 px subtle, text 14.5 px); cards with
+  an initials circle on the page (32 px, 15.5 px text, secondary surface); inline delete question on
+  the danger-soft surface; 44 px buttons; the toggle pill at 36 px. One fix: a form's `id` sits on its
+  wrapper and focus goes to the textarea inside it (HeroUI's `TextArea` may replace its own `id`).
+  Month cells, *Coming up* and the dashboards show no notes and no badge (rule 63).
+- *(Part 1c)* **`pnpm build` did not run in the agent's sandbox** (SWC native binding: "DACL grants
+  replacement rights", `ERR_SWC_NATIVE_CACHE`), so the production build is not verified and
+  `en.d.json.ts` came from next-intl's generator. *(Review)* `pnpm build` then ran in the user's own
+  terminal and passed; the sandbox is what blocks SWC, not the code.
+- *(Part 1c, review)* Copy matched to the board: "How it went above stays the summary." (no commas);
+  Spanish "hasta 4000 caracteres", as `CareLog.errors.text` writes it.
+- *(Part 1c)* **The timeline toggle** is a button with `aria-expanded`/`aria-controls`; its state is
+  plain client state, so a reload folds it again. Recent activity (`compact`) never shows it.
 
 ---
 

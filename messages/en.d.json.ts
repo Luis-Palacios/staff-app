@@ -2240,6 +2240,12 @@ declare const messages: {
       "author": "Only whoever wrote this entry can change it.",
       "forbidden": "You don’t have permission to do this.",
       "notFound": "Someone in About, or this entry, isn’t available any more. Remove them or refresh the page, then try again.",
+      "noteGone": "This note or entry isn’t available any more. Refresh the page.",
+      "not_participant": "Only the author and the people who took part can add a note.",
+      "not_note_writer": "Only whoever wrote this note can change it.",
+      "note_exists": "You already have a note on this entry. Refresh the page.",
+      "not_done": "Notes can only be added once the entry is done.",
+      "no_participants": "Notes are for entries that other people took part in.",
       "generic": "Something went wrong. Try again."
     },
     "titles": {
@@ -2347,6 +2353,28 @@ declare const messages: {
       "notFoundBody": "It may have been deleted, or it isn’t shared with you.",
       "toCalendar": "Go to the care calendar",
       "openAria": "Open the page of {title}, {date}"
+    },
+    "notes": {
+      "head": "Notes from those who took part",
+      "toggle": "{count, plural, one {# note from those who took part} other {# notes from those who took part}}",
+      "add": "Add your note",
+      "yourNote": "Your note",
+      "addHint": "What you saw or heard, in your own words. How it went above stays the summary.",
+      "placeholder": "Add what you’d like the others to know",
+      "whoSees": "Everyone who can see this entry sees your note.",
+      "counter": "{count} / 4000",
+      "save": "Save note",
+      "editAria": "Edit your note",
+      "deleteAria": "Delete your note",
+      "deleteAsk": "Delete your note? It can’t be brought back.",
+      "deleteConfirm": "Delete note",
+      "keep": "Keep it",
+      "edited": "{date} · edited",
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "textError": "Write your note, up to 4,000 characters.",
+      "saved": "Note saved",
+      "deleted": "Note deleted"
     }
   },
   "CareCalendar": {

@@ -22,7 +22,10 @@ export function TimelineCard({
   openGroups,
   care,
   canLogCare,
+  viewerMemberId,
 }: {
+  /** The viewer's linked member, to mark their own care note "(you)". */
+  viewerMemberId: number | null;
   timeline: PersonTimeline;
   query: TimelineQuery;
   today: string;
@@ -81,6 +84,7 @@ export function TimelineCard({
         timeline={timeline}
         today={today}
         viewer={viewer}
+        viewerMemberId={viewerMemberId}
       />
     </section>
   );

@@ -17,6 +17,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { AddToCalendar } from "./add-to-calendar";
 import { CareKindIcon } from "./care-kind-icon";
+import { PanelNotes } from "./care-notes";
 import { useEntryMeta } from "./use-entry-meta";
 
 import { StatusBadge } from "@/components/status-badge";
@@ -252,6 +253,12 @@ function PanelBody({
             {entry.text}
           </p>
         )}
+        <PanelNotes
+          canAddNote={entry.canAddNote}
+          entryId={entry.id}
+          notes={entry.notes}
+          viewerMemberId={viewerMemberId}
+        />
         <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-subtle">
           <span className="inline-flex items-center gap-1 font-medium">
             <LockClosedIcon

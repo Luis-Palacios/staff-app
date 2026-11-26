@@ -60,7 +60,10 @@ export function TimelineBoard({
   firstVisitDate,
   openGroups,
   care,
+  viewerMemberId,
 }: {
+  /** The viewer's linked member, to mark their own care note "(you)". */
+  viewerMemberId: number | null;
   timeline: PersonTimeline;
   /** The viewer can read the care log (`careLog: view`): the *Care* chip and its footer line. */
   care: boolean;
@@ -383,6 +386,7 @@ export function TimelineBoard({
               openGroups={openGroups}
               timeline={{ person: timeline.person, entries }}
               today={today}
+              viewerMemberId={viewerMemberId}
             />
           </div>
         )}
