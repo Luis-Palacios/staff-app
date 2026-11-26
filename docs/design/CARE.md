@@ -95,7 +95,7 @@ progress log below.
 | 1c.1 Types, client and server actions (notes) | ✅ | `b9e428e` |
 | 1c.2 Notes on the entry page (add, edit, delete) | ✅ | `678771f` |
 | 1c.3 Notes on the timeline row and the calendar panel (clamp, *Show more*) | ✅ | `d3e411e` |
-| 1c.4 Design review fixes (Part 1c) | ✅ (code side; browser pass not run yet) | `5a878af` |
+| 1c.4 Design review fixes (Part 1c) | ✅ (browser pass: see *Browser checks (Part 1c)*) | `5a878af` |
 | Review fixes (Part 1c): focus after add/delete, field descriptions, `?note=add` dropped on open, copy | ✅ | the commit "fix(care-log): Part 1c review notes" |
 | **Part 2, branch `feature/care`** | | |
 | 7. API types, client and server actions (care) | ⬜ | |
@@ -184,6 +184,42 @@ entries 1–9 were created through the UI and deleted at the end.
   entry then answers not-found; no console errors. **FAIL:** the toast read "…a las 4:00 p. m.." (the
   time's own period plus the sentence's); fixed by collapsing the doubled period, not re-checked in the
   browser. Not checked: the "deleted" toast's text (not caught), the leader's hint.
+
+### Browser checks (Part 1c)
+
+November 25, 2026, `browser-verifier` in the user's Chrome, local stack on `feature/care-log-notes`
+(after the review fixes, `8f9131b`), signed in as the admin linked to Ricardo Zeledón Pérez. Test
+data: entry 12 in the dev DB, a done in-person meeting on Nov 20 about Óscar Altamirano Espinoza by
+Ricardo, with Josué Cerda Guevara in *With* and a three-paragraph edited note by Josué (written
+directly to the dev DB). **All PASS:**
+
+1. Entry page: notes after *How it went*; Josué's note in full (no clamp), "JG", "Nov 20 · edited",
+   no *Edit*/*Delete* on it; *Add your note* shown to the author.
+2. Add form: textarea focused; hint, placeholder, who-sees line, "0 / 4000" counting; spaces only →
+   "Write your note, up to 4,000 characters." with no request; *Cancel* returns focus to *Add your note*.
+3. Add: "Note saved", note after Josué's as "Ricardo Zeledón Pérez (you)", *Add your note* gone,
+   focus on the section heading.
+4. Edit: "· edited", focus back on *Edit your note*.
+5. Timeline (`/members/47/timeline`): "2 notes from those who took part", `aria-expanded="false"`,
+   both notes, Josué's clamped with *Show more* / *Show less*, the short note without; folded again on
+   reload. The profile's *Recent activity* shows no notes.
+6. Calendar: the Nov 20 cell shows no notes; the panel shows both open, Josué's clamped; no *Add your
+   note* once the viewer has one.
+7. Delete: inline question, focus on *Keep it*; *Keep it* returns to *Delete*; *Delete note* → "Note
+   deleted", *Add your note* back, focus on the heading.
+8. Panel link `/care-log/12?note=add` opens the page with the form open and focused; the URL drops the
+   param at once; cancel and reload don't reopen it.
+9. Spanish, dark, 390 and 1024 (in same-origin iframes: the window wouldn't resize below its own
+   width): every Spanish string seen matched ("Notas de quienes participaron", "Agregar tu nota",
+   "Escribe tu nota, hasta 4000 caracteres.", "20 nov · editada", "1 nota de quienes participaron",
+   "Mostrar más" / "Mostrar menos", …); entry page buttons 44 px, the timeline toggle 36 px (as drawn);
+   no sideways scroll; *Show more* readable in dark.
+10. No console errors (one extension warning), no failed requests.
+
+Not checked: other roles (a participant leader, a leader who only sees the entry, a user without
+`careLog: create`: no way to act as them without signing out); in Spanish, the delete question, the
+toasts, "(tú)" and the plural toggle; real 390 / 1024 windows (iframes stood in); *Recent activity*
+with this entry in it (the card didn't list the Nov 20 meeting, so "no toggle there" held trivially).
 
 ### Decisions and deviations
 
